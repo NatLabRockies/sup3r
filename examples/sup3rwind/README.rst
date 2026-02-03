@@ -82,6 +82,9 @@ The Sup3rWind data has versions that coincide with the sup3r software versions. 
     * - 0.1.2
       - 3/15/2024
       - Initial release of Sup3rWind for Ukraine, Moldova, and part of Romania. Includes 2-km 5-minute wind speed and wind direction data and 2-km hourly wind speed, wind direction, pressure, temperature, and relative humidity data for 2000-2023.
+    * - 0.2.4
+      - 12/15/2025
+      - Initial release of Sup3rWind for South America. Includes 2-km 5-minute wind speed and wind direction data and 2-km hourly wind speed, wind direction, pressure, temperature, and relative humidity data for 2005-2024.
 
 
 Recommended Citation
