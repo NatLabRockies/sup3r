@@ -30,6 +30,7 @@ class SamplerDC(Sampler):
         sample_shape: Optional[tuple] = None,
         batch_size: int = 16,
         feature_sets: Optional[dict] = None,
+        mode: str = 'lazy',
         spatial_weights: Optional[
             Union[np.ndarray, da.core.Array, list]
         ] = None,
@@ -57,6 +58,9 @@ class SamplerDC(Sampler):
             Optional dictionary describing how the full set of features is
             split between `lr_only_features` and `hr_exo_features`. See
             :class:`~sup3r.preprocessing.Sampler`
+        mode : str
+            Loading mode for sampling.
+            See :class:`~sup3r.preprocessing.Sampler`
         spatial_weights : Union[np.ndarray, da.core.Array] | List | None
             Set of weights used to initialize the spatial sampling. e.g. If we
             want to start off sampling across 2 spatial bins evenly this should
@@ -76,6 +80,7 @@ class SamplerDC(Sampler):
             sample_shape=sample_shape,
             batch_size=batch_size,
             feature_sets=feature_sets,
+            mode=mode,
         )
 
     def update_weights(self, spatial_weights, temporal_weights):
