@@ -14,7 +14,7 @@ from sup3r.preprocessing.samplers.utilities import (
     uniform_box_sampler,
     uniform_time_sampler,
 )
-from sup3r.preprocessing.utilities import lowered
+from sup3r.preprocessing.utilities import compute_if_dask, lowered
 
 logger = logging.getLogger(__name__)
 
@@ -140,7 +140,6 @@ class Sampler(Container):
         if self.data.shape[2] < self.sample_shape[2] * self.batch_size:
             logger.warning(msg)
             warn(msg)
-
         if self.mode == 'eager':
             logger.info('Received mode = "eager".')
             _ = self.compute()
@@ -208,7 +207,8 @@ class Sampler(Container):
         # (batch_size, lats, lons, times, feats)
         return np.transpose(out, axes=(2, 0, 1, 3, 4))
 
-    def _stack_samples(self, samples):
+    @classmethod
+    def _stack_samples(cls, samples):
         """Used to build batch arrays in the case of independent time samples
         (e.g. slow batching)
 
@@ -247,7 +247,7 @@ class Sampler(Container):
             Samples retrieved from the underlying data. Could be a tuple
             in the case of dual datasets.
         """
-        if self.mode == 'lazy':
+        if self.mode == 'eager':
             return samples
         if isinstance(samples, tuple):
             return tuple(np.asarray(s) for s in samples)
