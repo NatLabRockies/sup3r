@@ -346,9 +346,9 @@ def get_source_type(file_paths):
 
     _, source_type = os.path.splitext(file_paths[0])
 
-    if source_type in ('.h5', '.hdf'):
+    if source_type in {'.h5', '.hdf'}:
         return 'h5'
-    if source_type in ('.nc',):
+    if source_type in {'.nc'}:
         return 'nc'
     msg = (
         f'Can only handle HDF or NETCDF files. Received unknown extension '

@@ -14,7 +14,7 @@ from sup3r.preprocessing.samplers.utilities import (
     uniform_box_sampler,
     uniform_time_sampler,
 )
-from sup3r.preprocessing.utilities import compute_if_dask, lowered
+from sup3r.preprocessing.utilities import lowered
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ class Sampler(Container):
         sample_shape: Optional[tuple] = None,
         batch_size: int = 16,
         feature_sets: Optional[dict] = None,
-        mode: str = 'lazy'
+        mode: str = 'lazy',
     ):
         """
         Parameters

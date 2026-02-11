@@ -149,7 +149,7 @@ class DualSamplerCC(DualSampler):
 
         *Needs review from @grantbuster
         """
-        if self.t_enhance not in (24, 1):
+        if self.t_enhance not in {24, 1}:
             high_res = self.get_middle_days(high_res, self.hr_sample_shape)
             high_res = nsrdb_reduce_daily_data(
                 high_res, self.hr_sample_shape[-1], csr_ind=csr_ind

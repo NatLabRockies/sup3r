@@ -202,11 +202,13 @@ class Sup3rDataset:
             out = out[0]
         return out
 
-    def _getattr(self, dset, attr):
+    @classmethod
+    def _getattr(cls, dset, attr):
         """Get attribute from single data member."""
         return getattr(dset.sx, attr, getattr(dset, attr))
 
-    def _getitem(self, dset, item):
+    @classmethod
+    def _getitem(cls, dset, item):
         """Get item from single data member."""
         return dset.sx[item] if hasattr(dset, 'sx') else dset[item]
 
