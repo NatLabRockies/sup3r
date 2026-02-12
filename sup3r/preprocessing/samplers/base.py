@@ -14,7 +14,7 @@ from sup3r.preprocessing.samplers.utilities import (
     uniform_box_sampler,
     uniform_time_sampler,
 )
-from sup3r.preprocessing.utilities import lowered
+from sup3r.preprocessing.utilities import compute_if_dask, lowered
 
 logger = logging.getLogger(__name__)
 
@@ -249,9 +249,7 @@ class Sampler(Container):
         """
         if self.mode == 'eager':
             return samples
-        if isinstance(samples, tuple):
-            return tuple(np.asarray(s) for s in samples)
-        return np.asarray(samples)
+        return compute_if_dask(samples)
 
     def _fast_batch(self):
         """Get batch of samples with adjacent time slices."""
