@@ -58,9 +58,9 @@ tensorflow = {version = "~=2.15.0", channel = "conda-forge"}
 
 [project.optional-dependencies]
 dev = [
-  "flake8",
   "pre-commit",
   "pylint",
+  "ruff>=0.4"
 ]
 doc = [
   "sphinx>=7.0",
@@ -70,7 +70,8 @@ doc = [
 ]
 test = [
   "pytest>=5.2",
-  "pytest-env"
+  "pytest-env",
+  "pytest-cov>=5.0.0",
 ]
 build = [
   "build>=0.6",
@@ -334,7 +335,6 @@ pytest-cov = ">=5.0.0"
 [tool.pixi.feature.dev.dependencies]
 ruff = ">=0.4"
 ipython = ">=8.0"
-pytest-xdist = ">=3.0"
 
 [tool.pixi.feature.viz.dependencies]
 jupyter = ">=1.0"
