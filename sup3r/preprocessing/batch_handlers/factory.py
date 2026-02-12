@@ -211,6 +211,7 @@ def BatchHandlerFactory(
                 sample_shape=sample_shape,
                 feature_sets=feature_sets,
                 batch_size=batch_size,
+                mode=mode,
                 sampler_kwargs=sampler_kwargs,
             )
 
@@ -260,6 +261,7 @@ def BatchHandlerFactory(
             sample_shape,
             feature_sets,
             batch_size,
+            mode,
             sampler_kwargs,
         ):
             """Initialize samplers from given data containers."""
@@ -269,6 +271,7 @@ def BatchHandlerFactory(
                     sample_shape=sample_shape,
                     feature_sets=feature_sets,
                     batch_size=batch_size,
+                    mode=mode,
                     **sampler_kwargs,
                 )
                 for container in train_containers
@@ -282,6 +285,7 @@ def BatchHandlerFactory(
                         sample_shape=sample_shape,
                         feature_sets=feature_sets,
                         batch_size=batch_size,
+                        mode=mode,
                         **sampler_kwargs,
                     )
                     for container in val_containers

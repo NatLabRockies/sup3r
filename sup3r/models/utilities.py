@@ -80,7 +80,6 @@ class TensorboardMixIn:
     def __init__(self):
         self._tb_writer = None
         self._tb_log_dir = None
-        self._write_tb_profile = False
         self._total_batches = None
         self._history = None
         self.timer = Timer()
@@ -116,15 +115,17 @@ class TensorboardMixIn:
                 else:
                     tf.summary.scalar(name, value, self.total_batches)
 
-    def profile_to_tensorboard(self, name):
+    def profile_to_tensorboard(self, name, export_tb=True):
         """Write profile data to tensorboard log file.
 
         Parameters
         ----------
         name : str
             Tag name to use for profile info
+        export_tb : bool
+            Flag to enable/disable tensorboard profiling
         """
-        if self._tb_writer is not None and self._write_tb_profile:
+        if self._tb_writer is not None and export_tb:
             with self._tb_writer.as_default():
                 tf.summary.trace_export(
                     name=name,

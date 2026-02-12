@@ -1104,7 +1104,8 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         return self._combine_fwp_output(hi_res, exogenous_data)
 
-    def _run_exo_layer(self, layer, input_array, hi_res_exo):
+    @classmethod
+    def _run_exo_layer(cls, layer, input_array, hi_res_exo):
         """Private run_exo_layer method used in ``_tf_generate``. Runs a layer
         that combines exogenous data with the hi_res data. These layers can
         include single or multiple exogenous features."""
@@ -1227,9 +1228,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         loss_details : dict
             Namespace of the breakdown of loss components
         """
-        with tf.device(device_name), tf.GradientTape(
-            watch_accessed_variables=False
-        ) as tape:
+        with (
+            tf.device(device_name),
+            tf.GradientTape(watch_accessed_variables=False) as tape,
+        ):
             tape.watch(training_weights)
             loss, loss_details, _, _ = self._get_hr_exo_and_loss(
                 low_res, hi_res_true, **calc_loss_kwargs

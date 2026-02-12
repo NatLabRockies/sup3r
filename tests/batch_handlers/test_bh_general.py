@@ -145,7 +145,9 @@ def test_eager_vs_lazy():
     )
 
     assert eager_batcher.loaded
+    assert eager_batcher.containers[0].mode == 'eager'
     assert not lazy_batcher.loaded
+    assert lazy_batcher.containers[0].mode == 'lazy'
 
     assert np.array_equal(
         eager_batcher.data[0].as_array(),

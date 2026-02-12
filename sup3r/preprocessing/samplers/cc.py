@@ -36,6 +36,7 @@ class DualSamplerCC(DualSampler):
         s_enhance: int = 1,
         t_enhance: int = 24,
         feature_sets: Optional[dict] = None,
+        mode: str = 'lazy',
     ):
         """
         Parameters
@@ -64,6 +65,11 @@ class DualSamplerCC(DualSampler):
                 in the high-resolution observation but not expected to be
                 output from the generative model. An example is high-res
                 topography that is to be injected mid-network.
+        mode : str
+            Mode for sampling data. Options are 'lazy' or 'eager'. 'eager' mode
+            pre-loads all data into memory as numpy arrays for faster access.
+            'lazy' mode samples directly from the underlying data object, which
+            could be backed by dask arrays or on-disk netCDF files.
 
         See Also
         --------
@@ -91,6 +97,7 @@ class DualSamplerCC(DualSampler):
             t_enhance=t_enhance,
             s_enhance=s_enhance,
             feature_sets=feature_sets,
+            mode=mode,
         )
 
     def check_for_consistent_shapes(self):
@@ -142,7 +149,7 @@ class DualSamplerCC(DualSampler):
 
         *Needs review from @grantbuster
         """
-        if self.t_enhance not in (24, 1):
+        if self.t_enhance not in {24, 1}:
             high_res = self.get_middle_days(high_res, self.hr_sample_shape)
             high_res = nsrdb_reduce_daily_data(
                 high_res, self.hr_sample_shape[-1], csr_ind=csr_ind

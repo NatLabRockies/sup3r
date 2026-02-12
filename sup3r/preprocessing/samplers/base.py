@@ -29,6 +29,7 @@ class Sampler(Container):
         sample_shape: Optional[tuple] = None,
         batch_size: int = 16,
         feature_sets: Optional[dict] = None,
+        mode: str = 'lazy',
     ):
         """
         Parameters
@@ -65,12 +66,18 @@ class Sampler(Container):
                 in the high-resolution observation but not expected to be
                 output from the generative model. An example is high-res
                 topography that is to be injected mid-network.
+        mode : str
+            Mode for sampling data. Options are 'lazy' or 'eager'. 'eager' mode
+            pre-loads all data into memory as numpy arrays for faster access.
+            'lazy' mode samples directly from the underlying data object, which
+            could be backed by dask arrays or on-disk netCDF files.
         """
         super().__init__(data=data)
         feature_sets = feature_sets or {}
         self.features = feature_sets.get('features', self.data.features)
         self._lr_only_features = feature_sets.get('lr_only_features', [])
         self._hr_exo_features = feature_sets.get('hr_exo_features', [])
+        self.mode = mode
         self.sample_shape = sample_shape or (10, 10, 1)
         self.batch_size = batch_size
         self.lr_features = self.features
@@ -133,6 +140,9 @@ class Sampler(Container):
         if self.data.shape[2] < self.sample_shape[2] * self.batch_size:
             logger.warning(msg)
             warn(msg)
+        if self.mode == 'eager':
+            logger.info('Received mode = "eager".')
+            _ = self.compute()
 
     @property
     def sample_shape(self) -> tuple:
@@ -197,7 +207,8 @@ class Sampler(Container):
         # (batch_size, lats, lons, times, feats)
         return np.transpose(out, axes=(2, 0, 1, 3, 4))
 
-    def _stack_samples(self, samples):
+    @classmethod
+    def _stack_samples(cls, samples):
         """Used to build batch arrays in the case of independent time samples
         (e.g. slow batching)
 
@@ -225,10 +236,25 @@ class Sampler(Container):
             return (lr, hr)
         return np.stack(samples, axis=0)
 
+    def _compute_samples(self, samples):
+        """Cast samples to numpy arrays. This only does something when samples
+        are dask arrays.
+
+        Parameters
+        ----------
+        samples : tuple[np.ndarray | da.core.Array, ...] |
+                  np.ndarray | da.core.Array
+            Samples retrieved from the underlying data. Could be a tuple
+            in the case of dual datasets.
+        """
+        if self.mode == 'eager':
+            return samples
+        return compute_if_dask(samples)
+
     def _fast_batch(self):
         """Get batch of samples with adjacent time slices."""
         out = self.data.sample(self.get_sample_index(n_obs=self.batch_size))
-        out = compute_if_dask(out)
+        out = self._compute_samples(out)
         if isinstance(out, tuple):
             return tuple(self._reshape_samples(o) for o in out)
         return self._reshape_samples(out)
@@ -239,7 +265,7 @@ class Sampler(Container):
             self.data.sample(self.get_sample_index(n_obs=1))
             for _ in range(self.batch_size)
         ]
-        out = compute_if_dask(out)
+        out = self._compute_samples(out)
         return self._stack_samples(out)
 
     def _fast_batch_possible(self):

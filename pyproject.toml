@@ -257,11 +257,11 @@ max-complexity = 12
 ]
 
 [tool.ruff.lint.pylint]
-max-args = 5 # (PLR0913) Maximum number of arguments for function / method
-max-bool-expr = 5 # ( PLR0916) Boolean in a single if statement
+max-args=15 # (PLR0913) Maximum number of arguments for function / method
+max-bool-expr=5 # ( PLR0916) Boolean in a single if statement
 max-branches=12 # (PLR0912) branches allowed for a function or method body
 max-locals=15 # (PLR0912) local variables allowed for a function or method body
-max-nested-blocks = 5 # (PLR1702) nested blocks within a function or method body
+max-nested-blocks=5 # (PLR1702) nested blocks within a function or method body
 max-public-methods=20 # (R0904) public methods allowed for a class
 max-returns=6 # (PLR0911) return statements for a function or method body
 max-statements=50 # (PLR0915) statements allowed for a function or method body

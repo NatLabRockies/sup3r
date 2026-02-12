@@ -29,6 +29,7 @@ class DualSampler(Sampler):
         s_enhance: int = 1,
         t_enhance: int = 1,
         feature_sets: Optional[dict] = None,
+        mode: str = 'lazy',
     ):
         """
         Parameters
@@ -57,6 +58,11 @@ class DualSampler(Sampler):
                 in the high-resolution observation but not expected to be
                 output from the generative model. An example is high-res
                 topography that is to be injected mid-network.
+        mode : str
+            Mode for sampling data. Options are 'lazy' or 'eager'. 'eager' mode
+            pre-loads all data into memory as numpy arrays for faster access.
+            'lazy' mode samples directly from the underlying data object, which
+            could be backed by dask arrays or on-disk netCDF files.
         """
         msg = (
             f'{self.__class__.__name__} requires a Sup3rDataset object '
@@ -71,7 +77,10 @@ class DualSampler(Sampler):
         assert check, msg
 
         super().__init__(
-            data=data, sample_shape=sample_shape, batch_size=batch_size
+            data=data,
+            sample_shape=sample_shape,
+            batch_size=batch_size,
+            mode=mode,
         )
         self.lr_data, self.hr_data = self.data.low_res, self.data.high_res
         self.lr_sample_shape = (

@@ -70,6 +70,7 @@ def test_train_disc(
             'n_batches': 1,
             'means': None,
             'stds': None,
+            'mode': 'eager'
         }
         batch_handler = BatchHandler(**bh_kwargs)
 

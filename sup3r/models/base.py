@@ -638,8 +638,8 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         adaptive_update_bounds=(0.9, 0.99),
         adaptive_update_fraction=0.0,
         multi_gpu=False,
-        tensorboard_log=False,
-        tensorboard_profile=False,
+        log_tb=False,
+        export_tb=False,
     ):
         """Train the GAN model on real low res data and real high res data
 
@@ -703,12 +703,12 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             rate that the model and optimizer were initialized with.
             If true and multiple gpus are found, ``default_device`` device
             should be set to /gpu:0
-        tensorboard_log : bool
+        log_tb : bool
             Whether to write log file for use with tensorboard. Log data can
             be viewed with ``tensorboard --logdir <logdir>`` where ``<logdir>``
             is the parent directory of ``out_dir``, and pointing the browser to
             the printed address.
-        tensorboard_profile : bool
+        export_tb : bool
             Whether to export profiling information to tensorboard. This can
             then be viewed in the tensorboard dashboard under the profile tab
 
@@ -720,10 +720,8 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         (3) Would like an automatic way to exit the batch handler thread
         instead of manually calling .stop() here.
         """
-        if tensorboard_log:
+        if log_tb:
             self._init_tensorboard_writer(out_dir)
-        if tensorboard_profile:
-            self._write_tb_profile = True
 
         self.set_norm_stats(batch_handler.means, batch_handler.stds)
         params = self.check_batch_handler_attrs(batch_handler)
@@ -759,6 +757,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 train_disc,
                 disc_loss_bounds,
                 multi_gpu=multi_gpu,
+                export_tb=export_tb,
             )
             loss_details.update(
                 self.calc_val_loss(batch_handler, weight_gen_advers)
@@ -1071,7 +1070,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         disc_loss = self._train_record['train_loss_disc'].values.mean()
         gen_loss = self._train_record['train_loss_gen'].values.mean()
 
-        logger.debug(
+        logger.info(
             'Batch {} out of {} has (gen / disc) loss of: ({:.2e} / {:.2e}). '
             'Running mean (gen / disc): ({:.2e} / {:.2e}). Trained '
             '(gen / disc): ({} / {})'.format(
@@ -1102,6 +1101,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         train_disc,
         disc_loss_bounds,
         multi_gpu=False,
+        export_tb=False,
     ):
         """Train the GAN for one epoch.
 
@@ -1129,6 +1129,9 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             rate that the model and optimizer were initialized with.
             If true and multiple gpus are found, ``default_device`` device
             should be set to /gpu:0
+        export_tb : bool
+            Whether to export profiling information to tensorboard. This can
+            then be viewed in the tensorboard dashboard under the profile tab
 
         Returns
         -------
@@ -1151,9 +1154,10 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         only_gen = train_gen and not train_disc
         only_disc = train_disc and not train_gen
 
-        if self._write_tb_profile:
+        if export_tb:
             tf.summary.trace_on(graph=True, profiler=True)
 
+        prev_time = time.time()
         for ib, batch in enumerate(batch_handler):
             start = time.time()
 
@@ -1163,7 +1167,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             disc_too_bad = (loss_disc > disc_th_high) and train_disc
             gen_too_good = disc_too_bad
 
-            b_loss_details = self.timer(self._train_batch, log=True)(
+            b_loss_details = self._train_batch(
                 batch,
                 train_gen,
                 only_gen,
@@ -1175,17 +1179,25 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 multi_gpu,
             )
 
-            loss_means = self.timer(self._post_batch, log=True)(
+            loss_means = self._post_batch(
                 ib, b_loss_details, len(batch_handler), loss_means
             )
 
+            total_step_time = time.time() - prev_time
+            batch_step_time = time.time() - start
+            batch_load_time = total_step_time - batch_step_time
+
             logger.info(
                 f'Finished batch step {ib + 1} / {len(batch_handler)} in '
-                f'{time.time() - start:.4f} seconds'
+                f'{total_step_time:.4f} seconds. Batch load time: '
+                f'{batch_load_time:.4f} seconds. Batch train time: '
+                f'{batch_step_time:.4f} seconds.'
             )
+
+            prev_time = time.time()
 
         self.total_batches += len(batch_handler)
         loss_details = self._train_record.mean().to_dict()
         loss_details['total_batches'] = int(self.total_batches)
-        self.profile_to_tensorboard('training_epoch')
+        self.profile_to_tensorboard('training_epoch', export_tb=export_tb)
         return loss_details

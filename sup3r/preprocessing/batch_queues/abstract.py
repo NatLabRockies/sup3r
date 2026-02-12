@@ -153,10 +153,6 @@ class AbstractBatchQueue(Collection, ABC):
         )
         assert sampler_bs == self.batch_size, msg
 
-        if self.mode == 'eager':
-            logger.info('Received mode = "eager".')
-            _ = [c.compute() for c in self.containers]
-
     @property
     def queue_thread(self):
         """Get new queue thread."""
