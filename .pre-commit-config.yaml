@@ -7,19 +7,8 @@ repos:
       - id: check-merge-conflict
       - id: check-symlinks
       - id: check-toml
-      - id: flake8
-        args: [--config, .github/linters/.flake8]
       - id: mixed-line-ending
-  - repo: https://github.com/PyCQA/pylint
-    rev: v3.1.0
-    hooks:
-      - id: pylint
-        args:
-          [
-            --rcfile,
-            .github/linters/.python-lint,
-          ]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.3
+    rev: v0.14.14
     hooks:
       - id: ruff
