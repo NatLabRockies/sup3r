@@ -11,6 +11,8 @@ features = [
     'longitude_feature',
     'soy_encoding',
     'sod_encoding',
+    'lat_encoding',
+    'lon_encoding',
 ]
 
 
