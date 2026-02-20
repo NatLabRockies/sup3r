@@ -21,12 +21,20 @@ class Sup3rGanWithObs(Sup3rGan):
     ----
     During training this model uses sparse sampling of ground truth data to
     simulate observation data. This is done by creating masks of ground truth
-    data and then selecting unmasked data. All model methods which create
-    observation masks are only used during training. During inference "real"
-    observation data is passed in as exogenous data with NaN values for where
-    the observations are not available. These NaN values are then handled by
-    observation specific model layers - e.g. ``Sup3rObsModel`` or
-    ``Sup3rConcatObs``
+    data and then selecting unmasked data. The features used for sampling are
+    defined in the model configuration, specifically in observation specific
+    model layers (e.g. ``Sup3rObsModel`` or ``Sup3rConcatObs``). The
+    observation features in the model configuration should be named with an
+    `_obs` suffix, and during training these are matched with the corresponding
+    true high res features without the `_obs` suffix. e.g. If the goal is to
+    condition a model on sparse temperature_10m data then the observation
+    feature should be named temperature_10m_obs, and during training the
+    gridded high res temperature_10m data will be masked to create synthetic
+    observation data for this feature. The observation masks are only used
+    during training.  During inference "real" observation data, with the full
+    name defined in the model configuration, is passed in as exogenous data
+    with NaN values for where the observations are not available. These NaN
+    values are then handled by observation specific model layers.
     """
 
     def __init__(
