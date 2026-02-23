@@ -51,6 +51,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         self._stdevs = None
         self._train_record = pd.DataFrame()
         self._val_record = pd.DataFrame()
+        self._swa_weights = None
+        self._swa_n = 0
+        self._swa_enabled = False
+        self._pre_swa_weights = None
 
     def load_network(self, model, name):
         """Load a CustomNetwork object from hidden layers config, .json file
@@ -721,6 +725,114 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 )
 
         return stop
+
+    def enable_swa(self):
+        """Enable stochastic weight averaging."""
+        self._swa_enabled = True
+        self._swa_weights = None
+        self._swa_n = 0
+        logger.info('SWA enabled')
+
+    def update_swa(self):
+        """Update the SWA running average with current model weights.
+
+        This should be called at the end of epochs where you want to include
+        the current weights in the average (e.g., after each epoch in the
+        last 25% of training, or at the end of each LR cycle).
+        """
+        if not self._swa_enabled:
+            return
+
+        current_weights = [w.numpy() for w in self.weights]
+
+        if self._swa_weights is None:
+            # First snapshot
+            self._swa_weights = current_weights
+            self._swa_n = 1
+        else:
+            for i, w in enumerate(current_weights):
+                self._swa_weights[i] = (
+                    self._swa_weights[i] * self._swa_n + w
+                ) / (self._swa_n + 1)
+            self._swa_n += 1
+
+        logger.info(f'Updated SWA weights (n={self._swa_n})')
+
+    def swap_swa_weights(self):
+        """Replace current model weights with SWA averaged weights.
+
+        Call this after training is complete to use the averaged weights.
+        """
+        if self._swa_weights is None:
+            logger.warning('No SWA weights to swap')
+            return
+
+        logger.info(
+            f'Swapping to SWA weights (averaged over {self._swa_n} snapshots)'
+        )
+
+        # Store original weights as backup
+        self._pre_swa_weights = [w.numpy() for w in self.weights]
+
+        # Set model weights to SWA averages
+        for weight_var, swa_weight in zip(self.weights, self._swa_weights):
+            weight_var.assign(swa_weight)
+
+    def restore_pre_swa_weights(self):
+        """Restore weights from before SWA swap (for comparison/debugging)."""
+        if self._pre_swa_weights is None:
+            logger.warning('No pre-SWA weights to restore')
+            return
+
+        for weight_var, pre_swa_weight in zip(
+            self.weights, self._pre_swa_weights
+        ):
+            weight_var.assign(pre_swa_weight)
+        logger.info('Restored pre-SWA weights')
+
+    def update_bn_stats(self, batch_handler, n_batches=None):
+        """Update batch normalization statistics after swapping to SWA weights.
+
+        This is critical because BN layers have running statistics computed
+        during training with the original weights, not the SWA averaged
+        weights.
+
+        Parameters
+        ----------
+        batch_handler : sup3r.preprocessing.BatchHandler
+            BatchHandler to iterate through for BN updates
+        n_batches : int | None
+            Number of batches to use. If None, uses all available batches.
+        """
+        has_bn_layers = any(
+            isinstance(layer, (tf.keras.layers.BatchNormalization,))
+            for layer in self.generator.layers
+        )
+        if not has_bn_layers:
+            logger.info(
+                'No batch normalization layers found, skipping BN stats update'
+            )
+            return
+
+        logger.info('Updating batch normalization statistics for SWA model...')
+
+        # Reset BN layer statistics
+        for layer in self.generator.layers:
+            if isinstance(layer, (tf.keras.layers.BatchNormalization,)):
+                layer.moving_mean.assign(tf.zeros_like(layer.moving_mean))
+                layer.moving_variance.assign(
+                    tf.ones_like(layer.moving_variance)
+                )
+
+        # Do forward passes to recompute statistics
+        count = 0
+        for batch in batch_handler:
+            if n_batches is not None and count >= n_batches:
+                break
+            _ = self.generate(batch.low_res, norm_in=True)
+            count += 1
+
+        logger.info(f'Updated BN stats using {count} batches')
 
     @abstractmethod
     def save(self, out_dir):
