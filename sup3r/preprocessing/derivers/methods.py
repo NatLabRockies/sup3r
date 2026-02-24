@@ -453,8 +453,9 @@ class SpatioTemporalEncoding(DerivedFeature):
         k_dims : tuple
             Dimension(s) along which k varies. k will be expanded and repeated
             along other dimensions.
-        d : int
-            Number of possible values of k.
+        d : float
+            Period of the underlying feature. For example, 86400 for seconds
+            in a day.
         i : int, optional
             Index of encoding output. Defaults to 0. Increasing i increases the
             frequency of oscillation of the sine/cosine encoding.
@@ -464,7 +465,7 @@ class SpatioTemporalEncoding(DerivedFeature):
             if d_ not in k_dims:
                 k = k.expand_dims(dim, axis=d_)
                 k = np.repeat(k, len(data[dim]), axis=d_)
-        k = (2 * np.pi * (i + 1) * k / d)
+        k = 2 * np.pi * (i + 1) * k / d
         k = np.sin(k) if i % 2 == 0 else np.cos(k)
         return k.astype(np.float32)
 
@@ -501,6 +502,26 @@ class SecondOfYearEncoding(SpatioTemporalEncoding):
         return cls._compute(data, soy, k_dims=(2,), d=31536000, i=i)
 
 
+class LatitudeEncoding(SpatioTemporalEncoding):
+    """Latitude encoding with time and longitude dimensions included."""
+
+    @classmethod
+    def compute(cls, data, i=1):
+        """Compute method for encoding."""
+        lat = data[Dimension.LATITUDE]
+        return cls._compute(data, lat, k_dims=(0, 1), d=360, i=i)
+
+
+class LongitudeEncoding(SpatioTemporalEncoding):
+    """Longitude encoding with time and latitude dimensions included."""
+
+    @classmethod
+    def compute(cls, data, i=1):
+        """Compute method for encoding."""
+        lon = data[Dimension.LONGITUDE]
+        return cls._compute(data, lon, k_dims=(0, 1), d=360, i=i)
+
+
 RegistryBase = {
     'u_(.*)': UWind,
     'v_(.*)': VWind,
@@ -514,6 +535,8 @@ RegistryBase = {
     'longitude_feature': Longitude,
     'soy_encoding': SecondOfYearEncoding,
     'sod_encoding': SecondOfDayEncoding,
+    'lat_encoding': LatitudeEncoding,
+    'lon_encoding': LongitudeEncoding,
 }
 
 RegistryH5WindCC = {
