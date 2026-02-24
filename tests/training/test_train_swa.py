@@ -282,6 +282,7 @@ def test_swa_manual_control(
 
     # Initialize weights
     lr_shape, hr_shape = batch_handler.shapes
+    model.meta['hr_out_features'] = ['u_100m', 'v_100m']
     model.init_weights(lr_shape, hr_shape)
 
     # Test enable_swa
