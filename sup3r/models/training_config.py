@@ -64,7 +64,8 @@ class TrainingConfig:
         Constant learning rate for SWA phase (if None, keeps current schedule)
     swa_bn_update_batches : int
         Number of batches to use for updating batch normalization statistics
-        after swapping to SWA weights.
+        after swapping to SWA weights. (Only used if model has batch
+        normalization layers and swa_start is not None)
     """
 
     n_epoch: int

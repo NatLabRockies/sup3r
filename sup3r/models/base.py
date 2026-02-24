@@ -669,39 +669,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         batch_handler.stop()
 
-    def apply_swa(self, config, epoch, extras):
-        """Apply SWA updates if enabled in config.
-
-        Parameters
-        ----------
-        config : TrainingConfig
-            Training configuration object.
-        epoch : int
-            Current epoch number.
-        extras : dict
-            Dictionary of extra information to log for the current epoch.
-            This is updated in-place with any SWA-related information
-            (e.g., swa_n) and returned at the end.
-
-        Returns
-        -------
-        extras : dict
-            Updated dictionary of extra information to log for the
-            current epoch.
-        """
-        if config.swa_start is not None and epoch >= config.swa_start:
-            # Switch to constant LR if specified (only once)
-            if config.swa_lr is not None and epoch == config.swa_start:
-                self.update_optimizer('all', learning_rate=config.swa_lr)
-                logger.info(f'Switched to SWA constant LR: {config.swa_lr}')
-
-            # Update SWA weights at specified frequency
-            if (epoch - config.swa_start) % config.swa_freq == 0:
-                self.update_swa()
-                extras['swa_n'] = self._swa_n
-
-        return extras
-
     def train(self, batch_handler, input_resolution, config=None, **kwargs):
         """Train the GAN model on real low res data and real high res data
 
@@ -769,10 +736,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         else:
             epochs += self._history.index.values[-1] + 1
 
-        # Enable SWA if configured
-        if config.swa_start is not None:
-            self.enable_swa()
-
         t0 = time.time()
         logger.info(
             'Training model with adversarial weight: {} '
@@ -782,6 +745,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         )
 
         if config.swa_start is not None:
+            self.enable_swa()
             logger.info(
                 f'SWA will start at epoch {config.swa_start} with '
                 f'update frequency {config.swa_freq}'
