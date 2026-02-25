@@ -41,7 +41,7 @@ dependencies = [
   "pytest>=5.2",
   "scipy>=1.0.0",
   "sphinx>=7.0",
-  "xarray>=2023.0"
+  "xarray>=2025.0"
 ]
 
 # If used, cause glibc conflict
@@ -298,7 +298,7 @@ matplotlib = ">=3.1"
 numpy = "~=1.7"
 pandas = ">=2.0"
 scipy = ">=1.0.0"
-xarray = ">=2023.0"
+xarray = ">=2025.0"
 
 [tool.pixi.pypi-dependencies]
 NREL-sup3r = { path = ".", editable = true }

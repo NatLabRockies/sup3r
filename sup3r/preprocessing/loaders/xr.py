@@ -57,12 +57,12 @@ class LoaderX(BaseLoader):
         if invert_levels:
             for var in list(dset.data_vars):
                 if Dimension.PRESSURE_LEVEL in dset[var].dims:
-                    new_var = dset[var].isel(
-                        {Dimension.PRESSURE_LEVEL: slice(None, None, -1)}
-                    )
-                    dset.update(
-                        {var: (dset[var].dims, new_var.data, dset[var].attrs)}
-                    )
+                    new_var = dset[var].isel({
+                        Dimension.PRESSURE_LEVEL: slice(None, None, -1)
+                    })
+                    dset.update({
+                        var: (dset[var].dims, new_var.data, dset[var].attrs)
+                    })
             new_press = dset[Dimension.PRESSURE_LEVEL][::-1]
             dset.update({Dimension.PRESSURE_LEVEL: new_press})
         return dset

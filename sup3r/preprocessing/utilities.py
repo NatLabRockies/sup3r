@@ -499,7 +499,8 @@ def parse_keys(
 def parse_to_list(features=None, data=None):
     """Parse features and return as a list, even if features is a string."""
     features = (
-        np.array(
+        np
+        .array(
             list(features)
             if isinstance(features, (set, tuple))
             else features

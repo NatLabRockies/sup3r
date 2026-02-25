@@ -120,13 +120,18 @@ def preprocess_datasets(dset):
 
 def xr_open_mfdataset(files, **kwargs):
     """Wrapper for xr.open_mfdataset with default opening options."""
-    default_kwargs = {'engine': 'netcdf4'}
-    default_kwargs.update(kwargs)
     if isinstance(files, str):
         files = [files]
-    out = xr.open_mfdataset(
-        files, preprocess=preprocess_datasets, **default_kwargs
-    )
+
+    # Auto-detect zarr files and set appropriate engine
+    if 'engine' not in kwargs:
+        first_file = files[0] if files else ''
+        if first_file.endswith('.zarr'):
+            kwargs['engine'] = 'zarr'
+        else:
+            kwargs['engine'] = 'netcdf4'
+
+    out = xr.open_mfdataset(files, preprocess=preprocess_datasets, **kwargs)
     bad_dims = (
         'latitude' in out
         and len(out['latitude'].dims) == 2
