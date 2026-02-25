@@ -38,6 +38,9 @@ def pytest_configure(config):  # pylint: disable=unused-argument # noqa: ARG001
     # for testing on small sample sizes.
     pytest.ST_FP_DISC = os.path.join(TEST_DATA_DIR, 'config_disc_st_test.json')
     pytest.S_FP_DISC = os.path.join(TEST_DATA_DIR, 'config_disc_s_test.json')
+    pytest.ST_FP_DISC_JSON5 = os.path.join(
+        TEST_DATA_DIR, 'config_disc_st_test.json5'
+    )
 
     pytest.ST_FP_DISC_PROD = os.path.join(
         CONFIG_DIR, 'spatiotemporal/disc.json'

@@ -40,8 +40,8 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         gen_layers : list | str
             Hidden layers input argument to phygnn.base.CustomNetwork for the
             generative super resolving model. Can also be a str filepath to a
-            .json config file containing the input layers argument or a .pkl
-            for a saved pre-trained model.
+            JSON/JSON5/YAML/TOML config file containing the input layers
+            argument or a .pkl for a saved pre-trained model.
         optimizer : tf.keras.optimizers.Optimizer | dict | None | str
             Instantiated tf.keras.optimizers object or a dict optimizer config
             from tf.keras.optimizers.get_config(). None defaults to Adam.

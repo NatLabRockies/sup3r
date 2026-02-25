@@ -7,7 +7,7 @@ from warnings import warn
 
 import numpy as np
 import xarray as xr
-from rex import safe_json_load
+from gaps.config import load_config
 
 from sup3r.preprocessing.utilities import log_args
 from sup3r.utilities.utilities import safe_serialize
@@ -77,7 +77,7 @@ class StatsCollection(Collection):
         """Initialize dictionary for stds or means from given input. Check if
         any existing stats are provided."""
         if isinstance(stats, str) and os.path.exists(stats):
-            stats = safe_json_load(stats)
+            stats = load_config(stats)
         elif stats is None or isinstance(stats, str):
             stats = {}
         else:
@@ -138,7 +138,7 @@ class StatsCollection(Collection):
     @staticmethod
     def _added_stats(fp, stat_dict):
         """Check if stats were added to the given file or not."""
-        return any(f not in safe_json_load(fp) for f in stat_dict)
+        return any(f not in load_config(fp) for f in stat_dict)
 
     def save_stats(self, stds, means):
         """Save stats to json files."""

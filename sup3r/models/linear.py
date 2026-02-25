@@ -1,10 +1,10 @@
 """Simple models for super resolution such as linear interp models."""
-import json
 import logging
 import os
 from inspect import signature
 
 import numpy as np
+from gaps.config import load_config
 
 from .interface import AbstractInterface
 from .utilities import st_interp
@@ -54,8 +54,8 @@ class LinearInterp(AbstractInterface):
         ----------
         model_dir : str
             Directory to load LinearInterp model files from. Must
-            have a model_params.json file containing "meta" key with all of the
-            class init args.
+            have a model_params JSON/JSON5/YAML/TOML file containing "meta"
+            key with all of the class init args.
         verbose : bool
             Flag to log information about the loaded model.
 
@@ -66,8 +66,7 @@ class LinearInterp(AbstractInterface):
         """
         fp_params = os.path.join(model_dir, 'model_params.json')
         assert os.path.exists(fp_params), f'Could not find: {fp_params}'
-        with open(fp_params) as f:
-            params = json.load(f)
+        params = load_config(fp_params)
 
         meta = params['meta']
         args = signature(cls.__init__).parameters

@@ -1,7 +1,6 @@
 """Abstract class defining the required interface for Sup3r model subclasses"""
 
 import copy
-import json
 import logging
 import os
 import pprint
@@ -15,7 +14,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from phygnn import CustomNetwork
-from rex.utilities.utilities import safe_json_load
+from gaps.config import load_config
 from tensorflow.keras import optimizers
 
 import sup3r.utilities.loss_metrics
@@ -72,30 +71,8 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             CustomNetwork object initialized from the model input.
         """
 
-        if isinstance(model, str) and model.endswith('.json'):
-            model = safe_json_load(model)
-            self._meta[f'config_{name}'] = model
-            if 'hidden_layers' in model:
-                model = model['hidden_layers']
-            elif (
-                'meta' in model
-                and f'config_{name}' in model['meta']
-                and 'hidden_layers' in model['meta'][f'config_{name}']
-            ):
-                model = model['meta'][f'config_{name}']['hidden_layers']
-            else:
-                msg = (
-                    'Could not load model from json config, need '
-                    '"hidden_layers" key or '
-                    f'"meta/config_{name}/hidden_layers" '
-                    ' at top level but only found: {}'.format(model.keys())
-                )
-                logger.error(msg)
-                raise KeyError(msg)
-
-        elif isinstance(model, str) and model.endswith('.pkl'):
-            with tf.device(self.default_device):
-                model = CustomNetwork.load(model)
+        if isinstance(model, str):
+            model = self._load_model_from_string(model, name)
 
         if isinstance(model, list):
             model = CustomNetwork(hidden_layers=model, name=name)
@@ -109,6 +86,33 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             raise TypeError(msg)
 
         return model
+
+    def _load_model_from_string(self, model, name):
+        """Load a CustomNetwork object from a config or a .pkl file"""
+        if model.endswith('.pkl'):
+            with tf.device(self.default_device):
+                return CustomNetwork.load(model)
+
+        model = load_config(model)
+        self._meta[f'config_{name}'] = model
+        if 'hidden_layers' in model:
+            return model['hidden_layers']
+
+        if (
+            'meta' in model
+            and f'config_{name}' in model['meta']
+            and 'hidden_layers' in model['meta'][f'config_{name}']
+        ):
+            return model['meta'][f'config_{name}']['hidden_layers']
+
+        msg = (
+            'Could not load model from json config, need '
+            '"hidden_layers" key or '
+            f'"meta/config_{name}/hidden_layers" '
+            ' at top level but only found: {}'.format(model.keys())
+        )
+        logger.error(msg)
+        raise KeyError(msg)
 
     @property
     def means(self):
@@ -370,8 +374,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """
 
         fp_params = os.path.join(out_dir, 'model_params.json')
-        with open(fp_params) as f:
-            params = json.load(f)
+        params = load_config(fp_params)
 
         # using the saved model dir makes this more portable
         fp_history = os.path.join(out_dir, 'history.csv')
