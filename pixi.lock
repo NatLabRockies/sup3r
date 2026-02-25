@@ -10581,7 +10581,7 @@ packages:
   - pytest>=5.2
   - scipy>=1.0.0
   - sphinx>=7.0
-  - xarray>=2025.0
+  - xarray>=2024.0
   - pre-commit ; extra == 'dev'
   - pylint ; extra == 'dev'
   - ruff>=0.4 ; extra == 'dev'
