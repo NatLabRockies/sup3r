@@ -1,0 +1,26 @@
+{
+  "hidden_layers": [
+    {"class": "Conv3D", "filters": 32, "kernel_size": 3, "padding": "same", "strides": 1},
+    {"alpha": 0.2, "class": "LeakyReLU"},
+    {"class": "Conv3D", "filters": 32, "kernel_size": 3, "padding": "same", "strides": 2},
+    {"alpha": 0.2, "class": "LeakyReLU"},
+    {"class": "Conv3D", "filters": 64, "kernel_size": 3, "padding": "same", "strides": 1},
+    {"alpha": 0.2, "class": "LeakyReLU"},
+    {"class": "Conv3D", "filters": 64, "kernel_size": 3, "padding": "same", "strides": 2},
+    {"alpha": 0.2, "class": "LeakyReLU"},
+    {"class": "Conv3D", "filters": 128, "kernel_size": 3, "padding": "same", "strides": 1},
+    {"alpha": 0.2, "class": "LeakyReLU"},
+    {"class": "Conv3D", "filters": 128, "kernel_size": 3, "padding": "same", "strides": 2},
+    {"alpha": 0.2, "class": "LeakyReLU"},
+    {"class": "Conv3D", "filters": 256, "kernel_size": 3, "padding": "same", "strides": 1},
+    {"alpha": 0.2, "class": "LeakyReLU"},
+    {"class": "Conv3D", "filters": 256, "kernel_size": 3, "padding": "same", "strides": 2},
+    {"alpha": 0.2, "class": "LeakyReLU"},
+    {"class": "Flatten"},
+    {"class": "Dense", "units": 2048},
+    {"alpha": 0.2, "class": "LeakyReLU"},
+    {"class": "Dense", "units": 1024},
+    {"alpha": 0.2, "class": "LeakyReLU"},
+    {"class": "Dense", "units": 1}
+  ]
+}
