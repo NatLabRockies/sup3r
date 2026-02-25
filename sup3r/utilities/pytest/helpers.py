@@ -277,6 +277,228 @@ def BatchHandlerTesterFactory(BatchHandlerClass, SamplerClass):
     return BatchHandlerTester
 
 
+class SamplingDiagnostics:
+    """Diagnostics for analyzing sampling distribution in data-centric batch handlers.
+
+    Wraps a BatchHandlerTesterDC instance and records per-epoch statistics to
+    help verify that samplers are covering the dataset uniformly. Tracks spatial
+    and temporal bin counts, computes entropy-based uniformity scores, and
+    monitors weight convergence across epochs.
+
+    Parameters
+    ----------
+    handler : BatchHandlerTesterDC
+        A data-centric batch handler with index recording enabled.
+
+    Examples
+    --------
+    >>> handler = BatchHandlerTesterDC(...)
+    >>> diag = SamplingDiagnostics(handler)
+    >>> for epoch in range(n_epochs):
+    ...     for _ in handler:
+    ...         pass
+    ...     diag.record_epoch()
+    >>> print(diag.summary())
+    """
+
+    def __init__(self, handler):
+        self.handler = handler
+        self._stats = []
+
+    def record_epoch(self):
+        """Capture sampling statistics from the last completed epoch.
+
+        Reads from the handler's space_bin_record, time_bin_record,
+        spatial_weights_record, and temporal_weights_record. Should be
+        called once after each full pass through the handler.
+        """
+        idx = len(self._stats)
+        if idx >= len(self.handler.space_bin_record):
+            return
+        sp_w = (
+            np.array(self.handler.spatial_weights_record[idx])
+            if idx < len(self.handler.spatial_weights_record)
+            else None
+        )
+        t_w = (
+            np.array(self.handler.temporal_weights_record[idx])
+            if idx < len(self.handler.temporal_weights_record)
+            else None
+        )
+        self._stats.append({
+            'space_counts': np.array(self.handler.space_bin_record[idx]),
+            'time_counts': np.array(self.handler.time_bin_record[idx]),
+            'spatial_weights': sp_w,
+            'temporal_weights': t_w,
+        })
+
+    @staticmethod
+    def _entropy_score(counts):
+        """Normalized Shannon entropy of a count distribution.
+
+        Returns a value in [0, 1] where 1.0 is perfectly uniform and
+        0.0 means all samples fell into a single bin.
+
+        Parameters
+        ----------
+        counts : np.ndarray
+            Non-negative integer bin counts.
+
+        Returns
+        -------
+        float
+        """
+        total = counts.sum()
+        if total == 0 or len(counts) <= 1:
+            return 1.0
+        probs = counts / total
+        probs = probs[probs > 0]
+        h = -np.sum(probs * np.log(probs))
+        h_max = np.log(len(counts))
+        return float(h / h_max)
+
+    def spatial_coverage(self):
+        """Fraction of spatial bins visited at least once in the last epoch.
+
+        Returns
+        -------
+        float
+            Value in [0, 1]. 1.0 means every spatial bin was sampled.
+        """
+        if not self._stats:
+            return 0.0
+        counts = self._stats[-1]['space_counts']
+        return float((counts > 0).sum() / len(counts))
+
+    def temporal_coverage(self):
+        """Fraction of temporal bins visited at least once in the last epoch.
+
+        Returns
+        -------
+        float
+            Value in [0, 1]. 1.0 means every temporal bin was sampled.
+        """
+        if not self._stats:
+            return 0.0
+        counts = self._stats[-1]['time_counts']
+        return float((counts > 0).sum() / len(counts))
+
+    def uniformity_score(self):
+        """Normalized entropy of spatial and temporal sampling distributions.
+
+        A score of 1.0 is perfectly uniform, 0.0 is maximally concentrated.
+        Computed from the bin counts of the most recently recorded epoch.
+
+        Returns
+        -------
+        dict
+            Keys 'spatial' and 'temporal', each a float in [0, 1].
+        """
+        if not self._stats:
+            return {'spatial': 0.0, 'temporal': 0.0}
+        last = self._stats[-1]
+        return {
+            'spatial': self._entropy_score(last['space_counts']),
+            'temporal': self._entropy_score(last['time_counts']),
+        }
+
+    def weight_delta(self):
+        """Mean absolute weight change between the last two recorded epochs.
+
+        Useful for checking whether the data-centric sampler has converged.
+        Returns None if fewer than 2 epochs have been recorded, or if weights
+        were not tracked.
+
+        Returns
+        -------
+        dict or None
+            Keys 'spatial' and 'temporal', each a float or None.
+        """
+        if len(self._stats) < 2:
+            return None
+        result = {}
+        for key in ('spatial_weights', 'temporal_weights'):
+            dim = key.replace('_weights', '')
+            w_prev = self._stats[-2][key]
+            w_curr = self._stats[-1][key]
+            if w_prev is not None and w_curr is not None:
+                result[dim] = float(np.abs(w_curr - w_prev).mean())
+            else:
+                result[dim] = None
+        return result
+
+    def coverage_over_epochs(self):
+        """Per-epoch coverage fractions for spatial and temporal bins.
+
+        Returns
+        -------
+        dict
+            Keys 'spatial' and 'temporal', each a list of floats, one entry
+            per recorded epoch.
+        """
+        spatial, temporal = [], []
+        for s in self._stats:
+            sc, tc = s['space_counts'], s['time_counts']
+            spatial.append(float((sc > 0).sum() / len(sc)))
+            temporal.append(float((tc > 0).sum() / len(tc)))
+        return {'spatial': spatial, 'temporal': temporal}
+
+    def undersampled_bins(self, threshold=0.5):
+        """Identify bins receiving below-average sampling in the last epoch.
+
+        Parameters
+        ----------
+        threshold : float
+            Fraction of mean count below which a bin is considered
+            undersampled. Default 0.5 flags bins with less than half
+            the mean count.
+
+        Returns
+        -------
+        dict
+            Keys 'spatial' and 'temporal', each a np.ndarray of bin indices.
+        """
+        if not self._stats:
+            return {'spatial': np.array([]), 'temporal': np.array([])}
+        last = self._stats[-1]
+        result = {}
+        for key, dim in (('space_counts', 'spatial'), ('time_counts', 'temporal')):
+            counts = last[key]
+            mean_count = counts.mean()
+            result[dim] = np.where(counts < threshold * mean_count)[0]
+        return result
+
+    def summary(self):
+        """Diagnostics summary for the most recently recorded epoch.
+
+        Returns
+        -------
+        dict
+            n_epochs, spatial_coverage, temporal_coverage,
+            spatial_uniformity, temporal_uniformity, weight_delta.
+        """
+        uni = self.uniformity_score()
+        return {
+            'n_epochs': len(self._stats),
+            'spatial_coverage': self.spatial_coverage(),
+            'temporal_coverage': self.temporal_coverage(),
+            'spatial_uniformity': uni['spatial'],
+            'temporal_uniformity': uni['temporal'],
+            'weight_delta': self.weight_delta(),
+        }
+
+    def __repr__(self):
+        s = self.summary()
+        return (
+            f'SamplingDiagnostics('
+            f'epochs={s["n_epochs"]}, '
+            f'spatial_cov={s["spatial_coverage"]:.2f}, '
+            f'temporal_cov={s["temporal_coverage"]:.2f}, '
+            f'spatial_uni={s["spatial_uniformity"]:.3f}, '
+            f'temporal_uni={s["temporal_uniformity"]:.3f})'
+        )
+
+
 def make_collect_chunks(td, ext='h5'):
     """Make fake chunked output files for collection tests.
 
