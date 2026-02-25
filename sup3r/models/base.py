@@ -45,13 +45,14 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         gen_layers : list | str
             Hidden layers input argument to phygnn.base.CustomNetwork for the
             generative super resolving model. Can also be a str filepath to a
-            .json config file containing the input layers argument or a .pkl
-            for a saved pre-trained model.
+            JSON/JSON5/YAML/TOML config file containing the input layers
+            argument or a .pkl for a saved pre-trained model.
         disc_layers : list | str
             Hidden layers input argument to phygnn.base.CustomNetwork for the
             discriminative model (spatial or spatiotemporal discriminator). Can
-            also be a str filepath to a .json config file containing the input
-            layers argument or a .pkl for a saved pre-trained model.
+            also be a str filepath to a JSON/JSON5/YAML/TOML config file
+            containing the input layers argument or a .pkl for a saved
+            pre-trained model.
         loss : str | dict
             Loss function class name from sup3r.utilities.loss_metrics
             (prioritized) or tensorflow.keras.losses. Defaults to
