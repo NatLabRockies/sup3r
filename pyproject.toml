@@ -298,7 +298,7 @@ matplotlib = ">=3.1"
 numpy = "~=1.7"
 pandas = ">=2.0"
 scipy = ">=1.0.0"
-xarray = ">=2025.0"
+xarray = ">=2024.0"
 
 [tool.pixi.pypi-dependencies]
 NREL-sup3r = { path = ".", editable = true }
