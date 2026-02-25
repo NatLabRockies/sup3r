@@ -4,11 +4,11 @@ TODO: SolarMultiStepGan can be cleaned up a little with the output padding and
 t_enhance argument moved to SolarCC.
 """
 
-import json
 import logging
 import os
 
 import numpy as np
+from gaps.config import load_config
 
 # pylint: disable=cyclic-import
 import sup3r.models
@@ -72,8 +72,7 @@ class MultiStepGan(AbstractInterface):
         for model_dir, kwargs in zip(model_dirs, model_kwargs):
             fp_params = os.path.join(model_dir, 'model_params.json')
             assert os.path.exists(fp_params), f'Could not find: {fp_params}'
-            with open(fp_params) as f:
-                params = json.load(f)
+            params = load_config(fp_params)
 
             meta = params.get('meta', {'class': 'Sup3rGan'})
             class_name = meta.get('class', 'Sup3rGan')
@@ -542,8 +541,7 @@ class SolarMultiStepGan(MultiStepGan):
 
         if self._t_enhance is not None:
             msg = (
-                'Can only update t_enhance for a '
-                'single temporal solar model.'
+                'Can only update t_enhance for a single temporal solar model.'
             )
             assert len(self.temporal_solar_models) == 1, msg
             model = self.temporal_solar_models.models[0]
@@ -662,11 +660,13 @@ class SolarMultiStepGan(MultiStepGan):
         """Get an array of feature indices for the subset of features required
         for the spatial_wind_models. This excludes topography which is assumed
         to be provided as exogenous_data."""
-        return np.array([
-            self.lr_features.index(fn)
-            for fn in self.spatial_wind_models.lr_features
-            if fn != 'topography'
-        ])
+        return np.array(
+            [
+                self.lr_features.index(fn)
+                for fn in self.spatial_wind_models.lr_features
+                if fn != 'topography'
+            ]
+        )
 
     @property
     def idf_wind_out(self):
@@ -675,21 +675,25 @@ class SolarMultiStepGan(MultiStepGan):
         indices of u_200m + v_200m from the output features of
         spatial_wind_models"""
         temporal_solar_features = self.temporal_solar_models.lr_features
-        return np.array([
-            self.spatial_wind_models.hr_out_features.index(fn)
-            for fn in temporal_solar_features[1:]
-        ])
+        return np.array(
+            [
+                self.spatial_wind_models.hr_out_features.index(fn)
+                for fn in temporal_solar_features[1:]
+            ]
+        )
 
     @property
     def idf_solar(self):
         """Get an array of feature indices for the subset of features required
         for the spatial_solar_models. This excludes topography which is assumed
         to be provided as exogenous_data."""
-        return np.array([
-            self.lr_features.index(fn)
-            for fn in self.spatial_solar_models.lr_features
-            if fn != 'topography'
-        ])
+        return np.array(
+            [
+                self.lr_features.index(fn)
+                for fn in self.spatial_solar_models.lr_features
+                if fn != 'topography'
+            ]
+        )
 
     def generate(
         self, low_res, norm_in=True, un_norm_out=True, exogenous_data=None
