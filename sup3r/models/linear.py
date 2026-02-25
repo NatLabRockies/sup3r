@@ -54,8 +54,8 @@ class LinearInterp(AbstractInterface):
         ----------
         model_dir : str
             Directory to load LinearInterp model files from. Must
-            have a model_params.json file containing "meta" key with all of the
-            class init args.
+            have a model_params JSON/JSON5/YAML/TOML file containing "meta"
+            key with all of the class init args.
         verbose : bool
             Flag to log information about the loaded model.
 
