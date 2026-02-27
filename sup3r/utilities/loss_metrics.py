@@ -797,7 +797,11 @@ class SlicedWassersteinLoss(Sup3rLoss):
 
 
 class GeothermalPhysicsLoss(Sup3rLoss):
-    """Physics based loss for Geothermal applications"""
+    """Physics based loss for Geothermal applications
+
+    TODO: Fill in call with appropriate physics equations. This is currently
+    just a dummy equation for testing.
+    """
 
     LOSS_METRIC = MeanAbsoluteError()
     input_features = ['u_100m']
