@@ -1,11 +1,14 @@
 """Tests for GAN loss functions"""
 
+import os
+
 import numpy as np
 import pytest
 import tensorflow as tf
 from tensorflow.keras.losses import MeanAbsoluteError
 
-from sup3r.models.abstract import AbstractSingleModel
+from sup3r import CONFIG_DIR
+from sup3r.models import Sup3rGan
 from sup3r.utilities.loss_metrics import (
     CoarseMseLoss,
     LowResLoss,
@@ -264,10 +267,12 @@ def test_md_loss():
     """Test the material derivative calculation in the material derivative
     content loss class."""
 
-    x = RANDOM_GENERATOR.random((6, 10, 10, 8, 3))
+    x = RANDOM_GENERATOR.random((6, 10, 10, 8, 2))
     y = x.copy()
 
-    md_loss = MaterialDerivativeLoss()
+    md_loss = MaterialDerivativeLoss(
+        input_features=['u_100m', 'v_100m']
+    )
     u_div = md_loss._compute_md(x, fidx=0)
     v_div = md_loss._compute_md(x, fidx=1)
 
@@ -295,15 +300,21 @@ def test_multiterm_loss():
     x = RANDOM_GENERATOR.random((6, 10, 10, 8, 3))
     y = x.copy()
 
-    md_loss = MaterialDerivativeLoss()
-    mae_loss = MeanAbsoluteError()
-    multi_loss = AbstractSingleModel.get_loss_fun(
-        {
-            'MaterialDerivativeLoss': {},
-            'MeanAbsoluteError': {},
-            'term_weights': [0.2, 0.8],
-        }
+    md_loss = MaterialDerivativeLoss(
+        input_features=['u_100m', 'v_100m', 'temp_100m']
     )
+    mae_loss = MeanAbsoluteError()
+    fp_gen = os.path.join(CONFIG_DIR, 'spatial/gen_2x_2f.json')
+    fp_disc = os.path.join(CONFIG_DIR, 'spatial/disc.json')
+    model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
+    model.meta['hr_out_features'] = ['u_100m', 'v_100m', 'temp_100m']
+    multi_loss = model.get_loss_fun({
+        'MaterialDerivativeLoss': {
+            'input_features': ['u_100m', 'v_100m', 'temp_100m']
+        },
+        'MeanAbsoluteError': {},
+        'term_weights': [0.2, 0.8],
+    })
     loss, _ = multi_loss(x, y)
 
     assert np.allclose(0.2 * md_loss(x, y) + 0.8 * mae_loss(x, y), loss)

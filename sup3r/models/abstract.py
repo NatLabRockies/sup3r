@@ -28,7 +28,6 @@ from .utilities import SUP3R_LAYERS, SUP3R_OBS_LAYERS, TensorboardMixIn
 logger = logging.getLogger(__name__)
 
 
-# pylint: disable=E1101,W0201,E0203
 class AbstractSingleModel(ABC, TensorboardMixIn):
     """
     Abstract class to define the required training interface for Sup3r model
@@ -521,7 +520,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             loss_details = {}
             loss = 0
             for i, (ln, loss_func) in enumerate(zip(lns, loss_funcs)):
-                if loss_func.input_features == 'all':
+                if (
+                    not hasattr(loss_func, 'input_features')
+                    or loss_func.input_features == 'all'
+                ):
                     val = loss_func(hi_res_true, hi_res_gen)
                 else:
                     hr_true, hr_gen = self._get_loss_inputs(
