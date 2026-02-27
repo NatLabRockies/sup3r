@@ -17,7 +17,7 @@ from sup3r.utilities.loss_metrics import (
     SpatialExtremesLoss,
     SpatiotemporalFftLoss,
     TemporalExtremesLoss,
-    _derivative,
+    tf_derivative,
 )
 from sup3r.utilities.utilities import (
     RANDOM_GENERATOR,
@@ -285,7 +285,7 @@ def test_md_loss():
     v_div_np += y[..., 1] * np.gradient(y[..., 1], axis=2)
 
     with pytest.raises(ValueError):
-        _derivative(x, axis=0)
+        tf_derivative(x, axis=0)
 
     with pytest.raises(AssertionError):
         md_loss(x[..., 0], y[..., 0])
