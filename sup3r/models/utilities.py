@@ -4,8 +4,6 @@ import logging
 import os
 import sys
 import threading
-from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 import tensorflow as tf
