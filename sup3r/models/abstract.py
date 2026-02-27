@@ -13,8 +13,8 @@ from warnings import warn
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from phygnn import CustomNetwork
 from gaps.config import load_config
+from phygnn import CustomNetwork
 from tensorflow.keras import optimizers
 
 import sup3r.utilities.loss_metrics
@@ -461,8 +461,32 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             hi_res_gen = tf.concat((hi_res_gen, *exo_data), axis=-1)
         return hi_res_gen
 
-    @classmethod
-    def get_loss_fun(cls, loss):
+    def _get_loss_inputs(self, hi_res_true, hi_res_gen, loss_func):
+        """Get inputs for the given loss function according to the required
+        input features"""
+
+        msg = (
+            f'{loss_func} requires input features: '
+            f'{loss_func.input_features}, but these are not found '
+            f'in the model output features: {self.hr_out_features}'
+        )
+        assert all(
+            f in self.hr_out_features for f in loss_func.input_features
+        ), msg
+        input_inds = [
+            self.hr_out_features.index(f) for f in loss_func.input_features
+        ]
+        hr_true = tf.stack(
+            [hi_res_true[..., idx] for idx in input_inds],
+            axis=-1,
+        )
+        hr_gen = tf.stack(
+            [hi_res_gen[..., idx] for idx in input_inds],
+            axis=-1,
+        )
+        return hr_true, hr_gen
+
+    def get_loss_fun(self, loss):
         """Get full, possibly multi-term, loss function from the provided str
         or dictionary.
 
@@ -490,14 +514,20 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """
         loss = {loss: {}} if isinstance(loss, str) else loss
         lns = [ln for ln in loss if ln != 'term_weights']
-        loss_funcs = [cls._get_loss_fun({ln: loss[ln]}) for ln in lns]
+        loss_funcs = [self._get_loss_fun({ln: loss[ln]}) for ln in lns]
         weights = copy.deepcopy(loss).pop('term_weights', [1.0] * len(lns))
 
         def loss_fun(hi_res_true, hi_res_gen):
             loss_details = {}
             loss = 0
             for i, (ln, loss_func) in enumerate(zip(lns, loss_funcs)):
-                val = loss_func(hi_res_true, hi_res_gen)
+                if loss_func.input_features == 'all':
+                    val = loss_func(hi_res_true, hi_res_gen)
+                else:
+                    hr_true, hr_gen = self._get_loss_inputs(
+                        hi_res_true, hi_res_gen, loss_func
+                    )
+                    val = loss_func(hr_true, hr_gen)
                 loss_details[camel_to_underscore(ln)] = val
                 loss += weights[i] * val
             return loss, loss_details
