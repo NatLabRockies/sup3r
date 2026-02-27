@@ -80,7 +80,8 @@ class CollectorH5(BaseCollector):
 
         return row_slice, col_loc
 
-    def get_coordinate_indices(self, target_meta, full_meta, threshold=1e-4):
+    @classmethod
+    def get_coordinate_indices(cls, target_meta, full_meta, threshold=1e-4):
         """Get coordindate indices in meta data for given targets
 
         Parameters
@@ -210,7 +211,8 @@ class CollectorH5(BaseCollector):
                 logger.error(msg)
                 raise OSError(msg) from e
 
-    def _get_file_time_index(self, file):
+    @classmethod
+    def _get_file_time_index(cls, file):
         """Get time index for a single file. Simple method used in thread pool
         for attribute collection."""
         with RexOutputs(file, mode='r') as f:
@@ -222,7 +224,8 @@ class CollectorH5(BaseCollector):
             )
         return time_index
 
-    def _get_file_meta(self, file):
+    @classmethod
+    def _get_file_meta(cls, file):
         """Get meta for a single file. Simple method used in thread pool for
         attribute collection."""
         with RexOutputs(file, mode='r') as f:
