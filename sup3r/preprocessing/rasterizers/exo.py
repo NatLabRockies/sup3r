@@ -71,8 +71,8 @@ class BaseExoRasterizer(ABC):
         enhanced 4x to 15 min. This parameter is calculated automatically
         when running the forward pass with a config file.
     input_handler_name : str
-        data handler class to use for input data. Provide a string name to
-        match a ``data_handler`` or ``rasterizer`` imported into
+        data handler class to use for the data at ``file_paths``. Provide a
+        string name to match a ``data_handler`` or ``rasterizer`` imported into
         ``~sup3r.preprocessing``. If None the correct handler will be guessed
         based on file type and time series properties.
     input_handler_kwargs : dict | None
