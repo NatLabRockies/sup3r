@@ -623,9 +623,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             if hasattr(batch_handler, k)
         }
 
-    def finish_training(
-        self, batch_handler, input_resolution, config=None, **kwargs
-    ):
+    def finish_training(self, batch_handler, epoch=None, config=None):
         """Finish training by applying SWA weights if enabled and updating
         BN stats.
 
@@ -633,20 +631,11 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         ----------
         batch_handler : sup3r.preprocessing.BatchHandler
             BatchHandler object to iterate through
-        input_resolution : dict
-            Dictionary specifying spatiotemporal input resolution. e.g.
-            {'temporal': '60min', 'spatial': '30km'}
+        epoch : int | None
+            The current epoch number. If None, it will not be used.
         config : TrainingConfig | None
             Training configuration object. If None, one will be created from
             kwargs. Using TrainingConfig is recommended for cleaner code.
-        **kwargs : dict
-            Training parameters passed to TrainingConfig if config is None.
-            For backwards compatibility, supports all original train() params:
-            n_epoch, weight_gen_advers, train_gen, train_disc,
-            disc_loss_bounds, checkpoint_int, out_dir, early_stop_on,
-            early_stop_threshold, early_stop_n_epoch, adaptive_update_bounds,
-            adaptive_update_fraction, multi_gpu, log_tb, export_tb, swa_start,
-            swa_freq, swa_lr, swa_bn_update_batches
         """
         if config.swa_start is not None and self._swa_n > 0:
             logger.info('Training complete. Applying SWA...')
@@ -663,7 +652,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             logger.info(f'SWA validation loss: {swa_val_loss}')
 
             if '{epoch}' in config.out_dir:
-                swa_out_dir = config.out_dir.replace('{epoch}', 'swa_final')
+                swa_out_dir = config.out_dir.format(epoch=f'{epoch}_swa_final')
                 self.save(swa_out_dir)
                 logger.info(f'Saved SWA model to {swa_out_dir}')
 
@@ -831,11 +820,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             )
         )
 
-        self.finish_training(
-            batch_handler,
-            input_resolution,
-            config=config,
-        )
+        self.finish_training(batch_handler, epoch=epochs[-1], config=config)
 
     def calc_loss(
         self,
