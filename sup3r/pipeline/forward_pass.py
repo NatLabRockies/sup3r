@@ -105,7 +105,7 @@ class ForwardPass:
         combine_type = step['combine_type']
         model_step = step['model']
         msg = f'Received weird combine_type {combine_type} for step: {step}'
-        assert combine_type in ('input', 'output', 'layer'), msg
+        assert combine_type in {'input', 'output', 'layer'}, msg
         if combine_type.lower() == 'input':
             if model_step == 0:
                 s_enhance = 1

@@ -14,6 +14,19 @@ class PhysicsBasedLoss(tf.keras.losses.Loss):
     base class for loss metrics that require specific input features."""
 
     def __init__(self, input_features='all'):
+        """Initialize the loss with given input features
+
+        Parameters
+        ----------
+        input_features : list | str
+            List of input features that the loss metric will be calculated on.
+            This is meant to be used for physics-based loss metrics that
+            require specific input features. If 'all', the loss will be
+            calculated on all features.  Otherwise, the loss will be calculated
+            on the features specified in the list.  The order of features in
+            the list will be checked to determine the order of features in the
+            input tensors.
+        """
         super().__init__()
         self.input_features = input_features
 

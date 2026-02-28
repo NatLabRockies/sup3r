@@ -469,9 +469,12 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             f'{loss_func.input_features}, but these are not found '
             f'in the model output features: {self.hr_out_features}'
         )
-        assert all(
+        if not all(
             f in self.hr_out_features for f in loss_func.input_features
-        ), msg
+        ):
+            logger.error(msg)
+            raise ValueError(msg)
+
         input_inds = [
             self.hr_out_features.index(f) for f in loss_func.input_features
         ]

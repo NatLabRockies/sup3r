@@ -273,8 +273,8 @@ def test_md_loss():
     md_loss = MaterialDerivativeLoss(
         input_features=['u_100m', 'v_100m']
     )
-    u_div = md_loss._compute_md(x, fidx=0)
-    v_div = md_loss._compute_md(x, fidx=1)
+    u_div = md_loss._compute_md(x, feature='u_100m')
+    v_div = md_loss._compute_md(x, feature='v_100m')
 
     u_div_np = np.gradient(y[..., 0], axis=3)
     u_div_np += y[..., 0] * np.gradient(y[..., 0], axis=1)
