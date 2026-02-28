@@ -42,19 +42,20 @@ class BaseExoRasterizer(ABC):
     feature : str
         Name of exogenous feature to rasterize.
     file_paths : str | list
-        A single source h5 file to extract raster data from or a list of netcdf
-        files with identical grid. The string can be a unix-style file path
-        which will be passed through glob.glob. This is typically low-res WRF
-        output or GCM netcdf data files that is source low-resolution data
-        intended to be sup3r resolved.
+        Filepaths(s) for typically low-res WRF output or GCM netcdf data files
+        that is source low-resolution data intended to be sup3r resolved.
+        These are used to define the grid that the high-resolution exogenous
+        data will be mapped onto. This can be either a single h5 file or a list
+        of netcdf files with identical grid. The string can be a unix-style
+        file path which will be passed through glob.glob.
     source_files : str | list | None
-        Filepath(s) to source data file(s) to get hi-res exogenous data, which
-        will be mapped to the enhanced grid of the file_paths input. Pixels
-        from these files will be mapped to their nearest low-res pixel in the
-        file_paths input. Accordingly, source_files should be a significantly
-        higher resolution than file_paths. Warnings will be raised if the
-        low-resolution pixels in file_paths do not have unique nearest pixels
-        from source_files. File format can be .h5 or .nc
+        Filepath(s) to hi-res exogenous data, which will be mapped to the
+        enhanced grid of the file_paths input. Pixels from these files will be
+        mapped to their nearest low-res pixel in the file_paths input.
+        Accordingly, source_files should be a significantly higher resolution
+        than file_paths. Warnings will be raised if the low-resolution pixels
+        in file_paths do not have unique nearest pixels from source_files. File
+        format can be .h5 or .nc
     s_enhance : int
         Factor by which the Sup3rGan model will enhance the spatial dimensions
         of low resolution data from file_paths input. For example, if getting

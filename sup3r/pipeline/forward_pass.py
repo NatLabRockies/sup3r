@@ -640,7 +640,11 @@ class ForwardPass:
         mask = np.isnan(chunk.input_data).any(axis=(0, 1, 2))
         feats = np.array(model.lr_features[: len(mask)])[mask]
         if np.any(mask):
-            msg = f'Input data for {feats} contains NaN values!'
+            msg = (
+                f'Input data for {feats} contains NaN values. Either '
+                'use ``nan_method_kwargs`` to fill these on the fly or '
+                'clean the data.'
+            )
             logger.error(msg)
             raise RuntimeError(msg)
 
