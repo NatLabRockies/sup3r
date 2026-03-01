@@ -106,7 +106,7 @@ def test_swa_basic(
         assert model._pre_swa_weights is not None
 
         # Verify SWA model was saved
-        swa_dir = os.path.join(td, 'test_swa_final')
+        swa_dir = os.path.join(td, f'test_{n_epoch - 1}_swa_final')
         assert os.path.exists(swa_dir)
         assert 'model_gen.pkl' in os.listdir(swa_dir)
         assert 'model_disc.pkl' in os.listdir(swa_dir)
@@ -572,7 +572,7 @@ def test_swa_load_and_continue(
         swa_weights_saved = [w.numpy().copy() for w in model.weights]
 
         # Load the SWA model
-        swa_dir = os.path.join(td, 'test_swa_final')
+        swa_dir = os.path.join(td, f'test_{n_epoch - 1}_swa_final')
         loaded_model = Sup3rGan.load(swa_dir)
 
         # Verify loaded weights match SWA weights

@@ -74,7 +74,7 @@ class TrainingConfig:
     train_disc: bool = True
     disc_loss_bounds: tuple[float, float] = (0.45, 0.6)
     checkpoint_int: Optional[int] = None
-    out_dir: str = './gan_{epoch}'
+    out_dir: str = './gan_e{epoch}'
     early_stop_on: Optional[str] = None
     early_stop_threshold: float = 0.005
     early_stop_n_epoch: int = 5
@@ -94,10 +94,9 @@ class TrainingConfig:
             raise ValueError(f'n_epoch must be positive, got {self.n_epoch}')
 
         if self.swa_start is not None:
-            if self.swa_start < 0 or self.swa_start >= self.n_epoch:
+            if self.swa_start < 0:
                 raise ValueError(
-                    f'swa_start must be between 0 and n_epoch '
-                    f'({self.n_epoch}), got {self.swa_start}'
+                    f'swa_start must be non-negative, got {self.swa_start}'
                 )
             if self.swa_freq <= 0:
                 raise ValueError(
