@@ -501,11 +501,7 @@ def test_training_config_validation():
     with pytest.raises(ValueError, match='n_epoch must be positive'):
         TrainingConfig(n_epoch=0)
 
-    # Invalid: swa_start must be between 0 and n_epoch
-    with pytest.raises(ValueError, match='swa_start must be between'):
-        TrainingConfig(n_epoch=100, swa_start=100)
-
-    with pytest.raises(ValueError, match='swa_start must be between'):
+    with pytest.raises(ValueError, match='swa_start must be non-negative'):
         TrainingConfig(n_epoch=100, swa_start=-1)
 
     # Invalid: swa_freq must be positive
