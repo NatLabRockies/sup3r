@@ -9,7 +9,29 @@ from tensorflow.keras.applications.vgg16 import preprocess_input
 from tensorflow.keras.losses import MeanAbsoluteError, MeanSquaredError
 
 
-def _derivative(x, axis=1):
+class PhysicsBasedLoss(tf.keras.losses.Loss):
+    """Base class for physics-based loss metrics. This is meant to be used as a
+    base class for loss metrics that require specific input features."""
+
+    def __init__(self, input_features='all'):
+        """Initialize the loss with given input features
+
+        Parameters
+        ----------
+        input_features : list | str
+            List of input features that the loss metric will be calculated on.
+            This is meant to be used for physics-based loss metrics that
+            require specific input features. If 'all', the loss will be
+            calculated on all features.  Otherwise, the loss will be calculated
+            on the features specified in the list.  The order of features in
+            the list will be checked to determine the order of features in the
+            input tensors.
+        """
+        super().__init__()
+        self.input_features = input_features
+
+
+def tf_derivative(x, axis=1):
     """Custom derivative function for compatibility with tensorflow.
 
     Note
@@ -52,7 +74,7 @@ def _derivative(x, axis=1):
         )
 
     msg = (
-        f'_derivative received axis={axis}. This is meant to compute only '
+        f'tf_derivative received axis={axis}. This is meant to compute only '
         'temporal (axis=3) or spatial (axis=1/2) derivatives for tensors '
         'of shape (n_obs, spatial_1, spatial_2, temporal)'
     )
@@ -147,84 +169,6 @@ class MmdLoss(tf.keras.losses.Loss):
         return mmd
 
 
-class MaterialDerivativeLoss(tf.keras.losses.Loss):
-    """Loss class for the material derivative. This is the left hand side of
-    the Navier-Stokes equation and is equal to internal + external forces
-    divided by density.
-
-    References
-    ----------
-    https://en.wikipedia.org/wiki/Material_derivative
-    """
-
-    LOSS_METRIC = MeanAbsoluteError()
-
-    def _compute_md(self, x, fidx):
-        """Compute material derivative the feature given by the index fidx.
-        It is assumed that for a given feature index fidx there is a pair of
-        wind components u/v given by 2 * (fidx // 2) and 2 * (fidx // 2) + 1
-
-        Parameters
-        ----------
-        x : tf.tensor
-            synthetic output or high resolution data
-            (n_observations, spatial_1, spatial_2, temporal, features)
-        fidx : int
-            Feature index to compute material derivative for.
-        """
-        uidx = 2 * (fidx // 2)
-        vidx = 2 * (fidx // 2) + 1
-        # df/dt
-        x_div = _derivative(x[..., fidx], axis=3)
-        # u * df/dx
-        x_div += tf.math.multiply(
-            x[..., uidx], _derivative(x[..., fidx], axis=1)
-        )
-        # v * df/dy
-        x_div += tf.math.multiply(
-            x[..., vidx], _derivative(x[..., fidx], axis=2)
-        )
-
-        return x_div
-
-    def __call__(self, x1, x2):
-        """Custom content loss that encourages accuracy of the material
-        derivative. This assumes that the first 2 * N features are N u/v
-        wind components at different hub heights and that the total number of
-        features is either 2 * N or 2 * N + 1
-
-        Parameters
-        ----------
-        x1 : tf.tensor
-            synthetic generator output
-            (n_observations, spatial_1, spatial_2, temporal, features)
-        x2 : tf.tensor
-            high resolution data
-            (n_observations, spatial_1, spatial_2, temporal, features)
-
-        Returns
-        -------
-        tf.tensor
-            0D tensor with loss value
-        """
-        hub_heights = x1.shape[-1] // 2
-
-        msg = (
-            f'The {self.__class__.__name__} is meant to be used on '
-            'spatiotemporal data only. Received tensor(s) that are not 5D'
-        )
-        assert len(x1.shape) == 5 and len(x2.shape) == 5, msg
-
-        x1_div = tf.stack([
-            self._compute_md(x1, fidx=i) for i in range(0, 2 * hub_heights, 2)
-        ])
-        x2_div = tf.stack([
-            self._compute_md(x2, fidx=i) for i in range(0, 2 * hub_heights, 2)
-        ])
-
-        return self.LOSS_METRIC(x1_div, x2_div)
-
-
 class SpatialDerivativeLoss(tf.keras.losses.Loss):
     """Loss class to encourage accurary of spatial derivatives."""
 
@@ -254,8 +198,8 @@ class SpatialDerivativeLoss(tf.keras.losses.Loss):
         )
         assert len(x1.shape) >= 4 and len(x2.shape) >= 4, msg
 
-        x1_div = _derivative(x1, axis=1) + _derivative(x1, axis=2)
-        x2_div = _derivative(x2, axis=1) + _derivative(x2, axis=2)
+        x1_div = tf_derivative(x1, axis=1) + tf_derivative(x1, axis=2)
+        x2_div = tf_derivative(x2, axis=1) + tf_derivative(x2, axis=2)
 
         return self.LOSS_METRIC(x1_div, x2_div)
 
@@ -288,8 +232,8 @@ class TemporalDerivativeLoss(tf.keras.losses.Loss):
         )
         assert len(x1.shape) == 5 and len(x2.shape) == 5, msg
 
-        x1_div = _derivative(x1, axis=3)
-        x2_div = _derivative(x2, axis=3)
+        x1_div = tf_derivative(x1, axis=3)
+        x2_div = tf_derivative(x2, axis=3)
 
         return self.LOSS_METRIC(x1_div, x2_div)
 
@@ -762,7 +706,7 @@ class SlicedWassersteinLoss(tf.keras.losses.Loss):
             'spatiotemporal data only. Received tensor(s) that are not 4D '
             'or 5D'
         )
-        assert len(x1.shape) in (4, 5), msg
+        assert len(x1.shape) in {4, 5}, msg
         if len(x1.shape) == 4:
             x1 = tf.expand_dims(x1, axis=3)
             x2 = tf.expand_dims(x2, axis=3)
@@ -787,3 +731,129 @@ class SlicedWassersteinLoss(tf.keras.losses.Loss):
         x2_sorted = tf.sort(x2_proj, axis=1)
 
         return tf.reduce_mean((x1_sorted - x2_sorted) ** 2)
+
+
+class MaterialDerivativeLoss(PhysicsBasedLoss):
+    """Loss class for the material derivative. This is the left hand side of
+    the Navier-Stokes equation and is equal to internal + external forces
+    divided by density in general. Under certain simplifying assumptions, this
+    is equal to zero.
+
+    References
+    ----------
+    https://en.wikipedia.org/wiki/Material_derivative
+    """
+
+    LOSS_METRIC = MeanAbsoluteError()
+
+    def __init__(self, input_features):
+        super().__init__(input_features=input_features)
+        self.u_inds = [
+            i for i, f in enumerate(input_features) if f.startswith('u_')
+        ]
+        self.v_inds = [
+            i for i, f in enumerate(input_features) if f.startswith('v_')
+        ]
+        self.u_heights = [
+            f.split('_')[1] for f in input_features if f.startswith('u_')
+        ]
+        self.v_heights = [
+            f.split('_')[1] for f in input_features if f.startswith('v_')
+        ]
+        assert len(self.u_inds) == len(self.v_inds), (
+            'The number of u and v components must be equal for '
+            f'MaterialDerivativeLoss. Found {len(self.u_inds)} u components '
+            f'and {len(self.v_inds)} v components.'
+        )
+        msg = (
+            'The u and v components must be at the same hub heights for '
+            f'MaterialDerivativeLoss. Found u components at {self.u_heights} '
+            f'and v components at {self.v_heights}.'
+        )
+        assert all(
+            uh == vh for uh, vh in zip(self.u_heights, self.v_heights)
+        ), msg
+
+    def _compute_md(self, x, feature):
+        """Compute material derivative for the feature given by the index fidx.
+
+        Parameters
+        ----------
+        x : tf.tensor
+            synthetic output or high resolution data
+            (n_observations, spatial_1, spatial_2, temporal, features)
+        feature : str
+            Feature to compute material derivative for.
+        """
+        # df/dt
+        height = feature.split('_')[1]
+        fidx = self.input_features.index(feature)
+        uidx = self.u_inds[self.u_heights.index(height)]
+        vidx = self.v_inds[self.v_heights.index(height)]
+        x_div = tf_derivative(x[..., fidx], axis=3)
+        # u * df/dx
+        x_div += tf.math.multiply(
+            x[..., uidx], tf_derivative(x[..., fidx], axis=1)
+        )
+        # v * df/dy
+        x_div += tf.math.multiply(
+            x[..., vidx], tf_derivative(x[..., fidx], axis=2)
+        )
+
+        return x_div
+
+    def __call__(self, x1, x2):
+        """Custom content loss that encourages accuracy of the material
+        derivative.
+
+        Parameters
+        ----------
+        x1 : tf.tensor
+            synthetic generator output
+            (n_observations, spatial_1, spatial_2, temporal, features)
+        x2 : tf.tensor
+            high resolution data
+            (n_observations, spatial_1, spatial_2, temporal, features)
+
+        Returns
+        -------
+        tf.tensor
+            0D tensor with loss value
+        """
+        msg = (
+            f'The {self.__class__.__name__} is meant to be used on '
+            'spatiotemporal data only. Received tensor(s) that are not 5D'
+        )
+        assert len(x1.shape) == 5 and len(x2.shape) == 5, msg
+
+        x1_div = tf.stack([
+            self._compute_md(x1, feature) for feature in self.input_features
+        ])
+        x2_div = tf.stack([
+            self._compute_md(x2, feature) for feature in self.input_features
+        ])
+
+        return self.LOSS_METRIC(x1_div, x2_div)
+
+
+class GeothermalPhysicsLoss(PhysicsBasedLoss):
+    """Physics based loss for Geothermal applications
+
+    TODO: Fill in call with appropriate physics equations. This is currently
+    just a dummy equation for testing.
+    """
+
+    LOSS_METRIC = MeanAbsoluteError()
+
+    def __call__(self, x1, x2):
+        """Geothermal physics loss"""
+        check = x1.shape[-1] == len(self.input_features)
+        check &= x2.shape[-1] == len(self.input_features)
+        msg = (
+            f'Number of features in `x1`: {x1.shape[-1]}, `x2`: '
+            f'{x2.shape[-1]} must match the length of `input_features`: '
+            f'{len(self.input_features)}'
+        )
+        assert check, msg
+
+        return self.LOSS_METRIC(x1, x2)

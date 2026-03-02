@@ -1,4 +1,5 @@
 """Sup3r Model Software"""
+
 from .base import Sup3rGan
 from .conditional import Sup3rCondMom
 from .dc import Sup3rGanDC
@@ -8,5 +9,4 @@ from .solar_cc import SolarCC
 from .surface import SurfaceSpatialMetModel
 from .with_obs import Sup3rGanWithObs
 
-SPATIAL_FIRST_MODELS = (MultiStepSurfaceMetGan,
-                        SolarMultiStepGan)
+SPATIAL_FIRST_MODELS = (MultiStepSurfaceMetGan, SolarMultiStepGan)

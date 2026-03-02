@@ -70,7 +70,7 @@ def test_train_disc(
             'n_batches': 1,
             'means': None,
             'stds': None,
-            'mode': 'eager'
+            'mode': 'eager',
         }
         batch_handler = BatchHandler(**bh_kwargs)
 
@@ -248,9 +248,15 @@ def test_train(fp_gen, fp_disc, s_enhance, t_enhance, sample_shape, n_epoch=8):
         batch_handler.stop()
 
 
-@pytest.mark.parametrize('loss_func', ['SlicedWassersteinLoss'])
+@pytest.mark.parametrize(
+    'loss_func',
+    [
+        {'SlicedWassersteinLoss': {}},
+        {'GeothermalPhysicsLoss': {'input_features': ['u_100m']}},
+    ],
+)
 def test_train_with_custom_loss(loss_func, n_epoch=8):
-    """Test basic model training with sliced wasserstein loss."""
+    """Test basic model training with custom losses."""
 
     lr = 5e-5
     Sup3rGan.seed()
@@ -258,7 +264,7 @@ def test_train_with_custom_loss(loss_func, n_epoch=8):
         pytest.ST_FP_GEN,
         pytest.ST_FP_DISC,
         learning_rate=lr,
-        loss={loss_func: {}},
+        loss=loss_func,
     )
 
     train_handler, val_handler = _get_handlers()
