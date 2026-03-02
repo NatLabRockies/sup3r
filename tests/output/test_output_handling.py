@@ -18,7 +18,7 @@ from sup3r.utilities.pytest.helpers import (
     make_fake_h5_chunks,
 )
 from sup3r.utilities.utilities import RANDOM_GENERATOR
-from sup3r.writers import OutputHandlerH5, OutputHandlerNC
+from sup3r.writers import OutputHandler, OutputHandlerH5, OutputHandlerNC
 
 
 def test_get_lat_lon():
@@ -283,3 +283,14 @@ def test_netcdf_uv_invert():
         vvals = dh.derive('v_10m').values
         assert np.allclose(data[..., 0], uvals, atol=1e-5)
         assert np.allclose(data[..., 1], vvals, atol=1e-5)
+
+
+def test_get_lat_lon_floating_point_error_shape():
+    """Test that floating point routing does not affect output array shape"""
+    # 122 and 61 known to cause issues with `np.arange(0, 10, 10 / x)`
+    x, y = 122, 61
+    enhance = 5
+    low_res_lat_lon = np.ones((x, y, 2))
+    out_shape = (x * enhance, y * enhance)
+    hr_lat_lon = OutputHandler.get_lat_lon(low_res_lat_lon, shape=out_shape)
+    assert hr_lat_lon.shape == (*out_shape, 2)
