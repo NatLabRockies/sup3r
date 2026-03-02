@@ -190,15 +190,15 @@ def st_interp(low, s_enhance, t_enhance, t_centered=False):
     hr_y, hr_x, hr_t = lr_y * s_enhance, lr_x * s_enhance, lr_t * t_enhance
 
     # assume outer bounds of mesh (0, 10) w/ points on inside of that range
-    y = np.arange(0, 10, 10 / lr_y) + 5 / lr_y
-    x = np.arange(0, 10, 10 / lr_x) + 5 / lr_x
+    y = np.linspace(0, 10, lr_y, endpoint=False) + 5 / lr_y
+    x = np.linspace(0, 10, lr_x, endpoint=False) + 5 / lr_x
 
     # remesh (0, 10) with high res spacing
-    new_y = np.arange(0, 10, 10 / hr_y) + 5 / hr_y
-    new_x = np.arange(0, 10, 10 / hr_x) + 5 / hr_x
+    new_y = np.linspace(0, 10, hr_y, endpoint=False) + 5 / hr_y
+    new_x = np.linspace(0, 10, hr_x, endpoint=False) + 5 / hr_x
 
-    t = np.arange(0, 10, 10 / lr_t)
-    new_t = np.arange(0, 10, 10 / hr_t)
+    t = np.linspace(0, 10, lr_t, endpoint=False)
+    new_t = np.linspace(0, 10, hr_t, endpoint=False)
     if t_centered:
         t += 5 / lr_t
         new_t += 5 / hr_t
