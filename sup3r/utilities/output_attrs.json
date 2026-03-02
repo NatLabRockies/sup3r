@@ -144,7 +144,7 @@
     "dvs": {
         "scale_factor": 100.0,
         "units": "percent",
-        "dtype": "uint16",
+        "dtype": "int16",
         "chunks": [2000, 500],
         "min": -100,
         "max": 100
@@ -152,7 +152,7 @@
     "dvpvs": {
         "scale_factor": 100.0,
         "units": "percent",
-        "dtype": "uint16",
+        "dtype": "int16",
         "chunks": [2000, 500],
         "min": -100,
         "max": 100
