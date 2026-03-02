@@ -175,7 +175,10 @@ def enforce_limits(features, data, nn_fill=False):
     for fidx, fn in enumerate(features):
         dset_name = get_feature_basename(fn)
         if dset_name not in OUTPUT_ATTRS:
-            msg = f'Could not find "{dset_name}" in OUTPUT_ATTRS dict!'
+            msg = (
+                f'Attempting to enforce physical limits for "{dset_name}" '
+                'but it is not in the OUTPUT_ATTRS dict!'
+            )
             logger.error(msg)
             raise KeyError(msg)
 
