@@ -533,3 +533,13 @@ def test_st_interpolation(plot=False):
 
     assert np.allclose(hr_lats_0, hr_lats_1)
     assert np.allclose(hr_lons_0, hr_lons_1)
+
+
+def test_st_interp_floating_point_error_shape():
+    """Test that floating point routing does not affect output array shape"""
+    # 122 and 61 known to cause issues with `np.arange(0, 10, 10 / x)`
+    x, y, t = 122, 61, 14
+    s_enhance, t_enhance = 5, 11
+    low_res = np.ones((x, y, t))
+    high_res = st_interp(low_res, s_enhance=s_enhance, t_enhance=t_enhance)
+    assert high_res.shape == (x * s_enhance, y * s_enhance, t * t_enhance)
