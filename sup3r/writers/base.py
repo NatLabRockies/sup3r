@@ -480,8 +480,8 @@ class OutputHandler(OutputMixin):
         hr_y, hr_x = shape
 
         # assume outer bounds of mesh (0, 10) w/ points on inside of that range
-        y = np.arange(0, 10, 10 / lr_y) + 5 / lr_y
-        x = np.arange(0, 10, 10 / lr_x) + 5 / lr_x
+        y = np.linspace(0, 10, lr_y, endpoint=False) + 5 / lr_y
+        x = np.linspace(0, 10, lr_x, endpoint=False) + 5 / lr_x
 
         # add values due to padding
         y = np.concatenate([[y[0] - 10 / lr_y], y, [y[-1] + 10 / lr_y]])
