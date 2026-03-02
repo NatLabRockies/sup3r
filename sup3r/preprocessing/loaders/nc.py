@@ -157,9 +157,25 @@ class LoaderNC(BaseLoader):
         self._res = res.rename(rename_coords)
 
         if not all(coord in self._res for coord in Dimension.coords_2d()):
-            err = 'Could not find valid coordinates in given files: %s'
-            logger.error(err, self.file_paths)
-            raise OSError(err % (self.file_paths))
+            err = (
+                'Could not find valid coordinates in given files: %s\n'
+                'Expected: %s\n'
+                'Dataset coords: %s'
+            )
+            logger.error(
+                err,
+                self.file_paths,
+                [str(x) for x in Dimension.coords_2d()],
+                list(self._res.coords),
+            )
+            raise OSError(
+                err
+                % (
+                    self.file_paths,
+                    [str(x) for x in Dimension.coords_2d()],
+                    list(self._res.coords),
+                )
+            )
 
         res = self._res.swap_dims(self._get_dims(self._res))
         res = res.assign_coords(self._get_coords(res))
