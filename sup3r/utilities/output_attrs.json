@@ -146,6 +146,7 @@
         "units": "percent",
         "dtype": "int16",
         "chunks": [2000, 500],
+        "description": "S velocity variations (Seismicity; Geothermal output)",
         "min": -100,
         "max": 100
     },
@@ -154,6 +155,7 @@
         "units": "percent",
         "dtype": "int16",
         "chunks": [2000, 500],
+        "description": "Vp/Vs ratio variations (Seismicity; Geothermal output)",
         "min": -100,
         "max": 100
     },
@@ -162,6 +164,7 @@
         "units": "ratio",
         "dtype": "float32",
         "chunks": [2000, 500],
+        "description": "Vp/Vs ratio from MITPS_20 (Seismicity; Geothermal output)",
         "min": 0
     },
     "vp": {
@@ -169,33 +172,38 @@
         "units": "kg s-1",
         "dtype": "float32",
         "chunks": [2000, 500],
+        "description": "P-velocity (Seismicity; Geothermal output)",
         "min": 0
     },
     "ec": {
         "scale_factor": 1,
         "units": "S m-1",
         "dtype": "float32",
-        "chunks": [2000, 500]
+        "chunks": [2000, 500],
+        "description": "log(10) electrical conductivity (Conductivity; Geothermal output)"
     },
     "t": {
         "scale_factor": 1,
         "units": "C",
         "dtype": "float32",
         "chunks": [2000, 500],
-        "min": -273.15
+        "min": -273.15,
+        "description": "Temperature-at-depth (Geothermal output)"
     },
     "q": {
         "scale_factor": 1,
         "units": "mW m-2",
         "dtype": "float32",
-        "chunks": [2000, 500]
+        "chunks": [2000, 500],
+        "description": "Heat flow (Geothermal output)"
     },
     "k": {
         "scale_factor": 1,
         "units": "W m-1 K-1",
         "dtype": "float32",
         "chunks": [2000, 500],
-        "min": 0
+        "min": 0,
+        "description": "Rock thermal conductivity (Geothermal output)"
     }
 
 }
