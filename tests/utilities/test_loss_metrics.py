@@ -366,3 +366,60 @@ def test_geothermal_heat_transfer_loss_depth_intersection_and_errors():
     )
     with pytest.raises(AssertionError):
         loss_obj(np.zeros((2, 4, 6)), np.zeros((2, 4, 6)))
+
+
+def test_geothermal_heat_transfer_loss():
+    """Test heat transfer loss on synthetic data."""
+
+    depths = [1000, 2000, 3000]
+    features = [
+        *(f't_{depth}m' for depth in depths),
+        *(f'q_{depth}m' for depth in depths),
+        *(f'k_{depth}m' for depth in depths),
+    ]
+    loss_obj = GeothermalConductiveHeatTransferLoss(input_features=features)
+
+    assert loss_obj.depths == depths
+
+    batch = 2
+    s1 = 8
+    s2 = 8
+    x = np.arange(s1, dtype=np.float32)[np.newaxis, :, np.newaxis]
+    y = np.arange(s2, dtype=np.float32)[np.newaxis, np.newaxis, :]
+
+    k_const = 2.0
+    t_slope_z = 0.01
+    t_slope_x = 0.1
+    t_slope_y = 0.2
+    q_const = -k_const * (t_slope_x + t_slope_y + t_slope_z)
+
+    tensors = []
+    for depth in depths:
+        temp = (
+            t_slope_x * x
+            + t_slope_y * y
+            + t_slope_z * depth
+            + np.zeros((batch, s1, s2), dtype=np.float32)
+        )
+        tensors.append(temp)
+
+    for _ in depths:
+        q = q_const + np.zeros((batch, s1, s2), dtype=np.float32)
+        tensors.append(q)
+
+    for _ in depths:
+        k = k_const + np.zeros((batch, s1, s2), dtype=np.float32)
+        tensors.append(k)
+
+    x_gen = np.stack(tensors, axis=-1)
+    x_true = np.zeros_like(x_gen)
+
+    loss_ref = loss_obj(x_true, x_gen).numpy()
+    assert loss_ref < 1e-10
+
+    x_gen_perturbed = x_gen.copy()
+    q_offset_idx = len(depths) + 1
+    x_gen_perturbed[..., q_offset_idx] += 1.0
+    loss_perturbed = loss_obj(x_true, x_gen_perturbed).numpy()
+
+    assert loss_perturbed > loss_ref
