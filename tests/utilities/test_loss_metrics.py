@@ -11,6 +11,7 @@ from sup3r import CONFIG_DIR
 from sup3r.models import Sup3rGan
 from sup3r.utilities.loss_metrics import (
     CoarseMseLoss,
+    GeothermalConductiveHeatTransferLoss,
     LowResLoss,
     MaterialDerivativeLoss,
     MmdLoss,
@@ -324,3 +325,44 @@ def test_multiterm_loss():
     loss, _ = multi_loss(x, y)
 
     assert np.allclose(0.2 * md_loss(x, y) + 0.8 * mae_loss(x, y), loss)
+
+
+def test_geothermal_heat_transfer_loss_depth_intersection_and_errors():
+    """Test depth intersection behavior and expected validation errors."""
+
+    loss_obj = GeothermalConductiveHeatTransferLoss(
+        input_features=[
+            't_1000m',
+            't_2000m',
+            'q_1000m',
+            'q_2000m',
+            'q_3000m',
+            'k_1000m',
+            'k_2000m',
+            'k_4000m',
+        ]
+    )
+    assert loss_obj.depths == [1000, 2000]
+
+    with pytest.raises(AssertionError):
+        GeothermalConductiveHeatTransferLoss(
+            input_features=['t_1000m', 'q_2000m', 'k_3000m']
+        )
+
+    with pytest.raises(AssertionError):
+        GeothermalConductiveHeatTransferLoss(
+            input_features=['t_1000m', 'q_1000m', 'k_1000m']
+        )
+
+    loss_obj = GeothermalConductiveHeatTransferLoss(
+        input_features=[
+            't_1000m',
+            't_2000m',
+            'q_1000m',
+            'q_2000m',
+            'k_1000m',
+            'k_2000m',
+        ]
+    )
+    with pytest.raises(AssertionError):
+        loss_obj(np.zeros((2, 4, 6)), np.zeros((2, 4, 6)))
