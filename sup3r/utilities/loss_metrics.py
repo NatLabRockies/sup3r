@@ -9,26 +9,34 @@ from tensorflow.keras.applications.vgg16 import preprocess_input
 from tensorflow.keras.losses import MeanAbsoluteError, MeanSquaredError
 
 
-class PhysicsBasedLoss(tf.keras.losses.Loss):
-    """Base class for physics-based loss metrics. This is meant to be used as a
+class Sup3rLoss(tf.keras.losses.Loss):
+    """Base class for custom sup3r loss metrics. This is meant to be used as a
     base class for loss metrics that require specific input features."""
 
-    def __init__(self, input_features='all'):
+    def __init__(self, input_features='all', obs_features=None):
         """Initialize the loss with given input features
 
         Parameters
         ----------
         input_features : list | str
             List of input features that the loss metric will be calculated on.
-            This is meant to be used for physics-based loss metrics that
-            require specific input features. If 'all', the loss will be
-            calculated on all features.  Otherwise, the loss will be calculated
-            on the features specified in the list.  The order of features in
-            the list will be checked to determine the order of features in the
-            input tensors.
+            If 'all', the loss will be calculated on all features.  Otherwise,
+            the loss will be calculated on the features specified in the list.
+            The order of features in the list will be checked to determine the
+            order of features in the input tensors.
+        obs_features : list | None
+            Optional list of observation features to use as targets for the
+            loss metric. This is typically used in a physics based loss
+            when the ground truth data is sparse (e.g. observation points).
+            In this case a physics constraint is applied where there are no
+            observations, and an additional content loss is calculated for
+            points where observations are available. The order of features
+            in the list will be checked to determine the order of features in
+            the input tensors.
         """
         super().__init__()
         self.input_features = input_features
+        self.obs_features = obs_features
 
 
 def tf_derivative(x, axis=1):
@@ -117,7 +125,7 @@ def gaussian_kernel(x1, x2, sigma=1.0):
     return result
 
 
-class ExpLoss(tf.keras.losses.Loss):
+class ExpLoss(Sup3rLoss):
     """Loss class for squared exponential difference"""
 
     def __call__(self, x1, x2):
@@ -140,7 +148,7 @@ class ExpLoss(tf.keras.losses.Loss):
         return tf.reduce_mean(1 - tf.exp(-((x1 - x2) ** 2)))
 
 
-class MmdLoss(tf.keras.losses.Loss):
+class MmdLoss(Sup3rLoss):
     """Loss class for max mean discrepancy loss"""
 
     def __call__(self, x1, x2, sigma=1.0):
@@ -169,7 +177,7 @@ class MmdLoss(tf.keras.losses.Loss):
         return mmd
 
 
-class SpatialDerivativeLoss(tf.keras.losses.Loss):
+class SpatialDerivativeLoss(Sup3rLoss):
     """Loss class to encourage accurary of spatial derivatives."""
 
     LOSS_METRIC = MeanAbsoluteError()
@@ -204,7 +212,7 @@ class SpatialDerivativeLoss(tf.keras.losses.Loss):
         return self.LOSS_METRIC(x1_div, x2_div)
 
 
-class TemporalDerivativeLoss(tf.keras.losses.Loss):
+class TemporalDerivativeLoss(Sup3rLoss):
     """Loss class to encourage accurary of temporal derivative."""
 
     LOSS_METRIC = MeanAbsoluteError()
@@ -238,7 +246,7 @@ class TemporalDerivativeLoss(tf.keras.losses.Loss):
         return self.LOSS_METRIC(x1_div, x2_div)
 
 
-class CoarseMseLoss(tf.keras.losses.Loss):
+class CoarseMseLoss(Sup3rLoss):
     """Loss class for coarse mse on spatial average of 5D tensor"""
 
     MSE_LOSS = MeanSquaredError()
@@ -266,7 +274,7 @@ class CoarseMseLoss(tf.keras.losses.Loss):
         return self.MSE_LOSS(x1_coarse, x2_coarse)
 
 
-class SpatialExtremesLoss(tf.keras.losses.Loss):
+class SpatialExtremesLoss(Sup3rLoss):
     """Loss class that encourages accuracy of the min/max values in the
     spatial domain. This does not include an additional MAE term"""
 
@@ -301,7 +309,7 @@ class SpatialExtremesLoss(tf.keras.losses.Loss):
         return (mae_min + mae_max) / 2
 
 
-class TemporalExtremesLoss(tf.keras.losses.Loss):
+class TemporalExtremesLoss(Sup3rLoss):
     """Loss class that encourages accuracy of the min/max values in the
     timeseries. This does not include an additional mae term"""
 
@@ -336,7 +344,7 @@ class TemporalExtremesLoss(tf.keras.losses.Loss):
         return (mae_min + mae_max) / 2
 
 
-class SpatialFftLoss(tf.keras.losses.Loss):
+class SpatialFftLoss(Sup3rLoss):
     """Loss class that encourages accuracy of the spatial frequency spectrum"""
 
     MAE_LOSS = MeanAbsoluteError()
@@ -381,7 +389,7 @@ class SpatialFftLoss(tf.keras.losses.Loss):
         return self.MAE_LOSS(x1_hat, x2_hat)
 
 
-class SpatiotemporalFftLoss(tf.keras.losses.Loss):
+class SpatiotemporalFftLoss(Sup3rLoss):
     """Loss class that encourages accuracy of the spatiotemporal frequency
     spectrum"""
 
@@ -429,7 +437,7 @@ class SpatiotemporalFftLoss(tf.keras.losses.Loss):
         return self.MAE_LOSS(x1_hat, x2_hat)
 
 
-class LowResLoss(tf.keras.losses.Loss):
+class LowResLoss(Sup3rLoss):
     """Content loss that is calculated by coarsening the synthetic and true
     high-resolution data pairs and then performing the pointwise content loss
     on the low-resolution fields"""
@@ -582,7 +590,7 @@ class LowResLoss(tf.keras.losses.Loss):
         return self._tf_loss(x1, x2) + ex_loss
 
 
-class PerceptualLoss(tf.keras.losses.Loss):
+class PerceptualLoss(Sup3rLoss):
     """Perceptual loss that is calculated as MSE between feature maps of
     ground truth and synthetic data"""
 
@@ -665,7 +673,7 @@ class PerceptualLoss(tf.keras.losses.Loss):
         return tf.reduce_mean(losses)
 
 
-class SlicedWassersteinLoss(tf.keras.losses.Loss):
+class SlicedWassersteinLoss(Sup3rLoss):
     """Loss class for sliced wasserstein distance loss"""
 
     def __init__(self, n_projections=1024):
@@ -733,7 +741,7 @@ class SlicedWassersteinLoss(tf.keras.losses.Loss):
         return tf.reduce_mean((x1_sorted - x2_sorted) ** 2)
 
 
-class MaterialDerivativeLoss(PhysicsBasedLoss):
+class MaterialDerivativeLoss(Sup3rLoss):
     """Loss class for the material derivative. This is the left hand side of
     the Navier-Stokes equation and is equal to internal + external forces
     divided by density in general. Under certain simplifying assumptions, this
@@ -836,7 +844,7 @@ class MaterialDerivativeLoss(PhysicsBasedLoss):
         return self.LOSS_METRIC(x1_div, x2_div)
 
 
-class GeothermalPhysicsLoss(PhysicsBasedLoss):
+class GeothermalPhysicsLoss(Sup3rLoss):
     """Physics based loss for Geothermal applications
 
     TODO: Fill in call with appropriate physics equations. This is currently
@@ -853,6 +861,30 @@ class GeothermalPhysicsLoss(PhysicsBasedLoss):
             f'Number of features in `x1`: {x1.shape[-1]}, `x2`: '
             f'{x2.shape[-1]} must match the length of `input_features`: '
             f'{len(self.input_features)}'
+        )
+        assert check, msg
+
+        return self.LOSS_METRIC(x1, x2)
+
+
+class GeothermalPhysicsLossWithObs(Sup3rLoss):
+    """Physics based loss for Geothermal applications
+
+    TODO: Fill in call with appropriate physics equations. This is currently
+    just a dummy equation for testing.
+    """
+
+    LOSS_METRIC = MeanAbsoluteError()
+
+    def __call__(self, x1, x2):
+        """Geothermal physics loss"""
+        check = x1.shape[-1] == len(self.input_features)
+        check &= x2.shape[-1] == len(self.obs_features)
+        msg = (
+            f'Number of features in `x1`: {x1.shape[-1]}, must match the '
+            f'length of `input_features`: {len(self.input_features)}, and '
+            f'number of features in `x2`: {x2.shape[-1]}, must match the '
+            f'length of `obs_features`: {len(self.obs_features)}'
         )
         assert check, msg
 

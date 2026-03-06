@@ -12,6 +12,24 @@ from .base import Sup3rGan
 logger = logging.getLogger(__name__)
 
 
+# TODO: Refactor so the observations can be either "proxies" sampled from
+# gridded high res or "real" observations drawn from the .obs attribute of
+# the batches in the batch handler.
+#   - either construct mask like currently done or calculate it from the
+#     .obs data by checking for NaN values. The former is done when using
+#     sampled proxies for training and the latter is done when using real
+#     observations for training.
+#   - might be able to remove obs loss weighting and delegate this to loss
+#     functions
+#   - add flag in init for proxies vs real.
+#   - or maybe the obs data can just be supplied through the high_res attr
+#     and can allow for some NaNs. Then the mask can be calculated on the high
+#     res data by checking for NaNs and this would work for both proxies and
+#     real obs. This would be simpler and more flexible but would require
+#     changes to the batch handler to allow for NaNs in the high res data
+#   - might be some quirks with tracking output features
+
+
 class Sup3rGanWithObs(Sup3rGan):
     """Sup3r GAN model which includes mid network observation fusion. This
     model is useful for when production runs will be over a domain for which
@@ -40,6 +58,7 @@ class Sup3rGanWithObs(Sup3rGan):
     def __init__(
         self,
         *args,
+        use_proxy_obs=True,
         onshore_obs_frac=None,
         offshore_obs_frac=None,
         loss_obs_weight=0.0,
@@ -53,6 +72,15 @@ class Sup3rGanWithObs(Sup3rGan):
         ----------
         args : list
             Positional args for ``Sup3rGan`` parent class.
+        use_proxy_obs : bool
+            Whether to use proxy observations sampled from the gridded high res
+            data during training. If False, the model will expect real
+            observation data in the .high_res attribute of the batches in the
+            batch handler and will calculate the observation mask based on
+            where there are NaN values in the high res data. If True, the model
+            will create synthetic observation data by masking the gridded high
+            res data during training and will calculate the observation mask
+            based on the specified onshore and offshore observation fractions.
         onshore_obs_frac : dict[List] | dict[float]
             Fraction of the batch that should be treated as onshore
             observations. Should include ``spatial`` key and optionally
@@ -79,6 +107,7 @@ class Sup3rGanWithObs(Sup3rGan):
             Keyword arguments for the ``Sup3rGan`` parent class.
         """
         super().__init__(*args, **kwargs)
+        self.use_proxy_obs = use_proxy_obs
         self.onshore_obs_frac = (
             {} if onshore_obs_frac is None else onshore_obs_frac
         )
@@ -105,14 +134,20 @@ class Sup3rGanWithObs(Sup3rGan):
 
     @property
     def obs_training_inds(self):
-        """Get the indices of the observation features in the true high res
-        data. Obs features have an _obs suffix to avoid name conflict with
-        fully gridded features. During training these are matched with the
-        true high res data."""
-        hr_feats = [f.replace('_obs', '') for f in self.hr_features]
-        obs_inds = [
-            hr_feats.index(f.replace('_obs', '')) for f in self.obs_features
-        ]
+        """Get the observation feature indices in the true high res
+        data. True observation features are named with an '_obs' suffix.
+        When training with proxy observations these indices select
+        the corresponding gridded features (no '_obs' suffix). Otherwise,
+        these indices select observation features with an '_obs' suffix."""
+
+        if self.use_proxy_obs:
+            hr_feats = [f.replace('_obs', '') for f in self.hr_features]
+            obs_inds = [
+                hr_feats.index(f.replace('_obs', ''))
+                for f in self.obs_features
+            ]
+        else:
+            obs_inds = [self.hr_features.index(f) for f in self.obs_features]
         return obs_inds
 
     def _get_single_obs_mask(self, hi_res, spatial_frac, time_frac=1.0):
