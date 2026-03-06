@@ -75,7 +75,9 @@ class CollectorNC(BaseCollector):
             Whether the data is on a regular grid. If True then spatial chunks
             can be combined across both latitude and longitude. If False then
             spatial chunks must all have the same longitude values to be
-            combined.
+            combined. If you need completely general chunk collection then
+            you should use write chunks to `h5` files and use
+            :class:`sup3r.postprocessing.collectors.h5.CollectorH5`.
         """
         logger.info(f'Initializing collection for file_paths={file_paths}')
 
