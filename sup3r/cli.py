@@ -88,7 +88,7 @@ def forward_pass(ctx, verbose):
 
     A sup3r forward pass config.json file can contain any arguments or keyword
     arguments required to initialize the
-    :class:`sup3r.pipeline.forward_pass.ForwardPassStrategy` module. The config
+    :class:`sup3r.pipeline.strategy.ForwardPassStrategy` module. The config
     also has several optional arguments: ``log_pattern``, ``log_level``, and
     ``execution_control``. Here's a small example forward pass config::
 
@@ -147,7 +147,7 @@ def solar(ctx, verbose):
 
     A sup3r solar config.json file can contain any arguments or keyword
     arguments required to call the
-    :meth:`sup3r.solar.solar.Solar.run_temporal_chunk` method. You do not need
+    :meth:`sup3r.solar.solar.Solar.run_temporal_chunks` method. You do not need
     to include the ``i_t_chunk`` input, this is added by the CLI. The config
     also has several optional arguments: ``log_pattern``, ``log_level``, and
     ``execution_control``. Here's a small example solar config::
@@ -255,8 +255,9 @@ def data_collect(ctx, verbose):
 
     A sup3r data-collect config.json file can contain any arguments or keyword
     arguments required to run the
-    :meth:`sup3r.postprocessing.collectors.Collector.collect` method. The
-    config also has several optional arguments: ``log_file``, ``log_level``,
+    :meth:`sup3r.postprocessing.collectors.base.BaseCollector.collect`
+    method. The config also has several optional arguments: ``log_file``,
+    ``log_level``,
     and ``execution_control``. Here's a small example data-collect config::
 
         \b

@@ -327,8 +327,12 @@ class OutputHandler(OutputMixin):
             Whether to convert u and v wind components to windspeed and
             direction
         nn_fill : bool
-            Whether to fill values outside limits with nearest neighbors. If
-            False, values outside limits will be set to the limits.
+            Whether to fill data outside of accepted limits (e.g. relative
+            humidity 0-100) with nearest neighbour or cap to limits. If true
+            then any values outside of limits will be filled with the nearest
+            neighbour value within limits. If false then values will be capped
+            to limits. This is only used for writing output and does not affect
+            the data passed through the generator.
         max_workers : int | None
             Max workers to use for inverse transform. If None the max_workers
             will be estimated based on memory limits.
