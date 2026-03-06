@@ -15,7 +15,7 @@ from sup3r.preprocessing.data_handlers import ExoData
 from sup3r.utilities import VERSION_RECORD
 from sup3r.utilities.utilities import safe_cast
 
-from .utilities import SUP3R_EXO_LAYERS, SUP3R_OBS_LAYERS
+from .utilities import SUP3R_LAYERS
 
 logger = logging.getLogger(__name__)
 
@@ -355,6 +355,20 @@ class AbstractInterface(ABC):
                     hi_res = np.concatenate((hi_res, exo_output), axis=-1)
         return hi_res
 
+    def _get_layer_features(self):
+        """Get the list of features used in the model based on layer
+        attributes. This is used to check that the features provided in
+        exogenous_data match the features expected by the model
+        architecture."""
+        features = []
+        if hasattr(self, '_gen'):
+            for layer in self._gen.layers:
+                if isinstance(layer, SUP3R_LAYERS):
+                    layer_feats = getattr(layer, 'features', [layer.name])
+                    layer_feats = [f for f in layer_feats if f not in features]
+                    features.extend(layer_feats)
+        return features
+
     @property
     @abstractmethod
     def meta(self):
@@ -377,16 +391,9 @@ class AbstractInterface(ABC):
     @property
     def obs_features(self):
         """Get list of exogenous observation feature names the model uses.
-        These come from the names of the ``Sup3rObs..`` layers."""
-        # pylint: disable=E1101
-        features = []
-        if hasattr(self, '_gen'):
-            for layer in self._gen.layers:
-                if isinstance(layer, SUP3R_OBS_LAYERS):
-                    obs_feats = getattr(layer, 'features', [layer.name])
-                    obs_feats = [f for f in obs_feats if f not in features]
-                    features.extend(obs_feats)
-        return features
+        These are the features with an '_obs' suffix"""
+        features = self._get_layer_features()
+        return [f for f in features if '_obs' in f]
 
     @property
     def hr_exo_features(self):
@@ -397,14 +404,8 @@ class AbstractInterface(ABC):
         [..., topo, sza], and the model has 2 concat or add layers, exo
         features will be [topo, sza]. Topo will then be used in the first
         concat layer and sza will be used in the second"""
-        # pylint: disable=E1101
-        features = []
-        if hasattr(self, '_gen'):
-            features = [
-                layer.name
-                for layer in self._gen.layers
-                if isinstance(layer, SUP3R_EXO_LAYERS)
-            ]
+        features = self._get_layer_features()
+        features = [f for f in features if '_obs' not in f]
         obs_feats = [feat.replace('_obs', '') for feat in self.obs_features]
         features += [f for f in obs_feats if f not in self.hr_out_features]
         return features

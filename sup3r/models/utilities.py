@@ -11,6 +11,7 @@ from phygnn.layers.custom_layers import (
     Sup3rAdder,
     Sup3rConcat,
     Sup3rConcatObs,
+    Sup3rCrossAttention,
     Sup3rObsModel,
 )
 from scipy.interpolate import RegularGridInterpolator
@@ -20,11 +21,17 @@ from sup3r.utilities.utilities import Timer
 
 logger = logging.getLogger(__name__)
 
-SUP3R_OBS_LAYERS = Sup3rObsModel, Sup3rConcatObs
-
-SUP3R_EXO_LAYERS = Sup3rAdder, Sup3rConcat
-
-SUP3R_LAYERS = (*SUP3R_EXO_LAYERS, *SUP3R_OBS_LAYERS)
+# These are special layers that are used to injest exogenous data and
+# observations. They are checked for feature or name attributes to
+# determine what features the model uses as exogenous inputs and what
+# features the model uses as observation inputs.
+SUP3R_LAYERS = (
+    Sup3rObsModel,
+    Sup3rConcatObs,
+    Sup3rCrossAttention,
+    Sup3rAdder,
+    Sup3rConcat,
+)
 
 
 class TrainingSession:
