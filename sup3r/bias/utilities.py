@@ -118,7 +118,7 @@ def qdm_bc(
 
     Bias correct this DataHandler's data with Quantile Delta Mapping. The
     required statistical distributions should be pre-calculated using
-    :class:`sup3r.bias.bias_calc.QuantileDeltaMappingCorrection`.
+    :class:`sup3r.bias.qdm.QuantileDeltaMappingCorrection`.
 
     Warning: There is no guarantee that the coefficients from ``bc_files``
     match the resource processed here. Be careful choosing ``bc_files``.
@@ -130,7 +130,7 @@ def qdm_bc(
         bias correct
     bc_files : list | tuple | str
         One or more filepaths to .h5 files output by
-        :class:`bias_calc.QuantileDeltaMappingCorrection`. These should
+        :class:`sup3r.bias.qdm.QuantileDeltaMappingCorrection`. These should
         contain datasets named "base_{bias_feature}_params",
         "bias_{feature}_params", and "bias_fut_{feature}_params" where
         {feature} is one of the features contained by this DataHandler and

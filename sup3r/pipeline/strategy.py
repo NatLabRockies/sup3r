@@ -175,8 +175,12 @@ class ForwardPassStrategy:
         Whether to convert u and v wind components to windspeed and direction
         for writing to output. This defaults to True.
     nn_fill : bool
-        Whether to fill data outside of accepted limits (e.g. relative
-        humidity 0-100) with nearest neighbour or cap to limits.
+        Whether to fill data outside of accepted limits (e.g. relative humidity
+        0-100) with nearest neighbour or cap to limits. If true then any values
+        outside of limits will be filled with the nearest neighbour value
+        within limits. If false then values will be capped to limits. This is
+        only used for writing output and does not affect the data passed
+        through the generator.
     pass_workers : int | None
         Max number of workers to use for performing forward passes on a single
         node. If 1 then all forward passes on chunks distributed to a single

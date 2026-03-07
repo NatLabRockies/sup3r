@@ -73,7 +73,11 @@ class CollectorNC(BaseCollector):
             Dictionary of kwargs to pass to Cacher._write_single.
         is_regular_grid : bool
             Whether the data is on a regular grid. If True then spatial chunks
-            can be combined across both latitude and longitude.
+            can be combined across both latitude and longitude. If False then
+            spatial chunks must all have the same longitude values to be
+            combined. If you need completely general chunk collection then
+            you should write chunks to `h5` files and use
+            :class:`sup3r.postprocessing.collectors.h5.CollectorH5`.
         """
         logger.info(f'Initializing collection for file_paths={file_paths}')
 
@@ -111,12 +115,14 @@ class CollectorNC(BaseCollector):
                     s_idx: schunk.set_regular_grid()._ds
                     for s_idx, schunk in spatial_chunks.items()
                 }
-                out = xr.combine_by_coords(spatial_chunks.values(),
-                                           combine_attrs='override')
+                out = xr.combine_by_coords(
+                    spatial_chunks.values(), combine_attrs='override'
+                )
 
             else:
                 out = xr.concat(
-                    spatial_chunks.values(), dim=Dimension.SOUTH_NORTH
+                    [sc._ds for sc in spatial_chunks.values()],
+                    dim=Dimension.SOUTH_NORTH,
                 )
 
             cacher_kwargs = cacher_kwargs or {}
