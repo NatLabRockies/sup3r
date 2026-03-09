@@ -12,24 +12,6 @@ from .base import Sup3rGan
 logger = logging.getLogger(__name__)
 
 
-# TODO: Refactor so the observations can be either "proxies" sampled from
-# gridded high res or "real" observations drawn from the .obs attribute of
-# the batches in the batch handler.
-#   - either construct mask like currently done or calculate it from the
-#     .obs data by checking for NaN values. The former is done when using
-#     sampled proxies for training and the latter is done when using real
-#     observations for training.
-#   - might be able to remove obs loss weighting and delegate this to loss
-#     functions
-#   - add flag in init for proxies vs real.
-#   - or maybe the obs data can just be supplied through the high_res attr
-#     and can allow for some NaNs. Then the mask can be calculated on the high
-#     res data by checking for NaNs and this would work for both proxies and
-#     real obs. This would be simpler and more flexible but would require
-#     changes to the batch handler to allow for NaNs in the high res data
-#   - might be some quirks with tracking output features
-
-
 class Sup3rGanWithObs(Sup3rGan):
     """Sup3r GAN model which includes mid network observation fusion. This
     model is useful for when production runs will be over a domain for which
