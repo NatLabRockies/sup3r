@@ -899,7 +899,9 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             loss_gen_advers = self.calc_loss_disc(
                 disc_out_true=disc_out_gen, disc_out_gen=disc_out_true
             )
-            loss = loss_gen_content + weight_gen_advers * loss_gen_advers
+            loss = loss_gen_content
+            if weight_gen_advers > 0:
+                loss += weight_gen_advers * loss_gen_advers
             loss_details['loss_gen'] = loss
             loss_details['loss_gen_content'] = loss_gen_content
             loss_details['loss_gen_advers'] = loss_gen_advers

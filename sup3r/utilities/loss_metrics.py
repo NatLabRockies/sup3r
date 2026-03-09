@@ -888,4 +888,7 @@ class GeothermalPhysicsLossWithObs(Sup3rLoss):
         )
         assert check, msg
 
-        return self.LOSS_METRIC(x1, x2)
+        mask = tf.math.is_nan(x2)
+        return self.LOSS_METRIC(
+            x1[tf.math.logical_not(mask)], x2[tf.math.logical_not(mask)]
+        )

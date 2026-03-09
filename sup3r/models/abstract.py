@@ -23,7 +23,7 @@ from sup3r.preprocessing.utilities import numpy_if_tensor
 from sup3r.utilities import VERSION_RECORD
 from sup3r.utilities.utilities import Timer, camel_to_underscore, safe_cast
 
-from .utilities import SUP3R_LAYERS, SUP3R_OBS_LAYERS, TensorboardMixIn
+from .utilities import SUP3R_LAYERS, TensorboardMixIn
 
 logger = logging.getLogger(__name__)
 
@@ -1038,19 +1038,16 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         extras = []
         features = getattr(layer, 'features', [layer.name])
         exo_features = getattr(layer, 'exo_features', [])
-        is_obs_layer = isinstance(layer, SUP3R_OBS_LAYERS)
         for feat in features + exo_features:
-            missing_obs = feat in features and feat not in exogenous_data
-            if is_obs_layer and missing_obs:
+            missing_feat = feat in features and feat not in exogenous_data
+            if missing_feat:
                 msg = (
                     f'{feat} does not match any features in exogenous_data '
-                    f'({list(exogenous_data)}). Will run without this '
-                    'observation feature.'
+                    f'({list(exogenous_data)}). Will try to run without this '
+                    'feature.'
                 )
                 logger.warning(msg)
                 continue
-            msg = f'exogenous_data is missing required feature "{feat}"'
-            assert feat in exogenous_data, msg
             exo = exogenous_data.get_combine_type_data(feat, 'layer')
             exo = self._reshape_norm_exo(
                 input_array,
@@ -1167,7 +1164,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             return layer(input_array, hr_exo, extras)
         return layer(input_array, hr_exo)
 
-    @tf.function
+    # @tf.function
     def _tf_generate(self, low_res, hi_res_exo=None):
         """Use the generator model to generate high res data from low res input
 
@@ -1195,19 +1192,20 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """
         hi_res = self.generator.layers[0](low_res)
         layer_num = 1
-        try:
-            for i, layer in enumerate(self.generator.layers[1:]):
+        for i, layer in enumerate(self.generator.layers[1:]):
+            try:
                 layer_num = i + 1
                 if isinstance(layer, SUP3R_LAYERS):
                     hi_res = self._run_exo_layer(layer, hi_res, hi_res_exo)
                 else:
                     hi_res = layer(hi_res)
-        except Exception as e:
-            msg = 'Could not run layer #{} "{}" on tensor of shape {}'.format(
-                layer_num, layer, hi_res.shape
-            )
-            logger.error(msg)
-            raise RuntimeError(msg) from e
+            except Exception as e:
+                msg = (
+                    f'Could not run layer #{layer_num} "{layer}" on tensor '
+                    f'of shape {hi_res.shape}'
+                )
+                logger.error(msg)
+                raise RuntimeError(msg) from e
 
         return hi_res
 

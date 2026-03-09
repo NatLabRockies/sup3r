@@ -15,7 +15,7 @@ from sup3r.preprocessing.data_handlers import ExoData
 from sup3r.utilities import VERSION_RECORD
 from sup3r.utilities.utilities import safe_cast
 
-from .utilities import SUP3R_EXO_LAYERS, SUP3R_OBS_LAYERS
+from .utilities import SUP3R_LAYERS
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +79,6 @@ class AbstractInterface(ABC):
         -------
         int
         """
-        # pylint: disable=E1101
         if hasattr(self, '_gen'):
             return self._gen.layers[0].rank
         if hasattr(self, 'models'):
@@ -96,7 +95,6 @@ class AbstractInterface(ABC):
         """Check if model expects spatial only input"""
         return self.input_dims == 4
 
-    # pylint: disable=E1101
     def get_s_enhance_from_layers(self):
         """Compute factor by which model will enhance spatial resolution from
         layer attributes. Used in model training during high res coarsening"""
@@ -109,7 +107,6 @@ class AbstractInterface(ABC):
             s_enhance = int(np.prod(s_enhancements))
         return s_enhance
 
-    # pylint: disable=E1101
     def get_t_enhance_from_layers(self):
         """Compute factor by which model will enhance temporal resolution from
         layer attributes. Used in model training during high res coarsening"""
@@ -240,6 +237,20 @@ class AbstractInterface(ABC):
         if not check:
             logger.error(msg)
             raise RuntimeError(msg)
+
+    def _get_layer_features(self):
+        """Get the list of features used in the model based on layer
+        attributes. This is used to check that the features provided in
+        exogenous_data match the features expected by the model
+        architecture."""
+        features = []
+        if hasattr(self, '_gen'):
+            for layer in self._gen.layers:
+                if isinstance(layer, SUP3R_LAYERS):
+                    layer_feats = getattr(layer, 'features', [layer.name])
+                    layer_feats = [f for f in layer_feats if f not in features]
+                    features.extend(layer_feats)
+        return features
 
     @property
     def output_resolution(self):
@@ -378,15 +389,8 @@ class AbstractInterface(ABC):
     def obs_features(self):
         """Get list of exogenous observation feature names the model uses.
         These come from the names of the ``Sup3rObs..`` layers."""
-        # pylint: disable=E1101
-        features = []
-        if hasattr(self, '_gen'):
-            for layer in self._gen.layers:
-                if isinstance(layer, SUP3R_OBS_LAYERS):
-                    obs_feats = getattr(layer, 'features', [layer.name])
-                    obs_feats = [f for f in obs_feats if f not in features]
-                    features.extend(obs_feats)
-        return features
+        features = self._get_layer_features()
+        return [f for f in features if '_obs' in f]
 
     @property
     def hr_exo_features(self):
@@ -397,17 +401,14 @@ class AbstractInterface(ABC):
         [..., topo, sza], and the model has 2 concat or add layers, exo
         features will be [topo, sza]. Topo will then be used in the first
         concat layer and sza will be used in the second"""
-        # pylint: disable=E1101
-        features = []
-        if hasattr(self, '_gen'):
-            features = [
-                layer.name
-                for layer in self._gen.layers
-                if isinstance(layer, SUP3R_EXO_LAYERS)
-            ]
-        obs_feats = [feat.replace('_obs', '') for feat in self.obs_features]
+        features = self._get_layer_features()
+        features = [f for f in features if '_obs' not in f]
+        obs_feats = [
+            f.replace('_obs', '')
+            for f in self.obs_features
+            if f not in self.hr_out_features
+        ]
         features += [f for f in obs_feats if f not in self.hr_out_features]
-        return features
 
     @property
     def hr_features(self):
@@ -458,7 +459,8 @@ class AbstractInterface(ABC):
         kwargs : dict
             Keyword arguments including 'input_resolution',
             'lr_features', 'hr_exo_features', 'hr_out_features',
-            'smoothed_features', 's_enhance', 't_enhance', 'smoothing'
+            'obs_features', 'smoothed_features', 's_enhance', 't_enhance',
+            'smoothing'
         """
 
         keys = (
@@ -466,6 +468,7 @@ class AbstractInterface(ABC):
             'lr_features',
             'hr_exo_features',
             'hr_out_features',
+            'obs_features',
             'smoothed_features',
             's_enhance',
             't_enhance',

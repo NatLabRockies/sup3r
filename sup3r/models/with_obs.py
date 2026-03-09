@@ -240,13 +240,13 @@ class Sup3rGanWithObs(Sup3rGan):
         ``_get_obs_mask`` by defining a composite mask based on separate
         onshore and offshore masks. This is because there is often more
         observation data available onshore than offshore."""
-        on_sf = self.onshore_obs_frac['spatial']
+        on_sf = self.onshore_obs_frac.get('spatial', 0.0)
         on_tf = self.onshore_obs_frac.get('time', 1.0)
         obs_mask = self._get_obs_mask(hi_res, on_sf, on_tf)
         if 'topography' in self.hr_features and self.offshore_obs_frac:
             topo_idx = self.hr_features.index('topography')
             topo = hi_res[..., topo_idx]
-            off_sf = self.offshore_obs_frac['spatial']
+            off_sf = self.offshore_obs_frac.get('spatial', 0.0)
             off_tf = self.offshore_obs_frac.get('time', 1.0)
             offshore_mask = self._get_obs_mask(hi_res, off_sf, off_tf)
             obs_mask = tf.where(topo[..., None] > 0, obs_mask, offshore_mask)
@@ -275,15 +275,33 @@ class Sup3rGanWithObs(Sup3rGan):
         exo_data = super().get_hr_exo_input(hi_res_true)
         if len(self.obs_features) == 0:
             return exo_data
-        obs_mask = self._get_full_obs_mask(hi_res_true)
-        nan_const = tf.constant(float('nan'), dtype=hi_res_true.dtype)
-        obs = tf.gather(hi_res_true, self.obs_training_inds, axis=-1)
-        obs = tf.where(obs_mask[..., : obs.shape[-1]], nan_const, obs)
+
+        if self.use_proxy_obs:
+            obs, obs_mask = self._get_proxy_obs(hi_res_true)
+        else:
+            obs, obs_mask = self._get_real_obs(hi_res_true)
+
         obs = tf.expand_dims(obs, axis=-2)
         exo_obs = dict(zip(self.obs_features, tf.unstack(obs, axis=-1)))
         exo_data.update(exo_obs)
         exo_data['mask'] = obs_mask
         return exo_data
+
+    def _get_real_obs(self, hi_res_true):
+        """Get real observation data and the corresponding mask from the
+        .high_res attribute of the batches in the batch handler. This is used
+        when not training with proxy observations."""
+        obs = tf.gather(hi_res_true, self.obs_training_inds, axis=-1)
+        obs_mask = tf.math.is_nan(obs)
+        return obs, obs_mask
+
+    def _get_proxy_obs(self, hi_res_true):
+        """Get proxy observation data by masking the true high res data."""
+        obs_mask = self._get_full_obs_mask(hi_res_true)
+        nan_const = tf.constant(float('nan'), dtype=hi_res_true.dtype)
+        obs = tf.gather(hi_res_true, self.obs_training_inds, axis=-1)
+        obs = tf.where(obs_mask[..., : obs.shape[-1]], nan_const, obs)
+        return obs, obs_mask
 
     def _get_hr_exo_and_loss(
         self,
