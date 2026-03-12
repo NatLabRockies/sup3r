@@ -38,6 +38,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         stdevs=None,
         default_device=None,
         name=None,
+        sparse_disc=False,
     ):
         """
         Parameters
@@ -99,6 +100,11 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             "/gpu:0" or "/cpu:0"
         name : str | None
             Optional name for the GAN.
+        sparse_disc : bool
+            Whether the discriminator can accept sparse features as input.
+            If False, the discriminator will only receive the dense features
+            as input. If True, the discriminator will receive both dense and
+            sparse features as input.
         """
         super().__init__()
 
@@ -130,6 +136,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         self._means = means
         self._stdevs = stdevs
+        self._sparse_disc = sparse_disc
 
     def save(self, out_dir):
         """Save the GAN with its sub-networks to a directory.
@@ -299,12 +306,9 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             Discriminator output logits
         """
 
-        # TODO: We currently assume the discriminator is convolutional so we
-        # remove the sparse obs data. Change this once we support
-        # non-convolutional discriminators
         hr = (
             hi_res
-            if len(self.obs_features) == 0
+            if len(self.obs_features) == 0 or self._sparse_disc
             else hi_res[..., : -len(self.obs_features)]
         )
         if hr.shape[-1] == 0:

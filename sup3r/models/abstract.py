@@ -49,6 +49,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         self._gen = None
         self._means = None
         self._stdevs = None
+        self._sparse_disc = None
         self._train_record = pd.DataFrame()
         self._val_record = pd.DataFrame()
 
