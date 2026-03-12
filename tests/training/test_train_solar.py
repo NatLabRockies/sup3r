@@ -51,7 +51,10 @@ def test_solar_cc_model(hr_steps):
         s_enhance=1,
         t_enhance=8,
         sample_shape=(20, 20, hr_steps),
-        feature_sets={'lr_only_features': ['clearsky_ghi', 'ghi']},
+        feature_sets={
+            'lr_features': FEATURES_S,
+            'hr_out_features': ['clearsky_ratio'],
+        },
     )
 
     fp_gen = os.path.join(CONFIG_DIR, 'sup3rcc/gen_solar_1x_8x_1f.json')
@@ -126,7 +129,10 @@ def test_solar_cc_model_spatial():
         s_enhance=5,
         t_enhance=1,
         sample_shape=(20, 20),
-        feature_sets={'lr_only_features': ['clearsky_ghi', 'ghi']},
+        feature_sets={
+            'lr_features': FEATURES_S,
+            'hr_out_features': ['clearsky_ratio'],
+        },
     )
 
     fp_gen = os.path.join(CONFIG_DIR, 'sup3rcc/gen_solar_5x_1x_1f.json')
@@ -178,7 +184,10 @@ def test_solar_custom_loss():
         s_enhance=1,
         t_enhance=8,
         sample_shape=(5, 5, 24),
-        feature_sets={'lr_only_features': ['clearsky_ghi', 'ghi']},
+        feature_sets={
+            'lr_features': FEATURES_S,
+            'hr_out_features': ['clearsky_ratio'],
+        },
     )
 
     fp_gen = os.path.join(CONFIG_DIR, 'sup3rcc/gen_solar_1x_8x_1f.json')

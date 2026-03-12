@@ -298,7 +298,19 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         out : np.ndarray
             Discriminator output logits
         """
-        out = self.discriminator.layers[0](hi_res)
+
+        # TODO: We currently assume the discriminator is convolutional so we
+        # remove the sparse obs data. Change this once we support
+        # non-convolutional discriminators
+        hr = (
+            hi_res
+            if len(self.obs_features) == 0
+            else hi_res[..., : -len(self.obs_features)]
+        )
+        if hr.shape[-1] == 0:
+            return tf.constant([], dtype=tf.float32)
+
+        out = self.discriminator.layers[0](hr)
         layer_num = 1
         try:
             for i, layer in enumerate(self.discriminator.layers[1:]):
@@ -426,7 +438,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
             with tf.device(device):
                 hr_exo_data = {}
-                for feature in self.hr_exo_features + self.obs_features:
+                for feature in self.hr_exo_features:
                     hr_exo_data[feature] = hr_exo
                 out = self._tf_generate(low_res, hr_exo_data)
                 msg = (
@@ -494,14 +506,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             0D tensor generator model loss for the content loss comparing the
             hi res ground truth to the hi res synthetically generated output.
         """
-        slc = (
-            slice(0, None)
-            if len(self.hr_exo_features) == 0
-            else slice(0, -len(self.hr_exo_features))
-        )
-        # gen is first since loss can included regularizers which just
-        # apply to generator output
-        return self.loss_fun(hi_res_gen[..., slc], hi_res_true[..., slc])
+        return self.loss_fun(hi_res_gen, hi_res_true)
 
     @staticmethod
     @tf.function
@@ -617,6 +622,8 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 'lr_features',
                 'hr_exo_features',
                 'hr_out_features',
+                'hr_features',
+                'obs_features',
                 'smoothed_features',
             ]
             if hasattr(batch_handler, k)

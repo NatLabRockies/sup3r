@@ -62,7 +62,16 @@ class StatsCollection(Collection):
             getattr(c.high_res[hr_feats], stat_type)(skipna=True)
             for c in self.containers
         ]
-        if any(lr_feats):
+        lr_check = any(lr_feats)
+        container_check = all(hasattr(c, 'low_res') for c in self.containers)
+        if lr_check and not container_check:
+            msg = (
+                f'Found low-res features {lr_feats} but not all containers '
+                'have low-res data. '
+            )
+            logger.error(msg)
+            raise ValueError(msg)
+        elif lr_check and container_check:
             cstats_lr = [
                 getattr(c.low_res[lr_feats], stat_type)(skipna=True)
                 for c in self.containers

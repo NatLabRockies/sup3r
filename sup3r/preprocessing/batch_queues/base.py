@@ -69,7 +69,8 @@ class SingleBatchQueue(AbstractBatchQueue):
             (batch_size, spatial_1, spatial_2, features)
             (batch_size, spatial_1, spatial_2, temporal, features)
         """
-        low_res = spatial_coarsening(samples, self.s_enhance)
+        lr_samples = numpy_if_tensor(samples)[..., self.lr_features_ind]
+        low_res = spatial_coarsening(lr_samples, self.s_enhance)
         low_res = (
             low_res
             if self.t_enhance == 1
@@ -81,7 +82,7 @@ class SingleBatchQueue(AbstractBatchQueue):
             smoothing_ignore if smoothing_ignore is not None else []
         )
         low_res = smooth_data(
-            low_res, self.features, smoothing_ignore, smoothing
+            low_res, self.lr_features, smoothing_ignore, smoothing
         )
         high_res = numpy_if_tensor(samples)[..., self.hr_features_ind]
         return low_res, high_res

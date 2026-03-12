@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 from rex import Outputs
 
-from sup3r.models import Sup3rGanWithObs
+from sup3r.models import Sup3rGan
 from sup3r.pipeline.forward_pass import ForwardPass, ForwardPassStrategy
 from sup3r.utilities.pytest.helpers import make_fake_dset
 from sup3r.utilities.utilities import RANDOM_GENERATOR
@@ -108,24 +108,19 @@ def h5_obs_file(tmpdir_factory):
 
 
 @pytest.mark.parametrize('obs_file', ['nc_obs_file', 'h5_obs_file'])
-def test_fwp_with_obs(
-    input_file, obs_file, gen_config_with_concat_masked, request
-):
+def test_fwp_with_obs(input_file, obs_file, gen_config_with_obs_2d, request):
     """Test a special model trained to condition output on input
     observations."""
 
     obs_file = request.getfixturevalue(obs_file)
-    Sup3rGanWithObs.seed()
+    Sup3rGan.seed()
 
-    model = Sup3rGanWithObs(
-        gen_config_with_concat_masked(),
-        pytest.S_FP_DISC,
-        onshore_obs_frac={'spatial': 0.1},
-        loss_obs_weight=0.1,
-        learning_rate=1e-4,
+    model = Sup3rGan(
+        gen_config_with_obs_2d(), pytest.S_FP_DISC, learning_rate=1e-4
     )
     model.meta['input_resolution'] = {'spatial': '16km', 'temporal': '3600min'}
     model.meta['lr_features'] = ['u_10m', 'v_10m']
+    model.meta['hr_exo_features'] = ['u_10m_obs', 'v_10m_obs']
     model.meta['hr_out_features'] = ['u_10m', 'v_10m']
     model.meta['s_enhance'] = 2
     model.meta['t_enhance'] = 1
@@ -151,10 +146,7 @@ def test_fwp_with_obs(
                 ]
             },
         }
-        _ = model.generate(
-            np.ones((6, 10, 10, 2)),
-            exogenous_data=exo_tmp
-        )
+        _ = model.generate(np.ones((6, 10, 10, 2)), exogenous_data=exo_tmp)
         model_dir = os.path.join(td, 'test')
         model.save(model_dir)
 
@@ -182,7 +174,7 @@ def test_fwp_with_obs(
         handler = ForwardPassStrategy(
             input_file,
             model_kwargs=model_kwargs,
-            model_class='Sup3rGanWithObs',
+            model_class='Sup3rGan',
             fwp_chunk_shape=fwp_chunk_shape,
             input_handler_kwargs=input_handler_kwargs,
             spatial_pad=0,

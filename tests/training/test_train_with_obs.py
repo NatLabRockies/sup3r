@@ -8,7 +8,7 @@ import tempfile
 import numpy as np
 import pytest
 
-from sup3r.models import Sup3rGanWithObs
+from sup3r.models import Sup3rGan
 from sup3r.preprocessing import (
     BatchHandler,
     Container,
@@ -59,22 +59,29 @@ def test_train_cond_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
         s_enhance=2,
         t_enhance=t_enhance,
         sample_shape=sample_shape,
+        proxy_obs_kwargs={'onshore_obs_frac': {'spatial': 0.1}},
+        feature_sets={
+            'lr_features': FEATURES_W,
+            'hr_exo_features': [f'{feat}_obs' for feat in FEATURES_W],
+            'hr_out_features': FEATURES_W,
+        },
     )
 
-    Sup3rGanWithObs.seed()
+    Sup3rGan.seed()
 
-    model = Sup3rGanWithObs(
+    model = Sup3rGan(
         gen_config,
         fp_disc,
-        onshore_obs_frac={'spatial': 0.1},
-        loss_obs_weight=0.1,
         learning_rate=1e-4,
+        loss={
+            'GeothermalPhysicsLossWithObs': {
+                'gen_features': FEATURES_W,
+                'true_features': [f'{feat}_obs' for feat in FEATURES_W],
+            },
+            'GeothermalPhysicsLoss': {'gen_features': FEATURES_W},
+        },
     )
-    model.meta['hr_out_features'] = ['u_10m', 'v_10m']
-    test_mask = model._get_full_obs_mask(np.zeros((1, 20, 20, 1, 1))).numpy()
-    frac = 1 - test_mask.sum() / test_mask.size
-    assert np.abs(0.1 - frac) < test_mask.size / (2 * np.sqrt(test_mask.size))
-    assert model.obs_features == ['u_10m_obs', 'v_10m_obs']
+    model.meta['hr_out_features'] = FEATURES_W
     with tempfile.TemporaryDirectory() as td:
         model_kwargs = {
             'input_resolution': {'spatial': '16km', 'temporal': '3600min'},
@@ -90,6 +97,8 @@ def test_train_cond_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
 
         loaded = model.load(os.path.join(td, 'test_2'))
         loaded.train(batcher, **model_kwargs)
+
+    assert model.obs_features == [f'{feat}_obs' for feat in FEATURES_W]
 
     if t_enhance == 1:
         x = RANDOM_GENERATOR.uniform(0, 1, (4, 30, 30, len(FEATURES_W)))
@@ -185,7 +194,11 @@ def test_train_just_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
         s_enhance=2,
         t_enhance=t_enhance,
         n_batches=2,
-        feature_sets={'lr_only_features': FEATURES_W},
+        feature_sets={
+            'lr_features': FEATURES_W,
+            'hr_exo_features': [f'{feat}_obs' for feat in FEATURES_W],
+            'hr_out_features': [f'{feat}_obs' for feat in FEATURES_W],
+        },
         mode='lazy',
     )
 
@@ -193,16 +206,15 @@ def test_train_just_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
         assert not np.isnan(batch.high_res).all()
         assert np.isnan(batch.high_res).any()
 
-    Sup3rGanWithObs.seed()
-    model = Sup3rGanWithObs(
+    Sup3rGan.seed()
+    model = Sup3rGan(
         gen_config,
         fp_disc,
-        use_proxy_obs=False,
         learning_rate=1e-4,
         loss={
             'GeothermalPhysicsLossWithObs': {
-                'input_features': [f'{feat}_obs' for feat in FEATURES_W],
-                'obs_features': [f'{feat}_obs' for feat in FEATURES_W],
+                'gen_features': [f'{feat}_obs' for feat in FEATURES_W],
+                'true_features': [f'{feat}_obs' for feat in FEATURES_W],
             }
         },
     )

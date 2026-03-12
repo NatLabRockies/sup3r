@@ -437,6 +437,37 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         exo = dict(zip(self.hr_exo_features, tf.unstack(exo, axis=-1)))
         return exo
 
+    def _extract_obs(self, hi_res_true):
+        """Extract observation features from the end of hi_res_true.
+        Observation features are appended after hr_out + hr_exo features
+        by the Sampler when ``use_proxy_obs=True``, or included directly
+        when real obs are in the data.
+
+        Parameters
+        ----------
+        hi_res_true : tf.Tensor
+            Ground truth high resolution data, possibly with obs features
+            appended at the end.
+
+        Returns
+        -------
+        obs_data : dict
+            Dictionary of observation feature data. Keys are obs feature
+            names, values are tensors. Also includes ``'mask'`` key with
+            boolean mask (True where observations are NaN / missing).
+            Empty dict if no obs features are present.
+        """
+        if len(self.obs_features) == 0:
+            return {}
+        obs = hi_res_true[..., -len(self.obs_features) :]
+        obs_mask = tf.math.is_nan(obs)
+        obs_expanded = tf.expand_dims(obs, axis=-2)
+        obs_data = dict(
+            zip(self.obs_features, tf.unstack(obs_expanded, axis=-1))
+        )
+        obs_data['mask'] = obs_mask
+        return obs_data
+
     def _combine_loss_input(self, hi_res_true, hi_res_gen):
         """Combine exogenous feature data from hi_res_true with hi_res_gen
         for loss calculation
@@ -460,33 +491,46 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             hi_res_gen = tf.concat((hi_res_gen, *exo_data), axis=-1)
         return hi_res_gen
 
-    def _get_loss_inputs(self, hi_res_true, hi_res_gen, loss_func):
+    def _get_loss_inputs(self, hi_res_gen, hi_res_true, loss_func):
         """Get inputs for the given loss function according to the required
         input features"""
 
-        msg = (
-            f'{loss_func} requires input features: '
-            f'{loss_func.input_features}, but these are not found '
-            f'in the model output features: {self.hr_out_features}'
-        )
-        if not all(
-            f in self.hr_out_features for f in loss_func.input_features
+        gen_feats = getattr(loss_func, 'gen_features', 'all')
+        true_feats = getattr(loss_func, 'true_features', 'all')
+
+        if gen_feats != 'all' and not all(
+            f in self.hr_features for f in gen_feats
         ):
+            msg = (
+                f'{loss_func} requires gen_features: '
+                f'{loss_func.gen_features}, but these are not found '
+                f'in the high-resolution features: {self.hr_features}'
+            )
             logger.error(msg)
             raise ValueError(msg)
 
-        input_inds = [
-            self.hr_out_features.index(f) for f in loss_func.input_features
-        ]
-        hr_true = tf.stack(
-            [hi_res_true[..., idx] for idx in input_inds],
-            axis=-1,
-        )
-        hr_gen = tf.stack(
-            [hi_res_gen[..., idx] for idx in input_inds],
-            axis=-1,
-        )
-        return hr_true, hr_gen
+        if true_feats != 'all' and not all(
+            f in self.hr_features for f in true_feats
+        ):
+            msg = (
+                f'{loss_func} requires true_features: '
+                f'{loss_func.true_features}, but these are not found '
+                f'in the high-resolution output features: {self.hr_features}'
+            )
+            logger.error(msg)
+            raise ValueError(msg)
+
+        if gen_feats == 'all':
+            gen_feats = self.hr_features
+        if true_feats == 'all':
+            true_feats = self.hr_features
+
+        gen_inds = [self.hr_features.index(f) for f in gen_feats]
+        true_inds = [self.hr_features.index(f) for f in true_feats]
+
+        hr_true = tf.gather(hi_res_true, true_inds, axis=-1)
+        hr_gen = tf.gather(hi_res_gen, gen_inds, axis=-1)
+        return hr_gen, hr_true
 
     def get_loss_fun(self, loss):
         """Get full, possibly multi-term, loss function from the provided str
@@ -519,20 +563,14 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         loss_funcs = [self._get_loss_fun({ln: loss[ln]}) for ln in lns]
         weights = copy.deepcopy(loss).pop('term_weights', [1.0] * len(lns))
 
-        def loss_fun(hi_res_true, hi_res_gen):
+        def loss_fun(hi_res_gen, hi_res_true):
             loss_details = {}
             loss = 0
             for i, (ln, loss_func) in enumerate(zip(lns, loss_funcs)):
-                if (
-                    not hasattr(loss_func, 'input_features')
-                    or loss_func.input_features == 'all'
-                ):
-                    val = loss_func(hi_res_true, hi_res_gen)
-                else:
-                    hr_true, hr_gen = self._get_loss_inputs(
-                        hi_res_true, hi_res_gen, loss_func
-                    )
-                    val = loss_func(hr_true, hr_gen)
+                hr_gen, hr_true = self._get_loss_inputs(
+                    hi_res_gen, hi_res_true, loss_func
+                )
+                val = loss_func(hr_gen, hr_true)
                 loss_details[camel_to_underscore(ln)] = val
                 loss += weights[i] * val
             return loss, loss_details
@@ -1164,7 +1202,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             return layer(input_array, hr_exo, extras)
         return layer(input_array, hr_exo)
 
-    # @tf.function
+    @tf.function
     def _tf_generate(self, low_res, hi_res_exo=None):
         """Use the generator model to generate high res data from low res input
 
@@ -1216,7 +1254,9 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         **calc_loss_kwargs,
     ):
         """Get high-resolution exogenous data, generate synthetic output, and
-        compute loss."""
+        compute loss. Obs features (if present at the end of hi_res_true) are
+        extracted and added to exo_data, and trimmed from hi_res_true before
+        loss calculation."""
         hi_res_exo = self.get_hr_exo_input(hi_res_true)
         hi_res_gen = self._tf_generate(low_res, hi_res_exo)
         loss, loss_details = self.calc_loss(

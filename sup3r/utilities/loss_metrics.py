@@ -13,30 +13,29 @@ class Sup3rLoss(tf.keras.losses.Loss):
     """Base class for custom sup3r loss metrics. This is meant to be used as a
     base class for loss metrics that require specific input features."""
 
-    def __init__(self, input_features='all', obs_features=None):
+    def __init__(self, gen_features='all', true_features=None):
         """Initialize the loss with given input features
 
         Parameters
         ----------
-        input_features : list | str
-            List of input features that the loss metric will be calculated on.
-            If 'all', the loss will be calculated on all features.  Otherwise,
-            the loss will be calculated on the features specified in the list.
-            The order of features in the list will be checked to determine the
-            order of features in the input tensors.
-        obs_features : list | None
-            Optional list of observation features to use as targets for the
-            loss metric. This is typically used in a physics based loss
-            when the ground truth data is sparse (e.g. observation points).
-            In this case a physics constraint is applied where there are no
-            observations, and an additional content loss is calculated for
-            points where observations are available. The order of features
-            in the list will be checked to determine the order of features in
-            the input tensors.
+        gen_features : list | str
+            List of generator output features that the loss metric will be
+            calculated on.  If 'all', the loss will be calculated on all
+            generator features.  Otherwise, the loss will be calculated on the
+            features specified in the list.  The order of features in the list
+            will be checked to determine the order of features in the generator
+            output tensor.
+        true_features : list | str
+            List of true features that the loss metric will be calculated on.
+            If None, this will be the same as gen_features. The order of
+            features in the list will be checked to determine the order of
+            features in the ground truth tensor.
         """
         super().__init__()
-        self.input_features = input_features
-        self.obs_features = obs_features
+        self.gen_features = gen_features
+        self.true_features = (
+            true_features if true_features is not None else gen_features
+        )
 
 
 def tf_derivative(x, axis=1):
@@ -754,19 +753,19 @@ class MaterialDerivativeLoss(Sup3rLoss):
 
     LOSS_METRIC = MeanAbsoluteError()
 
-    def __init__(self, input_features):
-        super().__init__(input_features=input_features)
+    def __init__(self, gen_features):
+        super().__init__(gen_features=gen_features)
         self.u_inds = [
-            i for i, f in enumerate(input_features) if f.startswith('u_')
+            i for i, f in enumerate(gen_features) if f.startswith('u_')
         ]
         self.v_inds = [
-            i for i, f in enumerate(input_features) if f.startswith('v_')
+            i for i, f in enumerate(gen_features) if f.startswith('v_')
         ]
         self.u_heights = [
-            f.split('_')[1] for f in input_features if f.startswith('u_')
+            f.split('_')[1] for f in gen_features if f.startswith('u_')
         ]
         self.v_heights = [
-            f.split('_')[1] for f in input_features if f.startswith('v_')
+            f.split('_')[1] for f in gen_features if f.startswith('v_')
         ]
         assert len(self.u_inds) == len(self.v_inds), (
             'The number of u and v components must be equal for '
@@ -795,7 +794,7 @@ class MaterialDerivativeLoss(Sup3rLoss):
         """
         # df/dt
         height = feature.split('_')[1]
-        fidx = self.input_features.index(feature)
+        fidx = self.gen_features.index(feature)
         uidx = self.u_inds[self.u_heights.index(height)]
         vidx = self.v_inds[self.v_heights.index(height)]
         x_div = tf_derivative(x[..., fidx], axis=3)
@@ -835,10 +834,10 @@ class MaterialDerivativeLoss(Sup3rLoss):
         assert len(x1.shape) == 5 and len(x2.shape) == 5, msg
 
         x1_div = tf.stack([
-            self._compute_md(x1, feature) for feature in self.input_features
+            self._compute_md(x1, feature) for feature in self.gen_features
         ])
         x2_div = tf.stack([
-            self._compute_md(x2, feature) for feature in self.input_features
+            self._compute_md(x2, feature) for feature in self.gen_features
         ])
 
         return self.LOSS_METRIC(x1_div, x2_div)
@@ -855,12 +854,13 @@ class GeothermalPhysicsLoss(Sup3rLoss):
 
     def __call__(self, x1, x2):
         """Geothermal physics loss"""
-        check = x1.shape[-1] == len(self.input_features)
-        check &= x2.shape[-1] == len(self.input_features)
+        check = x1.shape[-1] == len(self.gen_features)
+        check &= x2.shape[-1] == len(self.true_features)
         msg = (
-            f'Number of features in `x1`: {x1.shape[-1]}, `x2`: '
-            f'{x2.shape[-1]} must match the length of `input_features`: '
-            f'{len(self.input_features)}'
+            f'Number of features in `x1`: {x1.shape[-1]} must match the '
+            f'length of `gen_features`: {len(self.gen_features)}, `x2`: '
+            f'{x2.shape[-1]} must match the length of `true_features`: '
+            f'{len(self.true_features)}'
         )
         assert check, msg
 
@@ -878,13 +878,13 @@ class GeothermalPhysicsLossWithObs(Sup3rLoss):
 
     def __call__(self, x1, x2):
         """Geothermal physics loss"""
-        check = x1.shape[-1] == len(self.input_features)
-        check &= x2.shape[-1] == len(self.obs_features)
+        check = x1.shape[-1] == len(self.gen_features)
+        check &= x2.shape[-1] == len(self.true_features)
         msg = (
-            f'Number of features in `x1`: {x1.shape[-1]}, must match the '
-            f'length of `input_features`: {len(self.input_features)}, and '
-            f'number of features in `x2`: {x2.shape[-1]}, must match the '
-            f'length of `obs_features`: {len(self.obs_features)}'
+            f'Number of features in `x1`: {x1.shape[-1]} must match the '
+            f'length of `gen_features`: {len(self.gen_features)}, `x2`: '
+            f'{x2.shape[-1]} must match the length of `true_features`: '
+            f'{len(self.true_features)}'
         )
         assert check, msg
 

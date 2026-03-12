@@ -238,20 +238,6 @@ class AbstractInterface(ABC):
             logger.error(msg)
             raise RuntimeError(msg)
 
-    def _get_layer_features(self):
-        """Get the list of features used in the model based on layer
-        attributes. This is used to check that the features provided in
-        exogenous_data match the features expected by the model
-        architecture."""
-        features = []
-        if hasattr(self, '_gen'):
-            for layer in self._gen.layers:
-                if isinstance(layer, SUP3R_LAYERS):
-                    layer_feats = getattr(layer, 'features', [layer.name])
-                    layer_feats = [f for f in layer_feats if f not in features]
-                    features.extend(layer_feats)
-        return features
-
     @property
     def output_resolution(self):
         """Resolution of output data. Given as a dictionary
@@ -366,6 +352,18 @@ class AbstractInterface(ABC):
                     hi_res = np.concatenate((hi_res, exo_output), axis=-1)
         return hi_res
 
+    def get_layer_features(self):
+        """Get the features that are input to mid-network layers. These are
+        typically gapless high-resolution features like topography or sparse
+        observations"""
+        features = []
+        if hasattr(self, '_gen'):
+            for layer in self._gen.layers:
+                if isinstance(layer, SUP3R_LAYERS):
+                    feats = getattr(layer, 'features', [layer.name])
+                    features.extend(feats)
+        return features
+
     @property
     @abstractmethod
     def meta(self):
@@ -389,26 +387,13 @@ class AbstractInterface(ABC):
     def obs_features(self):
         """Get list of exogenous observation feature names the model uses.
         These come from the names of the ``Sup3rObs..`` layers."""
-        features = self._get_layer_features()
-        return [f for f in features if '_obs' in f]
+        return self.meta.get('obs_features', [])
 
     @property
     def hr_exo_features(self):
-        """Get list of high-resolution exogenous filter names the model uses.
-        If the model has N concat or add layers this list will be the last N
-        features in the training features list. The ordering is assumed to be
-        the same as the order of concat or add layers. If training features is
-        [..., topo, sza], and the model has 2 concat or add layers, exo
-        features will be [topo, sza]. Topo will then be used in the first
-        concat layer and sza will be used in the second"""
-        features = self._get_layer_features()
-        features = [f for f in features if '_obs' not in f]
-        obs_feats = [
-            f.replace('_obs', '')
-            for f in self.obs_features
-            if f not in self.hr_out_features
-        ]
-        features += [f for f in obs_feats if f not in self.hr_out_features]
+        """Get list of gapless exogenous high-resolution feature names the
+        model uses, like topography."""
+        return self.meta.get('hr_exo_features', [])
 
     @property
     def hr_features(self):
@@ -416,7 +401,7 @@ class AbstractInterface(ABC):
         the high-resolution data during training. This includes both output
         and exogenous features.
         """
-        return self.hr_out_features + self.hr_exo_features
+        return self.meta.get('hr_features', [])
 
     @property
     def smoothing(self):
@@ -458,7 +443,7 @@ class AbstractInterface(ABC):
         ----------
         kwargs : dict
             Keyword arguments including 'input_resolution',
-            'lr_features', 'hr_exo_features', 'hr_out_features',
+            'lr_features', 'hr_exo_features', 'hr_out_features', 'hr_features',
             'obs_features', 'smoothed_features', 's_enhance', 't_enhance',
             'smoothing'
         """
@@ -468,6 +453,7 @@ class AbstractInterface(ABC):
             'lr_features',
             'hr_exo_features',
             'hr_out_features',
+            'hr_features',
             'obs_features',
             'smoothed_features',
             's_enhance',
@@ -477,14 +463,6 @@ class AbstractInterface(ABC):
         keys = [k for k in keys if k in kwargs]
         if 'hr_out_features' in kwargs:
             self.meta['hr_out_features'] = kwargs['hr_out_features']
-
-        hr_exo_feat = kwargs.get('hr_exo_features', [])
-        msg = (
-            f'Expected high-res exo features {self.hr_exo_features} '
-            f'based on model architecture but received "hr_exo_features" '
-            f'from data handler: {hr_exo_feat}'
-        )
-        assert list(self.hr_exo_features) == list(hr_exo_feat), msg
 
         for var in keys:
             val = self.meta.get(var, None)

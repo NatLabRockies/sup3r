@@ -252,7 +252,7 @@ def test_train(fp_gen, fp_disc, s_enhance, t_enhance, sample_shape, n_epoch=8):
     'loss_func',
     [
         {'SlicedWassersteinLoss': {}},
-        {'GeothermalPhysicsLoss': {'input_features': ['u_100m']}},
+        {'GeothermalPhysicsLoss': {'gen_features': ['u_100m']}},
     ],
 )
 def test_train_with_custom_loss(loss_func, n_epoch=8):
