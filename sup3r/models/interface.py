@@ -387,13 +387,23 @@ class AbstractInterface(ABC):
     def obs_features(self):
         """Get list of exogenous observation feature names the model uses.
         These come from the names of the ``Sup3rObs..`` layers."""
-        return self.meta.get('obs_features', [])
+        default = [f for f in self.hr_features if '_obs' in f]
+        return self.meta.get('obs_features', default)
 
     @property
     def hr_exo_features(self):
         """Get list of gapless exogenous high-resolution feature names the
         model uses, like topography."""
-        return self.meta.get('hr_exo_features', [])
+        check = self.get_layer_features()
+        out = self.meta.get('hr_exo_features', [])
+        if set(out) != set(check):
+            msg = (
+                f'Model meta hr_exo_features {out} does not match features '
+                f'{check} found in model layers.'
+            )
+            logger.warning(msg)
+            warn(msg)
+        return out
 
     @property
     def hr_features(self):
@@ -401,7 +411,11 @@ class AbstractInterface(ABC):
         the high-resolution data during training. This includes both output
         and exogenous features.
         """
-        return self.meta.get('hr_features', [])
+        default = [
+            f for f in self.hr_out_features if f not in self.hr_exo_features
+        ]
+        default += self.hr_exo_features
+        return self.meta.get('hr_features', default)
 
     @property
     def smoothing(self):

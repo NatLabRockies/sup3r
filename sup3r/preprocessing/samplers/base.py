@@ -597,9 +597,8 @@ class Sampler(Container):
     @property
     def features(self):
         """Get the full set of features that should be included for training.
-        This is the union of lr_features, hr_out_features, hr_exo_features, and
-        obs_features. This is the set of features that will be sampled from the
-        data."""
+        This is the union of lr_features, hr_out_features and hr_exo_features.
+        """
         feats = self.lr_features
         feats += [f for f in self.hr_out_features if f not in feats]
         feats += [f for f in self.hr_exo_features if f not in feats]

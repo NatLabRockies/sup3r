@@ -308,6 +308,7 @@ def test_multiterm_loss():
     fp_disc = os.path.join(CONFIG_DIR, 'spatial/disc.json')
     model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
     model.meta['hr_out_features'] = ['u_100m', 'v_100m', 'temp_100m']
+    model.meta['hr_features'] = ['u_100m', 'v_100m', 'temp_100m']
     multi_loss = model.get_loss_fun({
         'MaterialDerivativeLoss': {
             'gen_features': ['u_100m', 'v_100m', 'temp_100m']

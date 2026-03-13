@@ -98,12 +98,12 @@ class StatsCollection(Collection):
         if (
             isinstance(stats, dict)
             and stats != {}
-            and any(f not in stats for f in self.features)
+            and any(f not in stats for f in self.data_features)
         ):
             msg = (
-                f'Not all features ({self.features}) are found in the given '
-                f'stats dictionary {stats}. This is obviously from a prior '
-                'run so you better be sure these stats carry over.'
+                f'Not all features ({self.data_features}) are found in the '
+                f'given stats dictionary {stats}. This is obviously from a '
+                'prior run so you better be sure these stats carry over.'
             )
             logger.warning(msg)
             warn(msg)
@@ -113,7 +113,7 @@ class StatsCollection(Collection):
         """Dictionary of means for each feature, computed across all data
         handlers."""
         means = self._init_stats_dict(means)
-        needed_features = set(self.features) - set(means)
+        needed_features = set(self.data_features) - set(means)
         if any(needed_features):
             logger.info(f'Getting means for {needed_features}.')
             cmeans = [
@@ -132,7 +132,7 @@ class StatsCollection(Collection):
         """Dictionary of standard deviations for each feature, computed across
         all data handlers."""
         stds = self._init_stats_dict(stds)
-        needed_features = set(self.features) - set(stds)
+        needed_features = set(self.data_features) - set(stds)
         if any(needed_features):
             logger.info(f'Getting stds for {needed_features}.')
             cstds = [
