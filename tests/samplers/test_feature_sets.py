@@ -45,8 +45,9 @@ def test_feature_errors(
 def test_sampler_feature_sets(lr_features, hr_exo_features, hr_out_features):
     """Each of these feature combinations should pass without raising an
     error."""
+    feats = set(lr_features) | set(hr_exo_features) | set(hr_out_features)
     sampler = Sampler(
-        DummyData(data_shape=(20, 20, 10), features=lr_features),
+        DummyData(data_shape=(20, 20, 10), features=feats),
         sample_shape=(5, 5, 4),
         feature_sets={
             'lr_features': lr_features,

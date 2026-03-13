@@ -210,6 +210,10 @@ def test_train(fp_gen, fp_disc, s_enhance, t_enhance, sample_shape, n_epoch=8):
             learning_rate=lr,
             loss={'MeanAbsoluteError': {}, 'MeanSquaredError': {}},
         )
+        dummy.meta['lr_features'] = model.meta['lr_features']
+        dummy.meta['hr_features'] = model.meta['hr_features']
+        dummy.meta['hr_exo_features'] = model.meta['hr_exo_features']
+        dummy.meta['hr_out_features'] = model.meta['hr_out_features']
 
         for batch in batch_handler:
             out_og = model._tf_generate(batch.low_res)

@@ -257,17 +257,21 @@ class Sampler(Container):
                 self.hr_features[-len(self.hr_exo_features) :]
             ), msg
 
-        assert all(f in self.data.features for f in self.lr_features), (
+        assert all(
+            f in lowered(self.data.features) for f in self.lr_features
+        ), (
             f'All lr_features {self.lr_features} must be in the data features '
             f'{self.data.features}.'
         )
-        assert all(f in self.data.features for f in self.hr_out_features), (
+        assert all(
+            f in lowered(self.data.features) for f in self.hr_out_features
+        ), (
             f'All hr_out_features {self.hr_out_features} must be in the data '
             f'features {self.data.features}.'
         )
         if not self.use_proxy_obs:
             assert all(
-                f in self.data.features for f in self.hr_exo_features
+                f in lowered(self.data.features) for f in self.hr_exo_features
             ), (
                 f'All hr_exo_features {self.hr_exo_features} must be in the '
                 f'data features {self.data.features} when not using proxy '
@@ -275,7 +279,7 @@ class Sampler(Container):
             )
         else:
             feats = set(self.hr_exo_features) - set(self.obs_features)
-            assert all(f in self.data.features for f in feats), (
+            assert all(f in lowered(self.data.features) for f in feats), (
                 f'All non-obs hr_exo_features {feats} must be in the data '
                 f'features {self.data.features} when using proxy observations.'
             )

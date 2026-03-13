@@ -456,37 +456,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         exo = dict(zip(self.hr_exo_features, tf.unstack(exo, axis=-1)))
         return exo
 
-    def _extract_obs(self, hi_res_true):
-        """Extract observation features from the end of hi_res_true.
-        Observation features are appended after hr_out + hr_exo features
-        by the Sampler when ``use_proxy_obs=True``, or included directly
-        when real obs are in the data.
-
-        Parameters
-        ----------
-        hi_res_true : tf.Tensor
-            Ground truth high resolution data, possibly with obs features
-            appended at the end.
-
-        Returns
-        -------
-        obs_data : dict
-            Dictionary of observation feature data. Keys are obs feature
-            names, values are tensors. Also includes ``'mask'`` key with
-            boolean mask (True where observations are NaN / missing).
-            Empty dict if no obs features are present.
-        """
-        if len(self.obs_features) == 0:
-            return {}
-        obs = hi_res_true[..., -len(self.obs_features) :]
-        obs_mask = tf.math.is_nan(obs)
-        obs_expanded = tf.expand_dims(obs, axis=-2)
-        obs_data = dict(
-            zip(self.obs_features, tf.unstack(obs_expanded, axis=-1))
-        )
-        obs_data['mask'] = obs_mask
-        return obs_data
-
     def _combine_loss_input(self, hi_res_true, hi_res_gen):
         """Combine exogenous feature data from hi_res_true with hi_res_gen
         for loss calculation
