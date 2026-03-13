@@ -198,6 +198,24 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 pprint.pformat(self._stdevs, indent=2),
             )
 
+    @staticmethod
+    def check_batch_handler_attrs(batch_handler):
+        """Not all batch handlers have the following attributes. So we perform
+        some sanitation before sending to `set_model_params`"""
+        return {
+            k: getattr(batch_handler, k, None)
+            for k in [
+                'smoothing',
+                'lr_features',
+                'hr_exo_features',
+                'hr_out_features',
+                'hr_features',
+                'obs_features',
+                'smoothed_features',
+            ]
+            if hasattr(batch_handler, k)
+        }
+
     def norm_input(self, low_res):
         """Normalize low resolution data being input to the generator.
 

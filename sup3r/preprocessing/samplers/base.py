@@ -237,7 +237,9 @@ class Sampler(Container):
             )
             raise ValueError(msg)
 
-        if len(self.obs_features) > 0:
+        if len(self.obs_features) > 0 and any(
+            f in self.hr_exo_features for f in self.obs_features
+        ):
             msg = (
                 f'Obs features {self.obs_features} must come at the end of '
                 f'the hr_exo_features {self.hr_exo_features}'
@@ -254,6 +256,29 @@ class Sampler(Container):
             assert list(self.hr_exo_features) == list(
                 self.hr_features[-len(self.hr_exo_features) :]
             ), msg
+
+        assert all(f in self.data.features for f in self.lr_features), (
+            f'All lr_features {self.lr_features} must be in the data features '
+            f'{self.data.features}.'
+        )
+        assert all(f in self.data.features for f in self.hr_out_features), (
+            f'All hr_out_features {self.hr_out_features} must be in the data '
+            f'features {self.data.features}.'
+        )
+        if not self.use_proxy_obs:
+            assert all(
+                f in self.data.features for f in self.hr_exo_features
+            ), (
+                f'All hr_exo_features {self.hr_exo_features} must be in the '
+                f'data features {self.data.features} when not using proxy '
+                'observations.'
+            )
+        else:
+            feats = set(self.hr_exo_features) - set(self.obs_features)
+            assert all(f in self.data.features for f in feats), (
+                f'All non-obs hr_exo_features {feats} must be in the data '
+                f'features {self.data.features} when using proxy observations.'
+            )
 
     @property
     def sample_shape(self) -> tuple:

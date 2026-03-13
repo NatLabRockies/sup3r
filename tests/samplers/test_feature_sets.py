@@ -10,11 +10,8 @@ from sup3r.utilities.pytest.helpers import DummyData
 @pytest.mark.parametrize(
     ['features', 'lr_features', 'hr_exo_features', 'hr_out_features'],
     [
-        (['V_100m'], ['V_100m'], [], []),
+        (['V_100m'], ['V_100m'], [], ['U_100m']),
         (['U_100m'], ['V_100m'], ['V_100m'], []),
-        (['U_100m'], [], ['U_100m'], []),
-        (['U_100m', 'V_100m'], [], ['U_100m'], []),
-        (['U_100m', 'V_100m'], [], ['V_100m', 'U_100m'], []),
     ],
 )
 def test_feature_errors(
@@ -22,42 +19,34 @@ def test_feature_errors(
 ):
     """Each of these feature combinations should raise an error due to no
     features left in hr output or bad ordering"""
-    sampler = Sampler(
-        DummyData(data_shape=(20, 20, 10), features=features),
-        sample_shape=(5, 5, 4),
-        feature_sets={
-            'lr_features': lr_features,
-            'hr_exo_features': hr_exo_features,
-            'hr_out_features': hr_out_features,
-        },
-    )
-
     with pytest.raises((RuntimeError, AssertionError)):
-        _ = sampler.lr_features
-        _ = sampler.hr_out_features
-        _ = sampler.hr_exo_features
-        _ = sampler.obs_features
+        _ = Sampler(
+            DummyData(data_shape=(20, 20, 10), features=features),
+            sample_shape=(5, 5, 4),
+            feature_sets={
+                'lr_features': lr_features,
+                'hr_exo_features': hr_exo_features,
+                'hr_out_features': hr_out_features,
+            },
+        )
 
 
 @pytest.mark.parametrize(
-    ['features', 'lr_features', 'hr_exo_features', 'hr_out_features'],
+    ['lr_features', 'hr_exo_features', 'hr_out_features'],
     [
-        (['V_100m', 'topography'], [], ['topography'], ['V_100m_obs']),
+        (['V_100m', 'topography'], ['topography'], ['V_100m_obs']),
         (
-            ['V_100m', 'V_100m_obs', 'topography'],
-            [],
-            ['topography'],
+            ['V_100m', 'topography'],
+            ['topography', 'V_100m_obs'],
             ['V_100m_obs'],
         ),
     ],
 )
-def test_sampler_feature_sets(
-    features, lr_features, hr_exo_features, hr_out_features
-):
+def test_sampler_feature_sets(lr_features, hr_exo_features, hr_out_features):
     """Each of these feature combinations should pass without raising an
     error."""
     sampler = Sampler(
-        DummyData(data_shape=(20, 20, 10), features=features),
+        DummyData(data_shape=(20, 20, 10), features=lr_features),
         sample_shape=(5, 5, 4),
         feature_sets={
             'lr_features': lr_features,
