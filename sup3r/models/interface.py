@@ -233,8 +233,25 @@ class AbstractInterface(ABC):
             f'conflict with user provided values (s_enhance={s_enhance}, '
             f't_enhance={t_enhance})'
         )
-        check = layer_se == s_enhance or layer_te == t_enhance
+        check = layer_se == s_enhance and layer_te == t_enhance
         if not check:
+            logger.error(msg)
+            raise RuntimeError(msg)
+
+    def _ensure_feature_consistency(self):
+        """Ensure that the exogenous features specified in meta are consistent
+        with the features found in the model layers"""
+        features = []
+        if hasattr(self, '_gen'):
+            for layer in self._gen.layers:
+                if isinstance(layer, SUP3R_LAYERS):
+                    feats = getattr(layer, 'features', [layer.name])
+                    features.extend(feats)
+        if set(self.hr_exo_features) != set(features):
+            msg = (
+                f'Model meta hr_exo_features {self.hr_exo_features} does not '
+                f'match features {features} found in model layers.'
+            )
             logger.error(msg)
             raise RuntimeError(msg)
 
@@ -352,18 +369,6 @@ class AbstractInterface(ABC):
                     hi_res = np.concatenate((hi_res, exo_output), axis=-1)
         return hi_res
 
-    def get_layer_features(self):
-        """Get the features that are input to mid-network layers. These are
-        typically gapless high-resolution features like topography or sparse
-        observations"""
-        features = []
-        if hasattr(self, '_gen'):
-            for layer in self._gen.layers:
-                if isinstance(layer, SUP3R_LAYERS):
-                    feats = getattr(layer, 'features', [layer.name])
-                    features.extend(feats)
-        return features
-
     @property
     @abstractmethod
     def meta(self):
@@ -394,16 +399,7 @@ class AbstractInterface(ABC):
     def hr_exo_features(self):
         """Get list of gapless exogenous high-resolution feature names the
         model uses, like topography."""
-        check = self.get_layer_features()
-        out = self.meta.get('hr_exo_features', [])
-        if set(out) != set(check):
-            msg = (
-                f'Model meta hr_exo_features {out} does not match features '
-                f'{check} found in model layers.'
-            )
-            logger.warning(msg)
-            warn(msg)
-        return out
+        return self.meta.get('hr_exo_features', [])
 
     @property
     def hr_features(self):
@@ -450,20 +446,25 @@ class AbstractInterface(ABC):
         """
         return VERSION_RECORD
 
-    def set_model_params(self, **kwargs):
+    def set_model_params(self, batch_handler=None, **kwargs):
         """Set parameters used for training the model
 
         Parameters
         ----------
+        batch_handler : object | None
+            Object that contains attributes used to set model meta parameters.
+            This is used during training to set parameters that are needed for
+            generation and also to check for consistency with previously set
+            parameters when loading a model from disk.
         kwargs : dict
-            Keyword arguments including 'input_resolution',
-            'lr_features', 'hr_exo_features', 'hr_out_features', 'hr_features',
-            'obs_features', 'smoothed_features', 's_enhance', 't_enhance',
-            'smoothing'
+            Keyword arguments that are used to set model meta parameters. This
+            is used during training to set parameters that are needed for
+            generation and also to check for consistency with previously set
+            parameters when loading a model from disk.
         """
 
-        keys = (
-            'input_resolution',
+        bh_keys = [
+            'smoothing',
             'lr_features',
             'hr_exo_features',
             'hr_out_features',
@@ -472,24 +473,32 @@ class AbstractInterface(ABC):
             'smoothed_features',
             's_enhance',
             't_enhance',
-            'smoothing',
-        )
-        keys = [k for k in keys if k in kwargs]
+        ]
 
-        for var in keys:
-            val = self.meta.get(var, None)
+        meta_params = {}
+        if batch_handler is not None:
+            meta_params.update({
+                k: getattr(batch_handler, k, None)
+                for k in bh_keys
+                if hasattr(batch_handler, k)
+            })
+
+        meta_params.update(kwargs)
+        for key, var in meta_params.items():
+            val = self.meta.get(key, None)
             if val is None:
-                self.meta[var] = kwargs[var]
-            elif val != kwargs[var]:
+                self.meta[key] = var
+            elif val != var:
                 msg = (
-                    'Model was previously trained with {var}={} but '
-                    'received new {var}={}'.format(val, kwargs[var], var=var)
+                    'Model was previously trained with {key}={} but '
+                    'received new {key}={}'.format(val, var, key=key)
                 )
                 logger.warning(msg)
                 warn(msg)
 
         self._ensure_valid_enhancement_factors()
         self._ensure_valid_input_resolution()
+        self._ensure_feature_consistency()
 
     def save_params(self, out_dir):
         """

@@ -615,24 +615,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         return weight_gen_advers
 
-    @staticmethod
-    def check_batch_handler_attrs(batch_handler):
-        """Not all batch handlers have the following attributes. So we perform
-        some sanitation before sending to `set_model_params`"""
-        return {
-            k: getattr(batch_handler, k, None)
-            for k in [
-                'smoothing',
-                'lr_features',
-                'hr_exo_features',
-                'hr_out_features',
-                'hr_features',
-                'obs_features',
-                'smoothed_features',
-            ]
-            if hasattr(batch_handler, k)
-        }
-
     def train(
         self,
         batch_handler,
@@ -736,12 +718,8 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             self._init_tensorboard_writer(out_dir)
 
         self.set_norm_stats(batch_handler.means, batch_handler.stds)
-        params = self.check_batch_handler_attrs(batch_handler)
         self.set_model_params(
-            input_resolution=input_resolution,
-            s_enhance=batch_handler.s_enhance,
-            t_enhance=batch_handler.t_enhance,
-            **params,
+            input_resolution=input_resolution, batch_handler=batch_handler
         )
 
         epochs = list(range(n_epoch))

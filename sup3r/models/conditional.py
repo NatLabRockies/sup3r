@@ -423,15 +423,11 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
             self._init_tensorboard_writer(out_dir)
 
         self.set_norm_stats(batch_handler.means, batch_handler.stds)
-        params = self.check_batch_handler_attrs(batch_handler)
         lower_models = getattr(batch_handler, 'lower_models', {})
         for model in [self, *lower_models.values()]:
             model.set_model_params(
-                input_resolution=input_resolution,
-                s_enhance=batch_handler.s_enhance,
-                t_enhance=batch_handler.t_enhance,
-                **params,
-        )
+                input_resolution=input_resolution, batch_handler=batch_handler
+            )
 
         epochs = list(range(n_epoch))
 
@@ -443,7 +439,7 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
 
         t0 = time.time()
         logger.info(
-            'Training model ' 'for {} epochs starting at epoch {}'.format(
+            'Training model for {} epochs starting at epoch {}'.format(
                 n_epoch, epochs[0]
             )
         )

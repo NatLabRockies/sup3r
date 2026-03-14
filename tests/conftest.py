@@ -237,6 +237,94 @@ def gen_config_with_obs_3d():
 
 
 @pytest.fixture(scope='package')
+def gen_config_with_obs_3d_topo():
+    """Get generator config with observation layers and topo layer."""
+
+    def func():
+        return [
+            {
+                'class': 'FlexiblePadding',
+                'paddings': [[0, 0], [3, 3], [3, 3], [3, 3], [0, 0]],
+                'mode': 'REFLECT',
+            },
+            {
+                'class': 'Conv3D',
+                'filters': 2,
+                'kernel_size': 3,
+                'strides': 1,
+                'activation': 'relu',
+            },
+            {'class': 'Cropping3D', 'cropping': 2},
+            {
+                'class': 'SpatioTemporalExpansion',
+                'temporal_mult': 2
+            },
+            {
+                'class': 'FlexiblePadding',
+                'paddings': [[0, 0], [3, 3], [3, 3], [3, 3], [0, 0]],
+                'mode': 'REFLECT',
+            },
+            {
+                'class': 'Conv3D',
+                'filters': 64,
+                'kernel_size': 3,
+                'strides': 1,
+                'activation': 'relu',
+            },
+            {'class': 'Cropping3D', 'cropping': 2},
+            {
+                'class': 'FlexiblePadding',
+                'paddings': [[0, 0], [3, 3], [3, 3], [3, 3], [0, 0]],
+                'mode': 'REFLECT',
+            },
+            {
+                'class': 'Conv3D',
+                'filters': 64,
+                'kernel_size': 3,
+                'strides': 1,
+                'activation': 'relu',
+            },
+            {'class': 'Cropping3D', 'cropping': 2},
+            {
+                'class': 'SpatioTemporalExpansion',
+                'spatial_mult': 2
+            },
+            {'class': 'Activation', 'activation': 'relu'},
+            {
+                'class': 'FlexiblePadding',
+                'paddings': [[0, 0], [3, 3], [3, 3], [3, 3], [0, 0]],
+                'mode': 'REFLECT',
+            },
+            {
+                'class': 'Conv3D',
+                'filters': 2,
+                'kernel_size': 3,
+                'strides': 1,
+                'activation': 'relu',
+            },
+            {'class': 'Cropping3D', 'cropping': 2},
+            {'class': 'Sup3rConcatObs', 'name': 'u_10m_obs'},
+            {'class': 'Sup3rConcatObs', 'name': 'v_10m_obs'},
+            {'class': 'Sup3rConcat', 'name': 'topography'},
+            {
+                'class': 'FlexiblePadding',
+                'paddings': [[0, 0], [3, 3], [3, 3], [3, 3], [0, 0]],
+                'mode': 'REFLECT',
+            },
+            {
+                'class': 'Conv3D',
+                'filters': 2,
+                'kernel_size': 3,
+                'strides': 1,
+                'activation': 'relu',
+            },
+            {'class': 'Cropping3D', 'cropping': 2},
+        ]
+
+    return func
+
+
+@pytest.fixture(scope='package')
 def gen_config_with_topo():
     """Get generator config with custom topo layer."""
 

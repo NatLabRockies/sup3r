@@ -234,3 +234,65 @@ def test_train_just_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
 
         tloss = model.history['train_geothermal_physics_loss_with_obs'].values
         assert np.sum(np.diff(tloss)) < 0
+
+
+def test_train_obs_with_topo(request):
+    """Test training with topo and obs. Make sure exo features are
+    properly concatenated."""
+
+    gen_config = 'gen_config_with_obs_3d_topo'
+    gen_config = request.getfixturevalue(gen_config)()
+    kwargs = {
+        'file_paths': pytest.FP_WTK,
+        'features': [*FEATURES_W, 'topography'],
+        'target': TARGET_W,
+        'shape': SHAPE,
+    }
+
+    train_handler = DataHandler(**kwargs, time_slice=slice(None, 3000, 10))
+
+    val_handler = DataHandler(**kwargs, time_slice=slice(3000, None, 10))
+    batcher = BatchHandler(
+        [train_handler],
+        [val_handler],
+        batch_size=2,
+        n_batches=1,
+        s_enhance=2,
+        t_enhance=2,
+        sample_shape=(20, 20, 10),
+        proxy_obs_kwargs={'onshore_obs_frac': {'spatial': 0.1}},
+        feature_sets={
+            'lr_features': FEATURES_W,
+            'hr_exo_features': [
+                'topography',
+                *[f'{feat}_obs' for feat in FEATURES_W],
+            ],
+            'hr_out_features': FEATURES_W,
+        },
+    )
+
+    Sup3rGan.seed()
+
+    model = Sup3rGan(
+        gen_config,
+        pytest.ST_FP_DISC,
+        learning_rate=1e-4,
+        loss={
+            'GeothermalPhysicsLossWithObs': {
+                'gen_features': FEATURES_W,
+                'true_features': [f'{feat}_obs' for feat in FEATURES_W],
+            }
+        },
+    )
+    with tempfile.TemporaryDirectory() as td:
+        model_kwargs = {
+            'input_resolution': {'spatial': '16km', 'temporal': '3600min'},
+            'n_epoch': 3,
+            'weight_gen_advers': 0.0,
+            'train_gen': True,
+            'train_disc': False,
+            'checkpoint_int': None,
+            'out_dir': os.path.join(td, 'test_{epoch}'),
+        }
+
+        model.train(batcher, **model_kwargs)

@@ -425,16 +425,13 @@ class Sampler(Container):
         list[int]
             Indices into ``features`` for each obs feature source.
         """
-        if len(self.obs_features) == 0:
-            return []
+        check_feats = (
+            [f.replace('_obs', '') for f in self.obs_features]
+            if self.use_proxy_obs
+            else self.obs_features
+        )
 
-        if self.use_proxy_obs:
-            return [
-                self.hr_features.index(f.replace('_obs', ''))
-                for f in self.obs_features
-            ]
-        else:
-            return [self.hr_features.index(f) for f in self.obs_features]
+        return [self.features.index(f) for f in check_feats]
 
     def _get_proxy_obs(self, hi_res):
         """Generate proxy observation data by masking the gridded high-res
@@ -604,37 +601,6 @@ class Sampler(Container):
         feats += [f for f in self.hr_exo_features if f not in feats]
         return feats
 
-    def _get_single_obs_mask(self, hi_res, spatial_frac, time_frac=1.0):
-        """Get observation mask for a given spatial and temporal obs
-        fraction for a single batch entry.
-
-        Parameters
-        ----------
-        hi_res : np.ndarray
-            True high resolution data for a single batch entry.
-        spatial_frac : float
-            Fraction of the spatial domain that should be treated as
-            observations. This is a value between 0 and 1.
-        time_frac : float, optional
-            Fraction of the temporal domain that should be treated as
-            observations. This is a value between 0 and 1. Default is 1.0
-
-        Returns
-        -------
-        np.ndarray
-            Mask which is True for locations that are not observed and False
-            for locations that are observed.
-            (spatial_1, spatial_2, n_features)
-            (spatial_1, spatial_2, n_temporal, n_features)
-        """
-        mask_shape = [*hi_res.shape[:-1], len(self.hr_out_features)]
-        s_mask = RANDOM_GENERATOR.uniform(size=mask_shape[1:3]) <= spatial_frac
-        s_mask = s_mask[..., None, None]
-        t_mask = RANDOM_GENERATOR.uniform(size=mask_shape[-2]) <= time_frac
-        t_mask = t_mask[None, None, ..., None]
-        mask = ~(s_mask & t_mask)
-        return np.repeat(mask, mask_shape[-1], axis=-1)
-
     def _get_obs_mask(self, hi_res, spatial_frac, time_frac=1.0):
         """Get observation mask for a given spatial and temporal obs
         fraction for an entire batch. This is divided between spatial and
@@ -674,18 +640,26 @@ class Sampler(Container):
             if isinstance(time_frac, (list, tuple))
             else [time_frac, time_frac]
         )
-        s_fracs = RANDOM_GENERATOR.uniform(*s_range, size=hi_res.shape[0])
-        t_fracs = RANDOM_GENERATOR.uniform(*t_range, size=hi_res.shape[0])
+        n_obs, n_spatial_1, n_spatial_2, n_temporal = hi_res.shape[:-1]
+        n_features = len(self.hr_out_features)
+
+        s_fracs = RANDOM_GENERATOR.uniform(*s_range, size=n_obs)
+        t_fracs = RANDOM_GENERATOR.uniform(*t_range, size=n_obs)
         s_fracs = np.clip(s_fracs, 0, 1)
         t_fracs = np.clip(t_fracs, 0, 1)
-        mask = np.stack(
-            [
-                self._get_single_obs_mask(hi_res, s, t)
-                for s, t in zip(s_fracs, t_fracs)
-            ],
-            axis=0,
+
+        s_mask = RANDOM_GENERATOR.uniform(
+            size=(n_obs, n_spatial_1, n_spatial_2)
         )
-        return mask
+        s_mask = s_mask <= s_fracs[:, None, None]
+        s_mask = s_mask[..., None, None]
+
+        t_mask = RANDOM_GENERATOR.uniform(size=(n_obs, n_temporal))
+        t_mask = t_mask <= t_fracs[:, None]
+        t_mask = t_mask[:, None, None, :, None]
+
+        mask = ~(s_mask & t_mask)
+        return np.repeat(mask, n_features, axis=-1)
 
     def _get_full_obs_mask(self, hi_res):
         """Define observation mask for the current batch. This differs from
