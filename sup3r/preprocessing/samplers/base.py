@@ -126,7 +126,7 @@ class Sampler(Container):
         check = bool(self.proxy_obs_kwargs)
         check = check or (
             len(self.obs_features) > 0
-            and all(f not in self.features for f in self.obs_features)
+            and all(f not in self.hr_features for f in self.obs_features)
         )
         return check
 
@@ -174,9 +174,9 @@ class Sampler(Container):
             self.shape, self.sample_shape[2] * n_obs
         )
         feats = (
-            self.features
+            self.hr_features
             if not self.use_proxy_obs
-            else self.features[: -len(self.obs_features)]
+            else self.hr_features[: -len(self.obs_features)]
         )
         return (*spatial_slice, time_slice, feats)
 
@@ -414,25 +414,6 @@ class Sampler(Container):
     def _fast_batch_possible(self):
         return self.batch_size * self.sample_shape[2] <= self.data.shape[2]
 
-    @property
-    def obs_features_ind(self):
-        """Get the source feature indices in ``features`` for each obs
-        feature. Each obs feature named ``<feature>_obs`` maps to the
-        corresponding ``<feature>`` in the features.
-
-        Returns
-        -------
-        list[int]
-            Indices into ``features`` for each obs feature source.
-        """
-        check_feats = (
-            [f.replace('_obs', '') for f in self.obs_features]
-            if self.use_proxy_obs
-            else self.obs_features
-        )
-
-        return [self.features.index(f) for f in check_feats]
-
     def _get_proxy_obs(self, hi_res):
         """Generate proxy observation data by masking the gridded high-res
         data. Unobserved locations are set to NaN.
@@ -520,7 +501,7 @@ class Sampler(Container):
 
         if any('*' in fn for fn in parsed_feats):
             out = []
-            for feature in self.features:
+            for feature in self.hr_features:
                 match = any(
                     fnmatch(feature.lower(), pattern.lower())
                     for pattern in parsed_feats
@@ -539,15 +520,17 @@ class Sampler(Container):
 
     @property
     def hr_features(self):
-        """List of feature names or patt*erns that should be available as
-        either high-resolution model inputs (like topography or observations)
-        or as ground truth targets. If no entry is provided then all available
-        features from data will be used."""
-        out = [
-            f for f in self.hr_out_features if f not in self.hr_exo_features
-        ]
-        out += self.hr_exo_features
-        return out
+        """List of feature names or patt*erns that should be available in the
+        high-resolution data. For a non-dual sampler this is all features,
+        since even features only provided to the model as low-resolution still
+        need to be coarsened from the high-resolution data. This is in contrast
+        to dual samplers
+        (:class:`~sup3r.preprocessing.samplers.dual.DualSampler`), where there
+        are separate high-resolution and low-resolution data members."""
+        feats = self.lr_features
+        feats += [f for f in self.hr_out_features if f not in feats]
+        feats += [f for f in self.hr_exo_features if f not in feats]
+        return feats
 
     @property
     def hr_out_features(self):
@@ -578,28 +561,41 @@ class Sampler(Container):
     @property
     def hr_features_ind(self):
         """Get the high-resolution feature channel indices that should be
-        included for training. This includes hr_out_features and
+        included for loss calculations. This includes hr_out_features and
         hr_exo_features, Any high-resolution features that are only included in
         the data handler to be coarsened for the low-res input are removed.
         """
-        return [self.features.index(f) for f in self.hr_features]
+        hr_feats = [
+            f for f in self.hr_out_features if f not in self.hr_exo_features
+        ]
+        hr_feats += self.hr_exo_features
+        return [self.hr_features.index(f) for f in hr_feats]
 
     @property
     def lr_features_ind(self):
         """Get the low-resolution feature channel indices that should be
         included for training. This includes lr_features.
         """
-        return [self.features.index(f) for f in self.lr_features]
+        return [self.hr_features.index(f) for f in self.lr_features]
 
     @property
-    def features(self):
-        """Get the full set of features that should be included for training.
-        This is the union of lr_features, hr_out_features and hr_exo_features.
+    def obs_features_ind(self):
+        """Get the source feature indices in ``features`` for each obs
+        feature. Each obs feature named ``<feature>_obs`` maps to the
+        corresponding ``<feature>`` in the features.
+
+        Returns
+        -------
+        list[int]
+            Indices into ``features`` for each obs feature source.
         """
-        feats = self.lr_features
-        feats += [f for f in self.hr_out_features if f not in feats]
-        feats += [f for f in self.hr_exo_features if f not in feats]
-        return feats
+        check_feats = (
+            [f.replace('_obs', '') for f in self.obs_features]
+            if self.use_proxy_obs
+            else self.obs_features
+        )
+
+        return [self.hr_features.index(f) for f in check_feats]
 
     def _get_obs_mask(self, hi_res, spatial_frac, time_frac=1.0):
         """Get observation mask for a given spatial and temporal obs

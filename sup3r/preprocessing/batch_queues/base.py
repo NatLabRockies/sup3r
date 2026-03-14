@@ -27,7 +27,7 @@ class SingleBatchQueue(AbstractBatchQueue):
     @property
     def queue_shape(self):
         """Shape of objects stored in the queue."""
-        return [(self.batch_size, *self.hr_sample_shape, len(self.features))]
+        return [(self.batch_size, *self.hr_shape)]
 
     def transform(
         self,

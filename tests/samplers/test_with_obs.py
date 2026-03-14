@@ -7,7 +7,8 @@ from sup3r.preprocessing import DualSampler, Sampler
 from sup3r.preprocessing.base import Sup3rDataset
 from sup3r.utilities.pytest.helpers import DummyData
 
-BASE_FEATURES = ['u_100m', 'v_100m']
+LR_FEATURES = ['u_100m', 'v_100m', 'temperature_2m']
+HR_OUT_FEATURES = ['u_100m', 'v_100m']
 OBS_FEATURES = ['u_100m_obs', 'v_100m_obs']
 
 
@@ -20,10 +21,10 @@ def _make_sampler(
     hr_features=None,
 ):
     """Create either Sampler or DualSampler with proxy obs feature sets."""
-    hr_features = hr_features or BASE_FEATURES
+    hr_features = hr_features or LR_FEATURES
     feature_sets = {
-        'lr_features': BASE_FEATURES,
-        'hr_out_features': BASE_FEATURES,
+        'lr_features': LR_FEATURES,
+        'hr_out_features': HR_OUT_FEATURES,
         'hr_exo_features': [
             *[f for f in hr_features if f == 'topography'],
             *OBS_FEATURES,
@@ -41,7 +42,7 @@ def _make_sampler(
         )
 
     lr_shape = (hr_shape[0] // 2, hr_shape[1] // 2, hr_shape[2])
-    lr = DummyData(data_shape=lr_shape, features=BASE_FEATURES).data.high_res
+    lr = DummyData(data_shape=lr_shape, features=LR_FEATURES).data.high_res
     hr = DummyData(data_shape=hr_shape, features=hr_features).data.high_res
     data = Sup3rDataset(low_res=lr, high_res=hr)
     return DualSampler(
@@ -84,7 +85,8 @@ def test_proxy_obs_appended_and_fraction(
     batch = _get_hr_batch(sampler)
     obs = batch[..., -2:]
 
-    assert batch.shape[-1] == 4
+    expected_channels = 5 if sampler_cls is Sampler else 4
+    assert batch.shape[-1] == expected_channels
     assert obs.shape[-1] == 2
 
     observed_frac = np.isfinite(obs[..., 0]).mean()
@@ -128,7 +130,7 @@ def test_proxy_obs_onshore_offshore_topography_fractions(sampler_cls):
             'onshore_obs_frac': {'spatial': 0.8, 'time': 1.0},
             'offshore_obs_frac': {'spatial': 0.1, 'time': 1.0},
         },
-        hr_features=[*BASE_FEATURES, 'topography'],
+        hr_features=[*LR_FEATURES, 'topography'],
     )
 
     topo_var = sampler.data.high_res['topography']

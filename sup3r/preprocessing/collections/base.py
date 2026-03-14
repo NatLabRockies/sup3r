@@ -37,13 +37,10 @@ class Collection(Container):
         self.data = tuple(c.data for c in containers)
         self.containers = containers
         self._features: list = []
-        self._data_features: list = []
 
     @property
     def features(self):
-        """Get all features "available" in containers. This can include proxy
-        observations that are not actually in the data but created dynamically
-        during sampling."""
+        """Get all features contained in data."""
         if not self._features:
             _ = [
                 self._features.append(f)
@@ -51,19 +48,6 @@ class Collection(Container):
                 if f not in self._features
             ]
         return self._features
-
-    @property
-    def data_features(self):
-        """Get all features contained in data."""
-        if not self._data_features:
-            _ = [
-                self._data_features.append(f)
-                for f in np.concatenate([
-                    c.data.features for c in self.containers
-                ])
-                if f not in self._data_features
-            ]
-        return self._data_features
 
     @property
     def container_weights(self):
