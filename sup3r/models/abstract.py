@@ -1172,7 +1172,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             return layer(input_array, hr_exo, extras)
         return layer(input_array, hr_exo)
 
-    #@tf.function
+    @tf.function
     def _tf_generate(self, low_res, hi_res_exo=None):
         """Use the generator model to generate high res data from low res input
 
