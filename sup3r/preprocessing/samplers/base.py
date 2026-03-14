@@ -527,8 +527,12 @@ class Sampler(Container):
         to dual samplers
         (:class:`~sup3r.preprocessing.samplers.dual.DualSampler`), where there
         are separate high-resolution and low-resolution data members."""
-        feats = self.lr_features
-        feats += [f for f in self.hr_out_features if f not in feats]
+        feats = [f for f in self.lr_features if f not in self.hr_exo_features]
+        feats += [
+            f
+            for f in self.hr_out_features
+            if f not in feats and f not in self.hr_exo_features
+        ]
         feats += [f for f in self.hr_exo_features if f not in feats]
         return feats
 
