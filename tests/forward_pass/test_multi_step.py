@@ -37,11 +37,15 @@ def test_multi_step_model(features):
         lr_features=FEATURES,
         hr_out_features=FEATURES,
         input_resolution={'spatial': '27km', 'temporal': '64min'},
+        s_enhance=3,
+        t_enhance=4,
     )
     model2.set_model_params(
         lr_features=features,
         hr_out_features=features,
         input_resolution={'spatial': '9km', 'temporal': '16min'},
+        s_enhance=3,
+        t_enhance=4,
     )
 
     _ = model1.generate(np.ones((4, 10, 10, 6, len(FEATURES))))
@@ -103,16 +107,22 @@ def test_multi_step_norm(norm_option):
         lr_features=FEATURES,
         hr_out_features=FEATURES,
         input_resolution={'spatial': '27km', 'temporal': '64min'},
+        s_enhance=3,
+        t_enhance=4,
     )
     model2.set_model_params(
         lr_features=FEATURES,
         hr_out_features=FEATURES,
         input_resolution={'spatial': '9km', 'temporal': '16min'},
+        s_enhance=3,
+        t_enhance=4,
     )
     model3.set_model_params(
         lr_features=FEATURES,
         hr_out_features=FEATURES,
         input_resolution={'spatial': '3km', 'temporal': '4min'},
+        s_enhance=3,
+        t_enhance=4,
     )
 
     _ = model1.generate(np.ones((4, 10, 10, 6, len(FEATURES))))
@@ -165,11 +175,15 @@ def test_spatial_then_temporal_gan():
         lr_features=FEATURES,
         hr_out_features=FEATURES,
         input_resolution={'spatial': '12km', 'temporal': '40min'},
+        s_enhance=2,
+        t_enhance=1,
     )
     model2.set_model_params(
         lr_features=FEATURES,
         hr_out_features=FEATURES,
         input_resolution={'spatial': '6km', 'temporal': '40min'},
+        s_enhance=3,
+        t_enhance=4,
     )
 
     with tempfile.TemporaryDirectory() as td:
@@ -208,11 +222,15 @@ def test_temporal_then_spatial_gan():
         lr_features=FEATURES,
         hr_out_features=FEATURES,
         input_resolution={'spatial': '12km', 'temporal': '40min'},
+        s_enhance=2,
+        t_enhance=1,
     )
     model2.set_model_params(
         lr_features=FEATURES,
         hr_out_features=FEATURES,
         input_resolution={'spatial': '6km', 'temporal': '40min'},
+        s_enhance=3,
+        t_enhance=4,
     )
 
     with tempfile.TemporaryDirectory() as td:
@@ -244,6 +262,8 @@ def test_spatial_gan_then_linear_interp():
         lr_features=FEATURES,
         hr_out_features=FEATURES,
         input_resolution={'spatial': '12km', 'temporal': '60min'},
+        s_enhance=2,
+        t_enhance=1,
     )
 
     with tempfile.TemporaryDirectory() as td:
