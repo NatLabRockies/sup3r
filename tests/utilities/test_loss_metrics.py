@@ -311,6 +311,8 @@ def test_multiterm_loss():
         lr_features=['u_100m', 'v_100m', 'temp_100m'],
         hr_out_features=['u_100m', 'v_100m', 'temp_100m'],
         input_resolution={'spatial': '12km', 'temporal': '60min'},
+        s_enhance=1,
+        t_enhance=1,
     )
     multi_loss = model.get_loss_fun({
         'MaterialDerivativeLoss': {
