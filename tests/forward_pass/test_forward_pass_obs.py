@@ -118,12 +118,14 @@ def test_fwp_with_obs(input_file, obs_file, gen_config_with_obs_2d, request):
     model = Sup3rGan(
         gen_config_with_obs_2d(), pytest.S_FP_DISC, learning_rate=1e-4
     )
-    model.meta['input_resolution'] = {'spatial': '16km', 'temporal': '3600min'}
-    model.meta['lr_features'] = ['u_10m', 'v_10m']
-    model.meta['hr_exo_features'] = ['u_10m_obs', 'v_10m_obs']
-    model.meta['hr_out_features'] = ['u_10m', 'v_10m']
-    model.meta['s_enhance'] = 2
-    model.meta['t_enhance'] = 1
+    model.set_model_params(
+        input_resolution={'spatial': '16km', 'temporal': '3600min'},
+        lr_features=['u_10m', 'v_10m'],
+        hr_exo_features=['u_10m_obs', 'v_10m_obs'],
+        hr_out_features=['u_10m', 'v_10m'],
+        s_enhance=2,
+        t_enhance=1,
+    )
 
     with tempfile.TemporaryDirectory() as td:
         exo_tmp = {

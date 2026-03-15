@@ -73,7 +73,7 @@ def test_fwp_nc_cc():
             out_pattern=out_files,
             input_handler_name='DataHandlerNCforCC',
             pass_workers=None,
-            invert_uv=False
+            invert_uv=False,
         )
         forward_pass = ForwardPass(strat)
         forward_pass.run(strat, node_index=0)
@@ -173,7 +173,7 @@ def test_fwp_spatial_only(input_files):
             out_pattern=out_files,
             pass_workers=1,
             output_workers=1,
-            invert_uv=False
+            invert_uv=False,
         )
         forward_pass = ForwardPass(strat)
         assert strat.output_workers == 1
@@ -227,7 +227,7 @@ def test_fwp_nc(input_files):
             },
             out_pattern=out_files,
             pass_workers=1,
-            invert_uv=False
+            invert_uv=False,
         )
         forward_pass = ForwardPass(strat)
         assert forward_pass.strategy.pass_workers == 1
@@ -443,14 +443,12 @@ def test_fwp_chunking(input_files):
                 'time_slice': time_slice,
             },
         )
-        data_chunked = np.zeros(
-            (
-                shape[0] * s_enhance,
-                shape[1] * s_enhance,
-                raw_tsteps * t_enhance,
-                len(model.hr_out_features),
-            )
-        )
+        data_chunked = np.zeros((
+            shape[0] * s_enhance,
+            shape[1] * s_enhance,
+            raw_tsteps * t_enhance,
+            len(model.hr_out_features),
+        ))
         handlerNC = DataHandler(
             input_files, FEATURES, target=target, shape=shape
         )
@@ -564,19 +562,25 @@ def test_fwp_multi_step_model(input_files):
     fp_gen = os.path.join(CONFIG_DIR, 'spatial/gen_2x_2f.json')
     fp_disc = os.path.join(CONFIG_DIR, 'spatial/disc.json')
     s_model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
-    s_model.meta['lr_features'] = ['u_100m', 'v_100m']
-    s_model.meta['hr_out_features'] = ['u_100m', 'v_100m']
-    assert s_model.s_enhance == 2
-    assert s_model.t_enhance == 1
+    s_model.set_model_params(
+        lr_features=['u_100m', 'v_100m'],
+        hr_out_features=['u_100m', 'v_100m'],
+        s_enhance=2,
+        t_enhance=1,
+        input_resolution={'spatial': '6km', 'temporal': '40min'},
+    )
     _ = s_model.generate(np.ones((4, 10, 10, 2)))
 
     fp_gen = os.path.join(CONFIG_DIR, 'spatiotemporal/gen_3x_4x_2f.json')
     fp_disc = os.path.join(CONFIG_DIR, 'spatiotemporal/disc.json')
     st_model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
-    st_model.meta['lr_features'] = ['u_100m', 'v_100m']
-    st_model.meta['hr_out_features'] = ['u_100m', 'v_100m']
-    assert st_model.s_enhance == 3
-    assert st_model.t_enhance == 4
+    st_model.set_model_params(
+        lr_features=['u_100m', 'v_100m'],
+        hr_out_features=['u_100m', 'v_100m'],
+        s_enhance=3,
+        t_enhance=4,
+        input_resolution={'spatial': '3km', 'temporal': '40min'},
+    )
     _ = st_model.generate(np.ones((4, 10, 10, 6, 2)))
 
     with tempfile.TemporaryDirectory() as td:

@@ -139,7 +139,7 @@ def test_proxy_obs_onshore_offshore_topography_fractions(sampler_cls):
     sampler.data.high_res['topography'] = (topo_var.dims, topo)
 
     batch = _get_hr_batch(sampler)
-    topo_idx = sampler.hr_features.index('topography')
+    topo_idx = sampler.hr_source_features.index('topography')
     topo_sample = batch[..., topo_idx]
     obs = batch[..., -2:]
 

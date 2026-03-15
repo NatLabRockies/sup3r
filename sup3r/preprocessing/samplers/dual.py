@@ -137,6 +137,15 @@ class DualSampler(Sampler):
         }
         self.post_init_log(post_init_args)
 
+    @property
+    def hr_source_features(self):
+        """Features available natively at high-resolution."""
+        out = [
+            f for f in self.hr_out_features if f not in self.hr_exo_features
+        ]
+        out += self.hr_exo_features
+        return out
+
     def check_shape_consistency(self):
         """Make sure container shapes are compatible with enhancement
         factors."""
@@ -151,23 +160,6 @@ class DualSampler(Sampler):
             'the given enhancement factors'
         )
         assert self.data.high_res.shape[:-1] == enhanced_shape, msg
-
-    @property
-    def hr_features(self):
-        """List of feature names or patt*erns that should be available in the
-        high-resolution data. For dual samplers, this includes only the
-        features that are specifically designated as high-resolution outputs or
-        exogenous inputs. For a non-dual sampler
-        (:class:`~sup3r.preprocessing.samplers.base.Sampler`), this is all
-        features, since even features only provided to the model as
-        low-resolution still need to be coarsened from the high-resolution
-        data.
-        """
-        out = [
-            f for f in self.hr_out_features if f not in self.hr_exo_features
-        ]
-        out += self.hr_exo_features
-        return out
 
     def get_sample_index(self, n_obs=None):
         """Get paired sample index, consisting of index for the low res sample
@@ -191,9 +183,9 @@ class DualSampler(Sampler):
             for s in lr_index[2:-1]
         ]
         hr_feats = (
-            self.hr_features[: -len(self.obs_features)]
+            self.hr_source_features[: -len(self.obs_features)]
             if self.use_proxy_obs
-            else self.hr_features
+            else self.hr_source_features
         )
         hr_index = (*hr_index, hr_feats)
 

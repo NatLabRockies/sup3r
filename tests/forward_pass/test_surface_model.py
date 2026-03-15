@@ -159,8 +159,8 @@ def test_multi_step_surface(s_enhance=2, t_enhance=2):
             temporal_model_kwargs={'model_dirs': temporal_dir})
 
         for model in ms_model.models:
-            assert isinstance(model.s_enhance, int)
-            assert isinstance(model.t_enhance, int)
+            assert isinstance(model.s_enhance, (int, np.integer))
+            assert isinstance(model.t_enhance, (int, np.integer))
 
         x = np.ones((2, 10, 10, len(FEATURES)))
         with pytest.raises(AssertionError):

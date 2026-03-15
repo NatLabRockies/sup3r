@@ -33,10 +33,16 @@ def test_multi_step_model(features):
     model1 = Sup3rGan(fp_gen1, fp_disc)
     model2 = Sup3rGan(fp_gen2, fp_disc)
 
-    model1.meta['input_resolution'] = {'spatial': '27km', 'temporal': '64min'}
-    model2.meta['input_resolution'] = {'spatial': '9km', 'temporal': '16min'}
-    model1.set_model_params(lr_features=FEATURES, hr_out_features=FEATURES)
-    model2.set_model_params(lr_features=features, hr_out_features=features)
+    model1.set_model_params(
+        lr_features=FEATURES,
+        hr_out_features=FEATURES,
+        input_resolution={'spatial': '27km', 'temporal': '64min'},
+    )
+    model2.set_model_params(
+        lr_features=features,
+        hr_out_features=features,
+        input_resolution={'spatial': '9km', 'temporal': '16min'},
+    )
 
     _ = model1.generate(np.ones((4, 10, 10, 6, len(FEATURES))))
     _ = model2.generate(np.ones((4, 10, 10, 6, len(features))))
@@ -93,12 +99,21 @@ def test_multi_step_norm(norm_option):
             {'u_100m': 0.1, 'v_100m': 0.8}, {'u_100m': 0.04, 'v_100m': 0.02}
         )
 
-    model1.meta['input_resolution'] = {'spatial': '27km', 'temporal': '64min'}
-    model2.meta['input_resolution'] = {'spatial': '9km', 'temporal': '16min'}
-    model3.meta['input_resolution'] = {'spatial': '3km', 'temporal': '4min'}
-    model1.set_model_params(lr_features=FEATURES, hr_out_features=FEATURES)
-    model2.set_model_params(lr_features=FEATURES, hr_out_features=FEATURES)
-    model3.set_model_params(lr_features=FEATURES, hr_out_features=FEATURES)
+    model1.set_model_params(
+        lr_features=FEATURES,
+        hr_out_features=FEATURES,
+        input_resolution={'spatial': '27km', 'temporal': '64min'},
+    )
+    model2.set_model_params(
+        lr_features=FEATURES,
+        hr_out_features=FEATURES,
+        input_resolution={'spatial': '9km', 'temporal': '16min'},
+    )
+    model3.set_model_params(
+        lr_features=FEATURES,
+        hr_out_features=FEATURES,
+        input_resolution={'spatial': '3km', 'temporal': '4min'},
+    )
 
     _ = model1.generate(np.ones((4, 10, 10, 6, len(FEATURES))))
     _ = model2.generate(np.ones((4, 10, 10, 6, len(FEATURES))))
@@ -146,11 +161,16 @@ def test_spatial_then_temporal_gan():
         {'u_100m': 0.3, 'v_100m': 0.9}, {'u_100m': 0.02, 'v_100m': 0.07}
     )
 
-    model1.meta['input_resolution'] = {'spatial': '12km', 'temporal': '40min'}
-    model2.meta['input_resolution'] = {'spatial': '6km', 'temporal': '40min'}
-
-    model1.set_model_params(lr_features=FEATURES, hr_out_features=FEATURES)
-    model2.set_model_params(lr_features=FEATURES, hr_out_features=FEATURES)
+    model1.set_model_params(
+        lr_features=FEATURES,
+        hr_out_features=FEATURES,
+        input_resolution={'spatial': '12km', 'temporal': '40min'},
+    )
+    model2.set_model_params(
+        lr_features=FEATURES,
+        hr_out_features=FEATURES,
+        input_resolution={'spatial': '6km', 'temporal': '40min'},
+    )
 
     with tempfile.TemporaryDirectory() as td:
         fp1 = os.path.join(td, 'model1')
@@ -184,11 +204,16 @@ def test_temporal_then_spatial_gan():
         {'u_100m': 0.3, 'v_100m': 0.9}, {'u_100m': 0.02, 'v_100m': 0.07}
     )
 
-    model1.meta['input_resolution'] = {'spatial': '12km', 'temporal': '40min'}
-    model2.meta['input_resolution'] = {'spatial': '6km', 'temporal': '40min'}
-
-    model1.set_model_params(lr_features=FEATURES, hr_out_features=FEATURES)
-    model2.set_model_params(lr_features=FEATURES, hr_out_features=FEATURES)
+    model1.set_model_params(
+        lr_features=FEATURES,
+        hr_out_features=FEATURES,
+        input_resolution={'spatial': '12km', 'temporal': '40min'},
+    )
+    model2.set_model_params(
+        lr_features=FEATURES,
+        hr_out_features=FEATURES,
+        input_resolution={'spatial': '6km', 'temporal': '40min'},
+    )
 
     with tempfile.TemporaryDirectory() as td:
         fp1 = os.path.join(td, 'model1')
@@ -215,8 +240,11 @@ def test_spatial_gan_then_linear_interp():
     model1.set_norm_stats(
         {'u_100m': 0.1, 'v_100m': 0.2}, {'u_100m': 0.04, 'v_100m': 0.02}
     )
-    model1.meta['input_resolution'] = {'spatial': '12km', 'temporal': '60min'}
-    model1.set_model_params(lr_features=FEATURES, hr_out_features=FEATURES)
+    model1.set_model_params(
+        lr_features=FEATURES,
+        hr_out_features=FEATURES,
+        input_resolution={'spatial': '12km', 'temporal': '60min'},
+    )
 
     with tempfile.TemporaryDirectory() as td:
         fp1 = os.path.join(td, 'model1')
@@ -241,8 +269,13 @@ def test_solar_multistep():
     model1 = Sup3rGan(fp_gen, fp_disc)
     _ = model1.generate(np.ones((4, 10, 10, len(features1))))
     model1.set_norm_stats({'clearsky_ratio': 0.7}, {'clearsky_ratio': 0.04})
-    model1.meta['input_resolution'] = {'spatial': '8km', 'temporal': '40min'}
-    model1.set_model_params(lr_features=features1, hr_out_features=features1)
+    model1.set_model_params(
+        lr_features=features1,
+        hr_out_features=features1,
+        s_enhance=2,
+        t_enhance=1,
+        input_resolution={'spatial': '8km', 'temporal': '40min'},
+    )
 
     features2 = ['U_200m', 'V_200m']
     fp_gen = os.path.join(CONFIG_DIR, 'spatial/gen_2x_2f.json')
@@ -252,8 +285,13 @@ def test_solar_multistep():
     model2.set_norm_stats(
         {'U_200m': 4.2, 'V_200m': 5.6}, {'U_200m': 1.1, 'V_200m': 1.3}
     )
-    model2.meta['input_resolution'] = {'spatial': '4km', 'temporal': '40min'}
-    model2.set_model_params(lr_features=features2, hr_out_features=features2)
+    model2.set_model_params(
+        lr_features=features2,
+        hr_out_features=features2,
+        s_enhance=2,
+        t_enhance=1,
+        input_resolution={'spatial': '4km', 'temporal': '40min'},
+    )
 
     features_in_3 = ['clearsky_ratio', 'U_200m', 'V_200m']
     features_out_3 = ['clearsky_ratio']
@@ -265,9 +303,12 @@ def test_solar_multistep():
         {'U_200m': 4.2, 'V_200m': 5.6, 'clearsky_ratio': 0.7},
         {'U_200m': 1.1, 'V_200m': 1.3, 'clearsky_ratio': 0.04},
     )
-    model3.meta['input_resolution'] = {'spatial': '2km', 'temporal': '40min'}
     model3.set_model_params(
-        lr_features=features_in_3, hr_out_features=features_out_3
+        lr_features=features_in_3,
+        hr_out_features=features_out_3,
+        s_enhance=1,
+        t_enhance=8,
+        input_resolution={'spatial': '2km', 'temporal': '40min'},
     )
 
     with tempfile.TemporaryDirectory() as td:

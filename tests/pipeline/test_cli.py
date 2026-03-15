@@ -201,20 +201,21 @@ def test_fwd_pass_with_bc_cli(runner, input_files):
     Sup3rGan.seed()
     model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
     _ = model.generate(np.ones((4, 8, 8, 4, len(FEATURES))))
-    model.meta['lr_features'] = FEATURES
-    model.meta['hr_out_features'] = FEATURES[:2]
-    assert model.s_enhance == 3
-    assert model.t_enhance == 4
+    model.set_model_params(
+        lr_features=FEATURES,
+        hr_out_features=FEATURES[:2],
+        s_enhance=3,
+        t_enhance=4,
+        input_resolution={'spatial': '12km', 'temporal': '60min'},
+    )
 
     with tempfile.TemporaryDirectory() as td:
         out_dir = os.path.join(td, 'st_gan')
         model.save(out_dir)
-        n_chunks = np.prod(
-            [
-                int(np.ceil(ds / fs))
-                for ds, fs in zip([*shape, data_shape[2]], fwp_chunk_shape)
-            ]
-        )
+        n_chunks = np.prod([
+            int(np.ceil(ds / fs))
+            for ds, fs in zip([*shape, data_shape[2]], fwp_chunk_shape)
+        ])
         out_files = os.path.join(td, 'out_{file_id}.nc')
         cache_pattern = os.path.join(td, 'cache_{feature}.nc')
         log_pattern = os.path.join(td, 'logs', 'log_{node_index}.log')
@@ -299,20 +300,21 @@ def test_fwd_pass_cli(runner, input_files):
     Sup3rGan.seed()
     model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
     _ = model.generate(np.ones((4, 8, 8, 4, len(FEATURES))))
-    model.meta['lr_features'] = FEATURES
-    model.meta['hr_out_features'] = FEATURES[:2]
-    assert model.s_enhance == 3
-    assert model.t_enhance == 4
+    model.set_model_params(
+        lr_features=FEATURES,
+        hr_out_features=FEATURES[:2],
+        s_enhance=3,
+        t_enhance=4,
+        input_resolution={'spatial': '12km', 'temporal': '60min'},
+    )
 
     with tempfile.TemporaryDirectory() as td:
         out_dir = os.path.join(td, 'st_gan')
         model.save(out_dir)
-        n_chunks = np.prod(
-            [
-                int(np.ceil(ds / fs))
-                for ds, fs in zip([*shape, data_shape[2]], fwp_chunk_shape)
-            ]
-        )
+        n_chunks = np.prod([
+            int(np.ceil(ds / fs))
+            for ds, fs in zip([*shape, data_shape[2]], fwp_chunk_shape)
+        ])
         out_files = os.path.join(td, 'out_{file_id}.nc')
         cache_pattern = os.path.join(td, 'cache_{feature}.nc')
         log_pattern = os.path.join(td, 'logs', 'log_{node_index}.log')
@@ -359,15 +361,17 @@ def test_pipeline_fwp_qa(runner, input_files):
 
     Sup3rGan.seed()
     model = Sup3rGan(pytest.ST_FP_GEN, pytest.ST_FP_DISC, learning_rate=1e-4)
+    model.set_model_params(
+        lr_features=FEATURES,
+        hr_out_features=FEATURES[:2],
+        s_enhance=3,
+        t_enhance=4,
+        input_resolution={'spatial': '12km', 'temporal': '60min'},
+    )
     input_resolution = {'spatial': '12km', 'temporal': '60min'}
-    model.meta['input_resolution'] = input_resolution
     assert model.input_resolution == input_resolution
     assert model.output_resolution == {'spatial': '4km', 'temporal': '15min'}
     _ = model.generate(np.ones((4, 8, 8, 4, len(FEATURES))))
-    model.meta['lr_features'] = FEATURES
-    model.meta['hr_out_features'] = FEATURES[:2]
-    assert model.s_enhance == 3
-    assert model.t_enhance == 4
 
     with tempfile.TemporaryDirectory() as td:
         out_dir = os.path.join(td, 'st_gan')

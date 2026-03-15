@@ -236,7 +236,8 @@ def test_train_just_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
         assert np.sum(np.diff(tloss)) < 0
 
 
-def test_train_obs_with_topo(request):
+@pytest.mark.parametrize('lr_only_features', [[], ['temperature_2m']])
+def test_train_obs_with_topo(lr_only_features, request):
     """Test training with topo and obs. Make sure exo features are
     properly concatenated."""
 
@@ -250,8 +251,14 @@ def test_train_obs_with_topo(request):
     }
 
     train_handler = DataHandler(**kwargs, time_slice=slice(None, 3000, 10))
-
     val_handler = DataHandler(**kwargs, time_slice=slice(3000, None, 10))
+
+    # Add dummy lr only features
+    if lr_only_features:
+        for feat in lr_only_features:
+            train_handler[feat] = train_handler[FEATURES_W[0]].copy()
+            val_handler[feat] = val_handler[FEATURES_W[0]].copy()
+
     batcher = BatchHandler(
         [train_handler],
         [val_handler],
@@ -262,7 +269,7 @@ def test_train_obs_with_topo(request):
         sample_shape=(20, 20, 10),
         proxy_obs_kwargs={'onshore_obs_frac': {'spatial': 0.1}},
         feature_sets={
-            'lr_features': FEATURES_W,
+            'lr_features': [*lr_only_features, *FEATURES_W],
             'hr_exo_features': [
                 'topography',
                 *[f'{feat}_obs' for feat in FEATURES_W],
@@ -296,3 +303,8 @@ def test_train_obs_with_topo(request):
         }
 
         model.train(batcher, **model_kwargs)
+
+        loss = model.history['train_geothermal_physics_loss_with_obs'].values
+        assert not np.isnan(loss).any()
+        gloss = model.history['train_loss_gen'].values
+        assert not np.isnan(gloss).any()

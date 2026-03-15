@@ -139,9 +139,9 @@ def test_qdm_bc(fp_fut_cc):
     # Each location can be all finite or all NaN, but not both
     for v in out:
         tmp = np.isfinite(out[v].reshape(-1, out[v].shape[-1]))
-        assert np.all(
-            np.all(tmp, axis=1) == ~np.all(~tmp, axis=1)
-        ), f'For each location of {v} it should be all finite or nonte'
+        assert np.all(np.all(tmp, axis=1) == ~np.all(~tmp, axis=1)), (
+            f'For each location of {v} it should be all finite or nonte'
+        )
 
 
 def test_parallel(fp_fut_cc):
@@ -178,9 +178,9 @@ def test_parallel(fp_fut_cc):
 
     for k in out_s:
         assert k in out_p, f'Missing {k} in parallel run'
-        assert np.allclose(
-            out_s[k], out_p[k], equal_nan=True
-        ), f'Different results for {k}'
+        assert np.allclose(out_s[k], out_p[k], equal_nan=True), (
+            f'Different results for {k}'
+        )
 
 
 def test_fill_nan(fp_fut_cc):
@@ -202,14 +202,14 @@ def test_fill_nan(fp_fut_cc):
     out = c.run(fill_extend=False)
     # Ignore non `params` parameters, such as window_center
     params = (v for v in out if v.endswith('params'))
-    assert np.all(
-        [np.isnan(out[v]).any() for v in params]
-    ), 'Assume at least one NaN value for each param'
+    assert np.all([np.isnan(out[v]).any() for v in params]), (
+        'Assume at least one NaN value for each param'
+    )
 
     out = c.run()
-    assert np.all(
-        [np.isfinite(v).all() for v in out.values()]
-    ), 'All NaN values where supposed to be filled'
+    assert np.all([np.isfinite(v).all() for v in out.values()]), (
+        'All NaN values where supposed to be filled'
+    )
 
 
 def test_save_file(tmp_path, fp_fut_cc):
@@ -350,7 +350,8 @@ def test_bc_identity(tmp_path, fp_fut_cc, dist_params):
 
     idx = ~(np.isnan(original) | np.isnan(corrected))
     assert np.allclose(
-        compute_if_dask(original)[idx], compute_if_dask(corrected)[idx])
+        compute_if_dask(original)[idx], compute_if_dask(corrected)[idx]
+    )
 
 
 def test_bc_identity_absolute(tmp_path, fp_fut_cc, dist_params):
@@ -375,7 +376,8 @@ def test_bc_identity_absolute(tmp_path, fp_fut_cc, dist_params):
 
     idx = ~(np.isnan(original) | np.isnan(corrected))
     assert np.allclose(
-        compute_if_dask(original)[idx], compute_if_dask(corrected)[idx])
+        compute_if_dask(original)[idx], compute_if_dask(corrected)[idx]
+    )
 
 
 def test_bc_model_constant(tmp_path, fp_fut_cc, dist_params):
@@ -400,7 +402,8 @@ def test_bc_model_constant(tmp_path, fp_fut_cc, dist_params):
 
     idx = ~(np.isnan(original) | np.isnan(corrected))
     assert np.allclose(
-        compute_if_dask(corrected)[idx] - compute_if_dask(original)[idx], -10)
+        compute_if_dask(corrected)[idx] - compute_if_dask(original)[idx], -10
+    )
 
 
 def test_bc_trend(tmp_path, fp_fut_cc, dist_params):
@@ -425,7 +428,8 @@ def test_bc_trend(tmp_path, fp_fut_cc, dist_params):
 
     idx = ~(np.isnan(original) | np.isnan(corrected))
     assert np.allclose(
-        compute_if_dask(corrected)[idx] - compute_if_dask(original)[idx], 10)
+        compute_if_dask(corrected)[idx] - compute_if_dask(original)[idx], 10
+    )
 
 
 def test_bc_trend_same_hist(tmp_path, fp_fut_cc, dist_params):
@@ -449,7 +453,8 @@ def test_bc_trend_same_hist(tmp_path, fp_fut_cc, dist_params):
 
     idx = ~(np.isnan(original) | np.isnan(corrected))
     assert np.allclose(
-        compute_if_dask(original)[idx], compute_if_dask(corrected)[idx])
+        compute_if_dask(original)[idx], compute_if_dask(corrected)[idx]
+    )
 
 
 def test_fwp_integration(tmp_path):
@@ -493,10 +498,13 @@ def test_fwp_integration(tmp_path):
     Sup3rGan.seed()
     model = Sup3rGan(pytest.ST_FP_GEN, pytest.ST_FP_DISC, learning_rate=1e-4)
     _ = model.generate(np.ones((4, 10, 10, 6, len(features))))
-    model.meta['lr_features'] = features
-    model.meta['hr_out_features'] = features
-    model.meta['s_enhance'] = 3
-    model.meta['t_enhance'] = 4
+    model.set_model_params(
+        lr_features=features,
+        hr_out_features=features,
+        s_enhance=3,
+        t_enhance=4,
+        input_resolution={'spatial': '12km', 'temporal': '60min'},
+    )
 
     bias_fp = os.path.join(tmp_path, 'bc.h5')
     out_dir = os.path.join(tmp_path, 'st_gan')
@@ -568,12 +576,12 @@ def test_fwp_integration(tmp_path):
         bc_chunk = bc_fwp.get_input_chunk(ichunk)
         chunk = fwp.get_input_chunk(ichunk)
         delta = bc_chunk.input_data - chunk.input_data
-        assert np.allclose(
-            delta[..., 0], -2.72, atol=1e-03
-        ), 'U reference offset is -1'
-        assert np.allclose(
-            delta[..., 1], 2.72, atol=1e-03
-        ), 'V reference offset is 1'
+        assert np.allclose(delta[..., 0], -2.72, atol=1e-03), (
+            'U reference offset is -1'
+        )
+        assert np.allclose(delta[..., 1], 2.72, atol=1e-03), (
+            'V reference offset is 1'
+        )
 
         kwargs = {
             'model_kwargs': strat.model_kwargs,

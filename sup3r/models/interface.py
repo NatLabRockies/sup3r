@@ -95,45 +95,16 @@ class AbstractInterface(ABC):
         """Check if model expects spatial only input"""
         return self.input_dims == 4
 
-    def get_s_enhance_from_layers(self):
-        """Compute factor by which model will enhance spatial resolution from
-        layer attributes. Used in model training during high res coarsening"""
-        s_enhance = None
-        if hasattr(self, '_gen'):
-            s_enhancements = [
-                getattr(layer, '_spatial_mult', 1)
-                for layer in self._gen.layers
-            ]
-            s_enhance = int(np.prod(s_enhancements))
-        return s_enhance
-
-    def get_t_enhance_from_layers(self):
-        """Compute factor by which model will enhance temporal resolution from
-        layer attributes. Used in model training during high res coarsening"""
-        t_enhance = None
-        if hasattr(self, '_gen'):
-            t_enhancements = [
-                getattr(layer, '_temporal_mult', 1)
-                for layer in self._gen.layers
-            ]
-            t_enhance = int(np.prod(t_enhancements))
-        return t_enhance
-
     @property
     def s_enhance(self):
         """Factor by which model will enhance spatial resolution. Used in
         model training during high res coarsening and also in forward pass
         routine to determine shape of needed exogenous data"""
         models = getattr(self, 'models', [self])
-        s_enhances = [m.meta.get('s_enhance', None) for m in models]
-        s_enhance = (
-            self.get_s_enhance_from_layers()
-            if any(s is None for s in s_enhances)
-            else int(np.prod(s_enhances))
-        )
+        s_enhances = [m.meta.get('s_enhance', 1) for m in models]
         if len(models) == 1 and isinstance(self.meta, dict):
-            self.meta['s_enhance'] = s_enhance
-        return s_enhance
+            self.meta['s_enhance'] = np.prod(s_enhances)
+        return np.prod(s_enhances)
 
     @property
     def t_enhance(self):
@@ -141,15 +112,10 @@ class AbstractInterface(ABC):
         model training during high res coarsening and also in forward pass
         routine to determine shape of needed exogenous data"""
         models = getattr(self, 'models', [self])
-        t_enhances = [m.meta.get('t_enhance', None) for m in models]
-        t_enhance = (
-            self.get_t_enhance_from_layers()
-            if any(t is None for t in t_enhances)
-            else int(np.prod(t_enhances))
-        )
+        t_enhances = [m.meta.get('t_enhance', 1) for m in models]
         if len(models) == 1 and isinstance(self.meta, dict):
-            self.meta['t_enhance'] = t_enhance
-        return t_enhance
+            self.meta['t_enhance'] = np.prod(t_enhances)
+        return np.prod(t_enhances)
 
     @property
     def s_enhancements(self):
@@ -211,29 +177,6 @@ class AbstractInterface(ABC):
             f't_enhance={t_enhance}) do not evenly divide '
             f'input resolution ({self.input_resolution})'
         )
-        if not check:
-            logger.error(msg)
-            raise RuntimeError(msg)
-
-    def _ensure_valid_enhancement_factors(self):
-        """Ensure user provided enhancement factors are the same as those
-        computed from layer attributes"""
-        t_enhance = self.meta.get('t_enhance', None)
-        s_enhance = self.meta.get('s_enhance', None)
-        if s_enhance is None or t_enhance is None:
-            return
-
-        layer_se = self.get_s_enhance_from_layers()
-        layer_te = self.get_t_enhance_from_layers()
-        layer_se = layer_se if layer_se is not None else self.meta['s_enhance']
-        layer_te = layer_te if layer_te is not None else self.meta['t_enhance']
-        msg = (
-            f'Enhancement factors computed from layer attributes '
-            f'(s_enhance={layer_se}, t_enhance={layer_te}) '
-            f'conflict with user provided values (s_enhance={s_enhance}, '
-            f't_enhance={t_enhance})'
-        )
-        check = layer_se == s_enhance and layer_te == t_enhance
         if not check:
             logger.error(msg)
             raise RuntimeError(msg)
@@ -407,11 +350,11 @@ class AbstractInterface(ABC):
         the high-resolution data during training. This includes both output
         and exogenous features.
         """
-        default = [
+        out = [
             f for f in self.hr_out_features if f not in self.hr_exo_features
         ]
-        default += self.hr_exo_features
-        return self.meta.get('hr_features', default)
+        out += self.hr_exo_features
+        return out
 
     @property
     def smoothing(self):
@@ -468,7 +411,6 @@ class AbstractInterface(ABC):
             'lr_features',
             'hr_exo_features',
             'hr_out_features',
-            'hr_features',
             'obs_features',
             'smoothed_features',
             's_enhance',
@@ -496,7 +438,6 @@ class AbstractInterface(ABC):
                 logger.warning(msg)
                 warn(msg)
 
-        self._ensure_valid_enhancement_factors()
         self._ensure_valid_input_resolution()
         self._ensure_feature_consistency()
 

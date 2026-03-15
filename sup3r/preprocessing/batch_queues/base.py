@@ -13,21 +13,18 @@ logger = logging.getLogger(__name__)
 
 
 class SingleBatchQueue(AbstractBatchQueue):
-    """Base BatchQueue class for single dataset containers
-
-    Note
-    ----
-    Here we use `len(self.features)` for the last dimension of samples, since
-    samples in :class:`SingleBatchQueue` queues are coarsened to produce
-    low-res samples, and then the `lr_only_features` are removed with
-    `hr_features_ind`. In contrast, for samples in :class:`DualBatchQueue`
-    queues there are low / high res pairs and the high-res only stores the
-    `hr_features`"""
+    """Base BatchQueue class for single dataset containers"""
 
     @property
     def queue_shape(self):
         """Shape of objects stored in the queue."""
-        return [(self.batch_size, *self.hr_shape)]
+        return [
+            (
+                self.batch_size,
+                *self.hr_sample_shape,
+                len(self.hr_source_features),
+            )
+        ]
 
     def transform(
         self,

@@ -757,10 +757,13 @@ def test_fwp_integration(tmp_path, presrat_params, fp_fut_cc):
     Sup3rGan.seed()
     model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
     _ = model.generate(np.ones((4, 10, 10, 6, len(features))))
-    model.meta['lr_features'] = features
-    model.meta['hr_out_features'] = features
-    model.meta['s_enhance'] = 3
-    model.meta['t_enhance'] = 4
+    model.set_model_params(
+        lr_features=features,
+        hr_out_features=features,
+        s_enhance=3,
+        t_enhance=4,
+        input_resolution={'spatial': '12km', 'temporal': '60min'},
+    )
 
     out_dir = os.path.join(tmp_path, 'st_gan')
     model.save(out_dir)

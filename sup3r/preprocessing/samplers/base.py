@@ -126,7 +126,9 @@ class Sampler(Container):
         check = bool(self.proxy_obs_kwargs)
         check = check or (
             len(self.obs_features) > 0
-            and all(f not in self.hr_features for f in self.obs_features)
+            and all(
+                f not in self.hr_source_features for f in self.obs_features
+            )
         )
         return check
 
@@ -174,9 +176,9 @@ class Sampler(Container):
             self.shape, self.sample_shape[2] * n_obs
         )
         feats = (
-            self.hr_features
+            self.hr_source_features
             if not self.use_proxy_obs
-            else self.hr_features[: -len(self.obs_features)]
+            else self.hr_source_features[: -len(self.obs_features)]
         )
         return (*spatial_slice, time_slice, feats)
 
@@ -220,7 +222,7 @@ class Sampler(Container):
         """Check that the feature sets are consistent with each other and the
         obs features are configured correctly."""
         if self.use_proxy_obs and not all(
-            f in self.hr_features for f in self.obs_features
+            f in self.hr_source_features for f in self.obs_features
         ):
             msg = (
                 'When using proxy observations, all obs features must be '
@@ -251,10 +253,10 @@ class Sampler(Container):
         if len(self.hr_exo_features) > 0:
             msg = (
                 f'hr_exo_features {self.hr_exo_features} must come at the end '
-                f'of the full high-res feature set: {self.hr_features}'
+                f'of the full high-res feature set: {self.hr_source_features}'
             )
             assert list(self.hr_exo_features) == list(
-                self.hr_features[-len(self.hr_exo_features) :]
+                self.hr_source_features[-len(self.hr_exo_features) :]
             ), msg
 
         assert all(
@@ -501,7 +503,7 @@ class Sampler(Container):
 
         if any('*' in fn for fn in parsed_feats):
             out = []
-            for feature in self.hr_features:
+            for feature in self.hr_source_features:
                 match = any(
                     fnmatch(feature.lower(), pattern.lower())
                     for pattern in parsed_feats
@@ -519,12 +521,12 @@ class Sampler(Container):
         return self._parse_features(self._lr_features)
 
     @property
-    def hr_features(self):
-        """List of feature names or patt*erns that should be available in the
-        high-resolution data. For a non-dual sampler this is all features,
-        since even features only provided to the model as low-resolution still
-        need to be coarsened from the high-resolution data. This is in contrast
-        to dual samplers
+    def hr_source_features(self):
+        """List of feature names or patt*erns that should be available natively
+        as high-resolution.  For a non-dual sampler this is all features, since
+        even features only provided to the model as low-resolution still need
+        to be coarsened from the high-resolution data. This is in contrast to
+        dual samplers
         (:class:`~sup3r.preprocessing.samplers.dual.DualSampler`), where there
         are separate high-resolution and low-resolution data members."""
         feats = [f for f in self.lr_features if f not in self.hr_exo_features]
@@ -535,6 +537,18 @@ class Sampler(Container):
         ]
         feats += [f for f in self.hr_exo_features if f not in feats]
         return feats
+
+    @property
+    def hr_features(self):
+        """List of feature names or patt*erns that the model is shown at
+        high-resolution. This does not include features that are only shown to
+        the model after coarsening.  Thus, this includes hr_out_features and
+        and hr_exo_features."""
+        out = [
+            f for f in self.hr_out_features if f not in self.hr_exo_features
+        ]
+        out += self.hr_exo_features
+        return out
 
     @property
     def hr_out_features(self):
@@ -560,7 +574,7 @@ class Sampler(Container):
         the generative model. These are different from the `hr_exo_features` in
         that they are intended to be used as observation features with NaN
         values where observations are not available."""
-        return [f for f in self.hr_features if '_obs' in f]
+        return [f for f in self.hr_source_features if '_obs' in f]
 
     @property
     def hr_features_ind(self):
@@ -569,18 +583,14 @@ class Sampler(Container):
         hr_exo_features, Any high-resolution features that are only included in
         the data handler to be coarsened for the low-res input are removed.
         """
-        hr_feats = [
-            f for f in self.hr_out_features if f not in self.hr_exo_features
-        ]
-        hr_feats += self.hr_exo_features
-        return [self.hr_features.index(f) for f in hr_feats]
+        return [self.hr_source_features.index(f) for f in self.hr_features]
 
     @property
     def lr_features_ind(self):
         """Get the low-resolution feature channel indices that should be
         included for training. This includes lr_features.
         """
-        return [self.hr_features.index(f) for f in self.lr_features]
+        return [self.hr_source_features.index(f) for f in self.lr_features]
 
     @property
     def obs_features_ind(self):
@@ -599,7 +609,7 @@ class Sampler(Container):
             else self.obs_features
         )
 
-        return [self.hr_features.index(f) for f in check_feats]
+        return [self.hr_source_features.index(f) for f in check_feats]
 
     def _get_obs_mask(self, hi_res, spatial_frac, time_frac=1.0):
         """Get observation mask for a given spatial and temporal obs
@@ -669,8 +679,8 @@ class Sampler(Container):
         on_sf = self.onshore_obs_frac.get('spatial', 0.0)
         on_tf = self.onshore_obs_frac.get('time', 1.0)
         obs_mask = self._get_obs_mask(hi_res, on_sf, on_tf)
-        if 'topography' in self.hr_features and self.offshore_obs_frac:
-            topo_idx = self.hr_features.index('topography')
+        if 'topography' in self.hr_source_features and self.offshore_obs_frac:
+            topo_idx = self.hr_source_features.index('topography')
             topo = hi_res[..., topo_idx]
             off_sf = self.offshore_obs_frac.get('spatial', 0.0)
             off_tf = self.offshore_obs_frac.get('time', 1.0)

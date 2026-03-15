@@ -43,13 +43,15 @@ def test_fwp_pipeline_with_bc(input_files):
     model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
     _ = model.generate(np.ones((4, 8, 8, 4, len(FEATURES))))
     input_resolution = {'spatial': '12km', 'temporal': '60min'}
-    model.meta['input_resolution'] = input_resolution
+    model.set_model_params(
+        input_resolution=input_resolution,
+        s_enhance=3,
+        t_enhance=4,
+        lr_features=FEATURES,
+        hr_out_features=FEATURES[:2],
+    )
     assert model.input_resolution == input_resolution
     assert model.output_resolution == {'spatial': '4km', 'temporal': '15min'}
-    _ = model.generate(np.ones((4, 8, 8, 4, len(FEATURES))))
-    model.meta['lr_features'] = FEATURES
-    model.meta['hr_out_features'] = FEATURES[:2]
-    model.meta['hr_exo_features'] = FEATURES[2:]
     assert model.s_enhance == 3
     assert model.t_enhance == 4
 
@@ -179,13 +181,15 @@ def test_fwp_pipeline(input_files):
     model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
     _ = model.generate(np.ones((4, 8, 8, 4, len(FEATURES))))
     input_resolution = {'spatial': '12km', 'temporal': '60min'}
-    model.meta['input_resolution'] = input_resolution
+    model.set_model_params(
+        input_resolution=input_resolution,
+        s_enhance=3,
+        t_enhance=4,
+        lr_features=FEATURES,
+        hr_out_features=FEATURES[:2],
+    )
     assert model.input_resolution == input_resolution
     assert model.output_resolution == {'spatial': '4km', 'temporal': '15min'}
-    _ = model.generate(np.ones((4, 8, 8, 4, len(FEATURES))))
-    model.meta['lr_features'] = FEATURES
-    model.meta['hr_out_features'] = FEATURES[:2]
-    model.meta['hr_exo_features'] = FEATURES[2:]
     assert model.s_enhance == 3
     assert model.t_enhance == 4
 
@@ -290,11 +294,13 @@ def test_fwp_pipeline_with_mask(input_files):
     model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
     _ = model.generate(np.ones((4, 8, 8, 4, len(FEATURES))))
     input_resolution = {'spatial': '12km', 'temporal': '60min'}
-    model.meta['input_resolution'] = input_resolution
-    _ = model.generate(np.ones((4, 8, 8, 4, len(FEATURES))))
-    model.meta['lr_features'] = FEATURES
-    model.meta['hr_out_features'] = FEATURES[:2]
-    model.meta['hr_exo_features'] = FEATURES[2:]
+    model.set_model_params(
+        input_resolution=input_resolution,
+        s_enhance=3,
+        t_enhance=4,
+        lr_features=FEATURES,
+        hr_out_features=FEATURES[:2],
+    )
 
     test_context = click.Context(click.Command('pipeline'), obj={})
     with tempfile.TemporaryDirectory() as td, test_context as ctx:
@@ -391,13 +397,15 @@ def test_multiple_fwp_pipeline(input_files):
     model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
     _ = model.generate(np.ones((4, 8, 8, 4, len(FEATURES))))
     input_resolution = {'spatial': '12km', 'temporal': '60min'}
-    model.meta['input_resolution'] = input_resolution
+    model.set_model_params(
+        input_resolution=input_resolution,
+        s_enhance=3,
+        t_enhance=4,
+        lr_features=FEATURES,
+        hr_out_features=FEATURES[:2],
+    )
     assert model.input_resolution == input_resolution
     assert model.output_resolution == {'spatial': '4km', 'temporal': '15min'}
-    _ = model.generate(np.ones((4, 8, 8, 4, len(FEATURES))))
-    model.meta['lr_features'] = FEATURES
-    model.meta['hr_out_features'] = FEATURES[:2]
-    model.meta['hr_exo_features'] = FEATURES[2:]
     assert model.s_enhance == 3
     assert model.t_enhance == 4
 

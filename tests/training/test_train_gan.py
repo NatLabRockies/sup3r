@@ -210,10 +210,10 @@ def test_train(fp_gen, fp_disc, s_enhance, t_enhance, sample_shape, n_epoch=8):
             learning_rate=lr,
             loss={'MeanAbsoluteError': {}, 'MeanSquaredError': {}},
         )
-        dummy.meta['lr_features'] = model.meta['lr_features']
-        dummy.meta['hr_features'] = model.meta['hr_features']
-        dummy.meta['hr_exo_features'] = model.meta['hr_exo_features']
-        dummy.meta['hr_out_features'] = model.meta['hr_out_features']
+        dummy.set_model_params(
+            input_resolution={'spatial': '30km', 'temporal': '60min'},
+            batch_handler=batch_handler,
+        )
 
         for batch in batch_handler:
             out_og = model._tf_generate(batch.low_res)
@@ -410,7 +410,9 @@ def test_input_res_check():
 
     with pytest.raises(RuntimeError):
         model.set_model_params(
-            input_resolution={'spatial': '22km', 'temporal': '9min'}
+            input_resolution={'spatial': '22km', 'temporal': '9min'},
+            s_enhance=3,
+            t_enhance=4,
         )
 
 
