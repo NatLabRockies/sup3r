@@ -100,22 +100,38 @@ class AbstractInterface(ABC):
         """Factor by which model will enhance spatial resolution. Used in
         model training during high res coarsening and also in forward pass
         routine to determine shape of needed exogenous data"""
+
+        # If there are multiple steps, we want to return the product of the
+        # enhancement factors
         models = getattr(self, 'models', [self])
-        s_enhances = [m.meta.get('s_enhance', 1) for m in models]
+        s_enhances = [m.meta.get('s_enhance', None) for m in models]
+        s_enhance = (
+            None
+            if any(enh is None for enh in s_enhances)
+            else np.prod(s_enhances)
+        )
         if len(models) == 1 and isinstance(self.meta, dict):
-            self.meta['s_enhance'] = np.prod(s_enhances)
-        return np.prod(s_enhances)
+            self.meta['s_enhance'] = s_enhance
+        return s_enhance
 
     @property
     def t_enhance(self):
         """Factor by which model will enhance temporal resolution. Used in
         model training during high res coarsening and also in forward pass
         routine to determine shape of needed exogenous data"""
+
+        # If there are multiple steps, we want to return the product of the
+        # enhancement factors
         models = getattr(self, 'models', [self])
-        t_enhances = [m.meta.get('t_enhance', 1) for m in models]
+        t_enhances = [m.meta.get('t_enhance', None) for m in models]
+        t_enhance = (
+            None
+            if any(enh is None for enh in t_enhances)
+            else np.prod(t_enhances)
+        )
         if len(models) == 1 and isinstance(self.meta, dict):
-            self.meta['t_enhance'] = np.prod(t_enhances)
-        return np.prod(t_enhances)
+            self.meta['t_enhance'] = t_enhance
+        return t_enhance
 
     @property
     def s_enhancements(self):

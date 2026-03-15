@@ -62,7 +62,8 @@ def test_solar_cc_model(hr_steps):
 
     Sup3rGan.seed()
     model = SolarCC(
-        fp_gen, fp_disc, learning_rate=1e-4, loss='MeanAbsoluteError'
+        fp_gen, fp_disc, learning_rate=1e-4, loss='MeanAbsoluteError',
+        t_enhance=8
     )
 
     with tempfile.TemporaryDirectory() as td:
