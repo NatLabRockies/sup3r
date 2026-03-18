@@ -610,7 +610,6 @@ class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):
             'feature': feature,
             **kwargs,
         }
-
         logger.info(
             f'Using {ExoClass.__name__} to rasterize feature "{feature}"'
         )
