@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 class BaseExoRasterizer(ABC):
     """Class to extract high-res (4km+) data rasters for new spatially-enhanced
     datasets (e.g. GCM files after spatial enhancement) using nearest neighbor
-    mapping and aggregation from high-res datasets (e.g. WTK or NSRDB)
+    mapping and aggregation from high-res datasets (e.g. WTK or NSRDB).
 
     Parameters
     ----------
