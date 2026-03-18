@@ -266,15 +266,17 @@ class ForwardPassStrategy:
             'cached on the head_node. This can take a long time and might be '
             'worth doing as an independent preprocessing step instead.'
         )
-        if self.head_node and not all(
-            (fp is None or os.path.exists(fp))
-            for fp in self.get_exo_cache_files(model)
-        ):
+        cache_check = any(
+            'cache_dir' in v for v in self.exo_handler_kwargs.values()
+        )
+        if self.head_node and cache_check:
             logger.warning(msg)
             warn(msg)
             _ = self.timer(self.load_exo_data, log=True)(model)
 
         if not self.head_node:
+            # This will either load cache files created on the head node or
+            # directly load the exogenous data if no cache is being used.
             hr_shape = self.hr_lat_lon.shape[:-1]
             self.gids = np.arange(np.prod(hr_shape)).reshape(hr_shape)
             self.exo_data = self.timer(self.load_exo_data, log=True)(model)
