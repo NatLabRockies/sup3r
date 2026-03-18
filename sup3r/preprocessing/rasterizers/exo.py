@@ -498,7 +498,7 @@ class ObsRasterizer(BaseExoRasterizer):
                 features=[feat],
                 **self.source_handler_kwargs,
             )
-        return self._source_handlers
+        return self._source_handler
 
     @property
     def source_data(self):
