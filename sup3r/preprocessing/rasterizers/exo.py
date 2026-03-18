@@ -351,6 +351,23 @@ class BaseExoRasterizer(ABC):
 
         return Sup3rX(data.chunk(self.chunks))
 
+    def _check_coverage(self, hr_data):
+        """Check the coverage of the source data on the high-resolution grid
+        and log a warning if there are a lot of target pixels missing source
+        data. Fill nans with nearest neighbor if self.fill_nans is True."""
+        if np.isnan(hr_data).any() and self.fill_nans:
+            msg = (
+                f'{np.isnan(hr_data).sum()} target pixels did not have unique '
+                f'high-resolution {self.feature} source data to map from. If '
+                'there are a lot of target pixels missing source data this '
+                'probably means the source data is not high enough '
+                'resolution. Filling raster with NN.'
+            )
+            logger.warning(msg)
+            warn(msg)
+            hr_data = nn_fill_array(hr_data)
+        return hr_data
+
     def get_data(self):
         """Get a raster of source values corresponding to the
         high-resolution grid (the file_paths input grid * s_enhance *
@@ -367,18 +384,7 @@ class BaseExoRasterizer(ABC):
             dims = Dimension.dims_3d()
 
         hr_data *= self.scale_factor
-
-        if np.isnan(hr_data).any() and self.fill_nans:
-            msg = (
-                f'{np.isnan(hr_data).sum()} target pixels did not have unique '
-                f'high-resolution {self.feature} source data to map from. If '
-                'there are a lot of target pixels missing source data this '
-                'probably means the source data is not high enough '
-                'resolution. Filling raster with NN.'
-            )
-            logger.warning(msg)
-            warn(msg)
-            hr_data = nn_fill_array(hr_data)
+        hr_data = self._check_coverage(hr_data)
 
         logger.info(
             f'Finished mapping raster from {self.source_files} for '
@@ -482,7 +488,9 @@ class ObsRasterizer(BaseExoRasterizer):
 
     @property
     def source_handler(self):
-        """Get the Loader object that handles the exogenous data file."""
+        """Get the Loader object that handles the exogenous data file. This
+        assumes the feature name does not have the '_obs' suffix which is used
+        to trigger this rasterizer."""
         feat = self.feature.replace('_obs', '')
         if self._source_handler is None:
             self._source_handler = Loader(
@@ -490,7 +498,7 @@ class ObsRasterizer(BaseExoRasterizer):
                 features=[feat],
                 **self.source_handler_kwargs,
             )
-        return self._source_handler
+        return self._source_handlers
 
     @property
     def source_data(self):
@@ -501,12 +509,10 @@ class ObsRasterizer(BaseExoRasterizer):
             self._source_data = src.reshape((-1, src.shape[-1]))
         return self._source_data
 
-    def _get_data_3d(self):
-        """Get a raster of source observation values corresponding to the
-        high-resolution grid (the file_paths input grid * s_enhance *
-        t_enhance). The shape is (lats, lons, time)
-        """
-        hr_data = super()._get_data_3d()
+    def _check_coverage(self, hr_data):
+        """Check the coverage of the source observation data on the
+        high-resolution grid and report the fraction of target pixels that have
+        source data within the distance upper bound."""
         gid_mask = self.nn != np.prod(self.hr_shape[:-1])
         cover_frac = (~np.isnan(hr_data)).sum() / hr_data.size
         if cover_frac == 0:
@@ -524,8 +530,6 @@ class ObsRasterizer(BaseExoRasterizer):
                 f'{compute_if_dask(cover_frac):.4e} of the high-res domain.'
             )
             logger.info(msg)
-
-        self.fill_nans = False  # override parent attribute to not fill nans
         return hr_data
 
 
@@ -568,6 +572,9 @@ class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):
             **kwargs,
         }
 
+        logger.info(
+            f'Using {ExoClass.__name__} to rasterize feature "{feature}"'
+        )
         return ExoClass(**kwargs)
 
     _signature_objs = (BaseExoRasterizer,)
