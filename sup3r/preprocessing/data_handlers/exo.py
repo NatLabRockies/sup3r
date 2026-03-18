@@ -302,11 +302,10 @@ class ExoDataHandler:
         feature : str
             Exogenous feature to extract from file_paths
         file_paths : str | list
-            A single source h5 file or netcdf file to extract raster
-            data from. The string can be a unix-style file path which
-            will be passed through glob.glob. This is typically low-res
-            WRF output or GCM netcdf data that is source low-resolution
-            data intended to be sup3r resolved.
+            Filepaths(s) used to define the grid that the high-resolution
+            exogenous data will be mapped onto. This can be either a single h5
+            file or a list of netcdf files with identical grid. The string can
+            be a unix-style file path which will be passed through glob.glob.
         model : Sup3rGan | MultiStepGan
             Model used to get exogenous data. If a ``MultiStepGan``
             ``lr_features``, ``hr_exo_features``, and
@@ -331,7 +330,9 @@ class ExoDataHandler:
         exo_rasterizer_kwargs : dict
             Keyword arguments passed to the
             :class:`~sup3r.preprocessing.rasterizers.exo.BaseExoRasterizer`
-            class.
+            class. This is used to specify parameters for exogenous data
+            rasterization such as the ``source_files`` for the exogenous data
+            and the method of rasterization.
         """
         self.feature = feature
         self.file_paths = file_paths
@@ -465,7 +466,7 @@ class ExoDataHandler:
             'Received exo_kwargs entry without valid combine_type '
             '(input/layer/output)'
         )
-        assert combine_type.lower() in ('input', 'output', 'layer'), msg
+        assert combine_type.lower() in {'input', 'output', 'layer'}, msg
         if combine_type.lower() == 'input':
             if mstep == 0:
                 s_enhance = 1
