@@ -147,9 +147,11 @@ def test_general_h5_collect():
             lat_lon = res['meta'][['latitude', 'longitude']].values
             time_index = res['time_index'].values
             collect_data = np.dstack([res[f, :, :] for f in features])
-            base_data = data.transpose(2, 0, 1, 3).reshape(
-                (len(hr_times), -1, len(features))
-            )
+            base_data = data.transpose(2, 0, 1, 3).reshape((
+                len(hr_times),
+                -1,
+                len(features),
+            ))
             base_data = np.around(base_data.astype(np.float32), 2)
             hr_lat_lon = hr_lat_lon.astype(np.float32)
             assert np.array_equal(hr_times, time_index)
@@ -173,11 +175,17 @@ def test_general_nc_collect():
             out[-1],
         )
 
-        CollectorNC.collect(out_files, fp_out, features=features)
+        CollectorNC.collect(
+            out_files,
+            fp_out,
+            features=[*features, 'latitude', 'longitude'],
+            res_kwargs={'combine': 'nested', 'concat_dim': 'time'},
+        )
 
         with Loader(fp_out) as res:
+            res_lat_lon = res.lat_lon.compute()
             assert np.array_equal(hr_times, res.time_index.values)
-            assert np.allclose(hr_lat_lon, res.lat_lon)
+            assert np.allclose(hr_lat_lon, res_lat_lon)
             assert np.allclose(base_data, res.values)
 
 

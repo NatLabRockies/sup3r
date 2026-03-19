@@ -749,8 +749,9 @@ class CollectorH5(BaseCollector):
             ``*_{temporal_chunk_index}_{spatial_chunk_index}.h5``.
         out_file : str
             File path of final output file.
-        features : list
-            List of dsets to collect
+        features : list | str
+            List of dsets to collect. If 'all' then all datasets will be
+            collected
         max_workers : int | None
             Number of workers to use in parallel. 1 runs serial,
             None will use all available workers.

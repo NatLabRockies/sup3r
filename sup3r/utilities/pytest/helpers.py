@@ -347,6 +347,8 @@ def make_collect_chunks(td, ext='h5'):
                 out_file,
                 meta_data=model_meta_data,
                 max_workers=1,
+                row_inds=np.arange(shape[0])[s1_hr],
+                col_inds=np.arange(shape[1])[s2_hr],
                 gids=gids[s1_hr, s2_hr],
             )
 

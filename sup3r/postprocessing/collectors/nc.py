@@ -9,7 +9,7 @@ import os
 import xarray as xr
 from rex.utilities.loggers import init_logger
 
-from sup3r.preprocessing.loaders import Loader
+from sup3r.preprocessing import Loader
 from sup3r.preprocessing.names import Dimension
 from sup3r.writers import Cacher
 

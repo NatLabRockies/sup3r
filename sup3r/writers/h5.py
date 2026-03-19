@@ -102,8 +102,12 @@ class OutputHandlerH5(OutputHandler):
         )
         meta = pd.DataFrame({
             'gid': gids.flatten(),
-            'row_ind': row_inds.flatten(),
-            'col_ind': col_inds.flatten(),
+            'row_ind': np.repeat(
+                row_inds[:, np.newaxis], len(col_inds), axis=1
+            ).flatten(),
+            'col_ind': np.repeat(
+                col_inds[np.newaxis, :], len(row_inds), axis=0
+            ).flatten(),
             'latitude': lat_lon[..., 0].flatten(),
             'longitude': lat_lon[..., 1].flatten(),
         })

@@ -82,29 +82,22 @@ class OutputHandlerNC(OutputHandler):
             max_workers=max_workers,
         )
 
-        data_vars = {
+        coords = {
             Dimension.TIME: times,
             Dimension.LATITUDE: (Dimension.dims_2d(), lat_lon[:, :, 0]),
             Dimension.LONGITUDE: (Dimension.dims_2d(), lat_lon[:, :, 1]),
         }
         if gids is not None:
-            data_vars['gids'] = (Dimension.dims_2d(), gids)
+            coords['gids'] = (Dimension.dims_2d(), gids)
         if row_inds is not None and col_inds is not None:
             for dim, inds in zip(Dimension.dims_2d(), [row_inds, col_inds]):
-                data_vars[dim] = (dim, inds)
+                coords[dim] = (dim, inds)
+        data_vars = {}
         for i, f in enumerate(features):
             data_vars[f] = (
                 (Dimension.TIME, *Dimension.dims_2d()),
                 np.transpose(data[..., i], axes=(2, 0, 1)).astype(np.float32),
             )
-
-        if all(d in data_vars for d in Dimension.dims_2d()):
-            coords = {dim: data_vars.pop(dim) for dim in Dimension.dims_2d()}
-        else:
-            coords = {
-                coord: data_vars.pop(coord) for coord in Dimension.coords_2d()
-            }
-        coords[Dimension.TIME] = data_vars.pop(Dimension.TIME)
 
         attrs = meta_data or {}
         now = dt.now(datetime.timezone.utc).isoformat()
