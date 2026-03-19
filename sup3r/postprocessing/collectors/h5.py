@@ -10,6 +10,7 @@ import pandas as pd
 from rex.utilities.loggers import init_logger
 from scipy.spatial import KDTree
 
+from sup3r.preprocessing import Loader
 from sup3r.preprocessing.utilities import _mem_check
 from sup3r.utilities.utilities import get_dset_attrs, get_tmp_file
 from sup3r.writers import RexOutputs
@@ -93,13 +94,15 @@ class CollectorH5(BaseCollector):
         threshold : float
             Threshold distance for finding target coordinates within full meta
         """
-        ll2 = np.vstack(
-            (full_meta.latitude.values, full_meta.longitude.values)
-        ).T
+        ll2 = np.vstack((
+            full_meta.latitude.values,
+            full_meta.longitude.values,
+        )).T
         tree = KDTree(ll2)
-        targets = np.vstack(
-            (target_meta.latitude.values, target_meta.longitude.values)
-        ).T
+        targets = np.vstack((
+            target_meta.latitude.values,
+            target_meta.longitude.values,
+        )).T
         _, indices = tree.query(targets, distance_upper_bound=threshold)
         indices = indices[indices < len(full_meta)]
         return indices
@@ -723,7 +726,7 @@ class CollectorH5(BaseCollector):
         cls,
         file_paths,
         out_file,
-        features,
+        features='all',
         max_workers=None,
         log_level=None,
         log_file=None,
@@ -796,6 +799,11 @@ class CollectorH5(BaseCollector):
             os.makedirs(os.path.dirname(out_file), exist_ok=True)
 
         collector = cls(file_paths)
+        features = (
+            Loader(collector.flist[0]).features
+            if features == 'all'
+            else features
+        )
         logger.info(
             'Collecting %s files to %s', len(collector.flist), out_file
         )

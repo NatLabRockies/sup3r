@@ -670,6 +670,8 @@ class ForwardPass:
                 data=output_data,
                 features=lowered(model.hr_out_features),
                 lat_lon=chunk.hr_lat_lon,
+                row_inds=chunk.row_inds,
+                col_inds=chunk.col_inds,
                 times=chunk.hr_times,
                 out_file=chunk.out_file,
                 meta_data=meta,

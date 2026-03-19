@@ -173,8 +173,7 @@ def test_general_nc_collect():
             out[-1],
         )
 
-        CollectorNC.collect(out_files, fp_out, features=features,
-                            is_regular_grid=True)
+        CollectorNC.collect(out_files, fp_out, features=features)
 
         with Loader(fp_out) as res:
             assert np.array_equal(hr_times, res.time_index.values)
