@@ -123,14 +123,7 @@ class Sampler(Container):
         be generated from the gridded ground truth feature named
         ``temperature``.
         """
-        check = bool(self.proxy_obs_kwargs)
-        check = check or (
-            len(self.obs_features) > 0
-            and all(
-                f not in self.hr_source_features for f in self.obs_features
-            )
-        )
-        return check
+        return bool(self.proxy_obs_kwargs)
 
     @property
     def onshore_obs_frac(self):
@@ -571,8 +564,8 @@ class Sampler(Container):
         """List of feature names or patt*erns that should be treated as
         observations. These features will be included in the high-res data but
         not the low-res data and won't necessarily be expected to be output by
-        the generative model. These are different from the `hr_exo_features` in
-        that they are intended to be used as observation features with NaN
+        the generative model. These are different from other `hr_exo_features`
+        in that they are intended to be used as observation features with NaN
         values where observations are not available."""
         return [f for f in self.hr_source_features if '_obs' in f]
 

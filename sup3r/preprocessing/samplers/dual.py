@@ -97,10 +97,9 @@ class DualSampler(Sampler):
             f'{self.__class__.__name__} requires a Sup3rDataset object '
             'with `.low_res` and `.high_res` data members, in that order'
         )
-        dnames = ['low_res', 'high_res']
-        check = (
+        check = all(
             hasattr(data, dname) and getattr(data, dname) == data[i]
-            for i, dname in enumerate(dnames)
+            for i, dname in enumerate(['low_res', 'high_res'])
         )
         assert check, msg
 

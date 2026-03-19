@@ -63,7 +63,7 @@ class SolarCC(Sup3rGan):
         self._t_enhance = t_enhance or self.t_enhance
         self.meta['t_enhance'] = self._t_enhance
 
-    def init_weights(self, lr_shape, hr_shape, device=None):
+    def init_weights(self, lr_shape, hr_shape, train_disc=True, device=None):
         """Initialize the generator and discriminator weights with device
         placement.
 
@@ -77,6 +77,9 @@ class SolarCC(Sup3rGan):
             Shape of one batch of high res input data for sup3r resolution.
             Note that the batch size (axis=0) must be included, but the actual
             batch size doesn't really matter.
+        train_disc : bool
+            Whether to initialize the discriminator weights. If False, only the
+            generator weights will be initialized.
         device : str | None
             Option to place model weights on a device. If None,
             self.default_device will be used.
@@ -87,7 +90,9 @@ class SolarCC(Sup3rGan):
         if hr_shape[3] != self.DAYLIGHT_HOURS:
             hr_shape = hr_shape[0:3] + (self.DAYLIGHT_HOURS,) + hr_shape[-1:]
 
-        super().init_weights(lr_shape, hr_shape, device=device)
+        super().init_weights(
+            lr_shape, hr_shape, train_disc=train_disc, device=device
+        )
 
     @tf.function
     def calc_loss(
@@ -97,7 +102,7 @@ class SolarCC(Sup3rGan):
         weight_gen_advers=0.001,
         train_gen=True,
         train_disc=False,
-        compute_disc=False
+        compute_disc=False,
     ):
         """Calculate the GAN loss function using generated and true high
         resolution data.

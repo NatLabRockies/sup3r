@@ -38,7 +38,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         stdevs=None,
         default_device=None,
         name=None,
-        sparse_disc=False,
     ):
         """
         Parameters
@@ -100,11 +99,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             "/gpu:0" or "/cpu:0"
         name : str | None
             Optional name for the GAN.
-        sparse_disc : bool
-            Whether the discriminator can accept sparse features as input.
-            If False, the discriminator will only receive the dense features
-            as input. If True, the discriminator will receive both dense and
-            sparse features as input.
         """
         super().__init__()
 
@@ -136,7 +130,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         self._means = means
         self._stdevs = stdevs
-        self._sparse_disc = sparse_disc
 
     def save(self, out_dir):
         """Save the GAN with its sub-networks to a directory.
@@ -306,15 +299,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             Discriminator output logits
         """
 
-        hr = (
-            hi_res
-            if len(self.obs_features) == 0 or self._sparse_disc
-            else hi_res[..., : -len(self.obs_features)]
-        )
-        if hr.shape[-1] == 0:
-            return tf.constant([], dtype=tf.float32)
-
-        out = self.discriminator.layers[0](hr)
+        out = self.discriminator.layers[0](hi_res)
         layer_num = 1
         try:
             for i, layer in enumerate(self.discriminator.layers[1:]):
@@ -408,7 +393,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         """
         return self.generator_weights + self.discriminator_weights
 
-    def init_weights(self, lr_shape, hr_shape, device=None):
+    def init_weights(self, lr_shape, hr_shape, train_disc=False, device=None):
         """Initialize the generator and discriminator weights with device
         placement.
 
@@ -422,12 +407,15 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             Shape of one batch of high res input data for sup3r resolution.
             Note that the batch size (axis=0) must be included, but the actual
             batch size doesnt really matter.
+        train_disc : bool
+            Whether to initialize the discriminator weights. If False, only the
+            generator weights will be initialized.
         device : str | None
             Option to place model weights on a device. If None,
             self.default_device will be used.
         """
 
-        if not self.generator_weights:
+        if not self.generator_weights or not self.discriminator_weights:
             if device is None:
                 device = self.default_device
 
@@ -451,7 +439,9 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                     f'{len(self.hr_out_features)}'
                 )
                 assert out.shape[-1] == len(self.hr_out_features), msg
-                _ = self._tf_discriminate(hi_res)
+
+                if train_disc:
+                    _ = self._tf_discriminate(hi_res)
 
     @staticmethod
     def get_weight_update_fraction(
@@ -870,30 +860,36 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             logger.error(msg)
             raise RuntimeError(msg)
 
-        disc_out_true = self._tf_discriminate(hi_res_true)
-        disc_out_gen = self._tf_discriminate(hi_res_gen)
-
         loss_details = {}
         loss = None
+        disc_out_true = None
+        disc_out_gen = None
+        loss_gen_advers = None
 
-        if compute_disc or train_disc:
+        if train_disc or compute_disc:
+            disc_out_true = self._tf_discriminate(hi_res_true)
+            disc_out_gen = self._tf_discriminate(hi_res_gen)
             loss_details['loss_disc'] = self.calc_loss_disc(
                 disc_out_true=disc_out_true, disc_out_gen=disc_out_gen
             )
+
+        if train_gen and compute_disc:
+            loss_gen_advers = self.calc_loss_disc(
+                disc_out_true=disc_out_gen, disc_out_gen=disc_out_true
+            )
+            loss_details['loss_gen_advers'] = loss_gen_advers
 
         if train_gen:
             loss_gen_content, loss_gen_content_details = (
                 self.calc_loss_gen_content(hi_res_true, hi_res_gen)
             )
-            loss_gen_advers = self.calc_loss_disc(
-                disc_out_true=disc_out_gen, disc_out_gen=disc_out_true
+            loss = (
+                loss_gen_content
+                if loss_gen_advers is None
+                else weight_gen_advers * loss_gen_advers
             )
-            loss = loss_gen_content
-            if weight_gen_advers > 0:
-                loss += weight_gen_advers * loss_gen_advers
             loss_details['loss_gen'] = loss
             loss_details['loss_gen_content'] = loss_gen_content
-            loss_details['loss_gen_advers'] = loss_gen_advers
             loss_details.update(loss_gen_content_details)
 
         elif train_disc:
@@ -1131,11 +1127,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             Namespace of the breakdown of loss components
         """
         lr_shape, hr_shape = batch_handler.shapes
-        self.init_weights(lr_shape, hr_shape)
-
-        self.init_weights(
-            (1, *batch_handler.lr_shape), (1, *batch_handler.hr_shape)
-        )
+        self.init_weights(lr_shape, hr_shape, train_disc=train_disc)
 
         disc_th_low = np.min(disc_loss_bounds)
         disc_th_high = np.max(disc_loss_bounds)

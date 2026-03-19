@@ -49,7 +49,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         self._gen = None
         self._means = None
         self._stdevs = None
-        self._sparse_disc = None
         self._train_record = pd.DataFrame()
         self._val_record = pd.DataFrame()
 
@@ -1047,8 +1046,8 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         features = getattr(layer, 'features', [layer.name])
         exo_features = getattr(layer, 'exo_features', [])
         for feat in features + exo_features:
-            missing_feat = feat in features and feat not in exogenous_data
-            if missing_feat:
+            missing_feat = feat not in exogenous_data
+            if missing_feat and '_obs' in feat:
                 msg = (
                     f'{feat} does not match any features in exogenous_data '
                     f'({list(exogenous_data)}). Will try to run without this '
@@ -1056,6 +1055,14 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 )
                 logger.warning(msg)
                 continue
+            elif missing_feat:
+                msg = (
+                    f'{feat} does not match any features in exogenous_data '
+                    f'({list(exogenous_data)}). This feature is required for '
+                    f'layer {layer.name}.'
+                )
+                logger.error(msg)
+                raise KeyError(msg)
             exo = exogenous_data.get_combine_type_data(feat, 'layer')
             exo = self._reshape_norm_exo(
                 input_array,

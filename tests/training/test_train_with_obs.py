@@ -144,7 +144,9 @@ def test_train_cond_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
     ],
 )
 def test_train_just_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
-    """Test model training with sparse high resolution ground truth data."""
+    """Test model training with only sparse high resolution ground truth data.
+    This should skip any calculations involving the discriminator - since
+    train_disc=False"""
 
     gen_config = request.getfixturevalue(gen_config)()
     kwargs = {
