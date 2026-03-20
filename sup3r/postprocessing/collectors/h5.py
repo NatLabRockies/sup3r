@@ -759,14 +759,6 @@ class CollectorH5(BaseCollector):
             Desired log level, None will not initialize logging.
         log_file : str | None
             Target log file. None logs to stdout.
-        write_status : bool
-            Flag to write status file once complete if running from pipeline.
-        job_name : str
-            Job name for status file if running from pipeline.
-        pipeline_step : str, optional
-            Name of the pipeline step being run. If ``None``, the
-            ``pipeline_step`` will be set to ``"collect``, mimicking old reV
-            behavior. By default, ``None``.
         target_meta_file : str
             Path to target final meta containing coordinates to keep from the
             full file list collected meta. This can be but is not necessarily a

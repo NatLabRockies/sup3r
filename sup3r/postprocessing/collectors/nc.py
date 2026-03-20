@@ -52,10 +52,6 @@ class CollectorNC(BaseCollector):
             Desired log level, None will not initialize logging.
         log_file : str | None
             Target log file. None logs to stdout.
-        write_status : bool
-            Flag to write status file once complete if running from pipeline.
-        job_name : str
-            Job name for status file if running from pipeline.
         overwrite : bool
             Whether to overwrite existing output file
         res_kwargs : dict | None
