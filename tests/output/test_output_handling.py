@@ -183,9 +183,8 @@ def test_general_nc_collect():
         )
 
         with Loader(fp_out) as res:
-            res_lat_lon = res.lat_lon.compute()
             assert np.array_equal(hr_times, res.time_index.values)
-            assert np.allclose(hr_lat_lon, res_lat_lon)
+            assert np.allclose(hr_lat_lon, res.lat_lon)
             assert np.allclose(base_data, res.values)
 
 

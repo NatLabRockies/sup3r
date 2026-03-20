@@ -31,7 +31,7 @@ class CollectorNC(BaseCollector):
         log_file=None,
         overwrite=True,
         res_kwargs=None,
-        cacher_kwargs=None
+        cacher_kwargs=None,
     ):
         """Collect data files from a dir to one output file.
 
@@ -81,12 +81,18 @@ class CollectorNC(BaseCollector):
             logger.info(f'overwrite=True, removing {out_file}.')
             os.remove(out_file)
 
-        spatial_chunks = collector.group_spatial_chunks(res_kwargs=res_kwargs)
-
         if not os.path.exists(out_file):
-            dsets = list(spatial_chunks.values())
+            dsets = list(
+                collector.group_spatial_chunks(res_kwargs=res_kwargs).values()
+            )
+
+            # Reset coords so that they are data_vars and can be combined
+            # across chunks. This is needed because coords can be 2d arrays,
+            # which can't be used to combine chunks. After combination, set
+            # them back to coords.
             dsets = [ds.reset_coords(Dimension.coords_2d()) for ds in dsets]
             out = xr.combine_by_coords(dsets, combine_attrs='override')
+            out = out.set_coords(Dimension.coords_2d())
 
             cacher_kwargs = cacher_kwargs or {}
             Cacher._write_single(
