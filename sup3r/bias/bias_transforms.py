@@ -720,6 +720,8 @@ def local_qdm_bc(
     --------
     sup3r.bias.qdm.QuantileDeltaMappingCorrection :
         Estimate probability distributions required by QDM method
+    rex.utilities.bc_utils.QuantileDeltaMapping :
+        Core QDM transformation.
 
     Notes
     -----
@@ -737,11 +739,6 @@ def local_qdm_bc(
 
     Also, :class:`rex.utilities.bc_utils.QuantileDeltaMapping` expects params
     to be 2D (space, N-params).
-
-    See Also
-    --------
-    rex.utilities.bc_utils.QuantileDeltaMapping :
-        Core QDM transformation.
 
     Examples
     --------

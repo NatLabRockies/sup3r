@@ -516,12 +516,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         encourages the generator to produce output which is "more realistic"
         than the true high-res data.
 
-        References
-        ----------
-        .. [Wang2018] Wang, Xintao, et al. "Esrgan: Enhanced super-resolution
-            generative adversarial networks." Proceedings of the European
-            conference on computer vision (ECCV) workshops. 2018.
-
         Parameters
         ----------
         disc_out_true : tf.Tensor
@@ -536,6 +530,12 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         loss_disc : tf.Tensor
             0D tensor discriminator model loss for either the spatial or
             temporal component of the super resolution generated output.
+
+        References
+        ----------
+        .. [Wang2018] Wang, Xintao, et al. "Esrgan: Enhanced super-resolution
+            generative adversarial networks." Proceedings of the European
+            conference on computer vision (ECCV) workshops. 2018.
         """
         true_logits = disc_out_true - tf.reduce_mean(disc_out_gen)
         fake_logits = disc_out_gen - tf.reduce_mean(disc_out_true)
@@ -886,7 +886,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             loss = (
                 loss_gen_content
                 if loss_gen_advers is None
-                else weight_gen_advers * loss_gen_advers
+                else loss_gen_content + weight_gen_advers * loss_gen_advers
             )
             loss_details['loss_gen'] = loss
             loss_details['loss_gen_content'] = loss_gen_content

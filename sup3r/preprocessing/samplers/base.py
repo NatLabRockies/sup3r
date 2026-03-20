@@ -86,8 +86,8 @@ class Sampler(Container):
             should be treated as onshore and offshore observations,
             respectively. For example, ``proxy_obs_kwargs={'onshore_obs_frac':
             {'spatial': 0.1, 'temporal': 0.2}, 'offshore_obs_frac': {'spatial':
-            0.05, 'temporal': 0.1}}`` would specify that for the onshore
-            region observations cover 10% of the spatial domain and 20% of the
+            0.05, 'time': 0.1}}`` would specify that for the onshore region
+            observations cover 10% of the spatial domain and 20% of the
             temporal domain, while for the offshore region observations cover
             5% of the spatial domain and 10% of the temporal domain. Instead of
             a single float, these can also be lists to specify a lower and
@@ -149,6 +149,12 @@ class Sampler(Container):
     def get_sample_index(self, n_obs=None):
         """Randomly gets spatiotemporal sample index.
 
+        Returns
+        -------
+        sample_index : tuple
+            Tuple of latitude slice, longitude slice, time slice, and features.
+            Used to get single observation like ``self.data[sample_index]``
+
         Notes
         -----
         If ``n_obs > 1`` this will get a time slice with ``n_obs *
@@ -156,12 +162,6 @@ class Sampler(Container):
         ``n_obs`` samples each with ``self.sample_shape[2]`` time steps. This
         is a much more efficient way of getting batches of samples but only
         works if there are enough continuous time steps to sample.
-
-        Returns
-        -------
-        sample_index : tuple
-            Tuple of latitude slice, longitude slice, time slice, and features.
-            Used to get single observation like ``self.data[sample_index]``
         """
         n_obs = n_obs or self.batch_size
         spatial_slice = uniform_box_sampler(self.shape, self.sample_shape[:2])
@@ -496,7 +496,7 @@ class Sampler(Container):
 
         if any('*' in fn for fn in parsed_feats):
             out = []
-            for feature in self.hr_source_features:
+            for feature in self.features:
                 match = any(
                     fnmatch(feature.lower(), pattern.lower())
                     for pattern in parsed_feats
@@ -632,6 +632,11 @@ class Sampler(Container):
             for locations that are observed.
             (n_obs, spatial_1, spatial_2, n_features)
             (n_obs, spatial_1, spatial_2, n_temporal, n_features)
+
+        Notes
+        -----
+        The output mask is repeated along the feature dimension, so each
+        feature will have the same observation mask.
         """
         s_range = (
             spatial_frac
@@ -644,7 +649,7 @@ class Sampler(Container):
             else [time_frac, time_frac]
         )
         n_obs, n_spatial_1, n_spatial_2, n_temporal = hi_res.shape[:-1]
-        n_features = len(self.hr_out_features)
+        n_features = len(self.obs_features)
 
         s_fracs = RANDOM_GENERATOR.uniform(*s_range, size=n_obs)
         t_fracs = RANDOM_GENERATOR.uniform(*t_range, size=n_obs)

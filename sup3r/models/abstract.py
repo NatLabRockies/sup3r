@@ -1231,9 +1231,8 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         **calc_loss_kwargs,
     ):
         """Get high-resolution exogenous data, generate synthetic output, and
-        compute loss. Obs features (if present at the end of hi_res_true) are
-        extracted and added to exo_data, and trimmed from hi_res_true before
-        loss calculation."""
+        compute loss. All hr_exo_features are extracted from hi_res_true and
+        added to exo_data."""
         hi_res_exo = self.get_hr_exo_input(hi_res_true)
         hi_res_gen = self._tf_generate(low_res, hi_res_exo)
         loss, loss_details = self.calc_loss(
