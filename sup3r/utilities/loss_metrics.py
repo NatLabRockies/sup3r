@@ -681,7 +681,7 @@ class SlicedWassersteinLoss(Sup3rLoss):
         n_projections : int
             number of random 1D projections to use
 
-        Note
+        Note:
         ----
         Experimentally, we get stability in the SW metric when n_projections
         is at least 30% of the number of projection dimensions, which for us
@@ -888,7 +888,14 @@ class GeothermalPhysicsLossWithObs(Sup3rLoss):
         )
         assert check, msg
 
-        mask = tf.math.is_nan(x2)
-        return self.LOSS_METRIC(
-            x1[tf.math.logical_not(mask)], x2[tf.math.logical_not(mask)]
+        mask = tf.math.logical_not(tf.math.is_nan(x2))
+        x1m = tf.boolean_mask(x1, mask)
+        x2m = tf.boolean_mask(x2, mask)
+
+        physics_loss = tf.constant(1e-3, dtype=x1.dtype)
+        obs_loss = (
+            tf.constant(0, dtype=x1.dtype)
+            if tf.math.reduce_all(tf.math.is_nan(x2m))
+            else self.LOSS_METRIC(x1m, x2m)
         )
+        return physics_loss + obs_loss

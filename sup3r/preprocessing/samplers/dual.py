@@ -182,7 +182,7 @@ class DualSampler(Sampler):
             for s in lr_index[2:-1]
         ]
         hr_feats = (
-            self.hr_source_features[: -len(self.obs_features)]
+            [f for f in self.hr_source_features if f not in self.obs_features]
             if self.use_proxy_obs
             else self.hr_source_features
         )

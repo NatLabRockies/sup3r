@@ -169,9 +169,9 @@ class Sampler(Container):
             self.shape, self.sample_shape[2] * n_obs
         )
         feats = (
-            self.hr_source_features
-            if not self.use_proxy_obs
-            else self.hr_source_features[: -len(self.obs_features)]
+            [f for f in self.hr_source_features if f not in self.obs_features]
+            if self.use_proxy_obs
+            else self.hr_source_features
         )
         return (*spatial_slice, time_slice, feats)
 
@@ -636,7 +636,9 @@ class Sampler(Container):
         Notes
         -----
         The output mask is repeated along the feature dimension, so each
-        feature will have the same observation mask.
+        feature will have the same observation mask. The output mask is not
+        repeated along the batch dimension, so each sample in the batch will
+        have a different observation mask.
         """
         s_range = (
             spatial_frac

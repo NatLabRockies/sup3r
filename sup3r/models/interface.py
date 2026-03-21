@@ -9,8 +9,8 @@ from abc import ABC, abstractmethod
 from warnings import warn
 
 import numpy as np
-from phygnn import CustomNetwork
 
+from phygnn import CustomNetwork
 from sup3r.preprocessing.data_handlers import ExoData
 from sup3r.utilities import VERSION_RECORD
 from sup3r.utilities.utilities import safe_cast
@@ -346,6 +346,12 @@ class AbstractInterface(ABC):
         """Get the list of high-resolution output feature names that the
         generative model outputs."""
         return self.meta.get('hr_out_features', [])
+
+    @property
+    def hr_out_features_ind(self):
+        """Get the indices of the high-resolution output features in the order
+        they are output by the model."""
+        return [self.hr_features.index(feat) for feat in self.hr_out_features]
 
     @property
     def obs_features(self):

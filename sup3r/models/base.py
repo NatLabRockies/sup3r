@@ -38,6 +38,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         stdevs=None,
         default_device=None,
         name=None,
+        sparse_disc=False,
     ):
         """
         Parameters
@@ -97,6 +98,15 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             (this was tested as most efficient given the custom multi-gpu
              strategy developed in self.run_gradient_descent()). Examples:
             "/gpu:0" or "/cpu:0"
+        sparse_disc : bool
+            Flag to indicate if the discriminator can handle sparse input data.
+            If False, the discriminator will expect input data with no missing
+            values. If True, the discriminator will be able to handle input
+            data with missing values, which may be the case when using
+            observations for training. Note that if True, the discriminator
+            model architecture should be designed to handle sparse data (e.g.
+            by using masking layers or other techniques).
+
         name : str | None
             Optional name for the GAN.
         """
@@ -130,6 +140,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         self._means = means
         self._stdevs = stdevs
+        self._sparse_disc = sparse_disc
 
     def save(self, out_dir):
         """Save the GAN with its sub-networks to a directory.
@@ -298,8 +309,12 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         out : np.ndarray
             Discriminator output logits
         """
-
-        out = self.discriminator.layers[0](hi_res)
+        hr = (
+            hi_res
+            if self._sparse_disc
+            else tf.gather(hi_res, indices=self.hr_out_features_ind, axis=-1)
+        )
+        out = self.discriminator.layers[0](hr)
         layer_num = 1
         try:
             for i, layer in enumerate(self.discriminator.layers[1:]):
@@ -425,7 +440,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             low_res = tf.cast(np.ones(lr_shape), dtype=tf.float32)
             hi_res = tf.cast(np.ones(hr_shape), dtype=tf.float32)
 
-            hr_exo_shape = hr_shape[:-1] + (1,)
+            hr_exo_shape = (*hr_shape[:-1], 1)
             hr_exo = tf.cast(np.ones(hr_exo_shape), dtype=tf.float32)
 
             with tf.device(device):

@@ -36,7 +36,9 @@ TARGET_W = (39.01, -105.15)
         ('gen_config_with_obs_3d', (20, 20, 10), 2, pytest.ST_FP_DISC),
     ],
 )
-def test_train_cond_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
+def test_train_proxy_obs(
+    gen_config, sample_shape, t_enhance, fp_disc, request
+):
     """Test a special model which conditions model output on observations
     with a ``Sup3rConcatObs`` layer."""
 
@@ -143,7 +145,7 @@ def test_train_cond_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
         ('gen_config_with_obs_3d', (20, 20, 10), 2, pytest.ST_FP_DISC),
     ],
 )
-def test_train_just_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
+def test_train_real_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
     """Test model training with only sparse high resolution ground truth data.
     This should skip any calculations involving the discriminator - since
     train_disc=False"""
@@ -175,8 +177,12 @@ def test_train_just_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
     obs_data = dual_rasterizer.high_res.copy()
     for feat in FEATURES_W:
         tmp = np.full(obs_data[feat].shape, np.nan)
-        lat_ids = list(range(0, 20, 4))
-        lon_ids = list(range(0, 20, 4))
+        lat_ids = RANDOM_GENERATOR.choice(
+            obs_data[feat].shape[0], size=5, replace=False
+        )
+        lon_ids = RANDOM_GENERATOR.choice(
+            obs_data[feat].shape[1], size=5, replace=False
+        )
         for ilat, ilon in itertools.product(lat_ids, lon_ids):
             tmp[ilat, ilon, :] = obs_data[feat][ilat, ilon]
         obs_data[f'{feat}_obs'] = (obs_data[feat].dims, tmp)
@@ -239,7 +245,7 @@ def test_train_just_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
 
 
 @pytest.mark.parametrize('lr_only_features', [[], ['temperature_2m']])
-def test_train_obs_with_topo(lr_only_features, request):
+def test_train_proxy_obs_with_topo(lr_only_features, request):
     """Test training with topo and obs. Make sure exo features are
     properly concatenated."""
 
@@ -310,3 +316,108 @@ def test_train_obs_with_topo(lr_only_features, request):
         assert not np.isnan(loss).any()
         gloss = model.history['train_loss_gen'].values
         assert not np.isnan(gloss).any()
+
+
+@pytest.mark.parametrize('lr_only_features', [[], ['temperature_2m']])
+def test_train_real_obs_with_topo(lr_only_features, request):
+    """Test model training with only sparse high resolution ground truth data.
+    This should skip any calculations involving the discriminator - since
+    train_disc=False"""
+
+    gen_config = request.getfixturevalue('gen_config_with_obs_3d_topo')()
+    kwargs = {
+        'features': [*FEATURES_W, 'topography'],
+        'target': TARGET_W,
+        'shape': SHAPE,
+    }
+
+    hr_handler = DataHandler(
+        pytest.FP_WTK,
+        **kwargs,
+        time_slice=slice(None, None, 1),
+    )
+
+    lr_handler = DataHandler(
+        pytest.FP_ERA,
+        features=FEATURES_W,
+        time_slice=slice(None, None, 2),
+    )
+
+    # Add dummy lr only features
+    if lr_only_features:
+        for feat in lr_only_features:
+            lr_handler[feat] = lr_handler[FEATURES_W[0]].copy()
+
+    dual_rasterizer = DualRasterizer(
+        data={'low_res': lr_handler.data, 'high_res': hr_handler.data},
+        s_enhance=2,
+        t_enhance=2,
+        run_qa=False,
+    )
+    obs_data = dual_rasterizer.high_res.copy()
+    for feat in FEATURES_W:
+        tmp = np.full(obs_data[feat].shape, np.nan)
+        lat_ids = RANDOM_GENERATOR.choice(
+            obs_data[feat].shape[0], size=5, replace=False
+        )
+        lon_ids = RANDOM_GENERATOR.choice(
+            obs_data[feat].shape[1], size=5, replace=False
+        )
+        for ilat, ilon in itertools.product(lat_ids, lon_ids):
+            tmp[ilat, ilon, :] = obs_data[feat][ilat, ilon]
+        obs_data[f'{feat}_obs'] = (obs_data[feat].dims, tmp)
+
+    dual_with_obs = Container(
+        data={
+            'low_res': dual_rasterizer.low_res,
+            'high_res': obs_data,
+        }
+    )
+
+    batch_handler = DualBatchHandlerWithObsTester(
+        train_containers=[dual_with_obs],
+        val_containers=[],
+        sample_shape=(20, 20, 10),
+        batch_size=2,
+        s_enhance=2,
+        t_enhance=2,
+        n_batches=1,
+        feature_sets={
+            'lr_features': [*lr_only_features, *FEATURES_W],
+            'hr_exo_features': [
+                'topography',
+                *[f'{feat}_obs' for feat in FEATURES_W],
+            ],
+            'hr_out_features': FEATURES_W,
+        },
+        mode='lazy',
+    )
+
+    Sup3rGan.seed()
+    model = Sup3rGan(
+        gen_config,
+        pytest.ST_FP_DISC,
+        learning_rate=1e-4,
+        loss={
+            'GeothermalPhysicsLossWithObs': {
+                'gen_features': FEATURES_W,
+                'true_features': [f'{feat}_obs' for feat in FEATURES_W],
+            }
+        },
+    )
+
+    with tempfile.TemporaryDirectory() as td:
+        model_kwargs = {
+            'input_resolution': {'spatial': '30km', 'temporal': '60min'},
+            'n_epoch': 5,
+            'weight_gen_advers': 0.0,
+            'train_gen': True,
+            'train_disc': True,
+            'checkpoint_int': 1,
+            'out_dir': os.path.join(td, 'test_{epoch}'),
+        }
+
+        model.train(batch_handler, **model_kwargs)
+
+        tloss = model.history['train_geothermal_physics_loss_with_obs'].values
+        assert np.sum(np.diff(tloss)) < 0

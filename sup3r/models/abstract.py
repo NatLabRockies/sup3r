@@ -14,10 +14,10 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from gaps.config import load_config
-from phygnn import CustomNetwork
 from tensorflow.keras import optimizers
 
 import sup3r.utilities.loss_metrics
+from phygnn import CustomNetwork
 from sup3r.preprocessing.data_handlers import ExoData
 from sup3r.preprocessing.utilities import numpy_if_tensor
 from sup3r.utilities import VERSION_RECORD
@@ -462,37 +462,35 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
     def _get_loss_inputs(self, hi_res_gen, hi_res_true, loss_func):
         """Get inputs for the given loss function according to the required
-        input features"""
+        generator output features and ground truth features. If the loss
+        function doesn't specify required features, this will default to using
+        all output features that are not exogenous features."""
 
         gen_feats = getattr(loss_func, 'gen_features', 'all')
         true_feats = getattr(loss_func, 'true_features', 'all')
 
-        if gen_feats != 'all' and not all(
-            f in self.hr_features for f in gen_feats
-        ):
+        if gen_feats == 'all':
+            gen_feats = self.hr_out_features
+        if true_feats == 'all':
+            true_feats = self.hr_out_features
+
+        if not all(f in self.hr_out_features for f in gen_feats):
             msg = (
                 f'{loss_func} requires gen_features: '
-                f'{loss_func.gen_features}, but these are not found '
+                f'{loss_func.gen_features}, but these are not found in the '
+                f'high-resolution output features: {self.hr_out_features}'
+            )
+            logger.error(msg)
+            raise ValueError(msg)
+
+        if not all(f in self.hr_features for f in true_feats):
+            msg = (
+                f'{loss_func} requires true_features: '
+                f'{loss_func.true_features}, but these are not found '
                 f'in the high-resolution features: {self.hr_features}'
             )
             logger.error(msg)
             raise ValueError(msg)
-
-        if true_feats != 'all' and not all(
-            f in self.hr_features for f in true_feats
-        ):
-            msg = (
-                f'{loss_func} requires true_features: '
-                f'{loss_func.true_features}, but these are not found '
-                f'in the high-resolution output features: {self.hr_features}'
-            )
-            logger.error(msg)
-            raise ValueError(msg)
-
-        if gen_feats == 'all':
-            gen_feats = self.hr_features
-        if true_feats == 'all':
-            true_feats = self.hr_features
 
         gen_inds = [self.hr_features.index(f) for f in gen_feats]
         true_inds = [self.hr_features.index(f) for f in true_feats]
@@ -541,6 +539,15 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 )
                 val = loss_func(hr_gen, hr_true)
                 loss_details[camel_to_underscore(ln)] = val
+                if tf.math.reduce_any(tf.math.is_nan(val)):
+                    msg = (
+                        f'NaN values found for loss term "{ln}" with value '
+                        f'{val} when running loss function {loss_func} on '
+                        f'generated tensor of shape {hi_res_gen.shape} and '
+                        f'true tensor of shape {hi_res_true.shape}'
+                    )
+                    logger.error(msg)
+                    raise ValueError(msg)
                 loss += weights[i] * val
             return loss, loss_details
 
@@ -1040,6 +1047,16 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             of shape:
             (n_obs, spatial_1, spatial_2, n_features)
             (n_obs, spatial_1, spatial_2, n_temporal, n_features)
+        exogenous_data : dict | ExoData
+            Special dictionary (class:`ExoData`) of exogenous feature data with
+            entries describing whether features should be combined at input, a
+            mid network layer, or with output. This doesn't have to include the
+            'model' key since this data is for a single step model.
+        norm_in : bool
+            Flag to normalize low_res input data if the self._means,
+            self._stdevs attributes are available. The generator should always
+            received normalized data with mean=0 stdev=1. This also normalizes
+            exogenous data.
         """
         feat_stack = []
         extras = []
@@ -1055,7 +1072,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 )
                 logger.warning(msg)
                 continue
-            elif missing_feat:
+            if missing_feat:
                 msg = (
                     f'{feat} does not match any features in exogenous_data '
                     f'({list(exogenous_data)}). This feature is required for '
@@ -1100,7 +1117,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Flag to normalize low_res input data if the self._means,
             self._stdevs attributes are available. The generator should always
             received normalized data with mean=0 stdev=1. This also normalizes
-            hi_res_topo.
+            exogenous data.
         un_norm_out : bool
            Flag to un-normalize synthetically generated output data to physical
            units
@@ -1207,20 +1224,20 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """
         hi_res = self.generator.layers[0](low_res)
         layer_num = 1
-        for i, layer in enumerate(self.generator.layers[1:]):
-            try:
+        try:
+            for i, layer in enumerate(self.generator.layers[1:]):
                 layer_num = i + 1
                 if isinstance(layer, SUP3R_LAYERS):
                     hi_res = self._run_exo_layer(layer, hi_res, hi_res_exo)
                 else:
                     hi_res = layer(hi_res)
-            except Exception as e:
-                msg = (
-                    f'Could not run layer #{layer_num} "{layer}" on tensor '
-                    f'of shape {hi_res.shape}'
-                )
-                logger.error(msg)
-                raise RuntimeError(msg) from e
+        except Exception as e:
+            msg = (
+                f'Could not run layer #{layer_num} "{layer}" on tensor '
+                f'of shape {hi_res.shape}'
+            )
+            logger.error(msg)
+            raise RuntimeError(msg) from e
 
         return hi_res
 
