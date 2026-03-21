@@ -204,8 +204,17 @@ class AbstractInterface(ABC):
         if hasattr(self, '_gen'):
             for layer in self._gen.layers:
                 if isinstance(layer, SUP3R_LAYERS):
-                    feats = getattr(layer, 'features', [layer.name])
-                    features.extend(feats)
+                    feats = (
+                        [layer.name]
+                        if not hasattr(layer, 'features')
+                        else layer.features
+                    )
+                    exo_feats = (
+                        []
+                        if not hasattr(layer, 'exo_features')
+                        else layer.exo_features
+                    )
+                    features.extend(feats + exo_feats)
         if set(self.hr_exo_features) != set(features):
             msg = (
                 f'Model meta hr_exo_features {self.hr_exo_features} does not '
