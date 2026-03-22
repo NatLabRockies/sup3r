@@ -59,7 +59,7 @@ def test_end_to_end():
             train_containers=[train_dh],
             val_containers=[val_dh],
             n_batches=2,
-            batch_size=10,
+            batch_size=4,
             sample_shape=(12, 12, 16),
             s_enhance=3,
             t_enhance=4,

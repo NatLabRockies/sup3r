@@ -217,7 +217,7 @@ class AbstractInterface(ABC):
                     features.extend(feats + exo_feats)
         if set(self.hr_exo_features) != set(features):
             msg = (
-                f'Model meta hr_exo_features {self.hr_exo_features} does not '
+                f'Specified hr_exo_features {self.hr_exo_features} does not '
                 f'match features {features} found in model layers.'
             )
             logger.error(msg)

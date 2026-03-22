@@ -63,12 +63,6 @@ def set_random_state():
     RANDOM_GENERATOR.bit_generator.state = GLOBAL_STATE
 
 
-@pytest.fixture(autouse=True)
-def train_on_cpu():
-    """Train on cpu for tests."""
-    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-
-
 @pytest.fixture(scope='package')
 def gen_config_with_obs_2d():
     """Get generator config with observation layers."""

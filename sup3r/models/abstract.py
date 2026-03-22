@@ -8,6 +8,7 @@ import time
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from inspect import signature
+from threading import Lock
 from warnings import warn
 
 import numpy as np
@@ -51,6 +52,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         self._stdevs = None
         self._train_record = pd.DataFrame()
         self._val_record = pd.DataFrame()
+        self._lock = Lock()
 
     def load_network(self, model, name):
         """Load a CustomNetwork object from hidden layers config, .json file
@@ -105,10 +107,9 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             return model['meta'][f'config_{name}']['hidden_layers']
 
         msg = (
-            'Could not load model from json config, need '
-            '"hidden_layers" key or '
-            f'"meta/config_{name}/hidden_layers" '
-            ' at top level but only found: {}'.format(model.keys())
+            'Could not load model from json config, need "hidden_layers" key '
+            f'or "meta/config_{name}/hidden_layers" at top level but only '
+            f'found: {model.keys()}'
         )
         logger.error(msg)
         raise KeyError(msg)
@@ -539,15 +540,15 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 )
                 val = loss_func(hr_gen, hr_true)
                 loss_details[camel_to_underscore(ln)] = val
-                if tf.math.reduce_any(tf.math.is_nan(val)):
-                    msg = (
-                        f'NaN values found for loss term "{ln}" with value '
-                        f'{val} when running loss function {loss_func} on '
+                tf.debugging.assert_all_finite(
+                    val,
+                    message=(
+                        f'NaN or Inf values found for loss term "{ln}" with '
+                        f'value {val} when running loss function {loss_func} '
                         f'generated tensor of shape {hi_res_gen.shape} and '
                         f'true tensor of shape {hi_res_true.shape}'
-                    )
-                    logger.error(msg)
-                    raise ValueError(msg)
+                    ),
+                )
                 loss += weights[i] * val
             return loss, loss_details
 
@@ -1297,15 +1298,16 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         loss_details : dict
             Namespace of the breakdown of loss components
         """
-        with (
-            tf.device(device_name),
-            tf.GradientTape(watch_accessed_variables=False) as tape,
-        ):
-            tape.watch(training_weights)
-            loss, loss_details, _, _ = self._get_hr_exo_and_loss(
-                low_res, hi_res_true, **calc_loss_kwargs
-            )
-            grad = tape.gradient(loss, training_weights)
+        with self._lock:
+            with (
+                tf.device(device_name),
+                tf.GradientTape(watch_accessed_variables=False) as tape,
+            ):
+                tape.watch(training_weights)
+                loss, loss_details, _, _ = self._get_hr_exo_and_loss(
+                    low_res, hi_res_true, **calc_loss_kwargs
+                )
+                grad = tape.gradient(loss, training_weights)
         return grad, loss_details
 
     @abstractmethod

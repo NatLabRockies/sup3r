@@ -973,7 +973,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             Flag whether to train the discriminator for this set of epochs
         only_disc : bool
             Flag whether to only train the discriminator for this set of epochs
-        gen_too_good : bool
+        disc_too_good : bool
             Flag whether to skip training the discriminator and only train the
             generator, due to superior performance, for this batch.
         weight_gen_advers : float
