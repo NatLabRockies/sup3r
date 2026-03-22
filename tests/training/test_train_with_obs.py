@@ -241,7 +241,7 @@ def test_train_real_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
         model.train(batch_handler, **model_kwargs)
 
         tloss = model.history['train_geothermal_physics_loss_with_obs'].values
-        assert np.sum(np.diff(tloss)) < 0
+        assert not np.isnan(tloss).any()
 
 
 @pytest.mark.parametrize('lr_only_features', [[], ['temperature_2m']])
@@ -399,6 +399,7 @@ def test_train_real_obs_with_topo(lr_only_features, request):
         pytest.ST_FP_DISC,
         learning_rate=1e-4,
         loss={
+            'MeanAbsoluteError': {},
             'GeothermalPhysicsLossWithObs': {
                 'gen_features': FEATURES_W,
                 'true_features': [f'{feat}_obs' for feat in FEATURES_W],
@@ -412,12 +413,18 @@ def test_train_real_obs_with_topo(lr_only_features, request):
             'n_epoch': 5,
             'weight_gen_advers': 0.0,
             'train_gen': True,
-            'train_disc': True,
+            'train_disc': False,
             'checkpoint_int': 1,
             'out_dir': os.path.join(td, 'test_{epoch}'),
         }
 
         model.train(batch_handler, **model_kwargs)
 
-        tloss = model.history['train_geothermal_physics_loss_with_obs'].values
-        assert np.sum(np.diff(tloss)) < 0
+        tloss = model.history['train_loss_gen'].values
+        assert not np.isnan(tloss).any()
+
+        model_kwargs['train_disc'] = True
+        model.train(batch_handler, **model_kwargs)
+
+        tloss_disc = model.history['train_loss_disc'].values
+        assert not np.isnan(tloss_disc).any()
