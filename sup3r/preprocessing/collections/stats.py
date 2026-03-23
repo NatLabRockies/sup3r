@@ -125,7 +125,7 @@ class StatsCollection(Collection):
             ]
             for f in needed_features:
                 logger.info(f'Computing mean for {f}.')
-                means[f] = np.float32(np.sum([cm[f] for cm in cmeans]))
+                means[f] = np.float32(np.nansum([cm[f] for cm in cmeans]))
         return means
 
     def get_stds(self, stds):
@@ -141,7 +141,9 @@ class StatsCollection(Collection):
             ]
             for f in needed_features:
                 logger.info(f'Computing std for {f}.')
-                stds[f] = np.float32(np.sqrt(np.sum([cs[f] for cs in cstds])))
+                stds[f] = np.float32(
+                    np.sqrt(np.nansum([cs[f] for cs in cstds]))
+                )
         return stds
 
     @staticmethod

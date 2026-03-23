@@ -433,8 +433,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         if len(self.hr_exo_features) == 0:
             return {}
         inds = [self.hr_features.index(f) for f in self.hr_exo_features]
-        exo = tf.gather(hi_res, inds, axis=-1)
-        exo = tf.expand_dims(exo, axis=-2)
+        exo = tf.expand_dims(tf.gather(hi_res, inds, axis=-1), axis=-2)
         exo = dict(zip(self.hr_exo_features, tf.unstack(exo, axis=-1)))
         return exo
 
