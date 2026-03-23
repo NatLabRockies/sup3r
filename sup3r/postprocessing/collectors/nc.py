@@ -101,9 +101,9 @@ class CollectorNC(BaseCollector):
         logger.info('Finished file collection.')
 
     def group_spatial_chunks(self, res_kwargs=None):
-        """Group same spatial chunks together to get list of files with same 
-        spatial footprint but different times. Return `Loader` instance for 
-        each list of files."""
+        """Group same spatial chunks together to get list of files with same
+        spatial footprint but different times. Return `Loader` instances for
+        each spatial chunk with combined times."""
         chunks = {}
         for file in self.flist:
             _, s_idx = self.get_chunk_indices(file)
