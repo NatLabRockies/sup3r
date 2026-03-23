@@ -548,9 +548,9 @@ class ObsRasterizer(BaseExoRasterizer):
 
 
 class DerivedFeatureRasterizer(BaseExoRasterizer):
-    """Rasterizer for derived features like sza that are computed from the
-    lat/lon and time of the high-resolution grid. This is used for features
-    that don't need source data."""
+    """Rasterizer for features that can be derived from lat/lon and time with
+    a method in `RegistryBase`. For example, features like sza that are
+    computed from the lat/lon and time of the high-resolution grid."""
 
     @property
     def source_data(self):
@@ -563,10 +563,7 @@ class DerivedFeatureRasterizer(BaseExoRasterizer):
         return self._source_data
 
     def get_data(self):
-        """Get a raster of source values corresponding to the high-res grid
-        (the file_paths input grid * s_enhance * t_enhance). The shape is
-        (lats, lons, temporal)
-        """
+        """Pass through for `source_data` to override base class method."""
         return self.source_data
 
 
