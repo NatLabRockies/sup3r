@@ -423,6 +423,19 @@ class Longitude(DerivedFeature):
         return lon.astype(np.float32)
 
 
+class Time(DerivedFeature):
+    """Time feature with latitude and longitude dimensions included."""
+
+    @classmethod
+    def compute(cls, data):
+        """Compute method for time."""
+        time = data[Dimension.TIME].astype('datetime64[s]').astype(np.int64)
+        time = time.expand_dims(Dimension.dims_2d(), axis=(0, 1))
+        time = np.repeat(time, len(data.latitude), axis=0)
+        time = np.repeat(time, len(data.longitude), axis=1)
+        return time.astype(np.float32)
+
+
 class SpatioTemporalEncoding(DerivedFeature):
     """General positional or temporal encoding.
 
@@ -533,6 +546,7 @@ RegistryBase = {
     'sza': Sza,
     'latitude_feature': Latitude,
     'longitude_feature': Longitude,
+    'time_feature': Time,
     'soy_encoding': SecondOfYearEncoding,
     'sod_encoding': SecondOfDayEncoding,
     'lat_encoding': LatitudeEncoding,

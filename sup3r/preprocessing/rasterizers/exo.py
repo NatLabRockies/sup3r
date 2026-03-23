@@ -19,7 +19,7 @@ from scipy.spatial import KDTree
 
 from sup3r.preprocessing.accessor import Sup3rX
 from sup3r.preprocessing.base import Sup3rMeta
-from sup3r.preprocessing.derivers.utilities import SolarZenith
+from sup3r.preprocessing.derivers.methods import RegistryBase
 from sup3r.preprocessing.loaders import Loader
 from sup3r.preprocessing.names import Dimension
 from sup3r.preprocessing.utilities import compute_if_dask
@@ -211,8 +211,8 @@ class BaseExoRasterizer(ABC):
             coord: (Dimension.dims_2d(), self.hr_lat_lon[..., i])
             for i, coord in enumerate(Dimension.coords_2d())
         }
-        if self.source_data.shape[1] > 1:
-            coords['time'] = self.hr_time_index
+        if self.hr_shape[-1] > 1:
+            coords[Dimension.TIME] = self.hr_time_index
         return coords
 
     @property
@@ -533,13 +533,18 @@ class ObsRasterizer(BaseExoRasterizer):
         return hr_data
 
 
-class SzaRasterizer(BaseExoRasterizer):
-    """SzaRasterizer for H5 files"""
+class DerivedFeatureRasterizer(BaseExoRasterizer):
+    """Rasterizer for derived features like sza that are computed from the
+    lat/lon and time of the high-resolution grid. This is used for features
+    that don't need source data."""
 
     @property
     def source_data(self):
-        """Get the 1D array of sza data from the source_file_h5"""
-        return SolarZenith.get_zenith(self.hr_time_index, self.hr_lat_lon)
+        """Derive the source data from the lat/lon and time of the
+        high-resolution grid."""
+        ds = Sup3rX(xr.Dataset(coords=self.coords))
+        ds[self.feature] = RegistryBase[self.feature].compute(ds)
+        return ds
 
     def get_data(self):
         """Get a raster of source values corresponding to the high-res grid
@@ -547,9 +552,7 @@ class SzaRasterizer(BaseExoRasterizer):
         (lats, lons, temporal)
         """
         logger.info(f'Finished computing {self.feature} data')
-        data_vars = {self.feature: (Dimension.dims_3d(), self.source_data)}
-        ds = xr.Dataset(coords=self.coords, data_vars=data_vars)
-        return Sup3rX(ds)
+        return self.source_data
 
 
 class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):
@@ -557,9 +560,34 @@ class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):
 
     def __new__(cls, feature, file_paths, source_files=None, **kwargs):
         """Override parent class to return type specific class based on
-        `source_files`"""
-        if feature.lower() == 'sza':
-            ExoClass = SzaRasterizer
+        `source_files`
+
+        Parameters
+        ----------
+        feature : str
+            Name of exogenous feature to rasterize. If the feature name ends
+            with '_obs' then the `ObsRasterizer` will be used which is designed
+            for sparse spatiotemporal observation data. If the feature can be
+            derived from just grid variables then the
+            `DerivedFeatureRasterizer` will be used Otherwise, the
+            `BaseExoRasterizer` will be used which is designed for more dense
+            spatiotemporal data like topography or srl.
+        file_paths : str | list
+            Filepaths(s) used to define the grid that the high-resolution
+            exogenous data will be mapped onto. This can be either a single h5
+            file or a list of netcdf files with identical grid. The string can
+            be a unix-style file path which will be passed through glob.glob.
+        source_files : str | list | None
+            Filepath(s) to hi-res exogenous data, which will be mapped to the
+            enhanced grid of the file_paths input.
+        """
+        if feature.lower() in {
+            'sza',
+            'latitude_feature',
+            'longitude_feature',
+            'time_feature',
+        }:
+            ExoClass = DerivedFeatureRasterizer
         elif feature.lower().endswith('_obs'):
             ExoClass = ObsRasterizer
         else:
