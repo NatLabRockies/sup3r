@@ -11,6 +11,7 @@ from phygnn.layers.custom_layers import (
     Sup3rAdder,
     Sup3rConcat,
     Sup3rConcatObs,
+    Sup3rCrossAttention,
     Sup3rObsModel,
 )
 from scipy.interpolate import RegularGridInterpolator
@@ -20,7 +21,13 @@ from sup3r.utilities.utilities import Timer
 
 logger = logging.getLogger(__name__)
 
-SUP3R_LAYERS = (Sup3rObsModel, Sup3rConcatObs, Sup3rAdder, Sup3rConcat)
+SUP3R_LAYERS = (
+    Sup3rObsModel,
+    Sup3rConcatObs,
+    Sup3rAdder,
+    Sup3rConcat,
+    Sup3rCrossAttention,
+)
 
 
 class TrainingSession:
