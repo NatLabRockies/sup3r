@@ -430,9 +430,12 @@ class Time(DerivedFeature):
     def compute(cls, data):
         """Compute method for time."""
         time = data[Dimension.TIME].astype('datetime64[s]').astype(np.int64)
-        time = time.expand_dims(Dimension.dims_2d(), axis=(0, 1))
-        time = np.repeat(time, len(data.latitude), axis=0)
-        time = np.repeat(time, len(data.longitude), axis=1)
+        # Expand along the 2D spatial dimensions, then explicitly repeat along
+        # each dimension using its size to handle non-square grids correctly.
+        spatial_dims = Dimension.dims_2d()
+        time = time.expand_dims(spatial_dims, axis=(0, 1))
+        time = np.repeat(time, data.sizes[spatial_dims[0]], axis=0)
+        time = np.repeat(time, data.sizes[spatial_dims[1]], axis=1)
         return time.astype(np.float32)
 
 
