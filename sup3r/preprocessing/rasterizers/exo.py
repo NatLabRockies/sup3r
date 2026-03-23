@@ -583,7 +583,7 @@ class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):
             with '_obs' then the `ObsRasterizer` will be used which is designed
             for sparse spatiotemporal observation data. If the feature can be
             derived from just grid variables then the
-            `DerivedFeatureRasterizer` will be used Otherwise, the
+            `DerivedFeatureRasterizer` will be used. Otherwise, the
             `BaseExoRasterizer` will be used which is designed for more dense
             spatiotemporal data like topography or srl.
         file_paths : str | list
