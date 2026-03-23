@@ -10,6 +10,7 @@ import pandas as pd
 from rex.utilities.loggers import init_logger
 from scipy.spatial import KDTree
 
+from sup3r.preprocessing import Loader
 from sup3r.preprocessing.utilities import _mem_check
 from sup3r.utilities.utilities import get_dset_attrs, get_tmp_file
 from sup3r.writers import RexOutputs
@@ -93,13 +94,15 @@ class CollectorH5(BaseCollector):
         threshold : float
             Threshold distance for finding target coordinates within full meta
         """
-        ll2 = np.vstack(
-            (full_meta.latitude.values, full_meta.longitude.values)
-        ).T
+        ll2 = np.vstack((
+            full_meta.latitude.values,
+            full_meta.longitude.values,
+        )).T
         tree = KDTree(ll2)
-        targets = np.vstack(
-            (target_meta.latitude.values, target_meta.longitude.values)
-        ).T
+        targets = np.vstack((
+            target_meta.latitude.values,
+            target_meta.longitude.values,
+        )).T
         _, indices = tree.query(targets, distance_upper_bound=threshold)
         indices = indices[indices < len(full_meta)]
         return indices
@@ -723,7 +726,7 @@ class CollectorH5(BaseCollector):
         cls,
         file_paths,
         out_file,
-        features,
+        features='all',
         max_workers=None,
         log_level=None,
         log_file=None,
@@ -746,8 +749,9 @@ class CollectorH5(BaseCollector):
             ``*_{temporal_chunk_index}_{spatial_chunk_index}.h5``.
         out_file : str
             File path of final output file.
-        features : list
-            List of dsets to collect
+        features : list | str
+            List of dsets to collect. If 'all' then all datasets will be
+            collected
         max_workers : int | None
             Number of workers to use in parallel. 1 runs serial,
             None will use all available workers.
@@ -755,14 +759,6 @@ class CollectorH5(BaseCollector):
             Desired log level, None will not initialize logging.
         log_file : str | None
             Target log file. None logs to stdout.
-        write_status : bool
-            Flag to write status file once complete if running from pipeline.
-        job_name : str
-            Job name for status file if running from pipeline.
-        pipeline_step : str, optional
-            Name of the pipeline step being run. If ``None``, the
-            ``pipeline_step`` will be set to ``"collect``, mimicking old reV
-            behavior. By default, ``None``.
         target_meta_file : str
             Path to target final meta containing coordinates to keep from the
             full file list collected meta. This can be but is not necessarily a
@@ -796,6 +792,11 @@ class CollectorH5(BaseCollector):
             os.makedirs(os.path.dirname(out_file), exist_ok=True)
 
         collector = cls(file_paths)
+        features = (
+            Loader(collector.flist[0]).features
+            if features == 'all'
+            else features
+        )
         logger.info(
             'Collecting %s files to %s', len(collector.flist), out_file
         )

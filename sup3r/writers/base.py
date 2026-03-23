@@ -567,6 +567,8 @@ class OutputHandler(OutputMixin):
         invert_uv=False,
         nn_fill=False,
         max_workers=None,
+        row_inds=None,
+        col_inds=None,
         gids=None,
     ):
         """Write output to file with specified times and lats/lons"""
@@ -584,6 +586,8 @@ class OutputHandler(OutputMixin):
         nn_fill=False,
         max_workers=None,
         gids=None,
+        row_inds=None,
+        col_inds=None,
     ):
         """Write forward pass output to file
 
@@ -615,6 +619,14 @@ class OutputHandler(OutputMixin):
         gids : list
             List of coordinate indices used to label each lat lon pair and to
             help with spatial chunk data collection
+        row_inds : np.ndarray
+            Array of row indices for the full high resolution grid. This is
+            used to collect spatially contiguous data for stitching output
+            chunks back together.
+        col_inds : np.ndarray
+            Array of column indices for the full high resolution grid. This is
+            used to collect spatially contiguous data for stitching output
+            chunks back together.
         """
         lat_lon = cls.get_lat_lon(low_res_lat_lon, data.shape[:2])
         times = cls.get_times(low_res_times, data.shape[-2])
@@ -628,5 +640,7 @@ class OutputHandler(OutputMixin):
             invert_uv=invert_uv,
             nn_fill=nn_fill,
             max_workers=max_workers,
+            row_inds=row_inds,
+            col_inds=col_inds,
             gids=gids,
         )

@@ -46,6 +46,8 @@ class ForwardPassChunk:
     hr_lat_lon: Union[np.ndarray, da.core.Array]
     hr_times: pd.DatetimeIndex
     gids: Union[np.ndarray, da.core.Array]
+    row_inds: np.ndarray
+    col_inds: np.ndarray
     out_file: str
     pad_width: tuple[tuple, tuple, tuple]
     index: int
@@ -459,6 +461,16 @@ class ForwardPassStrategy:
         return OutputHandler.get_lat_lon(lr_lat_lon, shape)
 
     @cached_property
+    def grid_inds(self):
+        """Get row and column indices for the full high resolution grid. This
+        is used to collect spatially contiguous data for stitching output
+        chunks back together."""
+        shape = self.hr_lat_lon.shape[:-1]
+        row_inds = np.arange(shape[0])
+        col_inds = np.arange(shape[1])
+        return row_inds, col_inds
+
+    @cached_property
     def out_files(self):
         """Get list of output file names for each file chunk forward pass."""
         file_ids = [
@@ -580,6 +592,8 @@ class ForwardPassStrategy:
             hr_times=OutputHandler.get_times(
                 lr_times, self.t_enhance * len(lr_times)
             ),
+            row_inds=self.grid_inds[0][hr_slice[0]],
+            col_inds=self.grid_inds[1][hr_slice[1]],
             gids=self.gids[hr_slice[:2]],
             out_file=self.out_files[chunk_index],
             pad_width=self.fwp_slicer.extra_padding[chunk_index],

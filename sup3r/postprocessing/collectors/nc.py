@@ -9,7 +9,7 @@ import os
 import xarray as xr
 from rex.utilities.loggers import init_logger
 
-from sup3r.preprocessing.loaders import Loader
+from sup3r.preprocessing import Loader
 from sup3r.preprocessing.names import Dimension
 from sup3r.writers import Cacher
 
@@ -32,17 +32,8 @@ class CollectorNC(BaseCollector):
         overwrite=True,
         res_kwargs=None,
         cacher_kwargs=None,
-        is_regular_grid=True,
     ):
         """Collect data files from a dir to one output file.
-
-        TODO: For a regular grid (lat values are constant across lon and vice
-        versa) collecting lat / lon chunks is supported. For curvilinear grids
-        only collection of chunks that are split by latitude are supported.
-        This should be generalized to allow for any spatial chunking and any
-        dimension. I think this would require a new file naming scheme with a
-        spatial index for both latitude and longitude or checking each chunk
-        to see how they are split.
 
         Filename requirements:
          - Should end with ".nc"
@@ -61,23 +52,12 @@ class CollectorNC(BaseCollector):
             Desired log level, None will not initialize logging.
         log_file : str | None
             Target log file. None logs to stdout.
-        write_status : bool
-            Flag to write status file once complete if running from pipeline.
-        job_name : str
-            Job name for status file if running from pipeline.
         overwrite : bool
             Whether to overwrite existing output file
         res_kwargs : dict | None
             Dictionary of kwargs to pass to xarray.open_mfdataset.
         cacher_kwargs : dict | None
             Dictionary of kwargs to pass to Cacher._write_single.
-        is_regular_grid : bool
-            Whether the data is on a regular grid. If True then spatial chunks
-            can be combined across both latitude and longitude. If False then
-            spatial chunks must all have the same longitude values to be
-            combined. If you need completely general chunk collection then
-            you should write chunks to `h5` files and use
-            :class:`sup3r.postprocessing.collectors.h5.CollectorH5`.
         """
         logger.info(f'Initializing collection for file_paths={file_paths}')
 
@@ -97,33 +77,18 @@ class CollectorNC(BaseCollector):
             logger.info(f'overwrite=True, removing {out_file}.')
             os.remove(out_file)
 
-        spatial_chunks = collector.group_spatial_chunks()
-
         if not os.path.exists(out_file):
-            res_kwargs = res_kwargs or {
-                'combine': 'nested',
-                'concat_dim': Dimension.TIME,
-            }
-            for s_idx, sfiles in spatial_chunks.items():
-                schunk = Loader(sfiles, res_kwargs=res_kwargs)
-                spatial_chunks[s_idx] = schunk
+            dsets = list(
+                collector.group_spatial_chunks(res_kwargs=res_kwargs).values()
+            )
 
-            # Set lat / lon as 1D arrays if regular grid and get the
-            # xr.Dataset _ds
-            if is_regular_grid:
-                spatial_chunks = {
-                    s_idx: schunk.set_regular_grid()._ds
-                    for s_idx, schunk in spatial_chunks.items()
-                }
-                out = xr.combine_by_coords(
-                    spatial_chunks.values(), combine_attrs='override'
-                )
-
-            else:
-                out = xr.concat(
-                    [sc._ds for sc in spatial_chunks.values()],
-                    dim=Dimension.SOUTH_NORTH,
-                )
+            # Reset coords so that they are data_vars and can be combined
+            # across chunks. This is needed because coords can be 2d arrays,
+            # which can't be used to combine chunks. After combination, set
+            # them back to coords.
+            dsets = [ds.reset_coords(Dimension.coords_2d()) for ds in dsets]
+            out = xr.combine_by_coords(dsets, combine_attrs='override')
+            out = out.set_coords(Dimension.coords_2d())
 
             cacher_kwargs = cacher_kwargs or {}
             Cacher._write_single(
@@ -135,13 +100,14 @@ class CollectorNC(BaseCollector):
 
         logger.info('Finished file collection.')
 
-    def group_spatial_chunks(self):
-        """Group same spatial chunks together so each entry has same spatial
-        footprint but different times"""
+    def group_spatial_chunks(self, res_kwargs=None):
+        """Group same spatial chunks together to get list of files with same
+        spatial footprint but different times. Return `Loader` instances for
+        each spatial chunk with combined times."""
         chunks = {}
         for file in self.flist:
             _, s_idx = self.get_chunk_indices(file)
             chunks[s_idx] = [*chunks.get(s_idx, []), file]
         for k, v in chunks.items():
-            chunks[k] = sorted(v)
+            chunks[k] = Loader(sorted(v), res_kwargs=res_kwargs)
         return chunks

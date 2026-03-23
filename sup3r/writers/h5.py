@@ -28,6 +28,8 @@ class OutputHandlerH5(OutputHandler):
         invert_uv=False,
         nn_fill=False,
         max_workers=None,
+        row_inds=None,
+        col_inds=None,
         gids=None,
     ):
         """Write forward pass output to H5 file
@@ -57,6 +59,14 @@ class OutputHandlerH5(OutputHandler):
             neighbour or cap to limits
         max_workers : int | None
             Max workers to use for inverse transform.
+        row_inds : np.ndarray
+            Array of row indices for the full high resolution grid. This is
+            used to collect spatially contiguous data for stitching output
+            chunks back together.
+        col_inds : np.ndarray
+            Array of column indices for the full high resolution grid. This is
+            used to collect spatially contiguous data for stitching output
+            chunks back together.
         gids : list
             List of coordinate indices used to label each lat lon pair and to
             help with spatial chunk data collection
@@ -84,8 +94,20 @@ class OutputHandlerH5(OutputHandler):
             if gids is not None
             else np.arange(np.prod(lat_lon.shape[:-1]))
         )
+        row_inds = (
+            row_inds if row_inds is not None else np.arange(lat_lon.shape[0])
+        )
+        col_inds = (
+            col_inds if col_inds is not None else np.arange(lat_lon.shape[1])
+        )
         meta = pd.DataFrame({
             'gid': gids.flatten(),
+            'row_ind': np.repeat(
+                row_inds[:, np.newaxis], len(col_inds), axis=1
+            ).flatten(),
+            'col_ind': np.repeat(
+                col_inds[np.newaxis, :], len(row_inds), axis=0
+            ).flatten(),
             'latitude': lat_lon[..., 0].flatten(),
             'longitude': lat_lon[..., 1].flatten(),
         })
