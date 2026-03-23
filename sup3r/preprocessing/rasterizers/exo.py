@@ -486,25 +486,39 @@ class ObsRasterizer(BaseExoRasterizer):
         feature name.
     """
 
+    @classmethod
+    def parse_feature(cls, feature, handler):
+        """Parse the feature name to get the actual feature in the source data
+        if the feature name ends with '_obs' and is not in the source handler
+        features. For example, if feature is 'u_10m_obs' and 'u_10m' is in the
+        source handler features, then this will return 'u_10m'."""
+        feat = (
+            feature.replace('_obs', '')
+            if feature not in handler.features and feature.endswith('_obs')
+            else feature
+        )
+        return feat
+
     @property
     def source_handler(self):
-        """Get the Loader object that handles the exogenous data file. This
-        assumes the feature name does not have the '_obs' suffix which is used
-        to trigger this rasterizer."""
-        feat = self.feature.replace('_obs', '')
+        """Get the Loader object that handles the exogenous data file."""
         if self._source_handler is None:
             self._source_handler = Loader(
                 self.source_files,
-                features=[feat],
                 **self.source_handler_kwargs,
             )
+            feat = self.parse_feature(self.feature, self._source_handler)
+
+            # extra [] to return a Loader with only the relevant feature.
+            # Without [] this would return a DataArray
+            self._source_handler = self._source_handler[[feat]]
         return self._source_handler
 
     @property
     def source_data(self):
         """Get the flattened observation data from the source_files"""
         if self._source_data is None:
-            feat = self.feature.replace('_obs', '')
+            feat = self.parse_feature(self.feature, self.source_handler)
             src = self.source_handler[feat].data
             self._source_data = src.reshape((-1, src.shape[-1]))
         return self._source_data
