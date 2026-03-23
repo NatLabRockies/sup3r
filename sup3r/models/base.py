@@ -430,7 +430,9 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             self.default_device will be used.
         """
 
-        if not self.generator_weights or not self.discriminator_weights:
+        no_disc_weights = train_disc and not self.discriminator_weights
+        no_gen_weights = not self.generator_weights
+        if no_disc_weights or no_gen_weights:
             if device is None:
                 device = self.default_device
 
