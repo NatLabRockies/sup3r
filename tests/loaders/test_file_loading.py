@@ -20,6 +20,36 @@ from sup3r.utilities.pytest.helpers import (
 features = ['windspeed_100m', 'winddirection_100m']
 
 
+def test_load_zarr():
+    """Test simple zarr file loading. Make sure general loader matches zarr
+    specific loader (which uses LoaderNC with zarr engine)"""
+
+    with TemporaryDirectory() as td:
+        temp_file = os.path.join(td, 'test.zarr')
+        nc = make_fake_dset((10, 10, 20), features=['u_100m', 'v_100m'])
+        encoding = {}
+        for var in list(nc.data_vars) + list(nc.coords):
+            if nc[var].ndim > 0:  # Only chunk variables with dimensions
+                chunks = tuple(min(5, s) for s in nc[var].shape)
+                encoding[var] = {'chunks': chunks}
+        nc.to_zarr(temp_file, mode='w', encoding=encoding)
+        chunks = {'time': 5, 'south_north': 5, 'west_east': 5}
+        loader = LoaderX(
+            temp_file, chunks=chunks, res_kwargs={'engine': 'zarr'}
+        )
+        assert loader.shape == (10, 10, 20, 2)
+        assert all(
+            loader[f].data.chunksize == tuple(chunks.values())
+            for f in loader.features
+        )
+
+        gen_loader = Loader(
+            temp_file, chunks=chunks, res_kwargs={'engine': 'zarr'}
+        )
+
+        assert np.array_equal(loader.as_array(), gen_loader.as_array())
+
+
 def test_time_independent_loading():
     """Make sure loaders work with time independent files."""
     with TemporaryDirectory() as td:

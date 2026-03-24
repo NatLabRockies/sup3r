@@ -9,7 +9,7 @@ import numpy as np
 import xarray as xr
 from gaps.config import load_config
 
-from sup3r.preprocessing.utilities import log_args
+from sup3r.preprocessing.utilities import log_args, lowered
 from sup3r.utilities.utilities import safe_serialize
 
 from .base import Collection
@@ -50,11 +50,11 @@ class StatsCollection(Collection):
 
     def _get_stat(self, stat_type, needed_features='all'):
         """Get either mean or std for all features and all containers."""
-        all_feats = (
+        all_feats = lowered(
             self.features if needed_features == 'all' else needed_features
         )
-        hr_feats = set(self.containers[0].high_res.features).intersection(
-            all_feats
+        hr_feats = lowered(
+            set(self.containers[0].high_res.features).intersection(all_feats)
         )
         lr_feats = set(all_feats) - set(hr_feats)
 

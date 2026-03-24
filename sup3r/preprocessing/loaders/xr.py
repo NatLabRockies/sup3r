@@ -26,7 +26,8 @@ class LoaderX(BaseLoader):
     or by other objects to derive / extract specific features / regions /
     time_periods."""
 
-    def BASE_LOADER(self, file_paths, **kwargs):
+    @classmethod
+    def BASE_LOADER(cls, file_paths, **kwargs):
         """Lowest level interface to data."""
         return xr_open_mfdataset(file_paths, **kwargs)
 
@@ -43,7 +44,8 @@ class LoaderX(BaseLoader):
                     dset.update({var: new_var})
         return dset
 
-    def _enforce_descending_levels(self, dset):
+    @classmethod
+    def _enforce_descending_levels(cls, dset):
         """Make sure levels are in descending order so that max pressure is at
         ``level[0]``."""
         invert_levels = (
