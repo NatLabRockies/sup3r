@@ -134,7 +134,7 @@ class CloudMask(DerivedFeature):
     """Cloud Mask feature class. Inputs here are typically found in H5 data
     like the NSRDB."""
 
-    inputs = ('ghi', 'clearky_ghi')
+    inputs = ('ghi', 'clearsky_ghi')
 
     @classmethod
     def compute(cls, data):
