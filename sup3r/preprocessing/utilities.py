@@ -45,7 +45,7 @@ def get_input_handler_class(input_handler_name: Optional[str] = None):
         Class to use for input data. Provide a string name to match a class in
         `sup3r.preprocessing`. If None this will return
         :class:`~sup3r.preprocessing.rasterizers.Rasterizer`, which uses
-        `LoaderNC` or `LoaderH5` depending on file type. This is a simple
+        `LoaderX` or `LoaderH5` depending on file type. This is a simple
         handler object which does not derive new features from raw data.
 
     Returns
@@ -331,7 +331,7 @@ def get_source_type(file_paths):
     Returns
     -------
     source_type : str
-        Either "h5" or "nc"
+        "h5", "nc", or "zarr"
     """
     if file_paths is None:
         return None
@@ -350,10 +350,12 @@ def get_source_type(file_paths):
         return 'h5'
     if source_type in {'.nc'}:
         return 'nc'
+    if source_type in {'.zarr'}:
+        return 'zarr'
     msg = (
-        f'Can only handle HDF or NETCDF files. Received unknown extension '
-        f'"{source_type}" for files: {file_paths}. We will try to open this '
-        'with xarray.'
+        f'Can only handle HDF, NETCDF, or ZARR files. Received unknown '
+        f'extension "{source_type}" for files: {file_paths}. We will try to '
+        'open this with xarray.'
     )
     logger.warning(msg)
     warn(msg)

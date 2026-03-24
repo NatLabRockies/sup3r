@@ -18,8 +18,9 @@ from .base import BaseLoader
 logger = logging.getLogger(__name__)
 
 
-class LoaderNC(BaseLoader):
-    """Base NETCDF loader. "Loads" netcdf files so that a ``.data`` attribute
+class LoaderX(BaseLoader):
+    """Base xarray loader. Can load any file type supported by xarray.
+    Primarily used to "load" netcdf or zarr files. The ``.data`` attribute
     provides access to the data in the files. This object provides a
     ``__getitem__`` method that can be used by Sampler objects to build batches
     or by other objects to derive / extract specific features / regions /

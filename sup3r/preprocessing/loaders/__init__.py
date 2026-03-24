@@ -8,14 +8,18 @@ from sup3r.preprocessing.utilities import get_source_type
 
 from .base import BaseLoader
 from .h5 import LoaderH5
-from .nc import LoaderNC
+from .xr import LoaderX
 
 
 class Loader(BaseLoader, metaclass=Sup3rMeta):
     """`Loader` class which parses input file type and returns
     appropriate `TypeSpecificLoader`."""
 
-    TypeSpecificClasses: ClassVar = {'nc': LoaderNC, 'h5': LoaderH5}
+    TypeSpecificClasses: ClassVar = {
+        'nc': LoaderX,
+        'zarr': LoaderX,
+        'h5': LoaderH5,
+    }
 
     def __new__(cls, file_paths, **kwargs):
         """Override parent class to return type specific class based on
