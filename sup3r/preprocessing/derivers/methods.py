@@ -134,7 +134,7 @@ class CloudMask(DerivedFeature):
     """Cloud Mask feature class. Inputs here are typically found in H5 data
     like the NSRDB."""
 
-    inputs = ('ghi', 'clearky_ghi')
+    inputs = ('ghi', 'clearsky_ghi')
 
     @classmethod
     def compute(cls, data):
@@ -407,7 +407,8 @@ class Latitude(DerivedFeature):
         """Compute method for latitude."""
         lat = data[Dimension.LATITUDE]
         lat = lat.expand_dims(Dimension.TIME, axis=-1)
-        lat = np.repeat(lat, len(data.time_index), axis=-1)
+        n_time = 1 if data.time_index is None else len(data.time_index)
+        lat = np.repeat(lat, n_time, axis=-1)
         return lat.astype(np.float32)
 
 
@@ -419,8 +420,25 @@ class Longitude(DerivedFeature):
         """Compute method for longitude."""
         lon = data[Dimension.LONGITUDE]
         lon = lon.expand_dims(Dimension.TIME, axis=-1)
-        lon = np.repeat(lon, len(data.time_index), axis=-1)
+        n_time = 1 if data.time_index is None else len(data.time_index)
+        lon = np.repeat(lon, n_time, axis=-1)
         return lon.astype(np.float32)
+
+
+class Time(DerivedFeature):
+    """Time feature with latitude and longitude dimensions included."""
+
+    @classmethod
+    def compute(cls, data):
+        """Compute method for time."""
+        time = data[Dimension.TIME].astype('datetime64[s]').astype(np.int64)
+        # Expand along the 2D spatial dimensions, then explicitly repeat along
+        # each dimension using its size to handle non-square grids correctly.
+        spatial_dims = Dimension.dims_2d()
+        time = time.expand_dims(spatial_dims, axis=(0, 1))
+        time = np.repeat(time, data.sizes[spatial_dims[0]], axis=0)
+        time = np.repeat(time, data.sizes[spatial_dims[1]], axis=1)
+        return time.astype(np.float64)
 
 
 class SpatioTemporalEncoding(DerivedFeature):
@@ -533,6 +551,7 @@ RegistryBase = {
     'sza': Sza,
     'latitude_feature': Latitude,
     'longitude_feature': Longitude,
+    'time_feature': Time,
     'soy_encoding': SecondOfYearEncoding,
     'sod_encoding': SecondOfDayEncoding,
     'lat_encoding': LatitudeEncoding,

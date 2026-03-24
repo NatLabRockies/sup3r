@@ -19,7 +19,7 @@ from scipy.spatial import KDTree
 
 from sup3r.preprocessing.accessor import Sup3rX
 from sup3r.preprocessing.base import Sup3rMeta
-from sup3r.preprocessing.derivers.utilities import SolarZenith
+from sup3r.preprocessing.derivers.methods import RegistryBase
 from sup3r.preprocessing.loaders import Loader
 from sup3r.preprocessing.names import Dimension
 from sup3r.preprocessing.utilities import compute_if_dask
@@ -42,9 +42,7 @@ class BaseExoRasterizer(ABC):
     feature : str
         Name of exogenous feature to rasterize.
     file_paths : str | list
-        Filepaths(s) for typically low-res WRF output or GCM netcdf data files
-        that is source low-resolution data intended to be sup3r resolved.
-        These are used to define the grid that the high-resolution exogenous
+        Filepaths(s) used to define the grid that the high-resolution exogenous
         data will be mapped onto. This can be either a single h5 file or a list
         of netcdf files with identical grid. The string can be a unix-style
         file path which will be passed through glob.glob.
@@ -128,7 +126,12 @@ class BaseExoRasterizer(ABC):
 
     # These sometimes have a time dimension but we don't need the time in
     # the cache file
-    STATIC_FEATURES: ClassVar = ('topography', 'srl')
+    STATIC_FEATURES: ClassVar = (
+        'topography',
+        'srl',
+        'latitude_feature',
+        'longitude_feature',
+    )
 
     @log_args
     def __post_init__(self):
@@ -190,7 +193,7 @@ class BaseExoRasterizer(ABC):
         fn += f'{"x".join(map(str, self.input_handler.grid_shape))}_'
 
         # add the time index to the filename if data is time dependent
-        if self.source_data.shape[-1] > 1:
+        if self.hr_shape[-1] > 1 and self.feature not in self.STATIC_FEATURES:
             start = str(self.hr_time_index[0])
             start = start.replace(':', '').replace('-', '').replace(' ', '')
             end = str(self.hr_time_index[-1])
@@ -211,8 +214,8 @@ class BaseExoRasterizer(ABC):
             coord: (Dimension.dims_2d(), self.hr_lat_lon[..., i])
             for i, coord in enumerate(Dimension.coords_2d())
         }
-        if self.source_data.shape[1] > 1:
-            coords['time'] = self.hr_time_index
+        if self.hr_shape[-1] > 1 and self.feature not in self.STATIC_FEATURES:
+            coords[Dimension.TIME] = self.hr_time_index
         return coords
 
     @property
@@ -340,6 +343,7 @@ class BaseExoRasterizer(ABC):
             data = Loader(cache_fp)
         else:
             data = self.get_data()
+            logger.info(f'Finished rasterizing "{self.feature}"')
 
         if cache_fp is not None and not os.path.exists(cache_fp):
             Cacher._write_single(
@@ -386,10 +390,6 @@ class BaseExoRasterizer(ABC):
         hr_data *= self.scale_factor
         hr_data = self._check_coverage(hr_data)
 
-        logger.info(
-            f'Finished mapping raster from {self.source_files} for '
-            f'"{self.feature}"',
-        )
         data_vars = (dims, da.asarray(hr_data, dtype=np.float32))
         data_vars = {self.feature: data_vars}
         return Sup3rX(xr.Dataset(coords=self.coords, data_vars=data_vars))
@@ -488,23 +488,36 @@ class ObsRasterizer(BaseExoRasterizer):
 
     @property
     def source_handler(self):
-        """Get the Loader object that handles the exogenous data file. This
-        assumes the feature name does not have the '_obs' suffix which is used
-        to trigger this rasterizer."""
-        feat = self.feature.replace('_obs', '')
+        """Get the Loader object that handles the exogenous data file."""
         if self._source_handler is None:
-            self._source_handler = Loader(
-                self.source_files,
-                features=[feat],
-                **self.source_handler_kwargs,
-            )
+            try:
+                self._source_handler = Loader(
+                    self.source_files,
+                    features=[self.feature],
+                    **self.source_handler_kwargs,
+                )
+            except KeyError:
+                msg = (
+                    f'{self.feature} not found in {self.source_files}. '
+                    f'Will check {self.feature.replace("_obs", "")}.'
+                )
+                logger.warning(msg)
+                self._source_handler = Loader(
+                    self.source_files,
+                    features=[self.feature.replace('_obs', '')],
+                    **self.source_handler_kwargs,
+                )
         return self._source_handler
 
     @property
     def source_data(self):
         """Get the flattened observation data from the source_files"""
         if self._source_data is None:
-            feat = self.feature.replace('_obs', '')
+            feat = (
+                self.feature
+                if self.feature in self.source_handler
+                else self.feature.replace('_obs', '')
+            )
             src = self.source_handler[feat].data
             self._source_data = src.reshape((-1, src.shape[-1]))
         return self._source_data
@@ -533,23 +546,24 @@ class ObsRasterizer(BaseExoRasterizer):
         return hr_data
 
 
-class SzaRasterizer(BaseExoRasterizer):
-    """SzaRasterizer for H5 files"""
+class DerivedFeatureRasterizer(BaseExoRasterizer):
+    """Rasterizer for features that can be derived from lat/lon and time with
+    a method in `RegistryBase`. For example, features like sza that are
+    computed from the lat/lon and time of the high-resolution grid."""
 
     @property
     def source_data(self):
-        """Get the 1D array of sza data from the source_file_h5"""
-        return SolarZenith.get_zenith(self.hr_time_index, self.hr_lat_lon)
+        """Derive the source data from the lat/lon and time of the
+        high-resolution grid."""
+        if self._source_data is None:
+            ds = Sup3rX(xr.Dataset(coords=self.coords))
+            ds[self.feature] = RegistryBase[self.feature.lower()].compute(ds)
+            self._source_data = ds
+        return self._source_data
 
     def get_data(self):
-        """Get a raster of source values corresponding to the high-res grid
-        (the file_paths input grid * s_enhance * t_enhance). The shape is
-        (lats, lons, temporal)
-        """
-        logger.info(f'Finished computing {self.feature} data')
-        data_vars = {self.feature: (Dimension.dims_3d(), self.source_data)}
-        ds = xr.Dataset(coords=self.coords, data_vars=data_vars)
-        return Sup3rX(ds)
+        """Pass through for `source_data` to override base class method."""
+        return self.source_data
 
 
 class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):
@@ -557,9 +571,34 @@ class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):
 
     def __new__(cls, feature, file_paths, source_files=None, **kwargs):
         """Override parent class to return type specific class based on
-        `source_files`"""
-        if feature.lower() == 'sza':
-            ExoClass = SzaRasterizer
+        `source_files`
+
+        Parameters
+        ----------
+        feature : str
+            Name of exogenous feature to rasterize. If the feature name ends
+            with '_obs' then the `ObsRasterizer` will be used which is designed
+            for sparse spatiotemporal observation data. If the feature can be
+            derived from just grid variables then the
+            `DerivedFeatureRasterizer` will be used. Otherwise, the
+            `BaseExoRasterizer` will be used which is designed for more dense
+            spatiotemporal data like topography or srl.
+        file_paths : str | list
+            Filepaths(s) used to define the grid that the high-resolution
+            exogenous data will be mapped onto. This can be either a single h5
+            file or a list of netcdf files with identical grid. The string can
+            be a unix-style file path which will be passed through glob.glob.
+        source_files : str | list | None
+            Filepath(s) to hi-res exogenous data, which will be mapped to the
+            enhanced grid of the file_paths input.
+        """
+        if feature.lower() in {
+            'sza',
+            'latitude_feature',
+            'longitude_feature',
+            'time_feature',
+        }:
+            ExoClass = DerivedFeatureRasterizer
         elif feature.lower().endswith('_obs'):
             ExoClass = ObsRasterizer
         else:

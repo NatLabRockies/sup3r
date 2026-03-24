@@ -23,7 +23,7 @@ from sup3r.writers import RexOutputs
 TARGET = (13.67, 125.0)
 SHAPE = (8, 8)
 S_ENHANCE = [1, 4]
-T_ENHANCE = [1, 1]
+T_ENHANCE = [1, 2]
 
 
 def test_exo_data_init():
@@ -32,7 +32,16 @@ def test_exo_data_init():
         ExoData(steps=['dummy'])
 
 
-@pytest.mark.parametrize('feature', ['topography', 'sza'])
+@pytest.mark.parametrize(
+    'feature',
+    [
+        'topography',
+        'sza',
+        'latitude_feature',
+        'longitude_feature',
+        'time_feature',
+    ],
+)
 def test_exo_cache(feature):
     """Test exogenous data caching and re-load"""
     # no cached data
@@ -370,7 +379,8 @@ def test_obs_agg(s_enhance, with_nans):
         )
         agg_obs = np.asarray(te._get_data_3d())
         true_obs = (
-            te.source_handler['u_10m']
+            te
+            .source_handler['u_10m']
             .coarsen({
                 'south_north': 4 // s_enhance,
                 'west_east': 4 // s_enhance,
