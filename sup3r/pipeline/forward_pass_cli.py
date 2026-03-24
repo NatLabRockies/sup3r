@@ -60,8 +60,7 @@ def from_config(ctx, config_file, verbose=False, pipeline_step=None):
 
     sig = signature(ForwardPassStrategy)
     strategy_kwargs = {k: v for k, v in config.items() if k in sig.parameters}
-    head_node = strategy_kwargs.get('max_nodes') != 1
-    strategy = ForwardPassStrategy(**strategy_kwargs, head_node=head_node)
+    strategy = ForwardPassStrategy(**strategy_kwargs, head_node=True)
 
     if node_index is not None:
         nodes = (
