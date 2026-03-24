@@ -60,7 +60,8 @@ tensorflow = {version = "~=2.15.0", channel = "conda-forge"}
 dev = [
   "pre-commit",
   "pylint",
-  "ruff>=0.4"
+  "ruff>=0.4",
+  "zarr>=3.1.5,<4",
 ]
 doc = [
   "sphinx>=7.0",
@@ -335,6 +336,7 @@ pytest-cov = ">=5.0.0"
 [tool.pixi.feature.dev.dependencies]
 ruff = ">=0.4"
 ipython = ">=8.0"
+zarr = ">=3.1.5,<4"
 
 [tool.pixi.feature.viz.dependencies]
 jupyter = ">=1.0"
