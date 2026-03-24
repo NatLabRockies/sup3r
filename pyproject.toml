@@ -306,6 +306,7 @@ NREL-rex = { version = ">=0.2.87" }
 NREL-phygnn = { version = ">=0.0.23" }
 NREL-gaps = { version = ">=0.6.13" }
 NREL-farms = { version = ">=1.0.4" }
+zarr = { version = ">=3.1.5,<4" }
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
@@ -336,7 +337,6 @@ pytest-cov = ">=5.0.0"
 [tool.pixi.feature.dev.dependencies]
 ruff = ">=0.4"
 ipython = ">=8.0"
-zarr = ">=3.1.5,<4"
 
 [tool.pixi.feature.viz.dependencies]
 jupyter = ">=1.0"
