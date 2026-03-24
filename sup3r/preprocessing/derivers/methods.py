@@ -407,7 +407,8 @@ class Latitude(DerivedFeature):
         """Compute method for latitude."""
         lat = data[Dimension.LATITUDE]
         lat = lat.expand_dims(Dimension.TIME, axis=-1)
-        lat = np.repeat(lat, len(data.time_index), axis=-1)
+        n_time = 1 if data.time_index is None else len(data.time_index)
+        lat = np.repeat(lat, n_time, axis=-1)
         return lat.astype(np.float32)
 
 
@@ -419,7 +420,8 @@ class Longitude(DerivedFeature):
         """Compute method for longitude."""
         lon = data[Dimension.LONGITUDE]
         lon = lon.expand_dims(Dimension.TIME, axis=-1)
-        lon = np.repeat(lon, len(data.time_index), axis=-1)
+        n_time = 1 if data.time_index is None else len(data.time_index)
+        lon = np.repeat(lon, n_time, axis=-1)
         return lon.astype(np.float32)
 
 
