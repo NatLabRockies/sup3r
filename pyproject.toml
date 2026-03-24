@@ -60,7 +60,8 @@ tensorflow = {version = "~=2.15.0", channel = "conda-forge"}
 dev = [
   "pre-commit",
   "pylint",
-  "ruff>=0.4"
+  "ruff>=0.4",
+  "zarr>=2.18.0,<4",
 ]
 doc = [
   "sphinx>=7.0",
@@ -305,6 +306,7 @@ NREL-rex = { version = ">=0.2.87" }
 NREL-phygnn = { version = ">=0.0.23" }
 NREL-gaps = { version = ">=0.6.13" }
 NREL-farms = { version = ">=1.0.4" }
+zarr = { version = ">=2.18.0,<4" }
 
 [tool.pixi.environments]
 default = { solve-group = "default" }

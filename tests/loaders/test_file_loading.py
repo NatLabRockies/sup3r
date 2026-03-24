@@ -10,7 +10,7 @@ import pytest
 import xarray as xr
 from rex import Resource
 
-from sup3r.preprocessing import Dimension, Loader, LoaderH5, LoaderNC
+from sup3r.preprocessing import Dimension, Loader, LoaderH5, LoaderX
 from sup3r.preprocessing.loaders.utilities import standardize_values
 from sup3r.utilities.pytest.helpers import (
     make_fake_dset,
@@ -18,6 +18,36 @@ from sup3r.utilities.pytest.helpers import (
 )
 
 features = ['windspeed_100m', 'winddirection_100m']
+
+
+def test_load_zarr():
+    """Test simple zarr file loading. Make sure general loader matches zarr
+    specific loader (which uses LoaderNC with zarr engine)"""
+
+    with TemporaryDirectory() as td:
+        temp_file = os.path.join(td, 'test.zarr')
+        nc = make_fake_dset((10, 10, 20), features=['u_100m', 'v_100m'])
+        encoding = {}
+        for var in list(nc.data_vars) + list(nc.coords):
+            if nc[var].ndim > 0:  # Only chunk variables with dimensions
+                chunks = tuple(min(5, s) for s in nc[var].shape)
+                encoding[var] = {'chunks': chunks}
+        nc.to_zarr(temp_file, mode='w', encoding=encoding)
+        chunks = {'time': 5, 'south_north': 5, 'west_east': 5}
+        loader = LoaderX(
+            temp_file, chunks=chunks, res_kwargs={'engine': 'zarr'}
+        )
+        assert loader.shape == (10, 10, 20, 2)
+        assert all(
+            loader[f].data.chunksize == tuple(chunks.values())
+            for f in loader.features
+        )
+
+        gen_loader = Loader(
+            temp_file, chunks=chunks, res_kwargs={'engine': 'zarr'}
+        )
+
+        assert np.array_equal(loader.as_array(), gen_loader.as_array())
 
 
 def test_time_independent_loading():
@@ -30,7 +60,7 @@ def test_time_independent_loading():
         assert Dimension.TIME not in nc.dims
         assert Dimension.TIME not in nc.coords
         nc.to_netcdf(out_file, format='NETCDF4', engine='h5netcdf')
-        loader = LoaderNC(out_file)
+        loader = LoaderX(out_file)
         assert tuple(loader.dims) == (
             Dimension.SOUTH_NORTH,
             Dimension.WEST_EAST,
@@ -46,7 +76,7 @@ def test_time_independent_loading_h5():
 def test_dim_ordering():
     """Make sure standard reordering works with dimensions not in the standard
     list."""
-    loader = LoaderNC(pytest.FPS_GCM)
+    loader = LoaderX(pytest.FPS_GCM)
     assert tuple(loader.to_dataarray().dims) == (
         Dimension.SOUTH_NORTH,
         Dimension.WEST_EAST,
@@ -80,7 +110,7 @@ def test_lat_inversion():
         )
         out_file = os.path.join(td, 'inverted.nc')
         nc.to_netcdf(out_file, format='NETCDF4', engine='h5netcdf')
-        loader = LoaderNC(out_file)
+        loader = LoaderX(out_file)
         assert nc[Dimension.LATITUDE][0, 0] < nc[Dimension.LATITUDE][-1, 0]
         assert loader.lat_lon[-1, 0, 0] < loader.lat_lon[0, 0, 0]
 
@@ -109,7 +139,7 @@ def test_lon_range():
         )
         out_file = os.path.join(td, 'bad_lons.nc')
         nc.to_netcdf(out_file, format='NETCDF4', engine='h5netcdf')
-        loader = LoaderNC(out_file)
+        loader = LoaderX(out_file)
         assert (nc[Dimension.LONGITUDE] > 180).any()
         assert (loader[Dimension.LONGITUDE] <= 180).all()
         assert (loader[Dimension.LONGITUDE] >= -180).all()
@@ -132,7 +162,7 @@ def test_level_inversion():
         )
         out_file = os.path.join(td, 'inverted.nc')
         nc.to_netcdf(out_file, format='NETCDF4', engine='h5netcdf')
-        loader = LoaderNC(out_file, res_kwargs={'chunks': None})
+        loader = LoaderX(out_file, res_kwargs={'chunks': None})
         assert (
             nc[Dimension.PRESSURE_LEVEL][0] < nc[Dimension.PRESSURE_LEVEL][-1]
         )
@@ -145,7 +175,7 @@ def test_level_inversion():
 def test_load_cc():
     """Test simple era5 file loading."""
     chunks = {'south_north': 5, 'west_east': 5, 'time': 5}
-    loader = LoaderNC(pytest.FP_UAS, chunks=chunks)
+    loader = LoaderX(pytest.FP_UAS, chunks=chunks)
     assert all(
         loader[f].data.chunksize == tuple(chunks.values())
         for f in loader.features
@@ -164,7 +194,7 @@ def test_load_era5(fp):
     """Test simple era5 file loading. Make sure general loader matches the type
     specific loader and that it works with pathlib"""
     chunks = {'south_north': 10, 'west_east': 10, 'time': 1000}
-    loader = LoaderNC(fp, chunks=chunks)
+    loader = LoaderX(fp, chunks=chunks)
     assert all(
         loader[f].data.chunksize == tuple(chunks.values())
         for f in loader.features
@@ -194,7 +224,7 @@ def test_load_flattened_nc():
         nc = xr.Dataset(coords=coords, data_vars=data_vars)
         nc.to_netcdf(temp_file)
         chunks = {'time': 5, 'space': 5}
-        loader = LoaderNC(temp_file, chunks=chunks)
+        loader = LoaderX(temp_file, chunks=chunks)
         assert loader.shape == (100, 5, 2)
         assert 'space' in loader['latitude'].dims
         assert 'space' in loader['longitude'].dims
@@ -217,7 +247,7 @@ def test_load_nc():
             temp_file, shape=(10, 10, 20), features=['u_100m', 'v_100m']
         )
         chunks = {'time': 5, 'south_north': 5, 'west_east': 5}
-        loader = LoaderNC(temp_file, chunks=chunks)
+        loader = LoaderX(temp_file, chunks=chunks)
         assert loader.shape == (10, 10, 20, 2)
         assert all(
             loader[f].data.chunksize == tuple(chunks.values())
@@ -272,7 +302,7 @@ def test_multi_file_load_nc():
             shape=(10, 10, 20),
             features=['pressure_0m', 'pressure_100m'],
         )
-        loader = LoaderNC([wind_file, press_file])
+        loader = LoaderX([wind_file, press_file])
         assert loader.shape == (10, 10, 20, 4)
 
 
@@ -290,7 +320,7 @@ def test_5d_load_nc():
         make_fake_nc_file(
             level_file, shape=(10, 10, 20, 3), features=['zg', 'u']
         )
-        loader = LoaderNC([wind_file, level_file])
+        loader = LoaderX([wind_file, level_file])
 
         assert loader.shape == (10, 10, 20, 3, 5)
         assert sorted(loader.features) == sorted([

@@ -15,7 +15,7 @@ from sup3r.preprocessing import (
     DataHandlerNCforCCwithPowerLaw,
     Dimension,
     Loader,
-    LoaderNC,
+    LoaderX,
 )
 from sup3r.preprocessing.derivers.methods import UWindPowerLaw, VWindPowerLaw
 from sup3r.utilities.pytest.helpers import make_fake_dset
@@ -27,7 +27,7 @@ def test_get_just_coords_nc():
     input"""
 
     handler = DataHandlerNCforCC(file_paths=pytest.FP_UAS, features=[])
-    nc_res = LoaderNC(pytest.FP_UAS)
+    nc_res = LoaderX(pytest.FP_UAS)
     shape = (len(nc_res[Dimension.LATITUDE]), len(nc_res[Dimension.LONGITUDE]))
     target = (
         nc_res[Dimension.LATITUDE].min(),

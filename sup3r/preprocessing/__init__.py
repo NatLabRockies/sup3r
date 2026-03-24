@@ -47,7 +47,7 @@ from .data_handlers import (
     ExoDataHandler,
 )
 from .derivers import Deriver
-from .loaders import Loader, LoaderH5, LoaderNC
+from .loaders import Loader, LoaderH5, LoaderX
 from .names import COORD_NAMES, DIM_NAMES, FEATURE_NAMES, Dimension
 from .rasterizers import (
     BaseExoRasterizer,

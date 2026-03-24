@@ -71,7 +71,7 @@ class BaseLoader(Container, ABC):
             For example, {'sp': 'pressure_0m', 'u10': u_10m'}.
         BaseLoader : Callable
             Optional base loader update. The default for H5 files is
-            MultiFileResourceX and for NETCDF is xarray.open_mfdataset
+            MultiFileResourceX and for NETCDF or ZARR is xarray.open_mfdataset
         """
         logger.info(
             'Loading features: %s from files: %s', features, file_paths
