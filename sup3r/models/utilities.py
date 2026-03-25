@@ -11,7 +11,6 @@ from phygnn.layers.custom_layers import (
     Sup3rAdder,
     Sup3rConcat,
     Sup3rConcatObs,
-    Sup3rCrossAttention,
     Sup3rObsModel,
 )
 from scipy.interpolate import RegularGridInterpolator
@@ -26,7 +25,6 @@ SUP3R_LAYERS = (
     Sup3rConcatObs,
     Sup3rAdder,
     Sup3rConcat,
-    Sup3rCrossAttention,
 )
 
 
