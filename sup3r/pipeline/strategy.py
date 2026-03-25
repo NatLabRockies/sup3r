@@ -267,8 +267,9 @@ class ForwardPassStrategy:
             'cached on the head_node. This can take a long time and might be '
             'worth doing as an independent preprocessing step instead.'
         )
-        cache_check = any(
-            'cache_dir' in v for v in self.exo_handler_kwargs.values()
+        cache_check = (
+            any('cache_dir' in v for v in self.exo_handler_kwargs.values())
+            and self.max_nodes > 1
         )
         if self.head_node and cache_check:
             logger.warning(msg)
@@ -675,7 +676,7 @@ class ForwardPassStrategy:
             for s_chunk_idx, lr_slices in enumerate(self.lr_pad_slices):
                 mask_check = mask_vals[lr_slices[0], lr_slices[1]]
                 mask[s_chunk_idx] = bool(np.prod(mask_check.flatten()))
-        except RuntimeError:
+        except Exception:
             logger.info(
                 'No "mask" found in DataHandler. No chunks will be masked.'
             )
