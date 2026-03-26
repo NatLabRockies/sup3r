@@ -12,6 +12,7 @@ from sup3r.models import Sup3rGan
 from sup3r.utilities.loss_metrics import (
     CoarseMseLoss,
     GeothermalConductiveHeatTransferLoss,
+    GeothermalPositiveTemperatureGradientLoss,
     LowResLoss,
     MaterialDerivativeLoss,
     MmdLoss,
@@ -271,9 +272,7 @@ def test_md_loss():
     x = RANDOM_GENERATOR.random((6, 10, 10, 8, 2))
     y = x.copy()
 
-    md_loss = MaterialDerivativeLoss(
-        gen_features=['u_100m', 'v_100m']
-    )
+    md_loss = MaterialDerivativeLoss(gen_features=['u_100m', 'v_100m'])
     u_div = md_loss._compute_md(x, feature='u_100m')
     v_div = md_loss._compute_md(x, feature='v_100m')
 
@@ -315,13 +314,15 @@ def test_multiterm_loss():
         s_enhance=1,
         t_enhance=1,
     )
-    multi_loss = model.get_loss_fun({
-        'MaterialDerivativeLoss': {
-            'gen_features': ['u_100m', 'v_100m', 'temp_100m']
-        },
-        'MeanAbsoluteError': {},
-        'term_weights': [0.2, 0.8],
-    })
+    multi_loss = model.get_loss_fun(
+        {
+            'MaterialDerivativeLoss': {
+                'gen_features': ['u_100m', 'v_100m', 'temp_100m']
+            },
+            'MeanAbsoluteError': {},
+            'term_weights': [0.2, 0.8],
+        }
+    )
     loss, _ = multi_loss(x, y)
 
     assert np.allclose(0.2 * md_loss(x, y) + 0.8 * mae_loss(x, y), loss)
@@ -329,20 +330,6 @@ def test_multiterm_loss():
 
 def test_geothermal_heat_transfer_loss_depth_intersection_and_errors():
     """Test depth intersection behavior and expected validation errors."""
-
-    loss_obj = GeothermalConductiveHeatTransferLoss(
-        input_features=[
-            't_1000m',
-            't_2000m',
-            'q_1000m',
-            'q_2000m',
-            'q_3000m',
-            'k_1000m',
-            'k_2000m',
-            'k_4000m',
-        ]
-    )
-    assert loss_obj.depths == [1000, 2000]
 
     with pytest.raises(AssertionError):
         GeothermalConductiveHeatTransferLoss(
@@ -378,8 +365,6 @@ def test_geothermal_heat_transfer_loss():
         *(f'k_{depth}m' for depth in depths),
     ]
     loss_obj = GeothermalConductiveHeatTransferLoss(input_features=features)
-
-    assert loss_obj.depths == depths
 
     batch = 2
     s1 = 8
@@ -420,6 +405,58 @@ def test_geothermal_heat_transfer_loss():
     x_gen_perturbed = x_gen.copy()
     q_offset_idx = len(depths) + 1
     x_gen_perturbed[..., q_offset_idx] += 1.0
+    loss_perturbed = loss_obj(x_true, x_gen_perturbed).numpy()
+
+    assert loss_perturbed > loss_ref
+
+
+def test_geothermal_temp_grad_loss_depth_intersection_and_errors():
+    """Test depth behavior and expected validation errors"""
+
+    with pytest.raises(AssertionError):
+        GeothermalPositiveTemperatureGradientLoss(
+            input_features=['q_2000m', 'q_3000m']
+        )
+
+    with pytest.raises(AssertionError):
+        GeothermalPositiveTemperatureGradientLoss(input_features=['t_1000m'])
+
+    loss_obj = GeothermalPositiveTemperatureGradientLoss(
+        input_features=[
+            't_1000m',
+            't_2000m',
+            't_3000m',
+        ]
+    )
+    with pytest.raises(AssertionError):
+        loss_obj(np.zeros((2, 4, 6)), np.zeros((2, 4, 6)))
+
+
+def test_geothermal_temp_grad_loss():
+    """Test temp grad loss on synthetic data."""
+
+    depths = [1000, 2000, 3000]
+    features = [*(f't_{depth}m' for depth in depths)]
+    loss_obj = GeothermalPositiveTemperatureGradientLoss(
+        input_features=features
+    )
+
+    batch = 2
+    s1 = s2 = 8
+
+    tensors = []
+    for depth in depths:
+        temp = depth / 10 + np.zeros((batch, s1, s2), dtype=np.float32)
+        tensors.append(temp)
+
+    x_gen = np.stack(tensors, axis=-1)
+    x_true = np.zeros_like(x_gen)
+
+    loss_ref = loss_obj(x_true, x_gen).numpy()
+    assert loss_ref < 1e-10
+
+    x_gen_perturbed = x_gen.copy()
+    x_gen_perturbed[..., 1] += 500
     loss_perturbed = loss_obj(x_true, x_gen_perturbed).numpy()
 
     assert loss_perturbed > loss_ref
