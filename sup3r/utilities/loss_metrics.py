@@ -866,27 +866,27 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         depths = set(feature_inds['t'])
         depths &= set(feature_inds['q'])
         depths &= set(feature_inds['k'])
-        self.depths = sorted(depths)
+        depths = sorted(depths)
 
         msg = (
             'GeothermalConductiveHeatTransferLoss requires at least one '
             'common depth across t_*, q_*, and k_* features. Received '
             f'input_features: {input_features}'
         )
-        assert len(self.depths) > 0, msg
+        assert len(depths) > 0, msg
 
         msg = (
             'GeothermalConductiveHeatTransferLoss requires at least two '
             'common depths to compute vertical derivatives. Found depths: '
-            f'{self.depths}'
+            f'{depths}'
         )
-        assert len(self.depths) > 1, msg
+        assert len(depths) > 1, msg
 
-        self.t_inds = [feature_inds['t'][depth] for depth in self.depths]
-        self.q_inds = [feature_inds['q'][depth] for depth in self.depths]
-        self.k_inds = [feature_inds['k'][depth] for depth in self.depths]
+        self.t_inds = [feature_inds['t'][depth] for depth in depths]
+        self.q_inds = [feature_inds['q'][depth] for depth in depths]
+        self.k_inds = [feature_inds['k'][depth] for depth in depths]
 
-        depth_arr = np.asarray(self.depths, dtype=np.float32)
+        depth_arr = np.asarray(depths, dtype=np.float32)
         self._dz = float(np.mean(np.diff(depth_arr)))
         self._dz_steps = np.diff(np.concatenate(([0.0], depth_arr)))
 
