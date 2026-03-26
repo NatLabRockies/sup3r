@@ -844,22 +844,29 @@ class MaterialDerivativeLoss(Sup3rLoss):
 
 
 class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
-    """Deviation from three-dimensional conductive heat transfer loss
-
-    The expected features are temperature, heat-flow, and thermal
-    conductivity channels named as ``t_<depth>m``, ``q_<depth>m``, and
-    ``k_<depth>m``. Depths are discovered dynamically from
-    ``input_features`` and aligned by strict intersection.
-    """
+    """Deviation from three-dimensional conductive heat transfer loss"""
 
     LOSS_METRIC = MeanSquaredError()
 
-    def __init__(self, input_features):
-        super().__init__(input_features=input_features)
+    def __init__(self, gen_features):
+        """Initialize the loss with the generated t, q, and k features
+
+        Parameters
+        ----------
+        gen_features : list | str
+            List of generator output features used to compute the
+            three-dimensional conductive heat transfer loss. The
+            expected features are temperature, heat-flow, and thermal
+            conductivity channels named as ``t_<depth>m``,
+            ``q_<depth>m``, and ``k_<depth>m``. Depths are discovered
+            dynamically from this input and aligned by strict
+            intersection.
+        """
+        super().__init__(gen_features=gen_features, true_features=None)
 
         feature_inds = {'t': {}, 'q': {}, 'k': {}}
-        for i, feature in enumerate(input_features):
-            prefix, depth = self._parse_feature(feature)
+        for i, feature in enumerate(gen_features):
+            prefix, depth = _parse_depth_feature(feature)
             if prefix in feature_inds and depth is not None:
                 feature_inds[prefix][depth] = i
 
@@ -869,16 +876,9 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         depths = sorted(depths)
 
         msg = (
-            'GeothermalConductiveHeatTransferLoss requires at least one '
-            'common depth across t_*, q_*, and k_* features. Received '
-            f'input_features: {input_features}'
-        )
-        assert len(depths) > 0, msg
-
-        msg = (
             'GeothermalConductiveHeatTransferLoss requires at least two '
-            'common depths to compute vertical derivatives. Found depths: '
-            f'{depths}'
+            'common depth across t_*, q_*, and k_* features to compute '
+            f'vertical derivative. Received gen_features: {gen_features}'
         )
         assert len(depths) > 1, msg
 
@@ -889,57 +889,6 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         depth_arr = np.asarray(depths, dtype=np.float32)
         self._dz = float(np.mean(np.diff(depth_arr)))
         self._dz_steps = np.diff(np.concatenate(([0.0], depth_arr)))
-
-    @staticmethod
-    def _parse_feature(feature):
-        """Parse feature names like ``t_1000m`` into ("t", 1000)."""
-        parts = str(feature).split('_', 1)
-        if len(parts) != 2:
-            return None, None
-
-        prefix = parts[0].casefold()
-        depth = parts[1].casefold()
-        if not depth.endswith('m'):
-            return prefix, None
-
-        try:
-            depth = int(depth[:-1])
-        except ValueError:
-            return prefix, None
-
-        return prefix, depth
-
-    @staticmethod
-    def _reshape_for_vertical_derivative(x):
-        """Reshape a stacked depth tensor for use with tf_derivative.
-
-        Parameters
-        ----------
-        x : tf.Tensor
-            Either 4D tensor (n_obs, s1, s2, depth) or 5D tensor
-            (n_obs, s1, s2, time, depth).
-
-        Returns
-        -------
-        tf.Tensor
-            4D Tensor where the last three dimensions are
-            (s1, s2, depth). First dimension is either ``n_obs`` or
-            ``n_obs * time``.
-        """
-        if len(x.shape) == 4:
-            return x
-
-        if len(x.shape) == 5:
-            shape = tf.shape(x)
-            return tf.reshape(
-                x, (shape[0] * shape[3], shape[1], shape[2], shape[4])
-            )
-
-        msg = (
-            'GeothermalConductiveHeatTransferLoss expects 4D or 5D tensors '
-            f'before vertical reshaping, received {len(x.shape)}D tensor.'
-        )
-        raise ValueError(msg)
 
     def _get_feature_tensors(self, x):
         """Extract stacked temperature/heat-flow/conductivity tensors"""
@@ -952,9 +901,9 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         """Compute heat transfer residual to be penalized towards zero"""
         t, q, k = self._get_feature_tensors(x)
 
-        t = self._reshape_for_vertical_derivative(t)
-        q = self._reshape_for_vertical_derivative(q)
-        k = self._reshape_for_vertical_derivative(k)
+        t = _reshape_depth_feature_for_vertical_derivative(t)
+        q = _reshape_depth_feature_for_vertical_derivative(q)
+        k = _reshape_depth_feature_for_vertical_derivative(k)
 
         dz = tf.cast(self._dz, t.dtype)
         dz_steps = tf.cast(self._dz_steps, t.dtype)
@@ -1011,87 +960,40 @@ class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
 
     LOSS_METRIC = MeanSquaredError()
 
-    def __init__(self, input_features):
-        super().__init__(input_features=input_features)
+    def __init__(self, gen_features):
+        """Initialize the loss with the generated temperature feature
+
+        Parameters
+        ----------
+        gen_features : list | str
+            List of generator output features used to compute the
+            three-dimensional conductive heat transfer loss. The
+            expected feature is temperature, named as ``t_<depth>m``.
+            Depths are discovered dynamically from this input.
+        """
+        super().__init__(gen_features=gen_features, true_features=None)
 
         feature_inds = {'t': {}}
-        for i, feature in enumerate(input_features):
-            prefix, depth = self._parse_feature(feature)
+        for i, feature in enumerate(gen_features):
+            prefix, depth = _parse_depth_feature(feature)
             if prefix in feature_inds and depth is not None:
                 feature_inds[prefix][depth] = i
 
         depths = sorted(set(feature_inds['t']))
 
         msg = (
-            'GeothermalConductiveHeatTransferLoss requires at least one '
-            f'temperature depth t_*. Received input_features: {input_features}'
-        )
-        assert len(depths) > 0, msg
-
-        msg = (
-            'GeothermalConductiveHeatTransferLoss requires at least two '
-            'common depths to compute vertical derivatives. Found depths: '
-            f'{depths}'
+            'GeothermalPositiveTemperatureGradientLoss requires at least two '
+            'temperature depth t_* features to compute vertical derivative. '
+            f'Received gen_features: {gen_features}'
         )
         assert len(depths) > 1, msg
 
         self.t_inds = [feature_inds['t'][depth] for depth in depths]
 
-    @staticmethod
-    def _parse_feature(feature):
-        """Parse feature names like ``t_1000m`` into ("t", 1000)."""
-        parts = str(feature).split('_', 1)
-        if len(parts) != 2:
-            return None, None
-
-        prefix = parts[0].casefold()
-        depth = parts[1].casefold()
-        if not depth.endswith('m'):
-            return prefix, None
-
-        try:
-            depth = int(depth[:-1])
-        except ValueError:
-            return prefix, None
-
-        return prefix, depth
-
-    @staticmethod
-    def _reshape_for_vertical_derivative(x):
-        """Reshape a stacked depth tensor for use with tf_derivative.
-
-        Parameters
-        ----------
-        x : tf.Tensor
-            Either 4D tensor (n_obs, s1, s2, depth) or 5D tensor
-            (n_obs, s1, s2, time, depth).
-
-        Returns
-        -------
-        tf.Tensor
-            4D Tensor where the last three dimensions are
-            (s1, s2, depth). First dimension is either ``n_obs`` or
-            ``n_obs * time``.
-        """
-        if len(x.shape) == 4:
-            return x
-
-        if len(x.shape) == 5:
-            shape = tf.shape(x)
-            return tf.reshape(
-                x, (shape[0] * shape[3], shape[1], shape[2], shape[4])
-            )
-
-        msg = (
-            'GeothermalConductiveHeatTransferLoss expects 4D or 5D tensors '
-            f'before vertical reshaping, received {len(x.shape)}D tensor.'
-        )
-        raise ValueError(msg)
-
     def _compute_temperature_gradient(self, x):
         """Compute temp gradient be penalized for being negative"""
         t = tf.stack([x[..., i] for i in self.t_inds], axis=-1)
-        t = self._reshape_for_vertical_derivative(t)
+        t = _reshape_depth_feature_for_vertical_derivative(t)
         dtdz = tf_derivative(t, axis=3)
         return tf.math.maximum(-1 * dtdz, tf.constant([0.0], dtdz.dtype))
 
@@ -1180,3 +1082,54 @@ class GeothermalPhysicsLossWithObs(Sup3rLoss):
             else self.LOSS_METRIC(x1m, x2m)
         )
         return physics_loss + obs_loss
+
+
+def _parse_depth_feature(feature):
+    """Parse feature names like ``t_1000m`` into ("t", 1000)."""
+    parts = str(feature).split('_', 1)
+    if len(parts) != 2:
+        return None, None
+
+    prefix = parts[0].casefold()
+    depth = parts[1].casefold()
+    if not depth.endswith('m'):
+        return prefix, None
+
+    try:
+        depth = int(depth[:-1])
+    except ValueError:
+        return prefix, None
+
+    return prefix, depth
+
+
+def _reshape_depth_feature_for_vertical_derivative(x):
+    """Reshape a stacked depth tensor for use with tf_derivative.
+
+    Parameters
+    ----------
+    x : tf.Tensor
+        Either 4D tensor (n_obs, s1, s2, depth) or 5D tensor
+        (n_obs, s1, s2, time, depth).
+
+    Returns
+    -------
+    tf.Tensor
+        4D Tensor where the last three dimensions are
+        (s1, s2, depth). First dimension is either ``n_obs`` or
+        ``n_obs * time``.
+    """
+    if len(x.shape) == 4:
+        return x
+
+    if len(x.shape) == 5:
+        shape = tf.shape(x)
+        return tf.reshape(
+            x, (shape[0] * shape[3], shape[1], shape[2], shape[4])
+        )
+
+    msg = (
+        'Geothermal losses expects 4D or 5D tensors before vertical '
+        f'reshaping, received {len(x.shape)}D tensor.'
+    )
+    raise ValueError(msg)
