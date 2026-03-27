@@ -848,7 +848,15 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
 
     LOSS_METRIC = MeanSquaredError()
 
-    def __init__(self, gen_features):
+    def __init__(
+        self,
+        dx,
+        dy,
+        depths=range(0, 8000, 1000),
+        temperature_prefix='t',
+        heat_flux_prefix='q',
+        thermal_conductivity_prefix='k',
+    ):
         """Initialize the loss with the generated t, q, and k features
 
         Parameters
@@ -862,33 +870,57 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
             dynamically from this input and aligned by strict
             intersection.
         """
+        self.t_inds, self.q_inds, self.k_inds = [], [], []
+        self.dx, self.dy = dx, dy
+
+        depths, self.dz = self._validate_depths(depths)
+        gen_features = self._collect_gen_features(
+            depths,
+            temperature_prefix,
+            heat_flux_prefix,
+            thermal_conductivity_prefix,
+        )
         super().__init__(gen_features=gen_features, true_features=None)
 
-        feature_inds = {'t': {}, 'q': {}, 'k': {}}
-        for i, feature in enumerate(gen_features):
-            prefix, depth = _parse_depth_feature(feature)
-            if prefix in feature_inds and depth is not None:
-                feature_inds[prefix][depth] = i
-
-        depths = set(feature_inds['t'])
-        depths &= set(feature_inds['q'])
-        depths &= set(feature_inds['k'])
-        depths = sorted(depths)
-
+    @staticmethod
+    def _validate_depths(depths):
         msg = (
             'GeothermalConductiveHeatTransferLoss requires at least two '
-            'common depth across t_*, q_*, and k_* features to compute '
-            f'vertical derivative. Received gen_features: {gen_features}'
+            'common depth across t_* and k_* features to compute '
+            f'vertical derivative. Received depths: {depths}'
         )
         assert len(depths) > 1, msg
 
-        self.t_inds = [feature_inds['t'][depth] for depth in depths]
-        self.q_inds = [feature_inds['q'][depth] for depth in depths]
-        self.k_inds = [feature_inds['k'][depth] for depth in depths]
+        depths = sorted(depths)
+        msg = (
+            'GeothermalConductiveHeatTransferLoss requires a depth of 0m to '
+            'be present in the input features to compute the total heat '
+            'generation (integral) from the surface to each depth. '
+            f'Received depths: {depths}'
+        )
+        assert depths[0] == 0, msg
 
-        depth_arr = np.asarray(depths, dtype=np.float32)
-        self._dz = float(np.mean(np.diff(depth_arr)))
-        self._dz_steps = np.diff(np.concatenate(([0.0], depth_arr)))
+        dz_steps = np.diff(depths)
+        msg = (
+            'GeothermalConductiveHeatTransferLoss requires uniformly spaced '
+            f'depth channels. Received depths: {depths}'
+        )
+        assert np.allclose(dz_steps, dz_steps[0]), msg
+        return depths, float(dz_steps[0])
+
+    def _collect_gen_features(self, depths, tp, hfp, tcp):
+        """Collect the expected t, q, and k feature datasets + inds"""
+        gen_features = []
+        for depth in depths:
+            self.t_inds.append(len(gen_features))
+            gen_features.append(f'{tp}_{depth}m')
+
+            self.k_inds.append(len(gen_features))
+            gen_features.append(f'{tcp}_{depth}m')
+
+        self.q_inds = [len(gen_features)]
+        gen_features.append(f'{hfp}_0m')
+        return gen_features
 
     def _get_feature_tensors(self, x):
         """Extract stacked temperature/heat-flow/conductivity tensors"""
@@ -905,21 +937,28 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         q = _reshape_depth_feature_for_vertical_derivative(q)
         k = _reshape_depth_feature_for_vertical_derivative(k)
 
-        dz = tf.cast(self._dz, t.dtype)
-        dz_steps = tf.cast(self._dz_steps, t.dtype)
-        dz_steps = dz_steps[tf.newaxis, tf.newaxis, tf.newaxis, :]
+        dx = tf.cast(self.dx, t.dtype)
+        dy = tf.cast(self.dy, t.dtype)
+        dz = tf.cast(self.dz, t.dtype)
 
-        dtdx = tf_derivative(t, axis=1)
-        dtdy = tf_derivative(t, axis=2)
-        dtdz = tf_derivative(t, axis=3)
+        dtdx = tf_derivative(t, axis=2) / dx
+        dtdy = tf_derivative(t, axis=1) / dy
+        dtdz = tf_derivative(t, axis=3) / dz
 
         qc = k * (dtdx + dtdy + dtdz)
 
-        g_dot = tf_derivative(k * dtdx, axis=1)
-        g_dot += tf_derivative(k * dtdy, axis=2)
+        g_dot = tf_derivative(k * dtdx, axis=2) / dx
+        g_dot += tf_derivative(k * dtdy, axis=1) / dy
         g_dot += tf_derivative(k * dtdz, axis=3) / dz
 
-        int_g = tf.math.cumsum(g_dot * dz_steps, axis=3)
+        g_dot_mid = 0.5 * (g_dot[..., 1:] + g_dot[..., :-1])
+        int_g = tf.concat(
+            [
+                tf.zeros_like(g_dot[..., :1]),
+                tf.math.cumsum(g_dot_mid * dz, axis=3),
+            ],
+            axis=3,
+        )
         return qc + q + int_g
 
     def __call__(self, __, x_gen):
