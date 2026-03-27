@@ -85,7 +85,6 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         self._meta = meta if meta is not None else {}
         self._num_par = num_par if num_par is not None else 0
         self.loss_name = 'MeanSquaredError'
-        self.loss_fun = self.get_loss_fun(self.loss_name)
 
         self._history = history
         if isinstance(self._history, str):
@@ -234,8 +233,10 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         Returns
         -------
         loss : tf.Tensor
-            0D tensor generator model loss for the MSE loss of the
+            0D tensor representing the loss value for the
             moment predictor
+        loss_details : dict
+            Namespace of the breakdown of loss components
         """
 
         return self.loss_fun(output_gen * mask, output_true * mask)

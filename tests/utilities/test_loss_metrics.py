@@ -270,9 +270,7 @@ def test_md_loss():
     x = RANDOM_GENERATOR.random((6, 10, 10, 8, 2))
     y = x.copy()
 
-    md_loss = MaterialDerivativeLoss(
-        gen_features=['u_100m', 'v_100m']
-    )
+    md_loss = MaterialDerivativeLoss(gen_features=['u_100m', 'v_100m'])
     u_div = md_loss._compute_md(x, feature='u_100m')
     v_div = md_loss._compute_md(x, feature='v_100m')
 
@@ -316,10 +314,10 @@ def test_multiterm_loss():
     )
     multi_loss = model.get_loss_fun({
         'MaterialDerivativeLoss': {
-            'gen_features': ['u_100m', 'v_100m', 'temp_100m']
+            'weight': 0.2,
+            'gen_features': ['u_100m', 'v_100m', 'temp_100m'],
         },
-        'MeanAbsoluteError': {},
-        'term_weights': [0.2, 0.8],
+        'MeanAbsoluteError': {'weight': 0.8},
     })
     loss, _ = multi_loss(x, y)
 
