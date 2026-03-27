@@ -1097,17 +1097,13 @@ class GeothermalPhysicsLoss(Sup3rLoss):
         return self.LOSS_METRIC(x1, x2)
 
 
-class GeothermalPhysicsLossWithObs(Sup3rLoss):
-    """Physics based loss for Geothermal applications
-
-    TODO: Fill in call with appropriate physics equations. This is currently
-    just a dummy equation for testing.
-    """
+class GeothermalObsLoss(Sup3rLoss):
+    """Geothermal loss for observed quantities"""
 
     LOSS_METRIC = MeanAbsoluteError()
 
     def __call__(self, x1, x2):
-        """Geothermal physics loss"""
+        """Geothermal observed quantity loss"""
         check = x1.shape[-1] == len(self.gen_features)
         check &= x2.shape[-1] == len(self.true_features)
         msg = (
@@ -1122,32 +1118,11 @@ class GeothermalPhysicsLossWithObs(Sup3rLoss):
         x1m = tf.boolean_mask(x1, mask)
         x2m = tf.boolean_mask(x2, mask)
 
-        physics_loss = tf.constant(1e-3, dtype=x1.dtype)
-        obs_loss = (
+        return (
             tf.constant(0, dtype=x1.dtype)
             if tf.math.reduce_all(tf.math.is_nan(x2m))
             else self.LOSS_METRIC(x1m, x2m)
         )
-        return physics_loss + obs_loss
-
-
-def _parse_depth_feature(feature):
-    """Parse feature names like ``t_1000m`` into ("t", 1000)."""
-    parts = str(feature).split('_', 1)
-    if len(parts) != 2:
-        return None, None
-
-    prefix = parts[0].casefold()
-    depth = parts[1].casefold()
-    if not depth.endswith('m'):
-        return prefix, None
-
-    try:
-        depth = int(depth[:-1])
-    except ValueError:
-        return prefix, None
-
-    return prefix, depth
 
 
 def _reshape_depth_feature_for_vertical_derivative(x):
