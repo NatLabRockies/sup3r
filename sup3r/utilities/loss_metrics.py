@@ -884,6 +884,7 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
 
     @staticmethod
     def _validate_depths(depths):
+        depths = list(depths)
         msg = (
             'GeothermalConductiveHeatTransferLoss requires at least two '
             'common depth across t_* and k_* features to compute '
@@ -999,7 +1000,7 @@ class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
 
     LOSS_METRIC = MeanSquaredError()
 
-    def __init__(self, gen_features):
+    def __init__(self, depths=range(0, 8000, 1000), temperature_prefix='t'):
         """Initialize the loss with the generated temperature feature
 
         Parameters
@@ -1010,31 +1011,38 @@ class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
             expected feature is temperature, named as ``t_<depth>m``.
             Depths are discovered dynamically from this input.
         """
+        self.t_inds = []
+        depths = self._validate_depths(depths)
+
+        gen_features = []
+        for depth in depths:
+            self.t_inds.append(len(gen_features))
+            gen_features.append(f'{temperature_prefix}_{depth}m')
+
         super().__init__(gen_features=gen_features, true_features=None)
 
-        feature_inds = {'t': {}}
-        for i, feature in enumerate(gen_features):
-            prefix, depth = _parse_depth_feature(feature)
-            if prefix in feature_inds and depth is not None:
-                feature_inds[prefix][depth] = i
-
-        depths = sorted(set(feature_inds['t']))
+    @staticmethod
+    def _validate_depths(depths):
+        depths = list(depths)
 
         msg = (
             'GeothermalPositiveTemperatureGradientLoss requires at least two '
-            'temperature depth t_* features to compute vertical derivative. '
-            f'Received gen_features: {gen_features}'
+            'common depth across t_* features to compute vertical derivative. '
+            f'Received depths: {depths}'
         )
         assert len(depths) > 1, msg
 
-        self.t_inds = [feature_inds['t'][depth] for depth in depths]
+        return depths
 
     def _compute_temperature_gradient(self, x):
         """Compute temp gradient be penalized for being negative"""
         t = tf.stack([x[..., i] for i in self.t_inds], axis=-1)
         t = _reshape_depth_feature_for_vertical_derivative(t)
-        dtdz = tf_derivative(t, axis=3)
-        return tf.math.maximum(-1 * dtdz, tf.constant([0.0], dtdz.dtype))
+
+        # Not a true derivative (missing divide by dz), but we only care
+        # about the sign, so this is sufficient
+        dt = tf_derivative(t, axis=3)
+        return tf.math.maximum(-1 * dt, tf.constant([0.0], dt.dtype))
 
     def __call__(self, __, x_gen):
         """
