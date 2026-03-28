@@ -1073,28 +1073,71 @@ class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
         return self.LOSS_METRIC(tf.zeros_like(temp_grads), temp_grads)
 
 
-class GeothermalPhysicsLoss(Sup3rLoss):
-    """Physics based loss for Geothermal applications
+class GeothermalMohoBCLoss(Sup3rLoss):
+    """Heat flow across Moho layer boundary condition loss
 
-    TODO: Fill in call with appropriate physics equations. This is currently
-    just a dummy equation for testing.
+    This loss helps satisfy the condition that the predicted heat flow
+    across depths is greater than the minimum heat flow at the Moho
+    layer.
     """
 
-    LOSS_METRIC = MeanAbsoluteError()
+    LOSS_METRIC = MeanSquaredError()
 
-    def __call__(self, x1, x2):
-        """Geothermal physics loss"""
-        check = x1.shape[-1] == len(self.gen_features)
-        check &= x2.shape[-1] == len(self.true_features)
-        msg = (
-            f'Number of features in `x1`: {x1.shape[-1]} must match the '
-            f'length of `gen_features`: {len(self.gen_features)}, `x2`: '
-            f'{x2.shape[-1]} must match the length of `true_features`: '
-            f'{len(self.true_features)}'
+    def __init__(
+        self,
+        heat_flow_features,
+        moho_gradient_layer='',
+        upper_mantle_thermal_conductivity=4.0,
+    ):
+        """Initialize the loss with the appropriate features
+
+        Parameters
+        ----------
+        gen_features : list | str
+            List of generator output features used to compute the
+            three-dimensional conductive heat transfer loss. The
+            expected feature is temperature, named as ``t_<depth>m``.
+            Depths are discovered dynamically from this input.
+        """
+        self.lambda_um = upper_mantle_thermal_conductivity
+        super().__init__(
+            gen_features=list(heat_flow_features),
+            true_features=[moho_gradient_layer],
         )
-        assert check, msg
 
-        return self.LOSS_METRIC(x1, x2)
+    def __call__(self, x_gen, x_moho):
+        """
+
+        Parameters
+        ----------
+        x_gen : tf.tensor
+            Synthetic generator output of heat transfer values (mW/m^2).
+            Shape must be either:
+            (n_observations, spatial_1, spatial_2, features) or
+            (n_observations, spatial_1, spatial_2, temporal, features)
+        x_true : tf.tensor
+            Temperature gradient over Moho layer (K/km).
+
+        Returns
+        -------
+        tf.tensor
+            0D tensor loss value
+        """
+        msg = (
+            f'The {self.__class__.__name__} is meant to be used on spatial '
+            'or spatiotemporal data only. Received tensor(s) that are not '
+            '4D or 5D'
+        )
+        assert len(x_gen.shape) in {4, 5}, msg
+
+        heat_flow_watts = x_gen * 1000
+        temp_grad_K_per_m = x_moho / 1000
+
+        residuals = tf.math.maximum(
+            self.lambda_um * temp_grad_K_per_m - heat_flow_watts,
+            tf.constant([0.0], x_gen.dtype),
+        )
+        return self.LOSS_METRIC(tf.zeros_like(residuals), residuals)
 
 
 class GeothermalObsLoss(Sup3rLoss):
