@@ -368,7 +368,8 @@ def test_geothermal_heat_transfer_loss():
     t_slope_z = 0.01
     t_slope_x = 0.1
     t_slope_y = 0.2
-    q_const = -k_const * (t_slope_x / dx + t_slope_y / dy + t_slope_z)
+    conductive_flux = k_const * (t_slope_x + t_slope_y + t_slope_z)
+    q_const = conductive_flux * 1000
 
     tensors = []
     for depth in depths:
@@ -389,13 +390,13 @@ def test_geothermal_heat_transfer_loss():
     x_gen = np.stack(tensors, axis=-1)
     x_true = np.zeros_like(x_gen)
 
-    loss_ref = loss_obj(x_true, x_gen).numpy()
+    loss_ref = loss_obj(x_gen, x_true).numpy()
     assert loss_ref < 1e-10
 
     x_gen_perturbed = x_gen.copy()
     q_offset_idx = 2 * len(depths)
-    x_gen_perturbed[..., q_offset_idx] += 1.0
-    loss_perturbed = loss_obj(x_true, x_gen_perturbed).numpy()
+    x_gen_perturbed[..., q_offset_idx] += 1000.0
+    loss_perturbed = loss_obj(x_gen_perturbed, x_true).numpy()
 
     assert loss_perturbed > loss_ref
 
@@ -448,11 +449,11 @@ def test_geothermal_temp_grad_loss():
     x_gen = np.stack(tensors, axis=-1)
     x_true = np.zeros_like(x_gen)
 
-    loss_ref = loss_obj(x_true, x_gen).numpy()
+    loss_ref = loss_obj(x_gen, x_true).numpy()
     assert loss_ref < 1e-10
 
     x_gen_perturbed = x_gen.copy()
     x_gen_perturbed[..., 1] += 500
-    loss_perturbed = loss_obj(x_true, x_gen_perturbed).numpy()
+    loss_perturbed = loss_obj(x_gen_perturbed, x_true).numpy()
 
     assert loss_perturbed > loss_ref
