@@ -962,18 +962,18 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         )
         return qc + q + int_g
 
-    def __call__(self, __, x_gen):
+    def __call__(self, x_gen, __):
         """
 
         Parameters
         ----------
-        x_true : tf.tensor
-            Ground truth data (unused).
         x_gen : tf.tensor
             Synthetic generator output used to compute heat transfer
             residual. Shape must be either:
             (n_observations, spatial_1, spatial_2, features) or
             (n_observations, spatial_1, spatial_2, temporal, features)
+        x_true : tf.tensor
+            Ground truth data (unused).
 
         Returns
         -------
@@ -1044,18 +1044,18 @@ class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
         dt = tf_derivative(t, axis=3)
         return tf.math.maximum(-1 * dt, tf.constant([0.0], dt.dtype))
 
-    def __call__(self, __, x_gen):
+    def __call__(self, x_gen, __):
         """
 
         Parameters
         ----------
-        x_true : tf.tensor
-            Ground truth data (unused).
         x_gen : tf.tensor
             Synthetic generator output used to compute heat transfer
             residual. Shape must be either:
             (n_observations, spatial_1, spatial_2, features) or
             (n_observations, spatial_1, spatial_2, temporal, features)
+        x_true : tf.tensor
+            Ground truth data (unused).
 
         Returns
         -------
