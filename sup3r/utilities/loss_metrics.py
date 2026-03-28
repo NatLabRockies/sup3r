@@ -934,9 +934,9 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         """Compute heat transfer residual to be penalized towards zero"""
         t, q, k = self._get_feature_tensors(x)
 
-        t = _reshape_depth_feature_for_vertical_derivative(t)
-        q = _reshape_depth_feature_for_vertical_derivative(q)
-        k = _reshape_depth_feature_for_vertical_derivative(k)
+        t = _reshape_depth_feature_for_vertical_derivative(t)  # C
+        q = _reshape_depth_feature_for_vertical_derivative(q) / 1000.0  # W/m^2
+        k = _reshape_depth_feature_for_vertical_derivative(k)  # W/m/K
 
         dx = tf.cast(self.dx, t.dtype)
         dy = tf.cast(self.dy, t.dtype)
@@ -960,7 +960,7 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
             ],
             axis=3,
         )
-        return qc + q + int_g
+        return -qc + q + int_g
 
     def __call__(self, x_gen, __):
         """
