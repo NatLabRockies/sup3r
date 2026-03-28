@@ -1086,7 +1086,7 @@ class GeothermalMohoBCLoss(Sup3rLoss):
     def __init__(
         self,
         heat_flow_features,
-        moho_gradient_layer='',
+        moho_gradient_layer='gg_mantle_60km',
         upper_mantle_thermal_conductivity=4.0,
     ):
         """Initialize the loss with the appropriate features
