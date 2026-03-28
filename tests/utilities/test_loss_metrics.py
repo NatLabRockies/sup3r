@@ -12,6 +12,7 @@ from sup3r.models import Sup3rGan
 from sup3r.utilities.loss_metrics import (
     CoarseMseLoss,
     GeothermalConductiveHeatTransferLoss,
+    GeothermalMohoBCLoss,
     GeothermalPositiveTemperatureGradientLoss,
     LowResLoss,
     MaterialDerivativeLoss,
@@ -455,5 +456,30 @@ def test_geothermal_temp_grad_loss():
     x_gen_perturbed = x_gen.copy()
     x_gen_perturbed[..., 1] += 500
     loss_perturbed = loss_obj(x_gen_perturbed, x_true).numpy()
+
+    assert loss_perturbed > loss_ref
+
+
+def test_geothermal_moho_bc_loss():
+    """Test Moho boundary-condition loss on synthetic data."""
+
+    loss_obj = GeothermalMohoBCLoss(
+        heat_flow_features=['q_0m'],
+        moho_gradient_layer='moho_temp_gradient',
+        upper_mantle_thermal_conductivity=4.0,
+    )
+
+    batch = 2
+    s1 = s2 = 8
+
+    heat_flow = 0.2 + np.zeros((batch, s1, s2, 1), dtype=np.float32)
+    moho_gradient = 50000 + np.zeros((batch, s1, s2, 1), dtype=np.float32)
+
+    loss_ref = loss_obj(heat_flow, moho_gradient).numpy()
+    assert loss_ref < 1e-10
+
+    heat_flow_perturbed = heat_flow.copy()
+    heat_flow_perturbed[..., 0] -= 0.05
+    loss_perturbed = loss_obj(heat_flow_perturbed, moho_gradient).numpy()
 
     assert loss_perturbed > loss_ref
