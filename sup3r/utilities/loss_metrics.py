@@ -1123,12 +1123,6 @@ class GeothermalMohoBCLoss(Sup3rLoss):
         tf.tensor
             0D tensor loss value
         """
-        msg = (
-            f'The {self.__class__.__name__} is meant to be used on spatial '
-            'or spatiotemporal data only. Received tensor(s) that are not '
-            '4D or 5D'
-        )
-        assert len(x_gen.shape) in {4, 5}, msg
 
         heat_flow_watts = x_gen * 1000
         temp_grad_K_per_m = x_moho / 1000
