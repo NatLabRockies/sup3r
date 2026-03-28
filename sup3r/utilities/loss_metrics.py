@@ -846,15 +846,22 @@ class MaterialDerivativeLoss(Sup3rLoss):
 class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
     """Deviation from three-dimensional conductive heat transfer.
 
-    This loss penalizes residual in a conductive heat-transfer balance using
-    predicted temperature, thermal conductivity, and surface heat flow.
-    Temperature features are expected in C, thermal conductivity features in
-    W/m-K, and heat-flow features in mW/m^2.
+    This loss evaluates the conductive heat-transfer PDE residual described in
+    [1] using predicted temperature, thermal conductivity, and surface heat
+    flow. Temperature features are expected in C, thermal conductivity
+    features in W/m-K, and heat-flow features in mW/m^2.
 
     The loss requires temperature and thermal conductivity channels at each
     requested depth and a single surface heat-flow channel at 0 m. Expected
     feature names are ``<temperature_prefix>_<depth>m`` (e.g. "t_1000m"),
     ``<thermal_conductivity_prefix>_<depth>m`` (e.g. "k_1000m"), and ``q_0m``.
+
+    References
+    ----------
+    .. [1] Aljubran, M. J., and Horne, R. N., "Thermal Earth model for the
+        conterminous United States using an interpolative physics-informed
+        graph neural network," Geothermal Energy, vol. 12, no. 1, article 25,
+        2024. doi:10.1186/s40517-024-00304-7.
     """
 
     LOSS_METRIC = MeanSquaredError()
@@ -1023,9 +1030,17 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
 class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
     """Positive geothermal gradient loss
 
-    This loss penalizes negative vertical temperature gradients so predicted
+    This loss applies the positive-gradient regularization described in [1].
+    It penalizes negative vertical temperature gradients so predicted
     temperature increases with depth. Temperature features are expected in C
     and named ``<temperature_prefix>_<depth>m`` (e.g. "t_2000m").
+
+    References
+    ----------
+    .. [1] Aljubran, M. J., and Horne, R. N., "Thermal Earth model for the
+        conterminous United States using an interpolative physics-informed
+        graph neural network," Geothermal Energy, vol. 12, no. 1, article 25,
+        2024. doi:10.1186/s40517-024-00304-7.
     """
 
     LOSS_METRIC = MeanSquaredError()
@@ -1113,10 +1128,18 @@ class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
 class GeothermalMohoBCLoss(Sup3rLoss):
     """Heat flow across Moho layer boundary condition loss
 
-    This loss helps satisfy the condition that the predicted heat flow
-    is greater than or equal to the minimum heat flow implied at the Moho
-    layer. Predicted heat-flow features are expected in mW/m^2 and the Moho
+    This loss enforces the Moho boundary condition described in [1]. It helps
+    satisfy the condition that the predicted heat flow is greater than or
+    equal to the minimum heat flow implied at the Moho layer. Predicted
+    heat-flow features are expected in mW/m^2 and the Moho
     temperature-gradient input is expected in C/km.
+
+    References
+    ----------
+    .. [1] Aljubran, M. J., and Horne, R. N., "Thermal Earth model for the
+        conterminous United States using an interpolative physics-informed
+        graph neural network," Geothermal Energy, vol. 12, no. 1, article 25,
+        2024. doi:10.1186/s40517-024-00304-7.
     """
 
     LOSS_METRIC = MeanSquaredError()
@@ -1176,10 +1199,18 @@ class GeothermalMohoBCLoss(Sup3rLoss):
 class GeothermalObsLoss(Sup3rLoss):
     """Masked loss for geothermal observed quantities
 
-    This loss compares predicted geothermal channels against observed targets
-    while ignoring missing observations. Units are inherited from the paired
+    This loss performs the masked observation matching described in [1]. It
+    compares predicted geothermal channels against observed targets while
+    ignoring missing observations. Units are inherited from the paired
     features, such as temperature in C, thermal conductivity in W/m-K, and
     heat flow in mW/m^2.
+
+    References
+    ----------
+    .. [1] Aljubran, M. J., and Horne, R. N., "Thermal Earth model for the
+        conterminous United States using an interpolative physics-informed
+        graph neural network," Geothermal Energy, vol. 12, no. 1, article 25,
+        2024. doi:10.1186/s40517-024-00304-7.
     """
 
     LOSS_METRIC = MeanAbsoluteError()
