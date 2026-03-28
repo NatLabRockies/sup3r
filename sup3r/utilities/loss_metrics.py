@@ -844,7 +844,18 @@ class MaterialDerivativeLoss(Sup3rLoss):
 
 
 class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
-    """Deviation from three-dimensional conductive heat transfer loss"""
+    """Deviation from three-dimensional conductive heat transfer.
+
+    This loss penalizes residual in a conductive heat-transfer balance using
+    predicted temperature, thermal conductivity, and surface heat flow.
+    Temperature features are expected in C, thermal conductivity features in
+    W/m-K, and heat-flow features in mW/m^2.
+
+    The loss requires temperature and thermal conductivity channels at each
+    requested depth and a single surface heat-flow channel at 0 m. Expected
+    feature names are ``<temperature_prefix>_<depth>m`` (e.g. "t_1000m"),
+    ``<thermal_conductivity_prefix>_<depth>m`` (e.g. "k_1000m"), and ``q_0m``.
+    """
 
     LOSS_METRIC = MeanSquaredError()
 
@@ -857,18 +868,28 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         heat_flux_prefix='q',
         thermal_conductivity_prefix='k',
     ):
-        """Initialize the loss with the generated t, q, and k features
+        """Initialize the conductive heat-transfer loss
 
         Parameters
         ----------
-        gen_features : list | str
-            List of generator output features used to compute the
-            three-dimensional conductive heat transfer loss. The
-            expected features are temperature, heat-flow, and thermal
-            conductivity channels named as ``t_<depth>m``,
-            ``q_<depth>m``, and ``k_<depth>m``. Depths are discovered
-            dynamically from this input and aligned by strict
-            intersection.
+        dx : float
+            Horizontal grid spacing along the x dimension in m.
+        dy : float
+            Horizontal grid spacing along the y dimension in m.
+        depths : iterable of int, optional
+            Depth levels in m used to assemble the temperature and thermal
+            conductivity feature channels. Depths must include 0 m and be
+            uniformly spaced so the vertical derivative can be evaluated.
+        temperature_prefix : str, optional
+            Prefix used for temperature channels in C. Expected feature names
+            are ``<temperature_prefix>_<depth>m``.
+        heat_flux_prefix : str, optional
+            Prefix used for heat-flow channels in mW/m^2. This loss requires
+            a surface heat-flow feature only, named
+            ``<heat_flux_prefix>_0m``.
+        thermal_conductivity_prefix : str, optional
+            Prefix used for thermal-conductivity channels in W/m-K. Expected
+            feature names are ``<thermal_conductivity_prefix>_<depth>m``.
         """
         self.t_inds, self.q_inds, self.k_inds = [], [], []
         self.dx, self.dy = dx, dy
@@ -910,7 +931,7 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         return depths, float(dz_steps[0])
 
     def _collect_gen_features(self, depths, tp, hfp, tcp):
-        """Collect the expected t, q, and k feature datasets + inds"""
+        """Collect expected temperature, heat-flow, and conductivity feats"""
         gen_features = []
         for depth in depths:
             self.t_inds.append(len(gen_features))
@@ -924,14 +945,19 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         return gen_features
 
     def _get_feature_tensors(self, x):
-        """Extract stacked temperature/heat-flow/conductivity tensors"""
+        """Extract temperature, surface heat-flow, and conductivity tensors"""
         t = tf.stack([x[..., i] for i in self.t_inds], axis=-1)
         q = tf.stack([x[..., i] for i in self.q_inds], axis=-1)
         k = tf.stack([x[..., i] for i in self.k_inds], axis=-1)
         return t, q, k
 
     def _compute_heat_transfer_residual(self, x):
-        """Compute heat transfer residual to be penalized towards zero"""
+        """Compute the conductive heat-transfer residual
+
+        Temperature is interpreted in C, thermal conductivity in W/m-K, and
+        heat flow in mW/m^2. Heat flow is converted internally to W/m^2 before
+        evaluating the residual.
+        """
         t, q, k = self._get_feature_tensors(x)
 
         t = _reshape_depth_feature_for_vertical_derivative(t)  # C
@@ -963,13 +989,16 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         return -qc + q + int_g
 
     def __call__(self, x_gen, __):
-        """
+        """Evaluate the conductive heat-transfer loss
 
         Parameters
         ----------
         x_gen : tf.tensor
-            Synthetic generator output used to compute heat transfer
-            residual. Shape must be either:
+            Synthetic generator output used to compute the conductive
+            heat-transfer residual. The feature axis must contain
+            temperature channels in C, thermal conductivity channels in
+            W/m-K, and a surface heat-flow channel in mW/m^2. Shape must be
+            either:
             (n_observations, spatial_1, spatial_2, features) or
             (n_observations, spatial_1, spatial_2, temporal, features)
         x_true : tf.tensor
@@ -994,22 +1023,24 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
 class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
     """Positive geothermal gradient loss
 
-    The expected feature is temperature, named as ``t_<depth>m``.
-    Depths are discovered dynamically from ``input_features``.
+    This loss penalizes negative vertical temperature gradients so predicted
+    temperature increases with depth. Temperature features are expected in C
+    and named ``<temperature_prefix>_<depth>m`` (e.g. "t_2000m").
     """
 
     LOSS_METRIC = MeanSquaredError()
 
     def __init__(self, depths=range(0, 8000, 1000), temperature_prefix='t'):
-        """Initialize the loss with the generated temperature feature
+        """Initialize the positive temperature-gradient loss
 
         Parameters
         ----------
-        gen_features : list | str
-            List of generator output features used to compute the
-            three-dimensional conductive heat transfer loss. The
-            expected feature is temperature, named as ``t_<depth>m``.
-            Depths are discovered dynamically from this input.
+        depths : iterable of int, optional
+            Depth levels in m used to assemble temperature channels.
+            At least two depths are required.
+        temperature_prefix : str, optional
+            Prefix used for temperature channels in C. Expected feature names
+            are ``<temperature_prefix>_<depth>m``.
         """
         self.t_inds = []
         depths = self._validate_depths(depths)
@@ -1035,7 +1066,12 @@ class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
         return depths
 
     def _compute_temperature_gradient(self, x):
-        """Compute temp gradient be penalized for being negative"""
+        """Compute temperature-gradient violations to penalize
+
+        Temperature is interpreted in C. The loss only depends on the sign of
+        the vertical temperature difference, so the finite difference is not
+        normalized by depth spacing.
+        """
         t = tf.stack([x[..., i] for i in self.t_inds], axis=-1)
         t = _reshape_depth_feature_for_vertical_derivative(t)
 
@@ -1045,13 +1081,14 @@ class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
         return tf.math.maximum(-1 * dt, tf.constant([0.0], dt.dtype))
 
     def __call__(self, x_gen, __):
-        """
+        """Evaluate the positive temperature-gradient loss
 
         Parameters
         ----------
         x_gen : tf.tensor
-            Synthetic generator output used to compute heat transfer
-            residual. Shape must be either:
+            Synthetic generator output used to compute vertical temperature
+            gradients. The feature axis must contain temperature channels in
+            C. Shape must be either:
             (n_observations, spatial_1, spatial_2, features) or
             (n_observations, spatial_1, spatial_2, temporal, features)
         x_true : tf.tensor
@@ -1077,8 +1114,9 @@ class GeothermalMohoBCLoss(Sup3rLoss):
     """Heat flow across Moho layer boundary condition loss
 
     This loss helps satisfy the condition that the predicted heat flow
-    across depths is greater than the minimum heat flow at the Moho
-    layer.
+    is greater than or equal to the minimum heat flow implied at the Moho
+    layer. Predicted heat-flow features are expected in mW/m^2 and the Moho
+    temperature-gradient input is expected in C/km.
     """
 
     LOSS_METRIC = MeanSquaredError()
@@ -1089,15 +1127,16 @@ class GeothermalMohoBCLoss(Sup3rLoss):
         moho_gradient_layer='gg_mantle_60km',
         upper_mantle_thermal_conductivity=4.0,
     ):
-        """Initialize the loss with the appropriate features
+        """Initialize the Moho boundary-condition loss.
 
         Parameters
         ----------
-        gen_features : list | str
-            List of generator output features used to compute the
-            three-dimensional conductive heat transfer loss. The
-            expected feature is temperature, named as ``t_<depth>m``.
-            Depths are discovered dynamically from this input.
+        heat_flow_features : iterable of str
+            Names of predicted heat-flow features in mW/m^2.
+        moho_gradient_layer : str, optional
+            Name of the true-data Moho temperature-gradient layer in C/km.
+        upper_mantle_thermal_conductivity : float, optional
+            Upper-mantle thermal conductivity in W/m-K.
         """
         self.lambda_um = upper_mantle_thermal_conductivity
         super().__init__(
@@ -1106,17 +1145,17 @@ class GeothermalMohoBCLoss(Sup3rLoss):
         )
 
     def __call__(self, x_gen, x_moho):
-        """
+        """Evaluate the Moho heat-flow boundary-condition loss
 
         Parameters
         ----------
         x_gen : tf.tensor
-            Synthetic generator output of heat transfer values (mW/m^2).
+            Synthetic generator output of heat-flow values in mW/m^2.
             Shape must be either:
             (n_observations, spatial_1, spatial_2, features) or
             (n_observations, spatial_1, spatial_2, temporal, features)
         x_true : tf.tensor
-            Temperature gradient over Moho layer (K/km).
+            Moho temperature gradient in C/km.
 
         Returns
         -------
@@ -1135,12 +1174,23 @@ class GeothermalMohoBCLoss(Sup3rLoss):
 
 
 class GeothermalObsLoss(Sup3rLoss):
-    """Geothermal loss for observed quantities"""
+    """Masked loss for geothermal observed quantities
+
+    This loss compares predicted geothermal channels against observed targets
+    while ignoring missing observations. Units are inherited from the paired
+    features, such as temperature in C, thermal conductivity in W/m-K, and
+    heat flow in mW/m^2.
+    """
 
     LOSS_METRIC = MeanAbsoluteError()
 
     def __call__(self, x1, x2):
-        """Geothermal observed quantity loss"""
+        """Evaluate the masked geothermal observation loss
+
+        The feature dimensions of ``x1`` and ``x2`` must align with the
+        configured generated and true features. Observed values may contain
+        NaNs, which are ignored when computing the loss.
+        """
         check = x1.shape[-1] == len(self.gen_features)
         check &= x2.shape[-1] == len(self.true_features)
         msg = (
