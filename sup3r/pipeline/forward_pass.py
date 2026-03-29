@@ -478,6 +478,7 @@ class ForwardPass:
                     output_workers=strategy.output_workers,
                     invert_uv=strategy.invert_uv,
                     nn_fill=strategy.nn_fill,
+                    overwrite=(not strategy.incremental),
                     meta=fwp.meta,
                 )
                 logger.info(
@@ -536,6 +537,8 @@ class ForwardPass:
                         allowed_const=strategy.allowed_const,
                         output_workers=strategy.output_workers,
                         invert_uv=strategy.invert_uv,
+                        nn_fill=strategy.nn_fill,
+                        overwrite=(not strategy.incremental),
                         meta=fwp.meta,
                     )
                     futures[fut] = {
@@ -590,6 +593,7 @@ class ForwardPass:
         meta=None,
         nn_fill=True,
         output_workers=None,
+        overwrite=False,
     ):
         """Run a forward pass on single spatiotemporal chunk.
 
@@ -627,6 +631,10 @@ class ForwardPass:
             Meta data to write to forward pass output file.
         output_workers : int | None
             Max number of workers to use for writing forward pass output.
+        overwrite : bool
+            Whether to overwrite existing output file or skip writing if file
+            already exists. Default is False to avoid accidentally overwriting
+            files.
 
         Returns
         -------
@@ -679,5 +687,6 @@ class ForwardPass:
                 nn_fill=nn_fill,
                 max_workers=output_workers,
                 gids=chunk.gids,
+                overwrite=overwrite,
             )
         return failed, output_data
