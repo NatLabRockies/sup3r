@@ -60,9 +60,9 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             tf.keras.losses.MeanSquaredError. As a dictionary this can
             include multiple loss function classes, each with
             dictionaries of kwargs for that function. Can also include a
-            key ``term_weights``, which provides a list of weights for
-            each loss function. e.g. ``{'SpatialExtremesLoss': {},
-            'MeanAbsoluteError': {}, 'term_weights': [0.8, 0.2]}``
+            key ``weight``, which provides a weight for each loss function.
+            e.g. ``{'SpatialExtremesLoss': {'weight': 0.6},
+            'MeanAbsoluteError': {'weight': 0.4}}``
         optimizer : tf.keras.optimizers.Optimizer | dict | None | str
             Instantiated tf.keras.optimizers object or a dict optimizer config
             from tf.keras.optimizers.get_config(). None defaults to Adam.
@@ -120,7 +120,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         self._meta = meta if meta is not None else {}
 
         self.loss_name = loss
-        self.loss_fun = self.get_loss_fun(loss)
 
         self._history = history
         if isinstance(self._history, str):
@@ -516,6 +515,8 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         loss_gen_s : tf.Tensor
             0D tensor generator model loss for the content loss comparing the
             hi res ground truth to the hi res synthetically generated output.
+        loss_details : dict
+            Namespace of the breakdown of loss components for the content loss
         """
         return self.loss_fun(hi_res_gen, hi_res_true)
 
@@ -744,7 +745,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 weight_gen_advers, n_epoch, epochs[0]
             )
         )
-
         for epoch in epochs:
             t_epoch = time.time()
             loss_details = self._train_epoch(

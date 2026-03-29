@@ -15,10 +15,10 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from gaps.config import load_config
+from phygnn import CustomNetwork
 from tensorflow.keras import optimizers
 
 import sup3r.utilities.loss_metrics
-from phygnn import CustomNetwork
 from sup3r.preprocessing.data_handlers import ExoData
 from sup3r.preprocessing.utilities import numpy_if_tensor
 from sup3r.utilities import VERSION_RECORD
@@ -42,7 +42,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         self.timer = Timer()
         self.name = None
         self.loss_name = None
-        self.loss_fun = None
+        self._loss_fun = None
         self._version_record = VERSION_RECORD
         self._meta = None
         self._history = None
@@ -499,6 +499,24 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         hr_gen = tf.gather(hi_res_gen, gen_inds, axis=-1)
         return hr_gen, hr_true
 
+    @property
+    def loss_fun(self):
+        """Get the model loss function.
+
+        Returns
+        -------
+        loss_fun : tf.keras.losses.Loss
+            Initialized loss function, possibly consisting of multiple
+            individual functions. This loss function returns a total loss value
+            and a dictionary of loss values for each loss term. For example, if
+            the loss funcion is a weighted sum of ``MeanAbsoluteError`` and
+            ``MeanSquaredError`` the dictionary will include entries for each
+            of these functions.
+        """
+        if self._loss_fun is None:
+            self._loss_fun = self.get_loss_fun(self.loss_name)
+        return self._loss_fun
+
     def get_loss_fun(self, loss):
         """Get full, possibly multi-term, loss function from the provided str
         or dictionary.
@@ -510,10 +528,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             (prioritized) or tensorflow.keras.losses or dictionary of loss
             function class names. As a dictionary this can include multiple
             loss function classes, each with dictionaries of kwargs for that
-            function. Can also include a key ``term_weights``, which provides a
-            list of weights for each loss function. e.g.
-            ``{'SpatialExtremesLoss': {}, 'MeanAbsoluteError': {},
-            'term_weights': [0.8, 0.2]}``
+            function. Can also include a ``weight`` key providing a weight for
+            each loss function. e.g.
+            ``{'SpatialExtremesLoss': {'weight': 0.8},
+               'MeanAbsoluteError': {'weight': 0.2}}``
 
         Returns
         -------
@@ -525,15 +543,18 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             ``MeanSquaredError`` the dictionary will include entries for each
             of these functions.
         """
-        loss = {loss: {}} if isinstance(loss, str) else loss
-        lns = [ln for ln in loss if ln != 'term_weights']
-        loss_funcs = [self._get_loss_fun({ln: loss[ln]}) for ln in lns]
-        weights = copy.deepcopy(loss).pop('term_weights', [1.0] * len(lns))
+        loss = {loss: {}} if isinstance(loss, str) else copy.deepcopy(loss)
+        weights = {k: v.pop('weight', 1.0) for k, v in loss.items()}
+        loss_funcs = {ln: self._get_loss_fun({ln: loss[ln]}) for ln in loss}
+        logger.info(
+            'Using the following loss functions with weights: %s',
+            weights,
+        )
 
-        def loss_fun(hi_res_gen, hi_res_true):
+        def _loss_fun(hi_res_gen, hi_res_true):
             loss_details = {}
             loss = 0
-            for i, (ln, loss_func) in enumerate(zip(lns, loss_funcs)):
+            for i, (ln, loss_func) in enumerate(loss_funcs.items()):
                 hr_gen, hr_true = self._get_loss_inputs(
                     hi_res_gen, hi_res_true, loss_func
                 )
@@ -548,10 +569,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                         f'true tensor of shape {hi_res_true.shape}'
                     ),
                 )
-                loss += weights[i] * val
+                loss += weights[ln] * val
             return loss, loss_details
 
-        return loss_fun
+        return _loss_fun
 
     @staticmethod
     def _get_loss_fun(loss):
@@ -1224,20 +1245,20 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """
         hi_res = self.generator.layers[0](low_res)
         layer_num = 1
-        try:
-            for i, layer in enumerate(self.generator.layers[1:]):
+        for i, layer in enumerate(self.generator.layers[1:]):
+            try:
                 layer_num = i + 1
                 if isinstance(layer, SUP3R_LAYERS):
                     hi_res = self._run_exo_layer(layer, hi_res, hi_res_exo)
                 else:
                     hi_res = layer(hi_res)
-        except Exception as e:
-            msg = (
-                f'Could not run layer #{layer_num} "{layer}" on tensor '
-                f'of shape {hi_res.shape}'
-            )
-            logger.error(msg)
-            raise RuntimeError(msg) from e
+            except Exception as e:
+                msg = (
+                    f'Could not run layer #{layer_num} "{layer}" on tensor '
+                    f'of shape {hi_res.shape}'
+                )
+                logger.error(msg)
+                raise RuntimeError(msg) from e
 
         return hi_res
 

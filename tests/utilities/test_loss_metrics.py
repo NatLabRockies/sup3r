@@ -318,10 +318,10 @@ def test_multiterm_loss():
     multi_loss = model.get_loss_fun(
         {
             'MaterialDerivativeLoss': {
-                'gen_features': ['u_100m', 'v_100m', 'temp_100m']
+                'weight': 0.2,
+                'gen_features': ['u_100m', 'v_100m', 'temp_100m'],
             },
-            'MeanAbsoluteError': {},
-            'term_weights': [0.2, 0.8],
+            'MeanAbsoluteError': {'weight': 0.8},
         }
     )
     loss, _ = multi_loss(x, y)
