@@ -1,18 +1,14 @@
 """Utilities shared across the `sup3r.models` module"""
 
+import inspect
 import logging
 import os
 import sys
 import threading
 
 import numpy as np
+import phygnn.layers.custom_layers as _phygnn_layers
 import tensorflow as tf
-from phygnn.layers.custom_layers import (
-    Sup3rAdder,
-    Sup3rConcat,
-    Sup3rConcatObs,
-    Sup3rObsModel,
-)
 from scipy.interpolate import RegularGridInterpolator
 from tensorflow.keras import optimizers
 
@@ -20,12 +16,24 @@ from sup3r.utilities.utilities import Timer
 
 logger = logging.getLogger(__name__)
 
-SUP3R_LAYERS = (
-    Sup3rObsModel,
-    Sup3rConcatObs,
-    Sup3rAdder,
-    Sup3rConcat,
-)
+
+def get_sup3r_layers():
+    """Get all classes from phygnn.layers.custom_layers whose names start
+    with 'Sup3r'.
+
+    Returns
+    -------
+    tuple
+        Tuple of all Sup3r* layer classes from phygnn.layers.custom_layers.
+    """
+    return tuple(
+        obj
+        for name, obj in inspect.getmembers(_phygnn_layers, inspect.isclass)
+        if name.startswith('Sup3r')
+    )
+
+
+SUP3R_LAYERS = get_sup3r_layers()
 
 
 class TrainingSession:
