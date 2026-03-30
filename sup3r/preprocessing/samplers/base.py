@@ -279,6 +279,14 @@ class Sampler(Container):
                 f'All non-obs hr_exo_features {feats} must be in the data '
                 f'features {self.data.features} when using proxy observations.'
             )
+            assert all(
+                f.replace('_obs', '') in lowered(self.data.features)
+                for f in self.obs_features
+            ), (
+                f'All obs features {self.obs_features} must have a '
+                'corresponding source feature in the data features '
+                f'{self.data.features} when using proxy observations.'
+            )
 
     @property
     def sample_shape(self) -> tuple:
