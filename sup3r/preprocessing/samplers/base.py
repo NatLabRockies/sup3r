@@ -85,7 +85,7 @@ class Sampler(Container):
             ``offshore_obs_frac`` which specify the fraction of the batch that
             should be treated as onshore and offshore observations,
             respectively. For example, ``proxy_obs_kwargs={'onshore_obs_frac':
-            {'spatial': 0.1, 'temporal': 0.2}, 'offshore_obs_frac': {'spatial':
+            {'spatial': 0.1, 'time': 0.2}, 'offshore_obs_frac': {'spatial':
             0.05, 'time': 0.1}}`` would specify that for the onshore region
             observations cover 10% of the spatial domain and 20% of the
             temporal domain, while for the offshore region observations cover
