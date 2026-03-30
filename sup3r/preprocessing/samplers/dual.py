@@ -58,8 +58,8 @@ class DualSampler(Sampler):
             hr_out_features : list | tuple
                 List of feature names or patt*erns that should be output
                 by the generative model and available as ground truth targets.
-                If no entry is provided then all features in lr_features will
-                be used.
+                If no entry is provided then all features in the high res data
+                will be used.
             hr_exo_features : list | tuple
                 List of feature names or patt*erns that should be available
                 as high-resolution model inputs (like topography or
