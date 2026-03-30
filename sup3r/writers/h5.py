@@ -4,6 +4,7 @@ TODO: Remove redundant code re. Cachers
 """
 
 import logging
+import os
 
 import numpy as np
 import pandas as pd
@@ -31,6 +32,7 @@ class OutputHandlerH5(OutputHandler):
         row_inds=None,
         col_inds=None,
         gids=None,
+        overwrite=False,
     ):
         """Write forward pass output to H5 file
 
@@ -70,7 +72,17 @@ class OutputHandlerH5(OutputHandler):
         gids : list
             List of coordinate indices used to label each lat lon pair and to
             help with spatial chunk data collection
+        overwrite : bool
+            Whether to overwrite existing output file or skip writing if file
+            already exists. Default is False to avoid accidentally overwriting
+            files.
         """
+        if overwrite and os.path.exists(out_file):
+            logger.warning(f'Overwriting existing file at {out_file}.')
+            os.remove(out_file)
+        elif os.path.exists(out_file):
+            logger.info(f'File already exists at {out_file}. Skipping write.')
+            return
         msg = (
             f'Output data shape ({data.shape}) and lat_lon shape '
             f'({lat_lon.shape}) conflict.'

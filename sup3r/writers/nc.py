@@ -33,6 +33,7 @@ class OutputHandlerNC(OutputHandler):
         row_inds=None,
         col_inds=None,
         gids=None,
+        overwrite=False,
     ):
         """Write forward pass output to NETCDF file
 
@@ -72,6 +73,10 @@ class OutputHandlerNC(OutputHandler):
         gids : list
             List of coordinate indices used to label each lat lon pair and to
             help with spatial chunk data collection
+        overwrite : bool
+            Whether to overwrite existing output file or skip writing if file
+            already exists. Default is False to avoid accidentally overwriting
+            files.
         """
         data, features = cls._transform_output(
             data=data,
@@ -110,4 +115,5 @@ class OutputHandlerNC(OutputHandler):
             data=ds,
             features=list(data_vars.keys()),
             max_workers=max_workers,
+            overwrite=overwrite,
         )
