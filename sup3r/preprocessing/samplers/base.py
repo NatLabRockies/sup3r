@@ -67,14 +67,15 @@ class Sampler(Container):
                 If no entry is provided then all features in lr_features will
                 be used.
             hr_exo_features : list | tuple
-                List of feature names or patt*erns that should be available
-                as high-resolution model inputs (like topography or
-                observations). These are injected into the model mid-network
-                to condition output on high-resolution information. The model
-                configuration should have the appropriate layers to use these
-                features. e.g. ``Sup3rConcat`` for topography injection,
-                ``Sup3rObsModel`` or ``Sup3rCrossAttention`` for obs injection.
-                If no entry is provided then hr_exo_features will be empty.
+                List of feature names or patt*erns that should be available as
+                high-resolution model inputs (like topography or observations)
+                or for bespoke loss functions. Features used as inputs are
+                injected into the model mid-network to condition output on
+                high-resolution information. The model configuration should
+                have the appropriate layers to use these features. e.g.
+                ``Sup3rConcat`` for topography injection, ``Sup3rObsModel`` or
+                ``Sup3rCrossAttention`` for obs injection.  If no entry is
+                provided then hr_exo_features will be empty.
 
             *To include sparse features as inputs or targets the features
             must have an "_obs" suffix.
@@ -85,8 +86,8 @@ class Sampler(Container):
             ``offshore_obs_frac`` which specify the fraction of the batch that
             should be treated as onshore and offshore observations,
             respectively. For example, ``proxy_obs_kwargs={'onshore_obs_frac':
-            {'spatial': 0.1, 'time': 0.2}, 'offshore_obs_frac': {'spatial':
-            0.05, 'time': 0.1}}`` would specify that for the onshore region
+            {'spatial': 0.1, 'temporal': 0.2}, 'offshore_obs_frac': {'spatial':
+            0.05, 'temporal': 0.1}}`` would specify that for the onshore region
             observations cover 10% of the spatial domain and 20% of the
             temporal domain, while for the offshore region observations cover
             5% of the spatial domain and 10% of the temporal domain. Instead of
@@ -605,12 +606,12 @@ class Sampler(Container):
         return [self.hr_source_features.index(f) for f in check_feats]
 
     def _get_obs_mask(self, hi_res, spatial_frac, time_frac=1.0):
-        """Get observation mask for a given spatial and temporal obs
-        fraction for an entire batch. This is divided between spatial and
-        temporal fractions because often the spatial fraction is significantly
-        lower than the temporal fraction in practice, e.g. for a given spatial
-        location there might be observations for most of the time period but
-        only a small fraction of the spatial domain is observed.
+        """Get observation mask for a given spatial and time obs fraction for
+        an entire batch. This is divided between spatial and time fractions
+        because often the spatial fraction is significantly lower than the time
+        fraction in practice, e.g. for a given spatial location there might be
+        observations for most of the time period but only a small fraction of
+        the spatial domain is observed.
 
         Parameters
         ----------
@@ -618,12 +619,12 @@ class Sampler(Container):
             True high resolution data for the entire batch.
         spatial_frac : float | list
             Fraction of the spatial domain that should be treated as
-            observations. This is a value between 0 and 1 or a list with
-            lower and upper bounds for the spatial fraction.
+            observations. This is a value between 0 and 1 or a list with lower
+            and upper bounds for the spatial fraction.
         time_frac : float | list, optional
-            Fraction of the temporal domain that should be treated as
-            observations. This is a value between 0 and 1 or a list with
-            lower and upper bounds for the temporal fraction. Default is 1.0
+            Fraction of the time domain that should be treated as observations.
+            This is a value between 0 and 1 or a list with lower and upper
+            bounds for the time fraction. Default is 1.0
 
         Returns
         -------
@@ -677,13 +678,13 @@ class Sampler(Container):
         onshore and offshore masks. This is because there is often more
         observation data available onshore than offshore."""
         on_sf = self.onshore_obs_frac.get('spatial', 0.0)
-        on_tf = self.onshore_obs_frac.get('time', 1.0)
+        on_tf = self.onshore_obs_frac.get('temporal', 1.0)
         obs_mask = self._get_obs_mask(hi_res, on_sf, on_tf)
         if 'topography' in self.hr_source_features and self.offshore_obs_frac:
             topo_idx = self.hr_source_features.index('topography')
             topo = hi_res[..., topo_idx]
             off_sf = self.offshore_obs_frac.get('spatial', 0.0)
-            off_tf = self.offshore_obs_frac.get('time', 1.0)
+            off_tf = self.offshore_obs_frac.get('temporal', 1.0)
             offshore_mask = self._get_obs_mask(hi_res, off_sf, off_tf)
             obs_mask = np.where(topo[..., None] > 0, obs_mask, offshore_mask)
         return obs_mask

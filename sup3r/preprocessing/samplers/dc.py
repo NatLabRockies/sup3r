@@ -69,14 +69,16 @@ class SamplerDC(Sampler):
                 If no entry is provided then all features in lr_features will
                 be used.
             hr_exo_features : list | tuple
-                List of feature names or patt*erns that should be available
-                as high-resolution model inputs (like topography or
-                observations). These are injected into the model mid-network
-                to condition output on high-resolution information. The model
-                configuration should have the appropriate layers to use these
-                features. e.g. ``Sup3rConcat`` for topography injection,
-                ``Sup3rObsModel`` or ``Sup3rCrossAttention`` for obs injection.
-                If no entry is provided then hr_exo_features will be empty.
+                List of feature names or patt*erns that should be available as
+                high-resolution model inputs (like topography or observations)
+                or for bespoke loss functions. Features used as inputs are
+                injected into the model mid-network to condition output on
+                high-resolution information. The model configuration should
+                have the appropriate layers to use these features. e.g.
+                ``Sup3rConcat`` for topography injection, ``Sup3rObsModel`` or
+                ``Sup3rCrossAttention`` for obs injection.  If no entry is
+                provided then hr_exo_features will be empty.
+
 
             *To include sparse features as inputs or targets the features
             must have an "_obs" suffix.

@@ -66,8 +66,8 @@ def _get_hr_batch(sampler):
 @pytest.mark.parametrize(
     'sample_shape, obs_fracs, expected',
     [
-        ((30, 30, 1), {'spatial': 0.4, 'time': 1.0}, 0.4),
-        ((30, 30, 12), {'spatial': 0.4, 'time': 0.5}, 0.2),
+        ((30, 30, 1), {'spatial': 0.4, 'temporal': 1.0}, 0.4),
+        ((30, 30, 12), {'spatial': 0.4, 'temporal': 0.5}, 0.2),
     ],
 )
 def test_proxy_obs_appended_and_fraction(
@@ -104,7 +104,7 @@ def test_proxy_obs_fraction_bounds_with_ranges(sampler_cls):
         sample_shape=(40, 40, 20),
         batch_size=8,
         proxy_obs_kwargs={
-            'onshore_obs_frac': {'spatial': s_range, 'time': t_range}
+            'onshore_obs_frac': {'spatial': s_range, 'temporal': t_range}
         },
     )
 
@@ -127,8 +127,8 @@ def test_proxy_obs_onshore_offshore_topography_fractions(sampler_cls):
         sample_shape=(40, 40, 12),
         batch_size=8,
         proxy_obs_kwargs={
-            'onshore_obs_frac': {'spatial': 0.8, 'time': 1.0},
-            'offshore_obs_frac': {'spatial': 0.1, 'time': 1.0},
+            'onshore_obs_frac': {'spatial': 0.8, 'temporal': 1.0},
+            'offshore_obs_frac': {'spatial': 0.1, 'temporal': 1.0},
         },
         hr_features=[*LR_FEATURES, 'topography'],
     )

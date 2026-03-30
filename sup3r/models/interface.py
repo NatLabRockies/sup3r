@@ -9,8 +9,8 @@ from abc import ABC, abstractmethod
 from warnings import warn
 
 import numpy as np
-
 from phygnn import CustomNetwork
+
 from sup3r.preprocessing.data_handlers import ExoData
 from sup3r.utilities import VERSION_RECORD
 from sup3r.utilities.utilities import safe_cast
@@ -215,10 +215,10 @@ class AbstractInterface(ABC):
                         else layer.exo_features
                     )
                     features.extend(feats + exo_feats)
-        if set(self.hr_exo_features) != set(features):
+        if not all(f in self.hr_exo_features for f in features):
             msg = (
                 f'Specified hr_exo_features {self.hr_exo_features} does not '
-                f'match features {features} found in model layers.'
+                f'include all features {features} found in model layers.'
             )
             logger.error(msg)
             raise RuntimeError(msg)

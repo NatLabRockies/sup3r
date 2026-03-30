@@ -63,12 +63,13 @@ class DualSampler(Sampler):
             hr_exo_features : list | tuple
                 List of feature names or patt*erns that should be available
                 as high-resolution model inputs (like topography or
-                observations). These are injected into the model mid-network
-                to condition output on high-resolution information. The model
-                configuration should have the appropriate layers to use these
-                features. e.g. ``Sup3rConcat`` for topography injection,
-                ``Sup3rObsModel`` or ``Sup3rCrossAttention`` for obs injection.
-                If no entry is provided then hr_exo_features will be empty.
+                observations) or bespoke loss functions. Features used for
+                input are injected into the model mid-network to condition
+                output on high-resolution information. The model configuration
+                should have the appropriate layers to use these features. e.g.
+                ``Sup3rConcat`` for topography injection, ``Sup3rObsModel`` or
+                ``Sup3rCrossAttention`` for obs injection.  If no entry is
+                provided then hr_exo_features will be empty.
 
             *To include sparse features as inputs or targets the features
             must have an "_obs" suffix.
@@ -78,16 +79,16 @@ class DualSampler(Sampler):
             observations. Keys can include ``onshore_obs_frac`` and
             ``offshore_obs_frac`` which specify the fraction of the batch that
             should be treated as onshore and offshore observations,
-            respectively. For example, ``proxy_obs_kwargs={ 'onshore_obs_frac':
-            { 'spatial': 0.1, 'temporal': 0.2}, 'offshore_obs_frac': {
-            'spatial': 0.05, 'temporal': 0.1} }`` would specify that for the
-            onshore region observations cover 10% of the spatial domain and 20%
-            of the temporal domain, while for the offshore region observations
-            cover 5% of the spatial domain and 10% of the temporal domain.
-            Instead of a single float, these can also be lists to specify a
-            lower and upper bound for the spatial and temporal fractions, in
-            which case the actual fraction for each batch will be sampled
-            uniformly between these bounds.
+            respectively. For example, ``proxy_obs_kwargs={'onshore_obs_frac':
+            {'spatial': 0.1, 'temporal': 0.2}, 'offshore_obs_frac': {'spatial':
+            0.05, 'temporal': 0.1}}`` would specify that for the onshore region
+            observations cover 10% of the spatial domain and 20% of the
+            temporal domain, while for the offshore region observations cover
+            5% of the spatial domain and 10% of the temporal domain. Instead of
+            a single float, these can also be lists to specify a lower and
+            upper bound for the spatial and temporal fractions, in which case
+            the actual fraction for each batch will be sampled uniformly
+            between these bounds.
         mode : str
             Mode for sampling data. Options are 'lazy' or 'eager'. 'eager' mode
             pre-loads all data into memory as numpy arrays for faster access.
