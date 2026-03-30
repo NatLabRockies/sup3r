@@ -535,13 +535,14 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         Returns
         -------
-        loss_func : tf.keras.losses.Loss
-            Initialized loss function, possibly consisting of multiple
-            individual functions. This loss function returns a total loss value
-            and a dictionary of loss values for each loss term. For example, if
-            the loss funcion is a weighted sum of ``MeanAbsoluteError`` and
-            ``MeanSquaredError`` the dictionary will include entries for each
-            of these functions.
+        _loss_func : Callable
+            Callable loss function that takes in (hi_res_gen, hi_res_true)
+            and returns a tuple of (total_loss, loss_details) where total_loss
+            is a scalar tensor and loss_details is a dictionary with entries
+            for each individual loss term, e.g. 'spatial_extremes_loss' and
+            'mean_absolute_error' in the above example. The total_loss is a
+            weighted sum of the individual loss terms according to the weights
+            provided in the input dictionary.
         """
         loss = {loss: {}} if isinstance(loss, str) else copy.deepcopy(loss)
         weights = {k: v.pop('weight', 1.0) for k, v in loss.items()}
