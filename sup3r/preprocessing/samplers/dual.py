@@ -6,7 +6,7 @@ import logging
 from typing import Optional
 
 from sup3r.preprocessing.base import Sup3rDataset
-from sup3r.utilities import Timer
+from sup3r.utilities.utilities import Timer
 
 from .base import Sampler
 from .utilities import uniform_box_sampler, uniform_time_sampler
