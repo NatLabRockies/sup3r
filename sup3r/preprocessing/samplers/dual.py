@@ -6,6 +6,7 @@ import logging
 from typing import Optional
 
 from sup3r.preprocessing.base import Sup3rDataset
+from sup3r.utilities import Timer
 
 from .base import Sampler
 from .utilities import uniform_box_sampler, uniform_time_sampler
@@ -103,6 +104,7 @@ class DualSampler(Sampler):
         )
         assert check, msg
 
+        self.timer = Timer()
         self.data = data
         feature_sets = feature_sets or {}
         self._lr_features = feature_sets.get(

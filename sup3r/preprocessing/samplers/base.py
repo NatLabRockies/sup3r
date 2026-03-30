@@ -129,7 +129,7 @@ class Sampler(Container):
     def onshore_obs_frac(self):
         """Fraction of onshore observations to include in each batch when using
         proxy observations. This can be a single float or a dictionary with
-        keys 'spatial' and 'temporal' to specify the fraction for each domain.
+        keys 'spatial' and 'time' to specify the fraction for each domain.
         If a dictionary is provided, the actual fraction for each batch will be
         sampled uniformly between the specified spatial and temporal fractions.
         """
@@ -139,7 +139,7 @@ class Sampler(Container):
     def offshore_obs_frac(self):
         """Fraction of offshore observations to include in each batch when
         using proxy observations. This can be a single float or a dictionary
-        with keys 'spatial' and 'temporal' to specify the fraction for each
+        with keys 'spatial' and 'time' to specify the fraction for each
         domain.  If a dictionary is provided, the actual fraction for each
         batch will be sampled uniformly between the specified spatial and
         temporal fractions.
