@@ -242,7 +242,7 @@ def test_dual_feature_sets(lr_features, hr_exo_features, hr_out_features):
                 'dewpoint_temperature',
                 'topography',
             ],
-            ['topography', 'u_100m_obs', 'v_100m_obs'],
+            ['topography', 'u_100m_obs', 'u_200m_obs'],
             ['u_10m', 'u_100m', 'u_200m', 'u_80m', 'u_120m', 'u_140m'],
         ),
         (
@@ -259,7 +259,7 @@ def test_dual_feature_sets(lr_features, hr_exo_features, hr_out_features):
                 'topography',
                 'srl',
             ],
-            ['topography', 'srl', 'u_100m_obs', 'v_100m_obs'],
+            ['topography', 'srl', 'u_100m_obs', 'u_200m_obs'],
             ['u_10m', 'u_100m', 'u_200m', 'u_80m', 'u_120m', 'u_140m'],
         ),
         (
@@ -288,7 +288,7 @@ def test_dual_feature_sets(lr_features, hr_exo_features, hr_out_features):
                 'topography',
                 'srl',
             ],
-            ['topography', 'srl', 'u_100m_obs', 'v_100m_obs'],
+            ['topography', 'srl', 'u_100m_obs', 'u_200m_obs'],
             ['u_10m', 'u_100m', 'u_200m', 'u_80m', 'u_120m', 'u_140m'],
         ),
     ],
