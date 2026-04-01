@@ -47,7 +47,7 @@ def test_sampler_feature_sets(lr_features, hr_exo_features, hr_out_features):
     error."""
     feats = set(lr_features) | set(hr_exo_features) | set(hr_out_features)
     sampler = Sampler(
-        DummyData(data_shape=(20, 20, 10), features=feats),
+        DummyData(data_shape=(20, 20, 10), features=sorted(feats)),
         sample_shape=(5, 5, 4),
         feature_sets={
             'lr_features': lr_features,

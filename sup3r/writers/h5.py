@@ -77,12 +77,14 @@ class OutputHandlerH5(OutputHandler):
             already exists. Default is False to avoid accidentally overwriting
             files.
         """
-        if overwrite and os.path.exists(out_file):
-            logger.warning(f'Overwriting existing file at {out_file}.')
-            os.remove(out_file)
-        elif os.path.exists(out_file):
-            logger.info(f'File already exists at {out_file}. Skipping write.')
-            return
+        if os.path.exists(out_file):
+            if overwrite:
+                logger.warning(f'Overwriting existing file at {out_file}.')
+            else:
+                logger.info(
+                    f'File already exists at {out_file}. Skipping write.'
+                )
+                return
         msg = (
             f'Output data shape ({data.shape}) and lat_lon shape '
             f'({lat_lon.shape}) conflict.'
