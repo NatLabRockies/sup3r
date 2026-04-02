@@ -7,7 +7,6 @@ import time
 
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 from tensorflow.keras import optimizers
 
 from sup3r.utilities import VERSION_RECORD
@@ -217,30 +216,6 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         """
         return self.generator_weights
 
-    @tf.function
-    def calc_loss_cond_mom(self, output_true, output_gen, mask):
-        """Calculate the loss of the moment predictor
-
-        Parameters
-        ----------
-        output_true : tf.Tensor
-            True realization output
-        output_gen : tf.Tensor
-            Predicted realization output
-        mask : tf.Tensor
-            Mask to apply
-
-        Returns
-        -------
-        loss : tf.Tensor
-            0D tensor representing the loss value for the
-            moment predictor
-        loss_details : dict
-            Namespace of the breakdown of loss components
-        """
-
-        return self.loss_fun(output_gen * mask, output_true * mask)
-
     def calc_loss(self, output_true, output_gen, mask):
         """Calculate the total moment predictor loss
 
@@ -275,8 +250,8 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
             logger.error(msg)
             raise RuntimeError(msg)
 
-        loss, loss_details = self.calc_loss_cond_mom(
-            output_true, output_gen, mask
+        loss, loss_details = self.calc_loss_gen_content(
+            output_true * mask, output_gen * mask
         )
 
         loss_details.update({'loss_gen': loss})

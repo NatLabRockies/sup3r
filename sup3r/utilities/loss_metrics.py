@@ -88,16 +88,16 @@ def tf_derivative(x, axis=1):
     raise ValueError(msg)
 
 
-def gaussian_kernel(x1, x2, sigma=1.0):
+def gaussian_kernel(x_true, x_gen, sigma=1.0):
     """Gaussian kernel for mmd content loss
 
     Parameters
     ----------
-    x1 : tf.tensor
-        synthetic generator output
+    x_true : tf.tensor
+        high resolution ground truth data
         (n_obs, spatial_1, spatial_2, temporal, features)
-    x2 : tf.tensor
-        high resolution data
+    x_gen : tf.tensor
+        synthetic generator output
         (n_obs, spatial_1, spatial_2, temporal, features)
     sigma : float
         Standard deviation for gaussian kernel
@@ -118,7 +118,7 @@ def gaussian_kernel(x1, x2, sigma=1.0):
     # observation along axis=0.
     result = tf.exp(
         -0.5
-        * tf.reduce_sum((tf.expand_dims(x1, axis=1) - x2) ** 2, axis=-1)
+        * tf.reduce_sum((tf.expand_dims(x_true, axis=1) - x_gen) ** 2, axis=-1)
         / sigma**2
     )
     return result
@@ -127,16 +127,16 @@ def gaussian_kernel(x1, x2, sigma=1.0):
 class ExpLoss(Sup3rLoss):
     """Loss class for squared exponential difference"""
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Exponential difference loss function
 
         Parameters
         ----------
-        x1 : tf.tensor
-            synthetic generator output
+        x_true : tf.tensor
+            high resolution ground truth data
             (n_observations, spatial_1, spatial_2, temporal, features)
-        x2 : tf.tensor
-            high resolution data
+        x_gen : tf.tensor
+            synthetic generator output
             (n_observations, spatial_1, spatial_2, temporal, features)
 
         Returns
@@ -144,23 +144,23 @@ class ExpLoss(Sup3rLoss):
         tf.tensor
             0D tensor with loss value
         """
-        return tf.reduce_mean(1 - tf.exp(-((x1 - x2) ** 2)))
+        return tf.reduce_mean(1 - tf.exp(-((x_true - x_gen) ** 2)))
 
 
 class MmdLoss(Sup3rLoss):
     """Loss class for max mean discrepancy loss"""
 
-    def __call__(self, x1, x2, sigma=1.0):
+    def __call__(self, x_true, x_gen, sigma=1.0):
         """Maximum mean discrepancy (MMD) based on Gaussian kernel function
         for keras models
 
         Parameters
         ----------
-        x1 : tf.tensor
-            synthetic generator output
+        x_true : tf.tensor
+            high resolution ground truth data
             (n_observations, spatial_1, spatial_2, temporal, features)
-        x2 : tf.tensor
-            high resolution data
+        x_gen : tf.tensor
+            synthetic generator output
             (n_observations, spatial_1, spatial_2, temporal, features)
         sigma : float
             standard deviation for gaussian kernel
@@ -170,9 +170,9 @@ class MmdLoss(Sup3rLoss):
         tf.tensor
             0D tensor with loss value
         """
-        mmd = tf.reduce_mean(gaussian_kernel(x1, x1, sigma))
-        mmd += tf.reduce_mean(gaussian_kernel(x2, x2, sigma))
-        mmd -= tf.reduce_mean(2 * gaussian_kernel(x1, x2, sigma))
+        mmd = tf.reduce_mean(gaussian_kernel(x_true, x_true, sigma))
+        mmd += tf.reduce_mean(gaussian_kernel(x_gen, x_gen, sigma))
+        mmd -= tf.reduce_mean(2 * gaussian_kernel(x_true, x_gen, sigma))
         return mmd
 
 
@@ -181,16 +181,16 @@ class SpatialDerivativeLoss(Sup3rLoss):
 
     LOSS_METRIC = MeanAbsoluteError()
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Custom content loss that encourages accuracy of spatial derivatives
 
         Parameters
         ----------
-        x1 : tf.tensor
-            synthetic generator output
+        x_true : tf.tensor
+            high resolution ground truth data
             (n_observations, spatial_1, spatial_2, temporal, features)
-        x2 : tf.tensor
-            high resolution data
+        x_gen : tf.tensor
+            synthetic generator output
             (n_observations, spatial_1, spatial_2, temporal, features)
 
         Returns
@@ -203,12 +203,14 @@ class SpatialDerivativeLoss(Sup3rLoss):
             'spatiotemporal data only. Received tensor(s) that are not at '
             'least 4D'
         )
-        assert len(x1.shape) >= 4 and len(x2.shape) >= 4, msg
+        assert len(x_true.shape) >= 4 and len(x_gen.shape) >= 4, msg
 
-        x1_div = tf_derivative(x1, axis=1) + tf_derivative(x1, axis=2)
-        x2_div = tf_derivative(x2, axis=1) + tf_derivative(x2, axis=2)
+        x_true_div = tf_derivative(x_true, axis=1) + tf_derivative(
+            x_true, axis=2
+        )
+        x_gen_div = tf_derivative(x_gen, axis=1) + tf_derivative(x_gen, axis=2)
 
-        return self.LOSS_METRIC(x1_div, x2_div)
+        return self.LOSS_METRIC(x_true_div, x_gen_div)
 
 
 class TemporalDerivativeLoss(Sup3rLoss):
@@ -216,16 +218,16 @@ class TemporalDerivativeLoss(Sup3rLoss):
 
     LOSS_METRIC = MeanAbsoluteError()
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Custom content loss that encourages accuracy of temporal derivative
 
         Parameters
         ----------
-        x1 : tf.tensor
-            synthetic generator output
+        x_true : tf.tensor
+            high resolution ground truth data
             (n_observations, spatial_1, spatial_2, temporal, features)
-        x2 : tf.tensor
-            high resolution data
+        x_gen : tf.tensor
+            synthetic generator output
             (n_observations, spatial_1, spatial_2, temporal, features)
 
         Returns
@@ -237,12 +239,12 @@ class TemporalDerivativeLoss(Sup3rLoss):
             f'The {self.__class__.__name__} is meant to be used on '
             'spatiotemporal data only. Received tensor(s) that are not 5D'
         )
-        assert len(x1.shape) == 5 and len(x2.shape) == 5, msg
+        assert len(x_true.shape) == 5 and len(x_gen.shape) == 5, msg
 
-        x1_div = tf_derivative(x1, axis=3)
-        x2_div = tf_derivative(x2, axis=3)
+        x_true_div = tf_derivative(x_true, axis=3)
+        x_gen_div = tf_derivative(x_gen, axis=3)
 
-        return self.LOSS_METRIC(x1_div, x2_div)
+        return self.LOSS_METRIC(x_true_div, x_gen_div)
 
 
 class CoarseMseLoss(Sup3rLoss):
@@ -250,16 +252,16 @@ class CoarseMseLoss(Sup3rLoss):
 
     MSE_LOSS = MeanSquaredError()
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Exponential difference loss function
 
         Parameters
         ----------
-        x1 : tf.tensor
-            synthetic generator output
+        x_true : tf.tensor
+            high resolution ground truth data
             (n_observations, spatial_1, spatial_2, temporal, features)
-        x2 : tf.tensor
-            high resolution data
+        x_gen : tf.tensor
+            synthetic generator output
             (n_observations, spatial_1, spatial_2, temporal, features)
 
         Returns
@@ -268,9 +270,9 @@ class CoarseMseLoss(Sup3rLoss):
             0D tensor with loss value
         """
 
-        x1_coarse = tf.reduce_mean(x1, axis=(1, 2))
-        x2_coarse = tf.reduce_mean(x2, axis=(1, 2))
-        return self.MSE_LOSS(x1_coarse, x2_coarse)
+        x_true_coarse = tf.reduce_mean(x_true, axis=(1, 2))
+        x_gen_coarse = tf.reduce_mean(x_gen, axis=(1, 2))
+        return self.MSE_LOSS(x_true_coarse, x_gen_coarse)
 
 
 class SpatialExtremesLoss(Sup3rLoss):
@@ -279,16 +281,16 @@ class SpatialExtremesLoss(Sup3rLoss):
 
     MAE_LOSS = MeanAbsoluteError()
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Custom content loss that encourages temporal min/max accuracy
 
         Parameters
         ----------
-        x1 : tf.tensor
-            synthetic generator output
+        x_true : tf.tensor
+            high resolution ground truth data
             (n_observations, spatial_1, spatial_2, features)
-        x2 : tf.tensor
-            high resolution data
+        x_gen : tf.tensor
+            synthetic generator output
             (n_observations, spatial_1, spatial_2, features)
 
         Returns
@@ -296,14 +298,14 @@ class SpatialExtremesLoss(Sup3rLoss):
         tf.tensor
             0D tensor with loss value
         """
-        x1_min = tf.reduce_min(x1, axis=(1, 2))
-        x2_min = tf.reduce_min(x2, axis=(1, 2))
+        x_true_min = tf.reduce_min(x_true, axis=(1, 2))
+        x_gen_min = tf.reduce_min(x_gen, axis=(1, 2))
 
-        x1_max = tf.reduce_max(x1, axis=(1, 2))
-        x2_max = tf.reduce_max(x2, axis=(1, 2))
+        x_true_max = tf.reduce_max(x_true, axis=(1, 2))
+        x_gen_max = tf.reduce_max(x_gen, axis=(1, 2))
 
-        mae_min = self.MAE_LOSS(x1_min, x2_min)
-        mae_max = self.MAE_LOSS(x1_max, x2_max)
+        mae_min = self.MAE_LOSS(x_true_min, x_gen_min)
+        mae_max = self.MAE_LOSS(x_true_max, x_gen_max)
 
         return (mae_min + mae_max) / 2
 
@@ -314,16 +316,16 @@ class TemporalExtremesLoss(Sup3rLoss):
 
     MAE_LOSS = MeanAbsoluteError()
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Custom content loss that encourages temporal min/max accuracy
 
         Parameters
         ----------
-        x1 : tf.tensor
-            synthetic generator output
+        x_true : tf.tensor
+            high resolution ground truth data
             (n_observations, spatial_1, spatial_2, temporal, features)
-        x2 : tf.tensor
-            high resolution data
+        x_gen : tf.tensor
+            synthetic generator output
             (n_observations, spatial_1, spatial_2, temporal, features)
 
         Returns
@@ -331,14 +333,14 @@ class TemporalExtremesLoss(Sup3rLoss):
         tf.tensor
             0D tensor with loss value
         """
-        x1_min = tf.reduce_min(x1, axis=3)
-        x2_min = tf.reduce_min(x2, axis=3)
+        x_true_min = tf.reduce_min(x_true, axis=3)
+        x_gen_min = tf.reduce_min(x_gen, axis=3)
 
-        x1_max = tf.reduce_max(x1, axis=3)
-        x2_max = tf.reduce_max(x2, axis=3)
+        x_true_max = tf.reduce_max(x_true, axis=3)
+        x_gen_max = tf.reduce_max(x_gen, axis=3)
 
-        mae_min = self.MAE_LOSS(x1_min, x2_min)
-        mae_max = self.MAE_LOSS(x1_max, x2_max)
+        mae_min = self.MAE_LOSS(x_true_min, x_gen_min)
+        mae_max = self.MAE_LOSS(x_true_max, x_gen_max)
 
         return (mae_min + mae_max) / 2
 
@@ -366,16 +368,16 @@ class SpatialFftLoss(Sup3rLoss):
         x_hat = tf.math.multiply(self._freq_weights(x), x_hat)
         return tf.math.log(1 + x_hat)
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Custom content loss that encourages frequency domain accuracy
 
         Parameters
         ----------
-        x1 : tf.tensor
-            synthetic generator output
+        x_true : tf.tensor
+            high resolution ground truth data
             (n_observations, spatial_1, spatial_2, features)
-        x2 : tf.tensor
-            high resolution data
+        x_gen : tf.tensor
+            synthetic generator output
             (n_observations, spatial_1, spatial_2, features)
 
         Returns
@@ -383,9 +385,9 @@ class SpatialFftLoss(Sup3rLoss):
         tf.tensor
             0D tensor with loss value
         """
-        x1_hat = self._fft(x1)
-        x2_hat = self._fft(x2)
-        return self.MAE_LOSS(x1_hat, x2_hat)
+        x_true_hat = self._fft(x_true)
+        x_gen_hat = self._fft(x_gen)
+        return self.MAE_LOSS(x_true_hat, x_gen_hat)
 
 
 class SpatiotemporalFftLoss(Sup3rLoss):
@@ -414,16 +416,16 @@ class SpatiotemporalFftLoss(Sup3rLoss):
         x_hat = tf.math.multiply(self._freq_weights(x), x_hat)
         return tf.math.log(1 + x_hat)
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Custom content loss that encourages frequency domain accuracy
 
         Parameters
         ----------
-        x1 : tf.tensor
-            synthetic generator output
+        x_true : tf.tensor
+            high resolution ground truth data
             (n_observations, spatial_1, spatial_2, temporal, features)
-        x2 : tf.tensor
-            high resolution data
+        x_gen : tf.tensor
+            synthetic generator output
             (n_observations, spatial_1, spatial_2, temporal, features)
 
         Returns
@@ -431,9 +433,9 @@ class SpatiotemporalFftLoss(Sup3rLoss):
         tf.tensor
             0D tensor with loss value
         """
-        x1_hat = self._fft(x1)
-        x2_hat = self._fft(x2)
-        return self.MAE_LOSS(x1_hat, x2_hat)
+        x_true_hat = self._fft(x_true)
+        x_gen_hat = self._fft(x_gen)
+        return self.MAE_LOSS(x_true_hat, x_gen_hat)
 
 
 class LowResLoss(Sup3rLoss):
@@ -543,17 +545,17 @@ class LowResLoss(Sup3rLoss):
         tensor = tf.math.reduce_sum(tensor, axis=4) / self._t_enhance
         return tensor
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Custom content loss calculated on re-coarsened low-res fields
 
         Parameters
         ----------
-        x1 : tf.tensor
-            Synthetic high-res generator output, shape is either of these:
+        x_true : tf.tensor
+            True high resolution data, shape is either of these:
             (n_obs, spatial_1, spatial_2, features)
             (n_obs, spatial_1, spatial_2, temporal, features)
-        x2 : tf.tensor
-            True high resolution data, shape is either of these:
+        x_gen : tf.tensor
+            Synthetic high-res generator output, shape is either of these:
             (n_obs, spatial_1, spatial_2, features)
             (n_obs, spatial_1, spatial_2, temporal, features)
 
@@ -563,30 +565,30 @@ class LowResLoss(Sup3rLoss):
             0D tensor loss value
         """
 
-        assert x1.shape == x2.shape
-        s_only = len(x1.shape) == 4
+        assert x_true.shape == x_gen.shape
+        s_only = len(x_true.shape) == 4
 
-        ex_loss = tf.constant(0, dtype=x1.dtype)
+        ex_loss = tf.constant(0, dtype=x_true.dtype)
         if self._ex_loss is not None:
-            ex_loss = self._ex_loss(x1, x2)
+            ex_loss = self._ex_loss(x_true, x_gen)
 
         if self._s_enhance > 1 and s_only:
-            x1 = self._s_coarsen_4d_tensor(x1)
-            x2 = self._s_coarsen_4d_tensor(x2)
+            x_true = self._s_coarsen_4d_tensor(x_true)
+            x_gen = self._s_coarsen_4d_tensor(x_gen)
 
         elif self._s_enhance > 1 and not s_only:
-            x1 = self._s_coarsen_5d_tensor(x1)
-            x2 = self._s_coarsen_5d_tensor(x2)
+            x_true = self._s_coarsen_5d_tensor(x_true)
+            x_gen = self._s_coarsen_5d_tensor(x_gen)
 
         if self._t_enhance > 1 and self._t_method == 'average':
-            x1 = self._t_coarsen_avg(x1)
-            x2 = self._t_coarsen_avg(x2)
+            x_true = self._t_coarsen_avg(x_true)
+            x_gen = self._t_coarsen_avg(x_gen)
 
         if self._t_enhance > 1 and self._t_method == 'subsample':
-            x1 = self._t_coarsen_sample(x1)
-            x2 = self._t_coarsen_sample(x2)
+            x_true = self._t_coarsen_sample(x_true)
+            x_gen = self._t_coarsen_sample(x_gen)
 
-        return self._tf_loss(x1, x2) + ex_loss
+        return self._tf_loss(x_true, x_gen) + ex_loss
 
 
 class PerceptualLoss(Sup3rLoss):
@@ -614,32 +616,32 @@ class PerceptualLoss(Sup3rLoss):
             inputs=vgg.input, outputs=vgg_outputs
         )
 
-    def _feature_loss(self, x1, x2):
+    def _feature_loss(self, x_true, x_gen):
         """Calculate loss for a single feature. e.g. A single pair of tensors
         each with only 3 channels"""
-        x1 = preprocess_input(x1)
-        x2 = preprocess_input(x2)
-        x1 = self.feature_extractor(x1)
-        x2 = self.feature_extractor(x2)
+        x_true = preprocess_input(x_true)
+        x_gen = preprocess_input(x_gen)
+        x_true = self.feature_extractor(x_true)
+        x_gen = self.feature_extractor(x_gen)
         if len(self.layer_names) == 1:
-            x1 = [x1]
-            x2 = [x2]
+            x_true = [x_true]
+            x_gen = [x_gen]
         loss = 0
-        for x1_f, x2_f in zip(x1, x2):
-            loss += tf.reduce_mean(tf.square(x1_f - x2_f))
+        for x_true_f, x_gen_f in zip(x_true, x_gen):
+            loss += tf.reduce_mean(tf.square(x_true_f - x_gen_f))
         return loss
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Perceptual loss calculated on true and synthetic feature maps
 
         Parameters
         ----------
-        x1 : tf.tensor
-            Synthetic high-res generator output, shape is either of these:
+        x_true : tf.tensor
+            True high resolution data, shape is either of these:
             (n_obs, spatial_1, spatial_2, features)
             (n_obs, spatial_1, spatial_2, temporal, features)
-        x2 : tf.tensor
-            True high resolution data, shape is either of these:
+        x_gen : tf.tensor
+            Synthetic high-res generator output, shape is either of these:
             (n_obs, spatial_1, spatial_2, features)
             (n_obs, spatial_1, spatial_2, temporal, features)
 
@@ -648,26 +650,26 @@ class PerceptualLoss(Sup3rLoss):
         tf.tensor
             0D tensor loss value
         """
-        if len(x1.shape) == 5:
+        if len(x_true.shape) == 5:
             new_shape = (
-                x1.shape[0] * x1.shape[3],
-                x1.shape[1],
-                x1.shape[2],
-                x1.shape[-1],
+                x_true.shape[0] * x_true.shape[3],
+                x_true.shape[1],
+                x_true.shape[2],
+                x_true.shape[-1],
             )
-            x1 = tf.reshape(x1, new_shape)
-            x2 = tf.reshape(x2, new_shape)
+            x_true = tf.reshape(x_true, new_shape)
+            x_gen = tf.reshape(x_gen, new_shape)
 
         losses = []
-        for i in range(x1.shape[-1]):
-            x1_f = x1[..., i]
-            x2_f = x2[..., i]
+        for i in range(x_true.shape[-1]):
+            x_true_f = x_true[..., i]
+            x_gen_f = x_gen[..., i]
 
             # VGG input needs 3 RGB channels
-            x1_f = tf.stack([x1_f] * 3, axis=-1)
-            x2_f = tf.stack([x2_f] * 3, axis=-1)
+            x_true_f = tf.stack([x_true_f] * 3, axis=-1)
+            x_gen_f = tf.stack([x_gen_f] * 3, axis=-1)
 
-            losses.append(self._feature_loss(x1_f, x2_f))
+            losses.append(self._feature_loss(x_true_f, x_gen_f))
 
         return tf.reduce_mean(losses)
 
@@ -690,17 +692,30 @@ class SlicedWassersteinLoss(Sup3rLoss):
         """
         super().__init__()
         self._n_projections = n_projections
+        self.rank = None
 
-    def __call__(self, x1, x2):
+    def build(self, input_shape):
+        """Set the rank of the input tensors for use in random projection
+        generation."""
+        self.rank = len(input_shape)
+        if self.rank not in {4, 5}:
+            msg = (
+                f'The {self.__class__.__name__} is meant to be used on '
+                'spatial or spatiotemporal data only. Received tensor(s) that '
+                'are not 4D or 5D'
+            )
+            raise ValueError(msg)
+
+    def __call__(self, x_true, x_gen):
         """Sliced Wasserstein distance based on random 1D projections
 
         Parameters
         ----------
-        x1 : tf.tensor
-            synthetic generator output
+        x_true : tf.tensor
+            high resolution ground truth data
             (n_observations, spatial_1, spatial_2, temporal, features)
-        x2 : tf.tensor
-            high resolution data
+        x_gen : tf.tensor
+            synthetic generator output
             (n_observations, spatial_1, spatial_2, temporal, features)
 
         Returns
@@ -708,21 +723,15 @@ class SlicedWassersteinLoss(Sup3rLoss):
         tf.tensor
             0D tensor loss value
         """
-        msg = (
-            'The SlicedWassersteinLoss is meant to be used on spatial or '
-            'spatiotemporal data only. Received tensor(s) that are not 4D '
-            'or 5D'
-        )
-        assert len(x1.shape) in {4, 5}, msg
-        if len(x1.shape) == 4:
-            x1 = tf.expand_dims(x1, axis=3)
-            x2 = tf.expand_dims(x2, axis=3)
+        if len(x_true.shape) == 4:
+            x_true = tf.expand_dims(x_true, axis=3)
+            x_gen = tf.expand_dims(x_gen, axis=3)
 
-        B, H, W, T, C = x1.shape
+        B, H, W, T, C = x_true.shape
 
         # Flatten only spatial/time dims → (B, HWT, C)
-        x1_flat = tf.reshape(x1, (B, H * W * T, C))
-        x2_flat = tf.reshape(x2, (B, H * W * T, C))
+        x_true_flat = tf.reshape(x_true, (B, H * W * T, C))
+        x_gen_flat = tf.reshape(x_gen, (B, H * W * T, C))
 
         # Random projection directions over HWT only
         proj = tf.random.normal((self._n_projections, H * W * T))
@@ -730,14 +739,14 @@ class SlicedWassersteinLoss(Sup3rLoss):
 
         # Project spatial dimensions → (num_proj, B, C)
         # matmul: (num_proj, HWT) @ (B, HWT, C) → (B, num_proj, C)
-        x1_proj = proj @ x1_flat
-        x2_proj = proj @ x2_flat
+        x_true_proj = proj @ x_true_flat
+        x_gen_proj = proj @ x_gen_flat
 
         # Sort each projection's distribution along the projection dimension
-        x1_sorted = tf.sort(x1_proj, axis=1)
-        x2_sorted = tf.sort(x2_proj, axis=1)
+        x_true_sorted = tf.sort(x_true_proj, axis=1)
+        x_gen_sorted = tf.sort(x_gen_proj, axis=1)
 
-        return tf.reduce_mean((x1_sorted - x2_sorted) ** 2)
+        return tf.reduce_mean((x_true_sorted - x_gen_sorted) ** 2)
 
 
 class MaterialDerivativeLoss(Sup3rLoss):
@@ -809,17 +818,17 @@ class MaterialDerivativeLoss(Sup3rLoss):
 
         return x_div
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Custom content loss that encourages accuracy of the material
         derivative.
 
         Parameters
         ----------
-        x1 : tf.tensor
-            synthetic generator output
+        x_true : tf.tensor
+            high resolution ground truth data
             (n_observations, spatial_1, spatial_2, temporal, features)
-        x2 : tf.tensor
-            high resolution data
+        x_gen : tf.tensor
+            synthetic generator output
             (n_observations, spatial_1, spatial_2, temporal, features)
 
         Returns
@@ -831,16 +840,16 @@ class MaterialDerivativeLoss(Sup3rLoss):
             f'The {self.__class__.__name__} is meant to be used on '
             'spatiotemporal data only. Received tensor(s) that are not 5D'
         )
-        assert len(x1.shape) == 5 and len(x2.shape) == 5, msg
+        assert len(x_true.shape) == 5 and len(x_gen.shape) == 5, msg
 
-        x1_div = tf.stack([
-            self._compute_md(x1, feature) for feature in self.gen_features
+        x_true_div = tf.stack([
+            self._compute_md(x_true, feature) for feature in self.gen_features
         ])
-        x2_div = tf.stack([
-            self._compute_md(x2, feature) for feature in self.gen_features
+        x_gen_div = tf.stack([
+            self._compute_md(x_gen, feature) for feature in self.gen_features
         ])
 
-        return self.LOSS_METRIC(x1_div, x2_div)
+        return self.LOSS_METRIC(x_true_div, x_gen_div)
 
 
 class GeothermalPhysicsLoss(Sup3rLoss):
@@ -852,19 +861,19 @@ class GeothermalPhysicsLoss(Sup3rLoss):
 
     LOSS_METRIC = MeanAbsoluteError()
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Geothermal physics loss"""
-        check = x1.shape[-1] == len(self.gen_features)
-        check &= x2.shape[-1] == len(self.true_features)
+        check = x_true.shape[-1] == len(self.true_features)
+        check &= x_gen.shape[-1] == len(self.gen_features)
         msg = (
-            f'Number of features in `x1`: {x1.shape[-1]} must match the '
-            f'length of `gen_features`: {len(self.gen_features)}, `x2`: '
-            f'{x2.shape[-1]} must match the length of `true_features`: '
-            f'{len(self.true_features)}'
+            f'Number of features in `x_true`: {x_true.shape[-1]} must match '
+            f'the length of `true_features`: {len(self.true_features)}, '
+            f'`x_gen`: {x_gen.shape[-1]} must match the length of '
+            f'`gen_features`: {len(self.gen_features)}'
         )
         assert check, msg
 
-        return self.LOSS_METRIC(x1, x2)
+        return self.LOSS_METRIC(x_true, x_gen)
 
 
 class GeothermalPhysicsLossWithObs(Sup3rLoss):
@@ -876,26 +885,26 @@ class GeothermalPhysicsLossWithObs(Sup3rLoss):
 
     LOSS_METRIC = MeanAbsoluteError()
 
-    def __call__(self, x1, x2):
+    def __call__(self, x_true, x_gen):
         """Geothermal physics loss"""
-        check = x1.shape[-1] == len(self.gen_features)
-        check &= x2.shape[-1] == len(self.true_features)
+        check = x_true.shape[-1] == len(self.true_features)
+        check &= x_gen.shape[-1] == len(self.gen_features)
         msg = (
-            f'Number of features in `x1`: {x1.shape[-1]} must match the '
-            f'length of `gen_features`: {len(self.gen_features)}, `x2`: '
-            f'{x2.shape[-1]} must match the length of `true_features`: '
-            f'{len(self.true_features)}'
+            f'Number of features in `x_true`: {x_true.shape[-1]} must match '
+            f'the length of `true_features`: {len(self.true_features)}, '
+            f'`x_gen`: {x_gen.shape[-1]} must match the length of '
+            f'`gen_features`: {len(self.gen_features)}'
         )
         assert check, msg
 
-        mask = tf.math.logical_not(tf.math.is_nan(x2))
-        x1m = tf.boolean_mask(x1, mask)
-        x2m = tf.boolean_mask(x2, mask)
+        mask = tf.math.logical_not(tf.math.is_nan(x_true))
+        x_true_m = tf.boolean_mask(x_true, mask)
+        x_gen_m = tf.boolean_mask(x_gen, mask)
 
-        physics_loss = tf.constant(1e-3, dtype=x1.dtype)
+        physics_loss = tf.constant(1e-3, dtype=x_true.dtype)
         obs_loss = (
-            tf.constant(0, dtype=x1.dtype)
-            if tf.math.reduce_all(tf.math.is_nan(x2m))
-            else self.LOSS_METRIC(x1m, x2m)
+            tf.constant(0, dtype=x_true.dtype)
+            if tf.math.reduce_all(tf.math.is_nan(x_true_m))
+            else self.LOSS_METRIC(x_true_m, x_gen_m)
         )
         return physics_loss + obs_loss
