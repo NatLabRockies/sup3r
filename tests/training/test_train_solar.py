@@ -92,8 +92,8 @@ def test_solar_cc_model(hr_steps):
     x = RANDOM_GENERATOR.uniform(0, 1, (1, 30, 30, hr_steps // 8, 1))
     z = RANDOM_GENERATOR.uniform(0, 1, (1, 30, 30, hr_steps // 8, 1))
     mae = MeanAbsoluteError()(x, z)
-    assert np.allclose(model.loss_fun(x, z)[0], mae)
-    assert np.allclose(loaded.loss_fun(x, z)[0], mae)
+    assert np.allclose(model.calc_loss_gen_content(x, z)[0], mae)
+    assert np.allclose(loaded.calc_loss_gen_content(x, z)[0], mae)
 
     y = model.generate(x)
     assert y.shape[0] == x.shape[0]
