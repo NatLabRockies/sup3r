@@ -21,6 +21,7 @@ import sup3r.utilities.loss_metrics
 from sup3r.preprocessing.data_handlers import ExoData
 from sup3r.preprocessing.utilities import numpy_if_tensor
 from sup3r.utilities import VERSION_RECORD
+from sup3r.utilities.pcgrad import pcgrad
 from sup3r.utilities.utilities import Timer, camel_to_underscore, safe_cast
 
 from .utilities import SUP3R_LAYERS, TensorboardMixIn
@@ -51,6 +52,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         self._stdevs = None
         self._train_record = pd.DataFrame()
         self._val_record = pd.DataFrame()
+        self.pcgrad = False
 
     def load_network(self, model, name):
         """Load a CustomNetwork object from hidden layers config, .json file
@@ -1301,6 +1303,51 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 low_res, hi_res_true, **calc_loss_kwargs
             )
             grad = tape.gradient(loss, training_weights)
+        return grad, loss_details
+
+    @tf.function
+    def _tf_get_pcgrad_grad(
+        self,
+        low_res,
+        hi_res_true,
+        training_weights,
+        **calc_loss_kwargs,
+    ):
+        """Compiled per-batch gradient step with PCGrad projection.
+
+        Uses a persistent ``GradientTape`` to compute per-loss-term
+        gradients, then projects conflicting gradients before summing.
+        Falls back to a standard summed gradient when only one content
+        loss term is configured.
+        """
+        with tf.GradientTape(
+            persistent=True, watch_accessed_variables=False
+        ) as tape:
+            tape.watch(training_weights)
+            loss, loss_details, _, _ = self._get_hr_exo_and_loss(
+                low_res, hi_res_true, **calc_loss_kwargs
+            )
+
+        loss_name = (
+            self.loss_name
+            if isinstance(self.loss_name, dict)
+            else {self.loss_name: {}}
+        )
+        content_loss_info = [
+            (camel_to_underscore(k), v.get('weight', 1.0))
+            for k, v in loss_name.items()
+        ]
+
+        if len(content_loss_info) > 1:
+            task_grads = []
+            for key, w in content_loss_info:
+                g = tape.gradient(loss_details[key], training_weights)
+                task_grads.append([w * gi for gi in g])
+            grad = pcgrad(task_grads)
+        else:
+            grad = tape.gradient(loss, training_weights)
+
+        del tape
         return grad, loss_details
 
     def get_single_grad(
