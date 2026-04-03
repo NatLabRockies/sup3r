@@ -215,8 +215,9 @@ class Sampler(Container):
     def check_feature_consistency(self):
         """Check that the feature sets are consistent with each other and the
         obs features are configured correctly."""
-        if self.use_proxy_obs and not all(
-            f in self.hr_source_features for f in self.obs_features
+        all_feats = lowered(set(self.data.features))
+        if self.use_proxy_obs and not set(self.obs_features).issubset(
+            set(self.hr_source_features)
         ):
             msg = (
                 'When using proxy observations, all obs features must be '
@@ -225,7 +226,7 @@ class Sampler(Container):
             raise ValueError(msg)
 
         if self.use_proxy_obs and any(
-            f in self.data.features for f in self.obs_features
+            f in all_feats for f in self.obs_features
         ):
             msg = (
                 f'Obs features {self.obs_features} cannot be in the data '
@@ -253,35 +254,28 @@ class Sampler(Container):
                 self.hr_source_features[-len(self.hr_exo_features) :]
             ), msg
 
-        assert all(
-            f in lowered(self.data.features) for f in self.lr_features
-        ), (
+        assert set(self.lr_features).issubset(all_feats), (
             f'All lr_features {self.lr_features} must be in the data features '
             f'{self.data.features}.'
         )
-        assert all(
-            f in lowered(self.data.features) for f in self.hr_out_features
-        ), (
+        assert set(self.hr_out_features).issubset(all_feats), (
             f'All hr_out_features {self.hr_out_features} must be in the data '
             f'features {self.data.features}.'
         )
         if not self.use_proxy_obs:
-            assert all(
-                f in lowered(self.data.features) for f in self.hr_exo_features
-            ), (
+            assert set(self.hr_exo_features).issubset(all_feats), (
                 f'All hr_exo_features {self.hr_exo_features} must be in the '
                 f'data features {self.data.features} when not using proxy '
                 'observations.'
             )
         else:
             feats = set(self.hr_exo_features) - set(self.obs_features)
-            assert all(f in lowered(self.data.features) for f in feats), (
+            assert feats.issubset(all_feats), (
                 f'All non-obs hr_exo_features {feats} must be in the data '
                 f'features {self.data.features} when using proxy observations.'
             )
             assert all(
-                f.replace('_obs', '') in lowered(self.data.features)
-                for f in self.obs_features
+                f.replace('_obs', '') in all_feats for f in self.obs_features
             ), (
                 f'All obs features {self.obs_features} must have a '
                 'corresponding source feature in the data features '

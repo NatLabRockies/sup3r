@@ -148,6 +148,29 @@ class DualSampler(Sampler):
         out += self.hr_exo_features
         return out
 
+    def check_feature_consistency(self):
+        """Make sure features are consistent with the data and with each
+        other."""
+        super().check_feature_consistency()
+
+        # make sure lr_features are in low res data
+        msg = (
+            f'lr_features {self.lr_features} must be in low res data features '
+            f'{self.data.low_res.features}'
+        )
+        assert set(self.lr_features).issubset(
+            set(self.data.low_res.features)
+        ), msg
+
+        # make sure hr_out_features are in high res data
+        msg = (
+            f'hr_out_features {self.hr_out_features} must be in high res data '
+            f'features {self.data.high_res.features}'
+        )
+        assert set(self.hr_out_features).issubset(
+            set(self.data.high_res.features)
+        ), msg
+
     def check_shape_consistency(self):
         """Make sure container shapes are compatible with enhancement
         factors."""

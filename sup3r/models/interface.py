@@ -215,7 +215,7 @@ class AbstractInterface(ABC):
                         else layer.exo_features
                     )
                     features.extend(feats + exo_feats)
-        if not all(f in self.hr_exo_features for f in features):
+        if not set(features).issubset(set(self.hr_exo_features)):
             msg = (
                 f'Specified hr_exo_features {self.hr_exo_features} does not '
                 f'include all features {features} found in model layers.'
