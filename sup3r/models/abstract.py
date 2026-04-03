@@ -8,7 +8,6 @@ import time
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from inspect import signature
-from threading import Lock
 from warnings import warn
 
 import numpy as np
@@ -52,7 +51,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         self._stdevs = None
         self._train_record = pd.DataFrame()
         self._val_record = pd.DataFrame()
-        self._lock = Lock()
 
     def load_network(self, model, name):
         """Load a CustomNetwork object from hidden layers config, .json file
@@ -1345,14 +1343,13 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         loss_details : dict
             Namespace of the breakdown of loss components
         """
-        with self._lock:
-            with tf.device(device_name):
-                grad, loss_details = self._tf_get_single_grad(
-                    low_res,
-                    hi_res_true,
-                    training_weights,
-                    **calc_loss_kwargs,
-                )
+        with tf.device(device_name):
+            grad, loss_details = self._tf_get_single_grad(
+                low_res,
+                hi_res_true,
+                training_weights,
+                **calc_loss_kwargs,
+            )
         return grad, loss_details
 
     @abstractmethod
