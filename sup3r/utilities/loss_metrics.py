@@ -706,7 +706,7 @@ class SlicedWassersteinLoss(Sup3rLoss):
             )
             raise ValueError(msg)
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Sliced Wasserstein distance based on random 1D projections
 
         Parameters

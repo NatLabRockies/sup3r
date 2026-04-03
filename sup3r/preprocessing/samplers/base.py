@@ -212,30 +212,62 @@ class Sampler(Container):
             logger.info('Received mode = "eager".')
             _ = self.compute()
 
+    def check_proxy_obs_consistency(self):
+        """Check that the obs features are configured correctly for proxy
+        observations."""
+        all_feats = lowered(set(self.data.features))
+
+        assert set(self.obs_features).issubset(
+            set(self.hr_source_features)
+        ), (
+            'When using proxy observations, all obs features must be '
+            'included either in hr_out_features or hr_exo_features.'
+        )
+        assert not set(all_feats).intersection(self.obs_features), (
+            f'Obs features {self.obs_features} cannot be in the data '
+            f'features {self.data.features} when using proxy '
+            'observations.'
+        )
+        feats = set(self.hr_exo_features) - set(self.obs_features)
+        assert feats.issubset(all_feats), (
+            f'All non-obs hr_exo_features {feats} must be in the data '
+            f'features {self.data.features} when using proxy observations.'
+        )
+        base_feats = [f.replace('_obs', '') for f in self.obs_features]
+        assert set(base_feats).issubset(all_feats), (
+            f'All obs features {self.obs_features} must have a '
+            'corresponding source feature in the data features '
+            f'{self.data.features} when using proxy observations.'
+        )
+        assert set(base_feats).issubset(self.hr_source_features), (
+            f'All obs features {self.obs_features} must have a '
+            'corresponding source feature listed in hr_out_features when '
+            'using proxy observations.'
+        )
+
     def check_feature_consistency(self):
         """Check that the feature sets are consistent with each other and the
         obs features are configured correctly."""
         all_feats = lowered(set(self.data.features))
-        if self.use_proxy_obs and not set(self.obs_features).issubset(
-            set(self.hr_source_features)
-        ):
-            msg = (
-                'When using proxy observations, all obs features must be '
-                'included either in hr_out_features or hr_exo_features.'
+        assert set(self.lr_features).issubset(all_feats), (
+            f'All lr_features {self.lr_features} must be in the data features '
+            f'{self.data.features}.'
+        )
+        assert set(self.hr_out_features).issubset(all_feats), (
+            f'All hr_out_features {self.hr_out_features} must be in the data '
+            f'features {self.data.features}.'
+        )
+        if not self.use_proxy_obs:
+            assert set(self.hr_exo_features).issubset(all_feats), (
+                f'All hr_exo_features {self.hr_exo_features} must be in the '
+                f'data features {self.data.features} when not using proxy '
+                'observations.'
             )
-            raise ValueError(msg)
+        else:
+            self.check_proxy_obs_consistency()
 
-        if self.use_proxy_obs and any(
-            f in all_feats for f in self.obs_features
-        ):
-            msg = (
-                f'Obs features {self.obs_features} cannot be in the data '
-                f'features {self.data.features} when using proxy observations.'
-            )
-            raise ValueError(msg)
-
-        if len(self.obs_features) > 0 and any(
-            f in self.hr_exo_features for f in self.obs_features
+        if len(self.obs_features) > 0 and set(self.obs_features).intersection(
+            self.hr_exo_features
         ):
             msg = (
                 f'Obs features {self.obs_features} must come at the end of '
@@ -253,34 +285,6 @@ class Sampler(Container):
             assert list(self.hr_exo_features) == list(
                 self.hr_source_features[-len(self.hr_exo_features) :]
             ), msg
-
-        assert set(self.lr_features).issubset(all_feats), (
-            f'All lr_features {self.lr_features} must be in the data features '
-            f'{self.data.features}.'
-        )
-        assert set(self.hr_out_features).issubset(all_feats), (
-            f'All hr_out_features {self.hr_out_features} must be in the data '
-            f'features {self.data.features}.'
-        )
-        if not self.use_proxy_obs:
-            assert set(self.hr_exo_features).issubset(all_feats), (
-                f'All hr_exo_features {self.hr_exo_features} must be in the '
-                f'data features {self.data.features} when not using proxy '
-                'observations.'
-            )
-        else:
-            feats = set(self.hr_exo_features) - set(self.obs_features)
-            assert feats.issubset(all_feats), (
-                f'All non-obs hr_exo_features {feats} must be in the data '
-                f'features {self.data.features} when using proxy observations.'
-            )
-            assert all(
-                f.replace('_obs', '') in all_feats for f in self.obs_features
-            ), (
-                f'All obs features {self.obs_features} must have a '
-                'corresponding source feature in the data features '
-                f'{self.data.features} when using proxy observations.'
-            )
 
     @property
     def sample_shape(self) -> tuple:
