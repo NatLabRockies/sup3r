@@ -21,7 +21,7 @@ import sup3r.utilities.loss_metrics
 from sup3r.preprocessing.data_handlers import ExoData
 from sup3r.preprocessing.utilities import numpy_if_tensor
 from sup3r.utilities import VERSION_RECORD
-from sup3r.utilities.pcgrad import pcgrad
+from sup3r.utilities.grad import mgda, pcgrad
 from sup3r.utilities.utilities import Timer, camel_to_underscore, safe_cast
 
 from .utilities import SUP3R_LAYERS, TensorboardMixIn
@@ -52,7 +52,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         self._stdevs = None
         self._train_record = pd.DataFrame()
         self._val_record = pd.DataFrame()
-        self.pcgrad = False
+        self.grad_method = None
 
     def load_network(self, model, name):
         """Load a CustomNetwork object from hidden layers config, .json file
@@ -1305,20 +1305,19 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             grad = tape.gradient(loss, training_weights)
         return grad, loss_details
 
-    @tf.function
-    def _tf_get_pcgrad_grad(
+    def _tf_get_multitask_grad(
         self,
         low_res,
         hi_res_true,
         training_weights,
         **calc_loss_kwargs,
     ):
-        """Compiled per-batch gradient step with PCGrad projection.
+        """Per-batch gradient step using a multi-task gradient method.
 
         Uses a persistent ``GradientTape`` to compute per-loss-term
-        gradients, then projects conflicting gradients before summing.
-        Falls back to a standard summed gradient when only one content
-        loss term is configured.
+        gradients, then combines them via the configured ``grad_method``
+        (``'pcgrad'`` or ``'mgda'``).  Falls back to a standard summed
+        gradient when only one content loss term is configured.
         """
         with tf.GradientTape(
             persistent=True, watch_accessed_variables=False
@@ -1343,7 +1342,8 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             for key, w in content_loss_info:
                 g = tape.gradient(loss_details[key], training_weights)
                 task_grads.append([w * gi for gi in g])
-            grad = pcgrad(task_grads)
+            combine = {'pcgrad': pcgrad, 'mgda2': mgda}[self.grad_method]
+            grad = combine(task_grads)
         else:
             grad = tape.gradient(loss, training_weights)
 
@@ -1391,7 +1391,11 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Namespace of the breakdown of loss components
         """
         with tf.device(device_name):
-            grad, loss_details = self._tf_get_single_grad(
+            if self.grad_method in {'pcgrad', 'mgda'}:
+                grad_fn = self._tf_get_multitask_grad
+            else:
+                grad_fn = self._tf_get_single_grad
+            grad, loss_details = grad_fn(
                 low_res,
                 hi_res_true,
                 training_weights,

@@ -39,7 +39,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         default_device=None,
         name=None,
         sparse_disc=False,
-        pcgrad=False,
+        grad_method=None,
     ):
         """
         Parameters
@@ -110,13 +110,10 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         name : str | None
             Optional name for the GAN.
-        pcgrad : bool
-            Whether to use PCGrad (Projected Conflicting Gradients) for
-            multi-loss training.  When ``True`` and multiple content loss
-            terms are configured, per-term gradients are computed
-            independently and conflicting components are projected out
-            before summing.  See Yu et al., *"Gradient Surgery for
-            Multi-Task Learning"*, NeurIPS 2020.
+        grad_method : str | None
+            Multi-task gradient method to use when multiple content loss
+            terms are configured.  One of ``'pcgrad'``, ``'mgda2'``, or
+            ``None`` (plain weighted sum).
         """
         super().__init__()
 
@@ -128,7 +125,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         self._meta = meta if meta is not None else {}
 
         self.loss_name = loss
-        self.pcgrad = pcgrad
+        self.grad_method = grad_method
 
         self._history = history
         if isinstance(self._history, str):
@@ -407,7 +404,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             'stdevs': stdevs,
             'meta': self.meta,
             'default_device': self.default_device,
-            'pcgrad': self.pcgrad,
+            'grad_method': self.grad_method,
         }
 
     @property
