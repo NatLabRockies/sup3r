@@ -692,21 +692,8 @@ class SlicedWassersteinLoss(Sup3rLoss):
         """
         super().__init__()
         self._n_projections = n_projections
-        self.rank = None
 
-    def build(self, input_shape):
-        """Set the rank of the input tensors for use in random projection
-        generation."""
-        self.rank = len(input_shape)
-        if self.rank not in {4, 5}:
-            msg = (
-                f'The {self.__class__.__name__} is meant to be used on '
-                'spatial or spatiotemporal data only. Received tensor(s) that '
-                'are not 4D or 5D'
-            )
-            raise ValueError(msg)
-
-    def call(self, x_true, x_gen):
+    def __call__(self, x_true, x_gen):
         """Sliced Wasserstein distance based on random 1D projections
 
         Parameters
@@ -723,6 +710,10 @@ class SlicedWassersteinLoss(Sup3rLoss):
         tf.tensor
             0D tensor loss value
         """
+        assert len(x_gen.shape) in {4, 5} and len(x_true.shape) in {4, 5}, (
+            f'The {self.__class__.__name__} is meant to be used on spatial or '
+            'spatiotemporal data only. Received tensor(s) that are not 4/5D'
+        )
         if len(x_true.shape) == 4:
             x_true = tf.expand_dims(x_true, axis=3)
             x_gen = tf.expand_dims(x_gen, axis=3)

@@ -438,7 +438,7 @@ class Time(DerivedFeature):
         time = time.expand_dims(spatial_dims, axis=(0, 1))
         time = np.repeat(time, data.sizes[spatial_dims[0]], axis=0)
         time = np.repeat(time, data.sizes[spatial_dims[1]], axis=1)
-        return time.astype(np.int64)
+        return time.astype(np.float32)
 
 
 class SpatioTemporalEncoding(DerivedFeature):
