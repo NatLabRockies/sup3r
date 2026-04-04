@@ -8,6 +8,7 @@ import time
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from inspect import signature
+from multiprocessing import Lock
 from warnings import warn
 
 import numpy as np
@@ -42,6 +43,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         self.timer = Timer()
         self.name = None
         self.loss_name = None
+        self.grad_method = None
         self._loss_fun = None
         self._version_record = VERSION_RECORD
         self._meta = None
@@ -52,7 +54,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         self._stdevs = None
         self._train_record = pd.DataFrame()
         self._val_record = pd.DataFrame()
-        self.grad_method = None
+        self._lock = Lock()
 
     def load_network(self, model, name):
         """Load a CustomNetwork object from hidden layers config, .json file
@@ -1342,7 +1344,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             for key, w in content_loss_info:
                 g = tape.gradient(loss_details[key], training_weights)
                 task_grads.append([w * gi for gi in g])
-            combine = {'pcgrad': pcgrad, 'mgda2': mgda}[self.grad_method]
+            combine = {'pcgrad': pcgrad, 'mgda': mgda}[self.grad_method]
             grad = combine(task_grads)
         else:
             grad = tape.gradient(loss, training_weights)
@@ -1390,17 +1392,18 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         loss_details : dict
             Namespace of the breakdown of loss components
         """
-        with tf.device(device_name):
-            if self.grad_method in {'pcgrad', 'mgda'}:
-                grad_fn = self._tf_get_multitask_grad
-            else:
-                grad_fn = self._tf_get_single_grad
-            grad, loss_details = grad_fn(
-                low_res,
-                hi_res_true,
-                training_weights,
-                **calc_loss_kwargs,
-            )
+        with self._lock:
+            with tf.device(device_name):
+                if self.grad_method in {'pcgrad', 'mgda'}:
+                    grad_fn = self._tf_get_multitask_grad
+                else:
+                    grad_fn = self._tf_get_single_grad
+                grad, loss_details = grad_fn(
+                    low_res,
+                    hi_res_true,
+                    training_weights,
+                    **calc_loss_kwargs,
+                )
         return grad, loss_details
 
     @abstractmethod
