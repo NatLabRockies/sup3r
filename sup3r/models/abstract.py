@@ -20,19 +20,12 @@ from tensorflow.keras import optimizers
 import sup3r.utilities.loss_metrics
 from sup3r.preprocessing.data_handlers import ExoData
 from sup3r.preprocessing.utilities import numpy_if_tensor
-from sup3r.utilities import VERSION_RECORD
-from sup3r.utilities.grad import mgda, pcgrad
+from sup3r.utilities import VERSION_RECORD, grad_methods
 from sup3r.utilities.utilities import Timer, camel_to_underscore, safe_cast
 
 from .utilities import SUP3R_LAYERS, TensorboardMixIn
 
 logger = logging.getLogger(__name__)
-
-
-GRAD_METHODS = {
-    'mgda': mgda,
-    'pcgrad': pcgrad,
-}
 
 
 class AbstractSingleModel(ABC, TensorboardMixIn):
@@ -93,6 +86,21 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             raise TypeError(msg)
 
         return model
+
+    @property
+    def grad_fn(self):
+        """Get the method for calculating gradients for multi-term losses."""
+        if self.grad_method is None:
+            return lambda task_grads: [tf.add_n(g) for g in zip(*task_grads)]
+        fn = getattr(grad_methods, self.grad_method, None)
+        if fn is not None and callable(fn):
+            return fn
+        msg = (
+            f'Gradient method "{self.grad_method}" not found in '
+            f'sup3r.utilities.grad_methods'
+        )
+        logger.error(msg)
+        raise ValueError(msg)
 
     def _load_model_from_string(self, model, name):
         """Load a CustomNetwork object from a config or a .pkl file"""
@@ -422,7 +430,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             self._val_record = self._val_record.reset_index(drop=True)
 
     @tf.function
-    def get_hr_exo_input(self, hi_res):
+    def _get_hr_exo_input(self, hi_res):
         """Get exogenous feature data from hi_res
 
         Parameters
@@ -461,7 +469,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Same as input with exogenous data combined with hi_res input
         """
         if hi_res_true.shape[-1] > hi_res_gen.shape[-1]:
-            exo_dict = self.get_hr_exo_input(hi_res_true)
+            exo_dict = self._get_hr_exo_input(hi_res_true)
             exo_data = [exo_dict[feat] for feat in self.hr_exo_features]
             hi_res_gen = tf.concat((hi_res_gen, *exo_data), axis=-1)
         return hi_res_gen
@@ -581,7 +589,9 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                         f'true tensor of shape {hi_res_true.shape}'
                     ),
                 )
-                loss += weights[ln] * val
+                val = weights[ln] * val
+                loss_details[camel_to_underscore(ln) + '_weighted'] = val
+                loss += val
             return loss, loss_details
 
         return _loss_fun
@@ -1229,7 +1239,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             return layer(input_array, hr_exo, extras)
         return layer(input_array, hr_exo)
 
-    #@tf.function
+    @tf.function
     def _tf_generate(self, low_res, hi_res_exo=None):
         """Use the generator model to generate high res data from low res input
 
@@ -1265,7 +1275,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 else:
                     hi_res = layer(hi_res)
             except Exception as e:
-                breakpoint()
                 msg = (
                     f'Could not run layer #{layer_num} "{layer}" on tensor '
                     f'of shape {hi_res.shape}'
@@ -1275,21 +1284,31 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         return hi_res
 
-    def _get_hr_exo_and_loss(
+    @tf.function
+    def _tf_get_multiterm_grad(
         self,
         low_res,
         hi_res_true,
+        training_weights,
         **calc_loss_kwargs,
     ):
-        """Get high-resolution exogenous data, generate synthetic output, and
-        compute loss. All hr_exo_features are extracted from hi_res_true and
-        added to exo_data."""
-        hi_res_exo = self.get_hr_exo_input(hi_res_true)
-        hi_res_gen = self._tf_generate(low_res, hi_res_exo)
-        loss, loss_details = self.calc_loss(
-            hi_res_true, hi_res_gen, **calc_loss_kwargs
-        )
-        return loss, loss_details, hi_res_gen, hi_res_exo
+        """Compiled per-batch gradient step for use with multi-term gradient
+        methods."""
+        with tf.GradientTape(
+            persistent=True, watch_accessed_variables=False
+        ) as tape:
+            tape.watch(training_weights)
+            hi_res_exo = self._get_hr_exo_input(hi_res_true)
+            hi_res_gen = self._tf_generate(low_res, hi_res_exo)
+            loss, loss_details = self.calc_loss(
+                hi_res_true, hi_res_gen, **calc_loss_kwargs
+            )
+        loss_terms = [
+            v for k, v in loss_details.items() if k.endswith('_weighted')
+        ]
+        task_grads = [tape.gradient(lt, training_weights) for lt in loss_terms]
+        del tape
+        return self.grad_fn(task_grads), loss_details
 
     @tf.function
     def _tf_get_single_grad(
@@ -1299,62 +1318,15 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         training_weights,
         **calc_loss_kwargs,
     ):
-        """Compiled per-batch gradient step used by :meth:`get_single_grad`.
-
-        Keeping this method tensor-only allows graph compilation while
-        :meth:`get_single_grad` continues to handle locks and device placement.
-        """
+        """Compiled per-batch gradient step used by :meth:`get_single_grad`."""
         with tf.GradientTape(watch_accessed_variables=False) as tape:
             tape.watch(training_weights)
-            loss, loss_details, _, _ = self._get_hr_exo_and_loss(
-                low_res, hi_res_true, **calc_loss_kwargs
+            hi_res_exo = self._get_hr_exo_input(hi_res_true)
+            hi_res_gen = self._tf_generate(low_res, hi_res_exo)
+            loss, loss_details = self.calc_loss(
+                hi_res_true, hi_res_gen, **calc_loss_kwargs
             )
-            grad = tape.gradient(loss, training_weights)
-        return grad, loss_details
-
-    def _tf_get_multitask_grad(
-        self,
-        low_res,
-        hi_res_true,
-        training_weights,
-        **calc_loss_kwargs,
-    ):
-        """Per-batch gradient step using a multi-task gradient method.
-
-        Uses a persistent ``GradientTape`` to compute per-loss-term
-        gradients, then combines them via the configured ``grad_method``
-        (``'pcgrad'`` or ``'mgda'``).  Falls back to a standard summed
-        gradient when only one content loss term is configured.
-        """
-        with tf.GradientTape(
-            persistent=True, watch_accessed_variables=False
-        ) as tape:
-            tape.watch(training_weights)
-            loss, loss_details, _, _ = self._get_hr_exo_and_loss(
-                low_res, hi_res_true, **calc_loss_kwargs
-            )
-
-        loss_name = (
-            self.loss_name
-            if isinstance(self.loss_name, dict)
-            else {self.loss_name: {}}
-        )
-        content_loss_info = [
-            (camel_to_underscore(k), v.get('weight', 1.0))
-            for k, v in loss_name.items()
-        ]
-
-        if len(content_loss_info) > 1:
-            task_grads = []
-            for key, w in content_loss_info:
-                g = tape.gradient(loss_details[key], training_weights)
-                task_grads.append([w * gi for gi in g])
-            grad = GRAD_METHODS[self.grad_method](task_grads)
-        else:
-            grad = tape.gradient(loss, training_weights)
-
-        del tape
-        return grad, loss_details
+        return tape.gradient(loss), loss_details
 
     def get_single_grad(
         self,
@@ -1398,8 +1370,8 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """
         with tf.device(device_name):
             grad_fn = (
-                self._tf_get_multitask_grad
-                if self.grad_method in GRAD_METHODS
+                self._tf_get_multiterm_grad
+                if self.grad_method is not None
                 else self._tf_get_single_grad
             )
             grad, loss_details = grad_fn(

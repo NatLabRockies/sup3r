@@ -917,14 +917,14 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         """
         logger.debug('Starting end-of-epoch validation loss calculation...')
         for batch in batch_handler.val_data:
-            _, v_loss_details, _, _ = self._get_hr_exo_and_loss(
-                batch.low_res,
-                batch.high_res,
-                weight_gen_advers=weight_gen_advers,
+            hi_res_exo = self._get_hr_exo_input(batch.high_res)
+            hi_res_gen = self._tf_generate(batch.low_res, hi_res_exo)
+            loss, loss_details = self.calc_loss(
+                batch.high_res, hi_res_gen, weight_gen_advers=weight_gen_advers
             )
             self._val_record = self.update_loss_details(
                 self._val_record,
-                v_loss_details,
+                loss_details,
                 len(batch_handler.val_data),
                 prefix='val_',
             )

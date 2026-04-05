@@ -10939,8 +10939,8 @@ packages:
   requires_python: '>=3.9'
 - pypi: ./
   name: nrel-sup3r
-  version: 0.2.6.dev136+g0fdc17735.d20260324
-  sha256: 332c323f42a2d2ce023e4da9fc9e0aa8200c0036ac94d6c127861594af909cd5
+  version: 0.2.6.dev167+g52dbc65c2.d20260404
+  sha256: b8decc0010a6ec2f694eb49941a3c381d9687a1f60000abaace2e8d8d6c13cce
   requires_dist:
   - nrel-rex>=0.2.91
   - nrel-phygnn>=0.0.32
@@ -10961,7 +10961,7 @@ packages:
   - pre-commit ; extra == 'dev'
   - pylint ; extra == 'dev'
   - ruff>=0.4 ; extra == 'dev'
-  - zarr>=3.1.5,<4 ; extra == 'dev'
+  - zarr>=2.18.0,<4 ; extra == 'dev'
   - sphinx>=7.0 ; extra == 'doc'
   - sphinx-click>=4.0 ; extra == 'doc'
   - sphinx-book-theme>=1.1.1 ; extra == 'doc'

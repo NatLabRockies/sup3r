@@ -218,7 +218,7 @@ class QueueMom2(ConditionalBatchQueue):
         """
         # Remove first moment from HR and square it
         lr, hr = samples
-        exo_data = self.lower_models[1].get_hr_exo_input(hr)
+        exo_data = self.lower_models[1]._get_hr_exo_input(hr)
         out = numpy_if_tensor(self.lower_models[1]._tf_generate(lr, exo_data))
         out = self.lower_models[1]._combine_loss_input(hr, out)
         return (hr - out) ** 2
@@ -258,7 +258,7 @@ class QueueMom2SF(ConditionalBatchQueue):
         """
         # Remove LR and first moment from HR and square it
         lr, hr = samples
-        exo_data = self.lower_models[1].get_hr_exo_input(hr)
+        exo_data = self.lower_models[1]._get_hr_exo_input(hr)
         out = numpy_if_tensor(self.lower_models[1]._tf_generate(lr, exo_data))
         out = self.lower_models[1]._combine_loss_input(hr, out)
         enhanced_lr = spatial_simple_enhancing(lr, s_enhance=self.s_enhance)
