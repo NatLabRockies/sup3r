@@ -1266,22 +1266,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         return hi_res
 
-    def _get_hr_exo_and_loss(
-        self,
-        low_res,
-        hi_res_true,
-        **calc_loss_kwargs,
-    ):
-        """Get high-resolution exogenous data, generate synthetic output, and
-        compute loss. All hr_exo_features are extracted from hi_res_true and
-        added to exo_data."""
-        hi_res_exo = self.get_hr_exo_input(hi_res_true)
-        hi_res_gen = self._tf_generate(low_res, hi_res_exo)
-        loss, loss_details = self.calc_loss(
-            hi_res_true, hi_res_gen, **calc_loss_kwargs
-        )
-        return loss, loss_details, hi_res_gen, hi_res_exo
-
     @tf.function
     def _tf_get_single_grad(
         self,
@@ -1297,8 +1281,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """
         with tf.GradientTape(watch_accessed_variables=False) as tape:
             tape.watch(training_weights)
-            loss, loss_details, _, _ = self._get_hr_exo_and_loss(
-                low_res, hi_res_true, **calc_loss_kwargs
+            hi_res_exo = self.get_hr_exo_input(hi_res_true)
+            hi_res_gen = self._tf_generate(low_res, hi_res_exo)
+            loss, loss_details = self.calc_loss(
+                hi_res_true, hi_res_gen, **calc_loss_kwargs
             )
             grad = tape.gradient(loss, training_weights)
         return grad, loss_details
