@@ -441,7 +441,7 @@ class Sup3rQa:
             len(self.input_handler.time_index),
             len(self.input_handler.meta),
         )
-        attrs = OUTPUT_ATTRS.get(parse_feature(dset_name).basename, {})
+        attrs = dict(OUTPUT_ATTRS.get(parse_feature(dset_name).basename, {}))
 
         # dont scale the re-coarsened data or diffs
         attrs['scale_factor'] = 1
@@ -460,7 +460,7 @@ class Sup3rQa:
             dset_name,
             data,
             dtype=attrs['dtype'],
-            chunks=attrs.get('chunks', None),
+            chunks=attrs.get('chunks'),
             attrs=attrs,
         )
 
