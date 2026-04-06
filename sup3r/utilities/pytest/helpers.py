@@ -78,15 +78,16 @@ def make_fake_dset(
         dims = ('time', *dims[2:])
         trans_axes = (2, 0, 1)
     data_vars = {}
+    rng = da.random.RandomState(42)
     for f in features:
         if 'zg' in f:
-            data = da.random.uniform(10, 1000, shape)
+            data = rng.uniform(10, 1000, shape)
         elif 'orog' in f:
-            data = da.random.uniform(0, 10, shape)
+            data = rng.uniform(0, 10, shape)
         elif 'pressure' in f:
-            data = da.random.uniform(80000, 100000, shape)
+            data = rng.uniform(80000, 100000, shape)
         else:
-            data = da.random.uniform(-1, 1, shape)
+            data = rng.uniform(-1, 1, shape)
         data_vars[f] = (
             dims[: len(shape)],
             da.transpose(
