@@ -1308,7 +1308,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         ]
         task_grads = [tape.gradient(lt, training_weights) for lt in loss_terms]
         del tape
-        return self.grad_fn(task_grads), loss_details
+        grad = (
+            self.grad_fn(task_grads) if len(task_grads) > 1 else task_grads[0]
+        )
+        return grad, loss_details
 
     @tf.function
     def _tf_get_single_grad(
@@ -1326,7 +1329,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             loss, loss_details = self.calc_loss(
                 hi_res_true, hi_res_gen, **calc_loss_kwargs
             )
-        return tape.gradient(loss), loss_details
+        return tape.gradient(loss, training_weights), loss_details
 
     def get_single_grad(
         self,
@@ -1369,9 +1372,13 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Namespace of the breakdown of loss components
         """
         with tf.device(device_name):
+            use_multiterm = (
+                self.grad_method is not None
+                and calc_loss_kwargs.get('train_gen', True)
+            )
             grad_fn = (
                 self._tf_get_multiterm_grad
-                if self.grad_method is not None
+                if use_multiterm
                 else self._tf_get_single_grad
             )
             grad, loss_details = grad_fn(
