@@ -76,25 +76,34 @@ class Sampler(Container):
                 ``Sup3rConcat`` for topography injection, ``Sup3rObsModel`` or
                 ``Sup3rCrossAttention`` for obs injection.  If no entry is
                 provided then hr_exo_features will be empty.
-
             *To include sparse features as inputs or targets the features
             must have an "_obs" suffix.
         proxy_obs_kwargs : dict | None
             Optional dictionary of keyword arguments to pass to the proxy
             observation generator. This is only used when training with proxy
-            observations. Keys can include ``onshore_obs_frac`` and
-            ``offshore_obs_frac`` which specify the fraction of the batch that
-            should be treated as onshore and offshore observations,
-            respectively. For example, ``proxy_obs_kwargs={'onshore_obs_frac':
-            {'spatial': 0.1, 'temporal': 0.2}, 'offshore_obs_frac': {'spatial':
-            0.05, 'temporal': 0.1}}`` would specify that for the onshore region
-            observations cover 10% of the spatial domain and 20% of the
-            temporal domain, while for the offshore region observations cover
-            5% of the spatial domain and 10% of the temporal domain. Instead of
-            a single float, these can also be lists to specify a lower and
-            upper bound for the spatial and temporal fractions, in which case
-            the actual fraction for each batch will be sampled uniformly
-            between these bounds.
+            observations. Keys can include ``onshore_obs_frac``,
+            ``offshore_obs_frac``, and ``perturbation_scale``.
+
+            perturbation_scale : float
+                Scale of the perturbation to add to the proxy observations when
+                using proxy observations. This specifies the multiplier of the
+                noise sampled from (-standard deviation, standard deviation).
+                The standdard deviation is calculated per feature over each
+                batch.
+            onshore_obs_frac : float | dict
+                Fraction of onshore observations to include in each batch when
+                using proxy observations. This can be a single float or a
+                dictionary with keys 'spatial' and 'temporal' to specify the
+                fraction for each domain. If a dictionary is provided, the
+                actual fraction for each batch will be sampled uniformly
+                between the specified spatial and temporal fractions.
+            offshore_obs_frac : float | dict
+                Fraction of offshore observations to include in each batch when
+                using proxy observations. This can be a single float or a
+                dictionary with keys 'spatial' and 'temporal' to specify the
+                fraction for each domain. If a dictionary is provided, the
+                actual fraction for each batch will be sampled uniformly
+                between the specified spatial and temporal fractions.
         mode : str
             Mode for sampling data. Options are 'lazy' or 'eager'. 'eager' mode
             pre-loads all data into memory as numpy arrays for faster access.
@@ -146,6 +155,14 @@ class Sampler(Container):
         temporal fractions.
         """
         return self.proxy_obs_kwargs.get('offshore_obs_frac', {})
+
+    @property
+    def perturbation_scale(self):
+        """Scale of the perturbation to add to the proxy observations when
+        using proxy observations. This specifies the multiplier of the noise
+        sampled from (-standard deviation, standard deviation).
+        """
+        return self.proxy_obs_kwargs.get('perturbation_scale', 0.01)
 
     def get_sample_index(self, n_obs=None):
         """Randomly gets spatiotemporal sample index.
@@ -217,9 +234,7 @@ class Sampler(Container):
         observations."""
         all_feats = lowered(set(self.data.features))
 
-        assert set(self.obs_features).issubset(
-            set(self.hr_source_features)
-        ), (
+        assert set(self.obs_features).issubset(set(self.hr_source_features)), (
             'When using proxy observations, all obs features must be '
             'included either in hr_out_features or hr_exo_features.'
         )
@@ -418,7 +433,12 @@ class Sampler(Container):
 
     def _get_proxy_obs(self, hi_res):
         """Generate proxy observation data by masking the gridded high-res
-        data. Unobserved locations are set to NaN.
+        data. Adds a perturbation to the proxy observations sampled from a
+        gaussian distribution with mean 0 and standard deviation equal to the
+        standard deviation of the unmasked values for each feature. This is
+        done to prevent the model from learning to ignore the obs features
+        because they are exactly the same as the gridded features at the
+        observed locations. Unobserved locations are set to NaN.
 
         Parameters
         ----------
@@ -435,6 +455,10 @@ class Sampler(Container):
         obs_mask = self._get_full_obs_mask(hi_res)
         obs = hi_res[..., self.obs_features_ind].copy()
         obs[obs_mask[..., : obs.shape[-1]]] = np.nan
+        if self.perturbation_scale > 0:
+            stdev = np.nanstd(obs, axis=(0, 1, 2, 3), keepdims=True)
+            noise = np.random.uniform(-stdev, stdev)
+            obs += self.perturbation_scale * noise
         return obs
 
     def _append_obs_features(self, samples):
