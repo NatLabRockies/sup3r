@@ -76,19 +76,29 @@ class DualSampler(Sampler):
         proxy_obs_kwargs : dict | None
             Optional dictionary of keyword arguments to pass to the proxy
             observation generator. This is only used when training with proxy
-            observations. Keys can include ``onshore_obs_frac`` and
-            ``offshore_obs_frac`` which specify the fraction of the batch that
-            should be treated as onshore and offshore observations,
-            respectively. For example, ``proxy_obs_kwargs={'onshore_obs_frac':
-            {'spatial': 0.1, 'temporal': 0.2}, 'offshore_obs_frac': {'spatial':
-            0.05, 'temporal': 0.1}}`` would specify that for the onshore region
-            observations cover 10% of the spatial domain and 20% of the
-            temporal domain, while for the offshore region observations cover
-            5% of the spatial domain and 10% of the temporal domain. Instead of
-            a single float, these can also be lists to specify a lower and
-            upper bound for the spatial and temporal fractions, in which case
-            the actual fraction for each batch will be sampled uniformly
-            between these bounds.
+            observations. Keys can include ``onshore_obs_frac``,
+            ``offshore_obs_frac``, and ``perturbation_scale``.
+
+            perturbation_scale : float
+                Scale of the perturbation to add to the proxy observations when
+                using proxy observations. This specifies the multiplier of the
+                noise sampled from (-standard deviation, standard deviation).
+                The standdard deviation is calculated per feature over each
+                batch.
+            onshore_obs_frac : float | dict
+                Fraction of onshore observations to include in each batch when
+                using proxy observations. This can be a single float or a
+                dictionary with keys 'spatial' and 'temporal' to specify the
+                fraction for each domain. If a dictionary is provided, the
+                actual fraction for each batch will be sampled uniformly
+                between the specified spatial and temporal fractions.
+            offshore_obs_frac : float | dict
+                Fraction of offshore observations to include in each batch when
+                using proxy observations. This can be a single float or a
+                dictionary with keys 'spatial' and 'temporal' to specify the
+                fraction for each domain. If a dictionary is provided, the
+                actual fraction for each batch will be sampled uniformly
+                between the specified spatial and temporal fractions.
         mode : str
             Mode for sampling data. Options are 'lazy' or 'eager'. 'eager' mode
             pre-loads all data into memory as numpy arrays for faster access.
