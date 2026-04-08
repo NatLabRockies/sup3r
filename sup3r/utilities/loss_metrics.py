@@ -962,14 +962,14 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         """Compute the conductive heat-transfer residual
 
         Temperature is interpreted in C, thermal conductivity in W/m-K, and
-        heat flow in mW/m^2. Heat flow is converted internally to W/m^2 before
-        evaluating the residual.
+        heat flow in mW/m^2. Thermal conductivity is converted internally
+        to mW/m-K before evaluating the residual.
         """
         t, q, k = self._get_feature_tensors(x)
 
         t = _reshape_depth_feature_for_vertical_derivative(t)  # C
-        q = _reshape_depth_feature_for_vertical_derivative(q) / 1000.0  # W/m^2
-        k = _reshape_depth_feature_for_vertical_derivative(k)  # W/m/K
+        q = _reshape_depth_feature_for_vertical_derivative(q)  # mW/m^2
+        k = _reshape_depth_feature_for_vertical_derivative(k) * 1000  # mW/m/K
 
         dx = tf.cast(self.dx, t.dtype)
         dy = tf.cast(self.dy, t.dtype)
@@ -1186,11 +1186,12 @@ class GeothermalMohoBCLoss(Sup3rLoss):
             0D tensor loss value
         """
 
-        heat_flow_watts = x_gen * 1000
-        temp_grad_K_per_m = x_moho / 1000
+        surface_heat_flow_watts = x_gen  # / 1000  # convert mW/m^2 to W/m^2
+        temp_grad_K_per_m = x_moho  # / 1000  # convert K/km to K/m
+        moho_heat_flow = self.lambda_um * temp_grad_K_per_m  # W/m^2
 
         residuals = tf.math.maximum(
-            self.lambda_um * temp_grad_K_per_m - heat_flow_watts,
+            moho_heat_flow - surface_heat_flow_watts,
             tf.constant([0.0], x_gen.dtype),
         )
         return self.LOSS_METRIC(tf.zeros_like(residuals), residuals)
