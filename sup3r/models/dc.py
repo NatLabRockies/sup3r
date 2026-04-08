@@ -51,9 +51,11 @@ class Sup3rGanDC(Sup3rGan):
         for i, batch in enumerate(batch_handler.val_data):
             logger.info(f'Calculating validation loss for batch {i} / '
                         f'{len(batch_handler.val_data)}...')
-            loss, loss_details, _, _ = self._get_hr_exo_and_loss(
-                low_res=batch.low_res,
-                hi_res_true=batch.high_res,
+            hi_res_exo = self.get_hr_exo_input(batch.high_res)
+            hi_res_gen = self._tf_generate(batch.low_res, hi_res_exo)
+            loss, loss_details = self.calc_loss(
+                batch.high_res,
+                hi_res_gen,
                 weight_gen_advers=weight_gen_advers,
             )
             row = i // batch_handler.n_time_bins

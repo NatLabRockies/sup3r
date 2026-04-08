@@ -21,10 +21,7 @@ from sup3r.preprocessing.utilities import (
 from sup3r.utilities import ModuleName
 from sup3r.utilities.cli import BaseCLI
 from sup3r.utilities.utilities import Timer
-from sup3r.writers import (
-    OutputHandlerH5,
-    OutputHandlerNC,
-)
+from sup3r.writers import OutputHandlerH5, OutputHandlerNC
 
 logger = logging.getLogger(__name__)
 
@@ -414,6 +411,12 @@ class ForwardPass:
             logger.error(msg)
             return failed
 
+        if np.isinf(out_data).any():
+            msg = 'Forward pass output contains Inf values!'
+            failed = True
+            logger.error(msg)
+            return failed
+
         for i in range(out_data.shape[-1]):
             msg = f'All values are the same for feature channel {i}!'
             value0 = out_data[0, 0, 0, i]
@@ -656,6 +659,16 @@ class ForwardPass:
                 f'Input data for {feats} contains NaN values. Either '
                 'use ``nan_method_kwargs`` to fill these on the fly or '
                 'clean the data.'
+            )
+            logger.error(msg)
+            raise RuntimeError(msg)
+
+        mask = np.isinf(chunk.input_data).any(axis=(0, 1, 2))
+        feats = np.array(model.lr_features[: len(mask)])[mask]
+        if np.any(mask):
+            msg = (
+                f'Input data for {feats} contains Inf values. Cannot run '
+                'forward pass.'
             )
             logger.error(msg)
             raise RuntimeError(msg)
