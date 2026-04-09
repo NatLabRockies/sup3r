@@ -1178,8 +1178,8 @@ class GeothermalMohoBCLoss(Sup3rLoss):
         x_moho : tf.tensor
             Moho temperature gradient in C/km.
         x_gen : tf.tensor
-            Synthetic generator output of heat-flow values in mW/m^2.
-            Shape must be either:
+            Synthetic generator output of surface heat-flow values in
+            mW/m^2. Shape must be either:
             (n_observations, spatial_1, spatial_2, features) or
             (n_observations, spatial_1, spatial_2, temporal, features)
 
@@ -1188,13 +1188,10 @@ class GeothermalMohoBCLoss(Sup3rLoss):
         tf.tensor
             0D tensor loss value
         """
-
-        surface_heat_flow_watts = x_gen  # / 1000  # convert mW/m^2 to W/m^2
-        temp_grad_K_per_m = x_moho  # / 1000  # convert K/km to K/m
-        moho_heat_flow = self.lambda_um * temp_grad_K_per_m  # W/m^2
-
+        moho_heat_flow = self.lambda_um * x_moho  # [W/m-K] * [K/km] = [mW/m^2]
         residuals = tf.math.maximum(
-            moho_heat_flow - surface_heat_flow_watts,
+            # Moho [mW/m^2] - surface heat flow [mW/m^2]
+            moho_heat_flow - x_gen,
             tf.constant([0.0], x_gen.dtype),
         )
         return self.LOSS_METRIC(tf.zeros_like(residuals), residuals)
