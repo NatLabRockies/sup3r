@@ -302,7 +302,7 @@ xarray = ">=2023.0"
 
 [tool.pixi.pypi-dependencies]
 NREL-sup3r = { path = ".", editable = true }
-NREL-rex = { version = ">=0.2.87" }
+NREL-rex = { version = ">=0.2.91" }
 NREL-phygnn = { version = ">=0.0.23" }
 NREL-gaps = { version = ">=0.6.13" }
 NREL-farms = { version = ">=1.0.4" }

@@ -56,8 +56,32 @@ class SamplerDC(Sampler):
             efficient than getting N = batch_size samples and then stacking.
         feature_sets : Optional[dict]
             Optional dictionary describing how the full set of features is
-            split between `lr_only_features` and `hr_exo_features`. See
-            :class:`~sup3r.preprocessing.Sampler`
+            split between ``lr_features``, ``hr_exo_features``, and
+            ``hr_out_features``.
+
+            lr_features : list | tuple
+                List of feature names or patt*erns to use as low-resolution
+                model inputs. If no entry is provided then all available
+                features from the data will be used.
+            hr_out_features : list | tuple
+                List of feature names or patt*erns that should be output
+                by the generative model and available as ground truth targets.
+                If no entry is provided then all features in lr_features will
+                be used.
+            hr_exo_features : list | tuple
+                List of feature names or patt*erns that should be available as
+                high-resolution model inputs (like topography or observations)
+                or for bespoke loss functions. Features used as inputs are
+                injected into the model mid-network to condition output on
+                high-resolution information. The model configuration should
+                have the appropriate layers to use these features. e.g.
+                ``Sup3rConcat`` for topography injection, ``Sup3rObsModel`` or
+                ``Sup3rCrossAttention`` for obs injection.  If no entry is
+                provided then hr_exo_features will be empty.
+
+
+            *To include sparse features as inputs or targets the features
+            must have an "_obs" suffix.
         mode : str
             Loading mode for sampling.
             See :class:`~sup3r.preprocessing.Sampler`

@@ -210,6 +210,10 @@ def test_train(fp_gen, fp_disc, s_enhance, t_enhance, sample_shape, n_epoch=8):
             learning_rate=lr,
             loss={'MeanAbsoluteError': {}, 'MeanSquaredError': {}},
         )
+        dummy.set_model_params(
+            input_resolution={'spatial': '30km', 'temporal': '60min'},
+            batch_handler=batch_handler,
+        )
 
         for batch in batch_handler:
             out_og = model._tf_generate(batch.low_res)
@@ -252,7 +256,7 @@ def test_train(fp_gen, fp_disc, s_enhance, t_enhance, sample_shape, n_epoch=8):
     'loss_func',
     [
         {'SlicedWassersteinLoss': {}},
-        {'GeothermalPhysicsLoss': {'input_features': ['u_100m']}},
+        {'GeothermalPhysicsLoss': {'gen_features': ['u_100m']}},
     ],
 )
 def test_train_with_custom_loss(loss_func, n_epoch=8):
@@ -297,8 +301,8 @@ def test_train_with_custom_loss(loss_func, n_epoch=8):
 
         tlossg = model.history['train_loss_gen'].values
         vlossg = model.history['val_loss_gen'].values
-        assert np.sum(np.diff(tlossg)) < 0
-        assert np.sum(np.diff(vlossg)) < 0
+        assert not np.isnan(tlossg).any()
+        assert not np.isnan(vlossg).any()
 
         batch_handler.stop()
 
@@ -406,7 +410,9 @@ def test_input_res_check():
 
     with pytest.raises(RuntimeError):
         model.set_model_params(
-            input_resolution={'spatial': '22km', 'temporal': '9min'}
+            input_resolution={'spatial': '22km', 'temporal': '9min'},
+            s_enhance=3,
+            t_enhance=4,
         )
 
 

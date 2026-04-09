@@ -270,9 +270,7 @@ def test_md_loss():
     x = RANDOM_GENERATOR.random((6, 10, 10, 8, 2))
     y = x.copy()
 
-    md_loss = MaterialDerivativeLoss(
-        input_features=['u_100m', 'v_100m']
-    )
+    md_loss = MaterialDerivativeLoss(gen_features=['u_100m', 'v_100m'])
     u_div = md_loss._compute_md(x, feature='u_100m')
     v_div = md_loss._compute_md(x, feature='v_100m')
 
@@ -301,19 +299,25 @@ def test_multiterm_loss():
     y = x.copy()
 
     md_loss = MaterialDerivativeLoss(
-        input_features=['u_100m', 'v_100m', 'temp_100m']
+        gen_features=['u_100m', 'v_100m', 'temp_100m']
     )
     mae_loss = MeanAbsoluteError()
     fp_gen = os.path.join(CONFIG_DIR, 'spatial/gen_2x_2f.json')
     fp_disc = os.path.join(CONFIG_DIR, 'spatial/disc.json')
     model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
-    model.meta['hr_out_features'] = ['u_100m', 'v_100m', 'temp_100m']
+    model.set_model_params(
+        lr_features=['u_100m', 'v_100m', 'temp_100m'],
+        hr_out_features=['u_100m', 'v_100m', 'temp_100m'],
+        input_resolution={'spatial': '12km', 'temporal': '60min'},
+        s_enhance=1,
+        t_enhance=1,
+    )
     multi_loss = model.get_loss_fun({
         'MaterialDerivativeLoss': {
-            'input_features': ['u_100m', 'v_100m', 'temp_100m']
+            'weight': 0.2,
+            'gen_features': ['u_100m', 'v_100m', 'temp_100m'],
         },
-        'MeanAbsoluteError': {},
-        'term_weights': [0.2, 0.8],
+        'MeanAbsoluteError': {'weight': 0.8},
     })
     loss, _ = multi_loss(x, y)
 

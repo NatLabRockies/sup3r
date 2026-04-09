@@ -184,7 +184,10 @@ def test_pair_batch_queue_with_lr_only_features():
             s_enhance=2,
             t_enhance=2,
             batch_size=4,
-            feature_sets={'lr_only_features': lr_only_features},
+            feature_sets={
+                'lr_features': lr_features,
+                'hr_out_features': FEATURES,
+            },
         )
         for lr, hr in zip(lr_containers, hr_containers)
     ]

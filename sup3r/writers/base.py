@@ -570,6 +570,7 @@ class OutputHandler(OutputMixin):
         row_inds=None,
         col_inds=None,
         gids=None,
+        overwrite=False,
     ):
         """Write output to file with specified times and lats/lons"""
 
@@ -588,6 +589,7 @@ class OutputHandler(OutputMixin):
         gids=None,
         row_inds=None,
         col_inds=None,
+        overwrite=False,
     ):
         """Write forward pass output to file
 
@@ -627,6 +629,10 @@ class OutputHandler(OutputMixin):
             Array of column indices for the full high resolution grid. This is
             used to collect spatially contiguous data for stitching output
             chunks back together.
+        overwrite : bool
+            Whether to overwrite existing output file or skip writing if file
+            already exists. Default is False to avoid accidentally overwriting
+            files.
         """
         lat_lon = cls.get_lat_lon(low_res_lat_lon, data.shape[:2])
         times = cls.get_times(low_res_times, data.shape[-2])
@@ -643,4 +649,5 @@ class OutputHandler(OutputMixin):
             row_inds=row_inds,
             col_inds=col_inds,
             gids=gids,
+            overwrite=overwrite,
         )

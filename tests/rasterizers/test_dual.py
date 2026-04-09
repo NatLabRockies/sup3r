@@ -34,10 +34,10 @@ def test_dual_rasterizer_shapes(full_shape=(20, 20)):
         s_enhance=2,
         t_enhance=1,
     )
-    assert pair_rasterizer.lr_data.shape == (
-        pair_rasterizer.hr_data.shape[0] // 2,
-        pair_rasterizer.hr_data.shape[1] // 2,
-        *pair_rasterizer.hr_data.shape[2:],
+    assert pair_rasterizer.data.low_res.shape == (
+        pair_rasterizer.data.high_res.shape[0] // 2,
+        pair_rasterizer.data.high_res.shape[1] // 2,
+        *pair_rasterizer.data.high_res.shape[2:],
     )
 
 
@@ -70,7 +70,7 @@ def test_dual_nan_fill(full_shape=(20, 20)):
         t_enhance=1,
     )
 
-    assert not np.isnan(pair_rasterizer.lr_data.as_array()).any()
+    assert not np.isnan(pair_rasterizer.data.low_res.as_array()).any()
 
 
 def test_regrid_caching(full_shape=(20, 20)):
@@ -110,9 +110,9 @@ def test_regrid_caching(full_shape=(20, 20)):
 
         assert np.array_equal(
             lr_container_new.data[FEATURES][...],
-            pair_rasterizer.lr_data[FEATURES][...],
+            pair_rasterizer.data.low_res[FEATURES][...],
         )
         assert np.array_equal(
             hr_container_new.data[FEATURES][...],
-            pair_rasterizer.hr_data[FEATURES][...],
+            pair_rasterizer.data.high_res[FEATURES][...],
         )

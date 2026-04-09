@@ -13,21 +13,18 @@ logger = logging.getLogger(__name__)
 
 
 class SingleBatchQueue(AbstractBatchQueue):
-    """Base BatchQueue class for single dataset containers
-
-    Note
-    ----
-    Here we use `len(self.features)` for the last dimension of samples, since
-    samples in :class:`SingleBatchQueue` queues are coarsened to produce
-    low-res samples, and then the `lr_only_features` are removed with
-    `hr_features_ind`. In contrast, for samples in :class:`DualBatchQueue`
-    queues there are low / high res pairs and the high-res only stores the
-    `hr_features`"""
+    """Base BatchQueue class for single dataset containers"""
 
     @property
     def queue_shape(self):
         """Shape of objects stored in the queue."""
-        return [(self.batch_size, *self.hr_sample_shape, len(self.features))]
+        return [
+            (
+                self.batch_size,
+                *self.hr_sample_shape,
+                len(self.hr_source_features),
+            )
+        ]
 
     def transform(
         self,
@@ -69,7 +66,8 @@ class SingleBatchQueue(AbstractBatchQueue):
             (batch_size, spatial_1, spatial_2, features)
             (batch_size, spatial_1, spatial_2, temporal, features)
         """
-        low_res = spatial_coarsening(samples, self.s_enhance)
+        lr_samples = numpy_if_tensor(samples)[..., self.lr_features_ind]
+        low_res = spatial_coarsening(lr_samples, self.s_enhance)
         low_res = (
             low_res
             if self.t_enhance == 1
@@ -81,7 +79,7 @@ class SingleBatchQueue(AbstractBatchQueue):
             smoothing_ignore if smoothing_ignore is not None else []
         )
         low_res = smooth_data(
-            low_res, self.features, smoothing_ignore, smoothing
+            low_res, self.lr_features, smoothing_ignore, smoothing
         )
         high_res = numpy_if_tensor(samples)[..., self.hr_features_ind]
         return low_res, high_res

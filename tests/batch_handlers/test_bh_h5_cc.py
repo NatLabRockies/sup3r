@@ -104,7 +104,10 @@ def test_solar_batching_spatial():
         s_enhance=2,
         t_enhance=1,
         sample_shape=(20, 20, 1),
-        feature_sets={'lr_only_features': ['clearsky_ghi', 'ghi']},
+        feature_sets={
+            'lr_features': FEATURES_S,
+            'hr_out_features': ['clearsky_ratio'],
+        },
     )
 
     for batch in batcher:
@@ -162,7 +165,10 @@ def test_solar_multi_day_coarse_data():
         s_enhance=4,
         t_enhance=3,
         sample_shape=(20, 20, 9),
-        feature_sets={'lr_only_features': ['clearsky_ghi', 'ghi']},
+        feature_sets={
+            'lr_features': FEATURES_S,
+            'hr_out_features': ['clearsky_ratio'],
+        },
     )
 
     for batch in batcher:
@@ -176,7 +182,10 @@ def test_solar_multi_day_coarse_data():
 
     # run another test with u/v on low res side but not high res
     features = ['clearsky_ratio', 'u', 'v', 'ghi', 'clearsky_ghi']
-    feature_sets = {'lr_only_features': ['u', 'v', 'clearsky_ghi', 'ghi']}
+    feature_sets = {
+        'lr_features': features,
+        'hr_out_features': ['clearsky_ratio'],
+    }
     handler = DataHandlerH5SolarCC(pytest.FP_NSRDB, features, **dh_kwargs)
 
     batcher = BatchHandlerTesterCC(
@@ -329,7 +338,10 @@ def test_surf_min_max_vars():
         s_enhance=1,
         t_enhance=24,
         sample_shape=(20, 20, 72),
-        feature_sets={'lr_only_features': ['*_min_*', '*_max_*']},
+        feature_sets={
+            'lr_features': surf_features,
+            'hr_out_features': ['temperature_2m', 'relativehumidity_2m'],
+        },
         mode='eager',
     )
 

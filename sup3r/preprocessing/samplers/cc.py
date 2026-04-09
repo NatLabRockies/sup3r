@@ -54,17 +54,31 @@ class DualSamplerCC(DualSampler):
             Temporal enhancement factor
         feature_sets : Optional[dict]
             Optional dictionary describing how the full set of features is
-            split between ``lr_only_features`` and ``hr_exo_features``.
+            split between ``lr_features``, ``hr_exo_features``, and
+            ``hr_out_features``.
 
-            lr_only_features : list | tuple
-                List of feature names or patt*erns that should only be
-                included in the low-res training set and not the high-res
-                observations.
+            lr_features : list | tuple
+                List of feature names or patt*erns to use as low-resolution
+                model inputs. If no entry is provided then all available
+                features from the data will be used.
+            hr_out_features : list | tuple
+                List of feature names or patt*erns that should be output
+                by the generative model and available as ground truth targets.
+                If no entry is provided then all features in lr_features will
+                be used.
             hr_exo_features : list | tuple
-                List of feature names or patt*erns that should be included
-                in the high-resolution observation but not expected to be
-                output from the generative model. An example is high-res
-                topography that is to be injected mid-network.
+                List of feature names or patt*erns that should be available as
+                high-resolution model inputs (like topography or observations)
+                or for bespoke loss functions. Features used as inputs are
+                injected into the model mid-network to condition output on
+                high-resolution information. The model configuration should
+                have the appropriate layers to use these features. e.g.
+                ``Sup3rConcat`` for topography injection, ``Sup3rObsModel`` or
+                ``Sup3rCrossAttention`` for obs injection.  If no entry is
+                provided then hr_exo_features will be empty.
+
+            *To include sparse features as inputs or targets the features
+            must have an "_obs" suffix.
         mode : str
             Mode for sampling data. Options are 'lazy' or 'eager'. 'eager' mode
             pre-loads all data into memory as numpy arrays for faster access.
@@ -100,21 +114,21 @@ class DualSamplerCC(DualSampler):
             mode=mode,
         )
 
-    def check_for_consistent_shapes(self):
+    def check_shape_consistency(self):
         """Make sure container shapes and sample shapes are compatible with
         enhancement factors."""
         enhanced_shape = (
-            self.lr_data.shape[0] * self.s_enhance,
-            self.lr_data.shape[1] * self.s_enhance,
-            self.lr_data.shape[2] * (1 if self.t_enhance == 1 else 24),
+            self.data.low_res.shape[0] * self.s_enhance,
+            self.data.low_res.shape[1] * self.s_enhance,
+            self.data.low_res.shape[2] * (1 if self.t_enhance == 1 else 24),
         )
         msg = (
-            f'hr_data.shape {self.hr_data.shape} and enhanced '
+            f'hr_data.shape {self.data.high_res.shape} and enhanced '
             f'lr_data.shape {enhanced_shape} are not compatible with '
             f'the given enhancement factors t_enhance = {self.t_enhance}, '
             f's_enhance = {self.s_enhance}'
         )
-        assert self.hr_data.shape[:3] == enhanced_shape, msg
+        assert self.data.high_res.shape[:3] == enhanced_shape, msg
 
     def reduce_high_res_sub_daily(self, high_res, csr_ind=0):
         """Take an hourly high-res observation and reduce the temporal axis

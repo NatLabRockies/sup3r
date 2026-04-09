@@ -92,11 +92,11 @@ class DualRasterizer(Container):
             f'Sup3rDataset instance. Received {type(data)}.'
         )
         assert isinstance(data, Sup3rDataset), msg
-        self.lr_data, self.hr_data = data.low_res, data.high_res
+        self.data = data
         self.regrid_workers = regrid_workers
 
-        lr_step = self.lr_data.time_step
-        hr_step = self.hr_data.time_step
+        lr_step = self.data.low_res.time_step
+        hr_step = self.data.high_res.time_step
         msg = (
             f'Time steps of high-res data ({hr_step} seconds) and low-res '
             f'data ({lr_step} seconds) are inconsistent with t_enhance = '
@@ -105,9 +105,9 @@ class DualRasterizer(Container):
         assert np.allclose(lr_step, hr_step * self.t_enhance), msg
 
         self.lr_required_shape = (
-            self.hr_data.shape[0] // self.s_enhance,
-            self.hr_data.shape[1] // self.s_enhance,
-            self.hr_data.shape[2] // self.t_enhance,
+            self.data.high_res.shape[0] // self.s_enhance,
+            self.data.high_res.shape[1] // self.s_enhance,
+            self.data.high_res.shape[2] // self.t_enhance,
         )
         self.hr_required_shape = (
             self.s_enhance * self.lr_required_shape[0],
@@ -118,16 +118,16 @@ class DualRasterizer(Container):
         msg = (
             f'The required low-res shape {self.lr_required_shape} is '
             'inconsistent with the shape of the raw data '
-            f'{self.lr_data.shape}'
+            f'{self.data.low_res.shape}'
         )
         assert all(
             req_s <= true_s
             for req_s, true_s in zip(
-                self.lr_required_shape, self.lr_data.shape
+                self.lr_required_shape, self.data.low_res.shape
             )
         ), msg
 
-        self.hr_lat_lon = self.hr_data.lat_lon[
+        self.hr_lat_lon = self.data.high_res.lat_lon[
             slice(self.hr_required_shape[0]), slice(self.hr_required_shape[1])
         ]
         self.lr_lat_lon = spatial_coarsening(
@@ -137,49 +137,51 @@ class DualRasterizer(Container):
 
         self.update_lr_data()
         self.update_hr_data()
-        super().__init__(data=(self.lr_data, self.hr_data))
+        super().__init__(data=(self.data.low_res, self.data.high_res))
 
         if run_qa:
             self.check_regridded_lr_data()
 
         if lr_cache_kwargs is not None:
-            Cacher(self.lr_data, lr_cache_kwargs)
+            Cacher(self.data.low_res, lr_cache_kwargs)
 
         if hr_cache_kwargs is not None:
-            Cacher(self.hr_data, hr_cache_kwargs)
+            Cacher(self.data.high_res, hr_cache_kwargs)
 
     def update_hr_data(self):
         """Set the high resolution data attribute and check if
         hr_data.shape is divisible by s_enhance. If not, take the largest
         shape that can be."""
         msg = (
-            f'hr_data.shape: {self.hr_data.shape[:3]} is not '
+            f'hr_data.shape: {self.data.high_res.shape[:3]} is not '
             f'divisible by s_enhance: {self.s_enhance}. Using shape: '
             f'{self.hr_required_shape} instead.'
         )
-        need_new_shape = self.hr_data.shape[:3] != self.hr_required_shape[:3]
+        need_new_shape = (
+            self.data.high_res.shape[:3] != self.hr_required_shape[:3]
+        )
         if need_new_shape:
             logger.warning(msg)
             warn(msg)
 
             hr_data_new = {}
-            for f in self.hr_data.features:
+            for f in self.data.high_res.features:
                 hr_slices = [slice(sh) for sh in self.hr_required_shape]
-                hr = self.hr_data.to_dataarray().sel(variable=f).data
+                hr = self.data.high_res.to_dataarray().sel(variable=f).data
                 hr_data_new[f] = hr[tuple(hr_slices)]
 
             hr_coords_new = {
                 Dimension.LATITUDE: self.hr_lat_lon[..., 0],
                 Dimension.LONGITUDE: self.hr_lat_lon[..., 1],
-                Dimension.TIME: self.hr_data.indexes['time'][
+                Dimension.TIME: self.data.high_res.indexes['time'][
                     : self.hr_required_shape[2]
                 ],
             }
             logger.info(
-                'Updating self.hr_data with new shape: '
+                'Updating self.data.high_res with new shape: '
                 f'{self.hr_required_shape[:3]}'
             )
-            self.hr_data = self.hr_data.update_ds({
+            self.data.high_res = self.data.high_res.update_ds({
                 **hr_coords_new,
                 **hr_data_new,
             })
@@ -191,7 +193,9 @@ class DualRasterizer(Container):
             data=self.lr_lat_lon.reshape((-1, 2)),
         )
         return Regridder(
-            self.lr_data.meta, target_meta, max_workers=self.regrid_workers
+            self.data.low_res.meta,
+            target_meta,
+            max_workers=self.regrid_workers,
         )
 
     def update_lr_data(self):
@@ -203,20 +207,20 @@ class DualRasterizer(Container):
             regridder = self.get_regridder()
 
             lr_data_new = {}
-            for f in self.lr_data.features:
-                lr = self.lr_data.to_dataarray().sel(variable=f).data
+            for f in self.data.low_res.features:
+                lr = self.data.low_res.to_dataarray().sel(variable=f).data
                 lr = lr[..., : self.lr_required_shape[2]]
                 lr_data_new[f] = regridder(lr).reshape(self.lr_required_shape)
 
             lr_coords_new = {
                 Dimension.LATITUDE: self.lr_lat_lon[..., 0],
                 Dimension.LONGITUDE: self.lr_lat_lon[..., 1],
-                Dimension.TIME: self.lr_data.indexes[Dimension.TIME][
+                Dimension.TIME: self.data.low_res.indexes[Dimension.TIME][
                     : self.lr_required_shape[2]
                 ],
             }
-            logger.info('Updating self.lr_data with regridded data.')
-            self.lr_data = self.lr_data.update_ds({
+            logger.info('Updating self.data.low_res with regridded data.')
+            self.data.low_res = self.data.low_res.update_ds({
                 **lr_coords_new,
                 **lr_data_new,
             })
@@ -225,8 +229,8 @@ class DualRasterizer(Container):
         """Check for NaNs after regridding and do NN fill if needed."""
         fill_feats = []
         logger.info('Checking for NaNs after regridding')
-        qa_info = self.lr_data.qa(stats=['nan_perc'])
-        for f in self.lr_data.features:
+        qa_info = self.data.low_res.qa(stats=['nan_perc'])
+        for f in self.data.low_res.features:
             nan_perc = qa_info[f]['nan_perc']
             if nan_perc > 0:
                 msg = f'{f} data has {nan_perc:.3f}% NaN values!'
@@ -244,6 +248,6 @@ class DualRasterizer(Container):
                 f'features = {fill_feats}'
             )
             logger.info(msg)
-            self.lr_data = self.lr_data.interpolate_na(
+            self.data.low_res = self.data.low_res.interpolate_na(
                 features=fill_feats, method='nearest'
             )

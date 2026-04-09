@@ -19,24 +19,24 @@ TARGET_W = (39.01, -105.15)
 
 
 @pytest.mark.parametrize(
-    ('CustomLayer', 'features', 'lr_only_features', 'mode'),
+    ('CustomLayer', 'lr_features', 'hr_out_features', 'mode'),
     [
-        ('Sup3rAdder', FEATURES_W, ['temperature_100m'], 'lazy'),
-        ('Sup3rConcat', FEATURES_W, ['temperature_100m'], 'lazy'),
-        ('Sup3rAdder', FEATURES_W[1:], [], 'lazy'),
-        ('Sup3rConcat', FEATURES_W[1:], [], 'lazy'),
-        ('Sup3rConcat', FEATURES_W[1:], [], 'eager'),
+        ('Sup3rAdder', FEATURES_W, FEATURES_W[1:-1], 'lazy'),
+        ('Sup3rConcat', FEATURES_W, FEATURES_W[1:-1], 'lazy'),
+        ('Sup3rAdder', FEATURES_W[1:], FEATURES_W[1:-1], 'lazy'),
+        ('Sup3rConcat', FEATURES_W[1:], FEATURES_W[1:-1], 'lazy'),
+        ('Sup3rConcat', FEATURES_W[1:], FEATURES_W[1:-1], 'eager'),
     ],
 )
 def test_wind_hi_res_topo(
-    CustomLayer, features, lr_only_features, mode, gen_config_with_topo
+    CustomLayer, lr_features, hr_out_features, mode, gen_config_with_topo
 ):
     """Test a special wind model for non cc with the custom Sup3rAdder or
     Sup3rConcat layer that adds/concatenates hi-res topography in the middle of
     the network."""
     kwargs = {
         'file_paths': pytest.FP_WTK,
-        'features': features,
+        'features': lr_features,
         'target': TARGET_W,
         'shape': SHAPE,
     }
@@ -54,7 +54,8 @@ def test_wind_hi_res_topo(
         t_enhance=1,
         sample_shape=(20, 20, 1),
         feature_sets={
-            'lr_only_features': lr_only_features,
+            'lr_features': lr_features,
+            'hr_out_features': hr_out_features,
             'hr_exo_features': ['topography'],
         },
         mode=mode,
@@ -80,16 +81,18 @@ def test_wind_hi_res_topo(
             out_dir=os.path.join(td, 'test_{epoch}'),
         )
 
-        assert model.lr_features == [f.lower() for f in features]
-        assert model.hr_out_features == ['u_100m', 'v_100m']
+        assert model.lr_features == [f.lower() for f in lr_features]
+        assert model.hr_out_features == [f.lower() for f in hr_out_features]
         assert model.hr_exo_features == ['topography']
         assert 'test_0' in os.listdir(td)
-        assert model.meta['hr_out_features'] == ['u_100m', 'v_100m']
+        assert model.meta['hr_out_features'] == [
+            f.lower() for f in hr_out_features
+        ]
         assert model.meta['class'] == 'Sup3rGan'
         assert 'topography' in batcher.hr_exo_features
         assert 'topography' not in model.hr_out_features
 
-    x = RANDOM_GENERATOR.uniform(0, 1, (4, 30, 30, len(features)))
+    x = RANDOM_GENERATOR.uniform(0, 1, (4, 30, 30, len(lr_features)))
     hi_res_topo = RANDOM_GENERATOR.uniform(0, 1, (4, 60, 60, 1))
 
     with pytest.raises(RuntimeError):
@@ -108,4 +111,4 @@ def test_wind_hi_res_topo(
     assert y.shape[0] == x.shape[0]
     assert y.shape[1] == x.shape[1] * 2
     assert y.shape[2] == x.shape[2] * 2
-    assert y.shape[3] == len(features) - len(lr_only_features) - 1
+    assert y.shape[3] == len(hr_out_features)

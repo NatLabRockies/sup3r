@@ -38,6 +38,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         stdevs=None,
         default_device=None,
         name=None,
+        sparse_disc=False,
     ):
         """
         Parameters
@@ -59,9 +60,9 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             tf.keras.losses.MeanSquaredError. As a dictionary this can
             include multiple loss function classes, each with
             dictionaries of kwargs for that function. Can also include a
-            key ``term_weights``, which provides a list of weights for
-            each loss function. e.g. ``{'SpatialExtremesLoss': {},
-            'MeanAbsoluteError': {}, 'term_weights': [0.8, 0.2]}``
+            key ``weight``, which provides a weight for each loss function.
+            e.g. ``{'SpatialExtremesLoss': {'weight': 0.6},
+            'MeanAbsoluteError': {'weight': 0.4}}``
         optimizer : tf.keras.optimizers.Optimizer | dict | None | str
             Instantiated tf.keras.optimizers object or a dict optimizer config
             from tf.keras.optimizers.get_config(). None defaults to Adam.
@@ -97,6 +98,15 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             (this was tested as most efficient given the custom multi-gpu
              strategy developed in self.run_gradient_descent()). Examples:
             "/gpu:0" or "/cpu:0"
+        sparse_disc : bool
+            Flag to indicate if the discriminator can handle sparse input data.
+            If False, the discriminator will expect input data with no missing
+            values. If True, the discriminator will be able to handle input
+            data with missing values, which may be the case when using
+            observations for training. Note that if True, the discriminator
+            model architecture should be designed to handle sparse data (e.g.
+            by using masking layers or other techniques).
+
         name : str | None
             Optional name for the GAN.
         """
@@ -110,7 +120,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         self._meta = meta if meta is not None else {}
 
         self.loss_name = loss
-        self.loss_fun = self.get_loss_fun(loss)
 
         self._history = history
         if isinstance(self._history, str):
@@ -130,6 +139,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         self._means = means
         self._stdevs = stdevs
+        self._sparse_disc = sparse_disc
 
     def save(self, out_dir):
         """Save the GAN with its sub-networks to a directory.
@@ -298,7 +308,12 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         out : np.ndarray
             Discriminator output logits
         """
-        out = self.discriminator.layers[0](hi_res)
+        hr = (
+            hi_res
+            if self._sparse_disc
+            else tf.gather(hi_res, indices=self.hr_out_features_ind, axis=-1)
+        )
+        out = self.discriminator.layers[0](hr)
         layer_num = 1
         try:
             for i, layer in enumerate(self.discriminator.layers[1:]):
@@ -392,7 +407,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         """
         return self.generator_weights + self.discriminator_weights
 
-    def init_weights(self, lr_shape, hr_shape, device=None):
+    def init_weights(self, lr_shape, hr_shape, train_disc=False, device=None):
         """Initialize the generator and discriminator weights with device
         placement.
 
@@ -406,12 +421,17 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             Shape of one batch of high res input data for sup3r resolution.
             Note that the batch size (axis=0) must be included, but the actual
             batch size doesnt really matter.
+        train_disc : bool
+            Whether to initialize the discriminator weights. If False, only the
+            generator weights will be initialized.
         device : str | None
             Option to place model weights on a device. If None,
             self.default_device will be used.
         """
 
-        if not self.generator_weights:
+        no_disc_weights = train_disc and not self.discriminator_weights
+        no_gen_weights = not self.generator_weights
+        if no_disc_weights or no_gen_weights:
             if device is None:
                 device = self.default_device
 
@@ -421,12 +441,12 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             low_res = tf.cast(np.ones(lr_shape), dtype=tf.float32)
             hi_res = tf.cast(np.ones(hr_shape), dtype=tf.float32)
 
-            hr_exo_shape = hr_shape[:-1] + (1,)
+            hr_exo_shape = (*hr_shape[:-1], 1)
             hr_exo = tf.cast(np.ones(hr_exo_shape), dtype=tf.float32)
 
             with tf.device(device):
                 hr_exo_data = {}
-                for feature in self.hr_exo_features + self.obs_features:
+                for feature in self.hr_exo_features:
                     hr_exo_data[feature] = hr_exo
                 out = self._tf_generate(low_res, hr_exo_data)
                 msg = (
@@ -435,7 +455,9 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                     f'{len(self.hr_out_features)}'
                 )
                 assert out.shape[-1] == len(self.hr_out_features), msg
-                _ = self._tf_discriminate(hi_res)
+
+                if train_disc:
+                    _ = self._tf_discriminate(hi_res)
 
     @staticmethod
     def get_weight_update_fraction(
@@ -476,33 +498,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             return 1 / (1 + update_frac)
         return 1
 
-    @tf.function
-    def calc_loss_gen_content(self, hi_res_true, hi_res_gen):
-        """Calculate the content loss term for the generator model.
-
-        Parameters
-        ----------
-        hi_res_true : tf.Tensor
-            Ground truth high resolution spatiotemporal data.
-        hi_res_gen : tf.Tensor
-            Superresolved high resolution spatiotemporal data generated by the
-            generative model.
-
-        Returns
-        -------
-        loss_gen_s : tf.Tensor
-            0D tensor generator model loss for the content loss comparing the
-            hi res ground truth to the hi res synthetically generated output.
-        """
-        slc = (
-            slice(0, None)
-            if len(self.hr_exo_features) == 0
-            else slice(0, -len(self.hr_exo_features))
-        )
-        # gen is first since loss can included regularizers which just
-        # apply to generator output
-        return self.loss_fun(hi_res_gen[..., slc], hi_res_true[..., slc])
-
     @staticmethod
     @tf.function
     def calc_loss_disc(disc_out_true, disc_out_gen):
@@ -516,12 +511,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         ``disc_out_true`` to ``disc_out_gen`` and vice versa, which then
         encourages the generator to produce output which is "more realistic"
         than the true high-res data.
-
-        References
-        ----------
-        .. [Wang2018] Wang, Xintao, et al. "Esrgan: Enhanced super-resolution
-            generative adversarial networks." Proceedings of the European
-            conference on computer vision (ECCV) workshops. 2018.
 
         Parameters
         ----------
@@ -537,6 +526,12 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         loss_disc : tf.Tensor
             0D tensor discriminator model loss for either the spatial or
             temporal component of the super resolution generated output.
+
+        References
+        ----------
+        .. [Wang2018] Wang, Xintao, et al. "Esrgan: Enhanced super-resolution
+            generative adversarial networks." Proceedings of the European
+            conference on computer vision (ECCV) workshops. 2018.
         """
         true_logits = disc_out_true - tf.reduce_mean(disc_out_gen)
         fake_logits = disc_out_gen - tf.reduce_mean(disc_out_true)
@@ -605,22 +600,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 )
 
         return weight_gen_advers
-
-    @staticmethod
-    def check_batch_handler_attrs(batch_handler):
-        """Not all batch handlers have the following attributes. So we perform
-        some sanitation before sending to `set_model_params`"""
-        return {
-            k: getattr(batch_handler, k, None)
-            for k in [
-                'smoothing',
-                'lr_features',
-                'hr_exo_features',
-                'hr_out_features',
-                'smoothed_features',
-            ]
-            if hasattr(batch_handler, k)
-        }
 
     def train(
         self,
@@ -725,12 +704,8 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             self._init_tensorboard_writer(out_dir)
 
         self.set_norm_stats(batch_handler.means, batch_handler.stds)
-        params = self.check_batch_handler_attrs(batch_handler)
         self.set_model_params(
-            input_resolution=input_resolution,
-            s_enhance=batch_handler.s_enhance,
-            t_enhance=batch_handler.t_enhance,
-            **params,
+            input_resolution=input_resolution, batch_handler=batch_handler
         )
 
         epochs = list(range(n_epoch))
@@ -748,7 +723,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 weight_gen_advers, n_epoch, epochs[0]
             )
         )
-
         for epoch in epochs:
             t_epoch = time.time()
             loss_details = self._train_epoch(
@@ -881,28 +855,36 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             logger.error(msg)
             raise RuntimeError(msg)
 
-        disc_out_true = self._tf_discriminate(hi_res_true)
-        disc_out_gen = self._tf_discriminate(hi_res_gen)
-
         loss_details = {}
         loss = None
+        disc_out_true = None
+        disc_out_gen = None
+        loss_gen_advers = None
 
-        if compute_disc or train_disc:
+        if train_disc or compute_disc:
+            disc_out_true = self._tf_discriminate(hi_res_true)
+            disc_out_gen = self._tf_discriminate(hi_res_gen)
             loss_details['loss_disc'] = self.calc_loss_disc(
                 disc_out_true=disc_out_true, disc_out_gen=disc_out_gen
             )
+
+        if train_gen and compute_disc:
+            loss_gen_advers = self.calc_loss_disc(
+                disc_out_true=disc_out_gen, disc_out_gen=disc_out_true
+            )
+            loss_details['loss_gen_advers'] = loss_gen_advers
 
         if train_gen:
             loss_gen_content, loss_gen_content_details = (
                 self.calc_loss_gen_content(hi_res_true, hi_res_gen)
             )
-            loss_gen_advers = self.calc_loss_disc(
-                disc_out_true=disc_out_gen, disc_out_gen=disc_out_true
+            loss = (
+                loss_gen_content
+                if loss_gen_advers is None
+                else loss_gen_content + weight_gen_advers * loss_gen_advers
             )
-            loss = loss_gen_content + weight_gen_advers * loss_gen_advers
             loss_details['loss_gen'] = loss
             loss_details['loss_gen_content'] = loss_gen_content
-            loss_details['loss_gen_advers'] = loss_gen_advers
             loss_details.update(loss_gen_content_details)
 
         elif train_disc:
@@ -928,9 +910,11 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         """
         logger.debug('Starting end-of-epoch validation loss calculation...')
         for batch in batch_handler.val_data:
-            _, v_loss_details, _, _ = self._get_hr_exo_and_loss(
-                batch.low_res,
+            hi_res_exo = self.get_hr_exo_input(batch.high_res)
+            hi_res_gen = self._tf_generate(batch.low_res, hi_res_exo)
+            _, v_loss_details = self.calc_loss(
                 batch.high_res,
+                hi_res_gen,
                 weight_gen_advers=weight_gen_advers,
             )
             self._val_record = self.update_loss_details(
@@ -971,7 +955,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             Flag whether to train the discriminator for this set of epochs
         only_disc : bool
             Flag whether to only train the discriminator for this set of epochs
-        gen_too_good : bool
+        disc_too_good : bool
             Flag whether to skip training the discriminator and only train the
             generator, due to superior performance, for this batch.
         weight_gen_advers : float
@@ -1140,11 +1124,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             Namespace of the breakdown of loss components
         """
         lr_shape, hr_shape = batch_handler.shapes
-        self.init_weights(lr_shape, hr_shape)
-
-        self.init_weights(
-            (1, *batch_handler.lr_shape), (1, *batch_handler.hr_shape)
-        )
+        self.init_weights(lr_shape, hr_shape, train_disc=train_disc)
 
         disc_th_low = np.min(disc_loss_bounds)
         disc_th_high = np.max(disc_loss_bounds)

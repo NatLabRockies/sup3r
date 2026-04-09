@@ -170,7 +170,10 @@ def test_wind_non_cc_hi_res_st_topo_mom2(
         lower_models={1: model_mom1},
         n_batches=n_batches,
         sample_shape=(12, 12, 24),
-        feature_sets={'hr_exo_features': ['topography']},
+        feature_sets={
+            'lr_features': ['u_100m', 'v_100m', 'topography'],
+            'hr_out_features': ['u_100m', 'v_100m'],
+            'hr_exo_features': ['topography']},
         mode='eager'
     )
 

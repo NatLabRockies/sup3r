@@ -51,7 +51,10 @@ def test_solar_cc_model(hr_steps):
         s_enhance=1,
         t_enhance=8,
         sample_shape=(20, 20, hr_steps),
-        feature_sets={'lr_only_features': ['clearsky_ghi', 'ghi']},
+        feature_sets={
+            'lr_features': FEATURES_S,
+            'hr_out_features': ['clearsky_ratio'],
+        },
     )
 
     fp_gen = os.path.join(CONFIG_DIR, 'sup3rcc/gen_solar_1x_8x_1f.json')
@@ -59,7 +62,8 @@ def test_solar_cc_model(hr_steps):
 
     Sup3rGan.seed()
     model = SolarCC(
-        fp_gen, fp_disc, learning_rate=1e-4, loss='MeanAbsoluteError'
+        fp_gen, fp_disc, learning_rate=1e-4, loss='MeanAbsoluteError',
+        t_enhance=8
     )
 
     with tempfile.TemporaryDirectory() as td:
@@ -88,8 +92,8 @@ def test_solar_cc_model(hr_steps):
     x = RANDOM_GENERATOR.uniform(0, 1, (1, 30, 30, hr_steps // 8, 1))
     z = RANDOM_GENERATOR.uniform(0, 1, (1, 30, 30, hr_steps // 8, 1))
     mae = MeanAbsoluteError()(x, z)
-    assert np.allclose(model.loss_fun(x, z)[0], mae)
-    assert np.allclose(loaded.loss_fun(x, z)[0], mae)
+    assert np.allclose(model.calc_loss_gen_content(x, z)[0], mae)
+    assert np.allclose(loaded.calc_loss_gen_content(x, z)[0], mae)
 
     y = model.generate(x)
     assert y.shape[0] == x.shape[0]
@@ -126,7 +130,10 @@ def test_solar_cc_model_spatial():
         s_enhance=5,
         t_enhance=1,
         sample_shape=(20, 20),
-        feature_sets={'lr_only_features': ['clearsky_ghi', 'ghi']},
+        feature_sets={
+            'lr_features': FEATURES_S,
+            'hr_out_features': ['clearsky_ratio'],
+        },
     )
 
     fp_gen = os.path.join(CONFIG_DIR, 'sup3rcc/gen_solar_5x_1x_1f.json')
@@ -178,7 +185,10 @@ def test_solar_custom_loss():
         s_enhance=1,
         t_enhance=8,
         sample_shape=(5, 5, 24),
-        feature_sets={'lr_only_features': ['clearsky_ghi', 'ghi']},
+        feature_sets={
+            'lr_features': FEATURES_S,
+            'hr_out_features': ['clearsky_ratio'],
+        },
     )
 
     fp_gen = os.path.join(CONFIG_DIR, 'sup3rcc/gen_solar_1x_8x_1f.json')

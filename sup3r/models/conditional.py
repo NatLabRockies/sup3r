@@ -7,7 +7,6 @@ import time
 
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 from tensorflow.keras import optimizers
 
 from sup3r.utilities import VERSION_RECORD
@@ -85,7 +84,6 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         self._meta = meta if meta is not None else {}
         self._num_par = num_par if num_par is not None else 0
         self.loss_name = 'MeanSquaredError'
-        self.loss_fun = self.get_loss_fun(self.loss_name)
 
         self._history = history
         if isinstance(self._history, str):
@@ -218,28 +216,6 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         """
         return self.generator_weights
 
-    @tf.function
-    def calc_loss_cond_mom(self, output_true, output_gen, mask):
-        """Calculate the loss of the moment predictor
-
-        Parameters
-        ----------
-        output_true : tf.Tensor
-            True realization output
-        output_gen : tf.Tensor
-            Predicted realization output
-        mask : tf.Tensor
-            Mask to apply
-
-        Returns
-        -------
-        loss : tf.Tensor
-            0D tensor generator model loss for the MSE loss of the
-            moment predictor
-        """
-
-        return self.loss_fun(output_gen * mask, output_true * mask)
-
     def calc_loss(self, output_true, output_gen, mask):
         """Calculate the total moment predictor loss
 
@@ -274,8 +250,8 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
             logger.error(msg)
             raise RuntimeError(msg)
 
-        loss, loss_details = self.calc_loss_cond_mom(
-            output_true, output_gen, mask
+        loss, loss_details = self.calc_loss_gen_content(
+            output_true * mask, output_gen * mask
         )
 
         loss_details.update({'loss_gen': loss})
@@ -423,16 +399,11 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
             self._init_tensorboard_writer(out_dir)
 
         self.set_norm_stats(batch_handler.means, batch_handler.stds)
-        self.set_model_params(
-            input_resolution=input_resolution,
-            s_enhance=batch_handler.s_enhance,
-            t_enhance=batch_handler.t_enhance,
-            smoothing=batch_handler.smoothing,
-            lr_features=batch_handler.lr_features,
-            hr_exo_features=batch_handler.hr_exo_features,
-            hr_out_features=batch_handler.hr_out_features,
-            smoothed_features=batch_handler.smoothed_features,
-        )
+        lower_models = getattr(batch_handler, 'lower_models', {})
+        for model in [self, *lower_models.values()]:
+            model.set_model_params(
+                input_resolution=input_resolution, batch_handler=batch_handler
+            )
 
         epochs = list(range(n_epoch))
 
@@ -444,7 +415,7 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
 
         t0 = time.time()
         logger.info(
-            'Training model ' 'for {} epochs starting at epoch {}'.format(
+            'Training model for {} epochs starting at epoch {}'.format(
                 n_epoch, epochs[0]
             )
         )

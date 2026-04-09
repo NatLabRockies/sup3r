@@ -62,7 +62,16 @@ class StatsCollection(Collection):
             getattr(c.high_res[hr_feats], stat_type)(skipna=True)
             for c in self.containers
         ]
-        if any(lr_feats):
+        lr_check = any(lr_feats)
+        container_check = all(hasattr(c, 'low_res') for c in self.containers)
+        if lr_check and not container_check:
+            msg = (
+                f'Found low-res features {lr_feats} but not all containers '
+                'have low-res data. '
+            )
+            logger.error(msg)
+            raise ValueError(msg)
+        elif lr_check and container_check:
             cstats_lr = [
                 getattr(c.low_res[lr_feats], stat_type)(skipna=True)
                 for c in self.containers
@@ -92,9 +101,9 @@ class StatsCollection(Collection):
             and any(f not in stats for f in self.features)
         ):
             msg = (
-                f'Not all features ({self.features}) are found in the given '
-                f'stats dictionary {stats}. This is obviously from a prior '
-                'run so you better be sure these stats carry over.'
+                f'Not all features ({self.features}) are found in the '
+                f'given stats dictionary {stats}. This is obviously from a '
+                'prior run so you better be sure these stats carry over.'
             )
             logger.warning(msg)
             warn(msg)
@@ -116,7 +125,7 @@ class StatsCollection(Collection):
             ]
             for f in needed_features:
                 logger.info(f'Computing mean for {f}.')
-                means[f] = np.float32(np.sum([cm[f] for cm in cmeans]))
+                means[f] = np.float32(np.nansum([cm[f] for cm in cmeans]))
         return means
 
     def get_stds(self, stds):
@@ -132,7 +141,9 @@ class StatsCollection(Collection):
             ]
             for f in needed_features:
                 logger.info(f'Computing std for {f}.')
-                stds[f] = np.float32(np.sqrt(np.sum([cs[f] for cs in cstds])))
+                stds[f] = np.float32(
+                    np.sqrt(np.nansum([cs[f] for cs in cstds]))
+                )
         return stds
 
     @staticmethod

@@ -151,21 +151,32 @@ def BatchHandlerFactory(
                 memory right away.
             feature_sets : Optional[dict]
                 Optional dictionary describing how the full set of features is
-                split between `lr_only_features` and `hr_exo_features`.
+                split between ``lr_features``, ``hr_features``, and
+                ``hr_out_features``.
 
-                features : list | tuple
-                    List of full set of features to use for sampling. If no
-                    entry is provided then all data_vars from container data
+                lr_features : list | tuple
+                    List of feature names or patt*erns to use as low-resolution
+                    model inputs. If no entry is provided then all available
+                    features from the data will be used.
+                hr_out_features : list | tuple
+                    List of feature names or patt*erns that should be output by
+                    the generative model and available as ground truth targets.
+                    If no entry is provided then all features in lr_features
                     will be used.
-                lr_only_features : list | tuple
-                    List of feature names or patt*erns that should only be
-                    included in the low-res training set and not the high-res
-                    observations. This
                 hr_exo_features : list | tuple
-                    List of feature names or patt*erns that should be included
-                    in the high-resolution observation but not expected to be
-                    output from the generative model. An example is high-res
-                    topography that is to be injected mid-network.
+                    List of feature names or patt*erns that should be available
+                    as high-resolution model inputs (like topography or
+                    observations) or for bespoke loss functions. Features used
+                    as inputs are injected into the model mid-network to
+                    condition output on high-resolution information. The model
+                    configuration should have the appropriate layers to use
+                    these features. e.g.  ``Sup3rConcat`` for topography
+                    injection, ``Sup3rObsModel`` or ``Sup3rCrossAttention`` for
+                    obs injection.  If no entry is provided then
+                    hr_exo_features will be empty.
+
+                *To include sparse features as inputs or targets the features
+                must have an "_obs" suffix.
             kwargs : dict
                 Additional keyword arguments for BatchQueue and / or Samplers.
                 This can vary depending on the type of BatchQueue / Sampler

@@ -43,8 +43,11 @@ def test_wind_dc_hi_res_topo(CustomLayer):
             n_batches=1,
             s_enhance=2,
             sample_shape=(20, 20, 8),
-            feature_sets={'hr_exo_features': ['topography']},
-        )
+            feature_sets={
+                'lr_features': ['u_100m', 'v_100m', 'topography'],
+                'hr_out_features': ['u_100m', 'v_100m'],
+                'hr_exo_features': ['topography']},
+            )
 
     batcher = BatchHandlerTesterDC(
         train_containers=[handler],
@@ -55,7 +58,10 @@ def test_wind_dc_hi_res_topo(CustomLayer):
         n_batches=1,
         s_enhance=2,
         sample_shape=(10, 10, 8),
-        feature_sets={'hr_exo_features': ['topography']},
+        feature_sets={
+            'lr_features': ['u_100m', 'v_100m', 'topography'],
+            'hr_out_features': ['u_100m', 'v_100m'],
+            'hr_exo_features': ['topography']},
     )
 
     gen_model = [

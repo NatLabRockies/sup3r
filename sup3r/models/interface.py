@@ -15,7 +15,7 @@ from sup3r.preprocessing.data_handlers import ExoData
 from sup3r.utilities import VERSION_RECORD
 from sup3r.utilities.utilities import safe_cast
 
-from .utilities import SUP3R_EXO_LAYERS, SUP3R_OBS_LAYERS
+from .utilities import SUP3R_LAYERS
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +79,6 @@ class AbstractInterface(ABC):
         -------
         int
         """
-        # pylint: disable=E1101
         if hasattr(self, '_gen'):
             return self._gen.layers[0].rank
         if hasattr(self, 'models'):
@@ -96,43 +95,20 @@ class AbstractInterface(ABC):
         """Check if model expects spatial only input"""
         return self.input_dims == 4
 
-    # pylint: disable=E1101
-    def get_s_enhance_from_layers(self):
-        """Compute factor by which model will enhance spatial resolution from
-        layer attributes. Used in model training during high res coarsening"""
-        s_enhance = None
-        if hasattr(self, '_gen'):
-            s_enhancements = [
-                getattr(layer, '_spatial_mult', 1)
-                for layer in self._gen.layers
-            ]
-            s_enhance = int(np.prod(s_enhancements))
-        return s_enhance
-
-    # pylint: disable=E1101
-    def get_t_enhance_from_layers(self):
-        """Compute factor by which model will enhance temporal resolution from
-        layer attributes. Used in model training during high res coarsening"""
-        t_enhance = None
-        if hasattr(self, '_gen'):
-            t_enhancements = [
-                getattr(layer, '_temporal_mult', 1)
-                for layer in self._gen.layers
-            ]
-            t_enhance = int(np.prod(t_enhancements))
-        return t_enhance
-
     @property
     def s_enhance(self):
         """Factor by which model will enhance spatial resolution. Used in
         model training during high res coarsening and also in forward pass
         routine to determine shape of needed exogenous data"""
+
+        # If there are multiple steps, we want to return the product of the
+        # enhancement factors
         models = getattr(self, 'models', [self])
         s_enhances = [m.meta.get('s_enhance', None) for m in models]
         s_enhance = (
-            self.get_s_enhance_from_layers()
-            if any(s is None for s in s_enhances)
-            else int(np.prod(s_enhances))
+            None
+            if any(enh is None for enh in s_enhances)
+            else np.prod(s_enhances)
         )
         if len(models) == 1 and isinstance(self.meta, dict):
             self.meta['s_enhance'] = s_enhance
@@ -143,12 +119,15 @@ class AbstractInterface(ABC):
         """Factor by which model will enhance temporal resolution. Used in
         model training during high res coarsening and also in forward pass
         routine to determine shape of needed exogenous data"""
+
+        # If there are multiple steps, we want to return the product of the
+        # enhancement factors
         models = getattr(self, 'models', [self])
         t_enhances = [m.meta.get('t_enhance', None) for m in models]
         t_enhance = (
-            self.get_t_enhance_from_layers()
-            if any(t is None for t in t_enhances)
-            else int(np.prod(t_enhances))
+            None
+            if any(enh is None for enh in t_enhances)
+            else np.prod(t_enhances)
         )
         if len(models) == 1 and isinstance(self.meta, dict):
             self.meta['t_enhance'] = t_enhance
@@ -218,26 +197,29 @@ class AbstractInterface(ABC):
             logger.error(msg)
             raise RuntimeError(msg)
 
-    def _ensure_valid_enhancement_factors(self):
-        """Ensure user provided enhancement factors are the same as those
-        computed from layer attributes"""
-        t_enhance = self.meta.get('t_enhance', None)
-        s_enhance = self.meta.get('s_enhance', None)
-        if s_enhance is None or t_enhance is None:
-            return
-
-        layer_se = self.get_s_enhance_from_layers()
-        layer_te = self.get_t_enhance_from_layers()
-        layer_se = layer_se if layer_se is not None else self.meta['s_enhance']
-        layer_te = layer_te if layer_te is not None else self.meta['t_enhance']
-        msg = (
-            f'Enhancement factors computed from layer attributes '
-            f'(s_enhance={layer_se}, t_enhance={layer_te}) '
-            f'conflict with user provided values (s_enhance={s_enhance}, '
-            f't_enhance={t_enhance})'
-        )
-        check = layer_se == s_enhance or layer_te == t_enhance
-        if not check:
+    def _ensure_feature_consistency(self):
+        """Ensure that the exogenous features specified in meta are consistent
+        with the features found in the model layers"""
+        features = []
+        if hasattr(self, '_gen'):
+            for layer in self._gen.layers:
+                if isinstance(layer, SUP3R_LAYERS):
+                    feats = (
+                        [layer.name]
+                        if not hasattr(layer, 'features')
+                        else layer.features
+                    )
+                    exo_feats = (
+                        []
+                        if not hasattr(layer, 'exo_features')
+                        else layer.exo_features
+                    )
+                    features.extend(feats + exo_feats)
+        if not set(features).issubset(set(self.hr_exo_features)):
+            msg = (
+                f'Specified hr_exo_features {self.hr_exo_features} does not '
+                f'include all features {features} found in model layers.'
+            )
             logger.error(msg)
             raise RuntimeError(msg)
 
@@ -375,39 +357,23 @@ class AbstractInterface(ABC):
         return self.meta.get('hr_out_features', [])
 
     @property
+    def hr_out_features_ind(self):
+        """Get the indices of the high-resolution output features in the order
+        they are output by the model."""
+        return [self.hr_features.index(feat) for feat in self.hr_out_features]
+
+    @property
     def obs_features(self):
         """Get list of exogenous observation feature names the model uses.
         These come from the names of the ``Sup3rObs..`` layers."""
-        # pylint: disable=E1101
-        features = []
-        if hasattr(self, '_gen'):
-            for layer in self._gen.layers:
-                if isinstance(layer, SUP3R_OBS_LAYERS):
-                    obs_feats = getattr(layer, 'features', [layer.name])
-                    obs_feats = [f for f in obs_feats if f not in features]
-                    features.extend(obs_feats)
-        return features
+        default = [f for f in self.hr_features if '_obs' in f]
+        return self.meta.get('obs_features', default)
 
     @property
     def hr_exo_features(self):
-        """Get list of high-resolution exogenous filter names the model uses.
-        If the model has N concat or add layers this list will be the last N
-        features in the training features list. The ordering is assumed to be
-        the same as the order of concat or add layers. If training features is
-        [..., topo, sza], and the model has 2 concat or add layers, exo
-        features will be [topo, sza]. Topo will then be used in the first
-        concat layer and sza will be used in the second"""
-        # pylint: disable=E1101
-        features = []
-        if hasattr(self, '_gen'):
-            features = [
-                layer.name
-                for layer in self._gen.layers
-                if isinstance(layer, SUP3R_EXO_LAYERS)
-            ]
-        obs_feats = [feat.replace('_obs', '') for feat in self.obs_features]
-        features += [f for f in obs_feats if f not in self.hr_out_features]
-        return features
+        """Get list of gapless exogenous high-resolution feature names the
+        model uses, like topography."""
+        return self.meta.get('hr_exo_features', [])
 
     @property
     def hr_features(self):
@@ -415,7 +381,11 @@ class AbstractInterface(ABC):
         the high-resolution data during training. This includes both output
         and exogenous features.
         """
-        return self.hr_out_features + self.hr_exo_features
+        out = [
+            f for f in self.hr_out_features if f not in self.hr_exo_features
+        ]
+        out += self.hr_exo_features
+        return out
 
     @property
     def smoothing(self):
@@ -450,53 +420,57 @@ class AbstractInterface(ABC):
         """
         return VERSION_RECORD
 
-    def set_model_params(self, **kwargs):
+    def set_model_params(self, batch_handler=None, **kwargs):
         """Set parameters used for training the model
 
         Parameters
         ----------
+        batch_handler : object | None
+            Object that contains attributes used to set model meta parameters.
+            This is used during training to set parameters that are needed for
+            generation and also to check for consistency with previously set
+            parameters when loading a model from disk.
         kwargs : dict
-            Keyword arguments including 'input_resolution',
-            'lr_features', 'hr_exo_features', 'hr_out_features',
-            'smoothed_features', 's_enhance', 't_enhance', 'smoothing'
+            Keyword arguments that are used to set model meta parameters. This
+            is used during training to set parameters that are needed for
+            generation and also to check for consistency with previously set
+            parameters when loading a model from disk.
         """
 
-        keys = (
-            'input_resolution',
+        bh_keys = [
+            'smoothing',
             'lr_features',
             'hr_exo_features',
             'hr_out_features',
+            'obs_features',
             'smoothed_features',
             's_enhance',
             't_enhance',
-            'smoothing',
-        )
-        keys = [k for k in keys if k in kwargs]
-        if 'hr_out_features' in kwargs:
-            self.meta['hr_out_features'] = kwargs['hr_out_features']
+        ]
 
-        hr_exo_feat = kwargs.get('hr_exo_features', [])
-        msg = (
-            f'Expected high-res exo features {self.hr_exo_features} '
-            f'based on model architecture but received "hr_exo_features" '
-            f'from data handler: {hr_exo_feat}'
-        )
-        assert list(self.hr_exo_features) == list(hr_exo_feat), msg
+        meta_params = {}
+        if batch_handler is not None:
+            meta_params.update({
+                k: getattr(batch_handler, k, None)
+                for k in bh_keys
+                if hasattr(batch_handler, k)
+            })
 
-        for var in keys:
-            val = self.meta.get(var, None)
+        meta_params.update(kwargs)
+        for key, var in meta_params.items():
+            val = self.meta.get(key, None)
             if val is None:
-                self.meta[var] = kwargs[var]
-            elif val != kwargs[var]:
+                self.meta[key] = var
+            elif val != var:
                 msg = (
-                    'Model was previously trained with {var}={} but '
-                    'received new {var}={}'.format(val, kwargs[var], var=var)
+                    'Model was previously trained with {key}={} but '
+                    'received new {key}={}'.format(val, var, key=key)
                 )
                 logger.warning(msg)
                 warn(msg)
 
-        self._ensure_valid_enhancement_factors()
         self._ensure_valid_input_resolution()
+        self._ensure_feature_consistency()
 
     def save_params(self, out_dir):
         """

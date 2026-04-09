@@ -737,7 +737,7 @@ class DataRetrievalBase:
         )
 
         cs_ratio = (
-            daily_reduction.lower() in ('avg', 'average', 'mean')
+            daily_reduction.lower() in {'avg', 'average', 'mean'}
             and base_dset == 'clearsky_ratio'
         )
 
@@ -756,16 +756,16 @@ class DataRetrievalBase:
             )
             assert not np.isnan(base_data).any(), msg
 
-        elif daily_reduction.lower() in ('avg', 'average', 'mean'):
+        elif daily_reduction.lower() in {'avg', 'average', 'mean'}:
             base_data = df.groupby('date').mean()['base_data'].values
 
-        elif daily_reduction.lower() in ('max', 'maximum'):
+        elif daily_reduction.lower() in {'max', 'maximum'}:
             base_data = df.groupby('date').max()['base_data'].values
 
-        elif daily_reduction.lower() in ('min', 'minimum'):
+        elif daily_reduction.lower() in {'min', 'minimum'}:
             base_data = df.groupby('date').min()['base_data'].values
 
-        elif daily_reduction.lower() in ('sum', 'total'):
+        elif daily_reduction.lower() in {'sum', 'total'}:
             base_data = df.groupby('date').sum()['base_data'].values
 
         msg = (

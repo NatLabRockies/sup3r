@@ -55,10 +55,13 @@ def test_qa(input_files, ext):
     Sup3rGan.seed()
     model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
     _ = model.generate(np.ones((4, 10, 10, 6, len(TRAIN_FEATURES))))
-    model.meta['lr_features'] = TRAIN_FEATURES
-    model.meta['hr_out_features'] = MODEL_OUT_FEATURES
-    model.meta['s_enhance'] = 3
-    model.meta['t_enhance'] = 4
+    model.set_model_params(
+        lr_features=TRAIN_FEATURES,
+        hr_out_features=MODEL_OUT_FEATURES,
+        s_enhance=3,
+        t_enhance=4,
+        input_resolution={'spatial': '12km', 'temporal': '60min'},
+    )
     with tempfile.TemporaryDirectory() as td:
         out_dir = os.path.join(td, 'st_gan')
         model.save(out_dir)
