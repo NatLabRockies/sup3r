@@ -1223,8 +1223,8 @@ class GeothermalObsLoss(Sup3rLoss):
         with the configured generated and true features. Observed values
         may contain NaNs, which are ignored when computing the loss.
         """
-        check = x_true.shape[-1] == len(self.gen_features)
-        check &= x_gen.shape[-1] == len(self.true_features)
+        check = x_true.shape[-1] == len(self.true_features)
+        check &= x_gen.shape[-1] == len(self.gen_features)
         msg = (
             f'Number of features in `x_true`: {x_true.shape[-1]} must match '
             f'the length of `true_features`: {len(self.true_features)}, '
@@ -1240,7 +1240,7 @@ class GeothermalObsLoss(Sup3rLoss):
         return (
             tf.constant(0, dtype=x_true.dtype)
             if tf.math.reduce_all(tf.math.is_nan(x_true_m))
-            else self.LOSS_METRIC(x_gen_m, x_true_m)
+            else self.LOSS_METRIC(x_true_m, x_gen_m)
         )
 
 
