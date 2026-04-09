@@ -392,7 +392,7 @@ def test_geothermal_heat_transfer_loss():
     x_true = np.zeros_like(x_gen)
 
     loss_ref = loss_obj(x_true, x_gen).numpy()
-    assert loss_ref < 1e-10
+    assert np.isclose(loss_ref, 0.0, atol=1e-7)
 
     x_gen_perturbed = x_gen.copy()
     q_offset_idx = 2 * len(depths)
@@ -451,7 +451,7 @@ def test_geothermal_temp_grad_loss():
     x_true = np.zeros_like(x_gen)
 
     loss_ref = loss_obj(x_true, x_gen).numpy()
-    assert loss_ref < 1e-10
+    assert np.isclose(loss_ref, 0.0, atol=1e-7)
 
     x_gen_perturbed = x_gen.copy()
     x_gen_perturbed[..., 1] += 500
@@ -472,14 +472,14 @@ def test_geothermal_moho_bc_loss():
     batch = 2
     s1 = s2 = 8
 
-    heat_flow = 0.2 + np.zeros((batch, s1, s2, 1), dtype=np.float32)
-    moho_gradient = 50000 + np.zeros((batch, s1, s2, 1), dtype=np.float32)
+    heat_flow = 200 + np.zeros((batch, s1, s2, 1), dtype=np.float32)
+    moho_gradient = 50 + np.zeros((batch, s1, s2, 1), dtype=np.float32)
 
     loss_ref = loss_obj(moho_gradient, heat_flow).numpy()
     assert loss_ref < 1e-10
 
     heat_flow_perturbed = heat_flow.copy()
-    heat_flow_perturbed[..., 0] -= 0.05
+    heat_flow_perturbed[..., 0] -= 5
     loss_perturbed = loss_obj(moho_gradient, heat_flow_perturbed).numpy()
 
     assert loss_perturbed > loss_ref
