@@ -76,7 +76,7 @@ def test_train_proxy_obs(
         fp_disc,
         learning_rate=1e-4,
         loss={
-            'GeothermalPhysicsLossWithObs': {
+            'GeothermalObsLoss': {
                 'gen_features': FEATURES_W,
                 'true_features': [f'{feat}_obs' for feat in FEATURES_W],
             },
@@ -220,7 +220,7 @@ def test_train_real_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
         fp_disc,
         learning_rate=1e-4,
         loss={
-            'GeothermalPhysicsLossWithObs': {
+            'GeothermalObsLoss': {
                 'gen_features': [f'{feat}_obs' for feat in FEATURES_W],
                 'true_features': [f'{feat}_obs' for feat in FEATURES_W],
             }
@@ -293,7 +293,7 @@ def test_train_proxy_obs_with_topo(lr_only_features, request):
         pytest.ST_FP_DISC,
         learning_rate=1e-4,
         loss={
-            'GeothermalPhysicsLossWithObs': {
+            'GeothermalObsLoss': {
                 'gen_features': FEATURES_W,
                 'true_features': [f'{feat}_obs' for feat in FEATURES_W],
             }
@@ -400,10 +400,10 @@ def test_train_real_obs_with_topo(lr_only_features, request):
         learning_rate=1e-4,
         loss={
             'MeanAbsoluteError': {},
-            'GeothermalPhysicsLossWithObs': {
+            'GeothermalObsLoss': {
                 'gen_features': FEATURES_W,
                 'true_features': [f'{feat}_obs' for feat in FEATURES_W],
-            }
+            },
         },
     )
 
