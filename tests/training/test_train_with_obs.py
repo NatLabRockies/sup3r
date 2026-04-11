@@ -79,8 +79,7 @@ def test_train_proxy_obs(
             'GeothermalObsLoss': {
                 'gen_features': FEATURES_W,
                 'true_features': [f'{feat}_obs' for feat in FEATURES_W],
-            },
-            'GeothermalPhysicsLoss': {'gen_features': FEATURES_W},
+            }
         },
     )
     model.meta['hr_out_features'] = FEATURES_W
