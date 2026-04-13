@@ -239,7 +239,7 @@ def test_train_real_obs(gen_config, sample_shape, t_enhance, fp_disc, request):
 
         model.train(batch_handler, **model_kwargs)
 
-        tloss = model.history['train_geothermal_physics_loss_with_obs'].values
+        tloss = model.history['train_geothermal_obs_loss'].values
         assert not np.isnan(tloss).any()
 
 
@@ -311,7 +311,7 @@ def test_train_proxy_obs_with_topo(lr_only_features, request):
 
         model.train(batcher, **model_kwargs)
 
-        loss = model.history['train_geothermal_physics_loss_with_obs'].values
+        loss = model.history['train_geothermal_obs_loss'].values
         assert not np.isnan(loss).any()
         gloss = model.history['train_loss_gen'].values
         assert not np.isnan(gloss).any()
