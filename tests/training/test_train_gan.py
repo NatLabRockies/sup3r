@@ -259,7 +259,7 @@ def test_train(fp_gen, fp_disc, s_enhance, t_enhance, sample_shape, n_epoch=8):
         {
             'GeothermalObsLoss': {
                 'gen_features': ['u_100m'],
-                'true_features': ['u_100m_obs'],
+                'true_features': ['u_100m'],
             }
         },
     ],
