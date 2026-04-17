@@ -67,19 +67,25 @@ def pcgrad(task_grads):
         return task_grads[0] if task_grads else []
 
     shapes = [g.shape for g in task_grads[0]]
-    flat_grads = [_flatten_grads(g) for g in task_grads]
-    norms_sq = [tf.reduce_sum(g**2) for g in flat_grads]
+    flat_grads = tf.stack([_flatten_grads(g) for g in task_grads])  # [T, P]
+    norms_sq = tf.reduce_sum(flat_grads ** 2, axis=1)  # [T]
+
+    # Shuffle task processing order. tf.gather reorders rows so that
+    # shuffled[i] is the gradient for the i-th task in random order.
+    perm = tf.random.shuffle(tf.range(num_tasks))
+    shuffled = tf.gather(flat_grads, perm)  # [T, P]
+    shuffled_norms_sq = tf.gather(norms_sq, perm)  # [T]
 
     projected = []
-    order = tf.random.shuffle(tf.range(num_tasks)).numpy()
-    for i in order:
-        gi = flat_grads[i]
-        for j in order:
+    for i in range(num_tasks):
+        gi = shuffled[i]
+        for j in range(num_tasks):
             if i == j:
                 continue
-            dot = tf.reduce_sum(gi * flat_grads[j])
-            if dot < 0:
-                gi = gi - (dot / (norms_sq[j] + 1e-12)) * flat_grads[j]
+            dot = tf.reduce_sum(gi * shuffled[j])
+            # tf.minimum clamps positive dots to 0, keeping only conflicts.
+            coeff = tf.minimum(dot, 0.0) / (shuffled_norms_sq[j] + 1e-12)
+            gi = gi - coeff * shuffled[j]
         projected.append(gi)
 
     total = tf.add_n(projected)

@@ -454,11 +454,11 @@ class Sampler(Container):
         """
         obs_mask = self._get_full_obs_mask(hi_res)
         obs = hi_res[..., self.obs_features_ind].copy()
+        obs[obs_mask[..., : obs.shape[-1]]] = np.nan
         if self.perturbation_scale > 0:
             stdev = np.nanstd(obs, axis=(0, 1, 2, 3), keepdims=True)
             noise = np.random.uniform(-stdev, stdev)
             obs += self.perturbation_scale * noise
-        obs[obs_mask[..., : obs.shape[-1]]] = np.nan
         return obs
 
     def _append_obs_features(self, samples):
