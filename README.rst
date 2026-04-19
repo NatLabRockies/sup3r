@@ -1,11 +1,6 @@
-.. raw:: html
-
-    <p align="center">
-        <img width="750" src="docs/source/_static/sup3r_github_banner.jpg" />
-        <br>
-    </p>
-
-.. start
+.. image:: https://raw.githubusercontent.com/NREL/sup3r/main/docs/source/_static/sup3r_github_banner.jpg
+    :width: 750
+    :alt: sup3r banner
 
 |Docs| |Tests| |Linter| |PyPi| |PythonV| |Codecov| |Zenodo|
 
@@ -67,16 +62,9 @@ Sup3r uses a generative machine learning approach to produce synthetic
 high-resolution spatiotemporal energy resource data from coarse, low-resolution
 inputs. The process is described step-by-step below.
 
-.. top-graphic-start
-
-.. raw:: html
-
-    <p align="center">
-        <img width="750" src="docs/source/_static/Sup3rCC_Top_Graphic_v2.jpg" />
-        <br>
-    </p>
-
-.. top-graphic-end
+.. image:: https://raw.githubusercontent.com/NREL/sup3r/main/docs/source/_static/Sup3rCC_Top_Graphic_v2.jpg
+    :width: 750
+    :alt: Sup3r climate downscaling overview graphic
 
 Step 1: Learns High-Resolution Physics From Historical Data (Training Phase)
 ----------------------------------------------------------------------------
@@ -105,16 +93,9 @@ important for downstream applications such as power system operational
 modeling, where fine-scale spatial structure and high-frequency temporal
 dynamics matter as much as statistical accuracy.
 
-.. training-flow-start
-
-.. raw:: html
-
-    <p align="center">
-        <img width="600" src="docs/source/_static/Sup3r_training_flow_chart.jpg" />
-        <br>
-    </p>
-
-.. training-flow-end
+.. image:: https://raw.githubusercontent.com/NREL/sup3r/main/docs/source/_static/Sup3r_training_flow_chart.jpg
+    :width: 600
+    :alt: Sup3r training flow chart
 
 Step 2: Collects Coarse Climate Data and Scenarios
 --------------------------------------------------
@@ -139,16 +120,9 @@ meteorological variables. Sup3r has been proven to generate output that
 reproduces the large-scale dynamics in the data from Step 2 while capturing
 realistic physics at the finest scales.
 
-.. inference-flow-start
-
-.. raw:: html
-
-    <p align="center">
-        <img width="600" src="docs/source/_static/Sup3r_inference_flow_chart.jpg" />
-        <br>
-    </p>
-
-.. inference-flow-end
+.. image:: https://raw.githubusercontent.com/NREL/sup3r/main/docs/source/_static/Sup3r_inference_flow_chart.jpg
+    :width: 600
+    :alt: Sup3r inference flow chart
 
 Applications of Sup3r
 =====================
