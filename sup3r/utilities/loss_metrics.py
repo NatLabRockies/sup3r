@@ -899,3 +899,35 @@ class GeothermalPhysicsLossWithObs(Sup3rLoss):
             else self.LOSS_METRIC(x_true_m, x_gen_m)
         )
         return physics_loss + obs_loss
+
+
+class CharbonnierLoss(Sup3rLoss):
+    """Loss class for the Charbonnier loss, which is a differentiable variant
+    of the L1 loss that is less sensitive to outliers"""
+
+    def __init__(self, epsilon=1e-3):
+        super().__init__()
+        self.epsilon = epsilon
+
+    def __call__(self, x_true, x_gen):
+        """Charbonnier loss calculated on true and synthetic data
+
+        Parameters
+        ----------
+        x_true : tf.tensor
+            True high resolution data, shape is either of these:
+            (n_obs, spatial_1, spatial_2, features)
+            (n_obs, spatial_1, spatial_2, temporal, features)
+        x_gen : tf.tensor
+            Synthetic high-res generator output, shape is either of these:
+            (n_obs, spatial_1, spatial_2, features)
+            (n_obs, spatial_1, spatial_2, temporal, features)
+
+        Returns
+        -------
+        tf.tensor
+            0D tensor loss value
+        """
+        return tf.reduce_mean(
+            tf.sqrt((x_true - x_gen) ** 2 + self.epsilon**2)
+        )

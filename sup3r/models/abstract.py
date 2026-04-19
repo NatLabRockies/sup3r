@@ -15,9 +15,9 @@ import pandas as pd
 import tensorflow as tf
 from gaps.config import load_config
 from phygnn import CustomNetwork
-from tensorflow.keras import optimizers
 
 import sup3r.utilities.loss_metrics
+from sup3r.models.utilities import get_optimizer_class
 from sup3r.preprocessing.data_handlers import ExoData
 from sup3r.preprocessing.utilities import numpy_if_tensor
 from sup3r.utilities import VERSION_RECORD, grad_methods
@@ -354,16 +354,16 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         optimizer : tf.keras.optimizers.Optimizer
             Initialized optimizer object.
         """
+        if optimizer is None:
+            optimizer = {'name': 'Adam', 'learning_rate': learning_rate}
+
         if isinstance(optimizer, dict):
-            class_name = optimizer['name']
-            optimizer_class = getattr(optimizers, class_name)
+            optimizer_class = get_optimizer_class(optimizer)
             sig = signature(optimizer_class)
             optimizer_kwargs = {
                 k: v for k, v in optimizer.items() if k in sig.parameters
             }
             optimizer = optimizer_class.from_config(optimizer_kwargs)
-        elif optimizer is None:
-            optimizer = optimizers.Adam(learning_rate=learning_rate)
 
         return optimizer
 
@@ -1275,6 +1275,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 else:
                     hi_res = layer(hi_res)
             except Exception as e:
+                breakpoint()
                 msg = (
                     f'Could not run layer #{layer_num} "{layer}" on tensor '
                     f'of shape {hi_res.shape}'
@@ -1284,20 +1285,26 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         return hi_res
 
+    def _get_training_weights(self, train_gen=True, train_disc=False):
+        """Get active trainable weights for the current optimization step."""
+        if train_disc and not train_gen:
+            return self.discriminator_weights
+        return self.generator_weights
+
     @tf.function
     def _tf_get_multiterm_grad(
         self,
         low_res,
         hi_res_true,
-        training_weights,
         **calc_loss_kwargs,
     ):
         """Compiled per-batch gradient step for use with multi-term gradient
         methods."""
-        with tf.GradientTape(
-            persistent=True, watch_accessed_variables=False
-        ) as tape:
-            tape.watch(training_weights)
+        training_weights = self._get_training_weights(
+            train_gen=calc_loss_kwargs.get('train_gen', True),
+            train_disc=calc_loss_kwargs.get('train_disc', False),
+        )
+        with tf.GradientTape(persistent=True) as tape:
             hi_res_exo = self._get_hr_exo_input(hi_res_true)
             hi_res_gen = self._tf_generate(low_res, hi_res_exo)
             loss, loss_details = self.calc_loss(
@@ -1318,12 +1325,14 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         self,
         low_res,
         hi_res_true,
-        training_weights,
         **calc_loss_kwargs,
     ):
         """Compiled per-batch gradient step used by :meth:`get_single_grad`."""
-        with tf.GradientTape(watch_accessed_variables=False) as tape:
-            tape.watch(training_weights)
+        training_weights = self._get_training_weights(
+            train_gen=calc_loss_kwargs.get('train_gen', True),
+            train_disc=calc_loss_kwargs.get('train_disc', False),
+        )
+        with tf.GradientTape() as tape:
             hi_res_exo = self._get_hr_exo_input(hi_res_true)
             hi_res_gen = self._tf_generate(low_res, hi_res_exo)
             loss, loss_details = self.calc_loss(
@@ -1384,7 +1393,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             grad, loss_details = grad_fn(
                 low_res,
                 hi_res_true,
-                training_weights,
                 **calc_loss_kwargs,
             )
         return grad, loss_details
