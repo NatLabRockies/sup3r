@@ -27,8 +27,8 @@ classifiers=[
   "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
+  "NLR-phygnn @ git+https://github.com/NatLabRockies/phygnn.git@bnb/tf",
   "NREL-rex>=0.2.91",
-  "git+https://github.com/NREL/phygnn.git@bnb/tf",
   "NREL-gaps>=0.6.13",
   "NREL-farms>=1.0.4",
   "dask>=2022.0",
