@@ -37,7 +37,7 @@ dependencies = [
   "h5netcdf>=1.1.0",
   "cftime>=1.6.2",
   "matplotlib>=3.1",
-  "numpy>=1.7.0,<2.0.0",
+  "numpy>=1.7.0,<=2.1.0",
   "pandas>=2.0",
   "pillow>=10.0",
   "pytest>=5.2",
