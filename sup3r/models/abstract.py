@@ -7,7 +7,6 @@ import pprint
 import time
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
-from inspect import signature
 from warnings import warn
 
 import numpy as np
@@ -339,13 +338,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Initialized optimizer object.
         """
         if isinstance(optimizer, dict):
-            class_name = optimizer['name']
-            optimizer_class = getattr(optimizers, class_name)
-            sig = signature(optimizer_class)
-            optimizer_kwargs = {
-                k: v for k, v in optimizer.items() if k in sig.parameters
-            }
-            optimizer = optimizer_class.from_config(optimizer_kwargs)
+            optimizer = optimizers.deserialize({
+                'class_name': optimizer['name'],
+                'config': optimizer,
+            })
         elif optimizer is None:
             optimizer = optimizers.Adam(learning_rate=learning_rate)
 
