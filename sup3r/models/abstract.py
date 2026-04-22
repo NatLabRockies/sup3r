@@ -1266,29 +1266,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         return hi_res
 
-    @tf.function
-    def _tf_get_single_grad(
-        self,
-        low_res,
-        hi_res_true,
-        training_weights,
-        **calc_loss_kwargs,
-    ):
-        """Compiled per-batch gradient step used by :meth:`get_single_grad`.
-
-        Keeping this method tensor-only allows graph compilation while
-        :meth:`get_single_grad` continues to handle locks and device placement.
-        """
-        with tf.GradientTape(watch_accessed_variables=False) as tape:
-            tape.watch(training_weights)
-            hi_res_exo = self.get_hr_exo_input(hi_res_true)
-            hi_res_gen = self._tf_generate(low_res, hi_res_exo)
-            loss, loss_details = self.calc_loss(
-                hi_res_true, hi_res_gen, **calc_loss_kwargs
-            )
-            grad = tape.gradient(loss, training_weights)
-        return grad, loss_details
-
     def get_single_grad(
         self,
         low_res,
@@ -1329,13 +1306,13 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         loss_details : dict
             Namespace of the breakdown of loss components
         """
-        with tf.device(device_name):
-            grad, loss_details = self._tf_get_single_grad(
-                low_res,
-                hi_res_true,
-                training_weights,
-                **calc_loss_kwargs,
+        with tf.device(device_name), tf.GradientTape() as tape:
+            hi_res_exo = self.get_hr_exo_input(hi_res_true)
+            hi_res_gen = self._tf_generate(low_res, hi_res_exo)
+            loss, loss_details = self.calc_loss(
+                hi_res_true, hi_res_gen, **calc_loss_kwargs
             )
+            grad = tape.gradient(loss, training_weights)
         return grad, loss_details
 
     @abstractmethod

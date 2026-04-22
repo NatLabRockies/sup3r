@@ -24,10 +24,11 @@ classifiers=[
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
   "NREL-rex>=0.2.91",
-  "NREL-phygnn>=0.0.32",
+  "git+https://github.com/NREL/phygnn.git@bnb/tf",
   "NREL-gaps>=0.6.13",
   "NREL-farms>=1.0.4",
   "dask>=2022.0",
@@ -51,10 +52,10 @@ dependencies = [
 # # 8.9.7
 
 [tool.pixi.target.linux-64.pypi-dependencies]
-tensorflow = {version = "~=2.15.1", extras = ["and-cuda"] }
+tensorflow = {version = "~=2.16.1", extras = ["and-cuda"] }
 
 [tool.pixi.target.osx-arm64.dependencies]
-tensorflow = {version = "~=2.15.0", channel = "conda-forge"}
+tensorflow = {version = "~=2.16.1", channel = "conda-forge"}
 
 [project.optional-dependencies]
 dev = [
