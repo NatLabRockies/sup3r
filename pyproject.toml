@@ -25,7 +25,8 @@ classifiers=[
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
+  # Can't support 3.13 until we support numpy >= 2.0.0, since that is required
+  # for netCDF4 1.7.3+
 ]
 dependencies = [
   "NLR-phygnn @ git+https://github.com/NatLabRockies/phygnn.git@bnb/tf",
@@ -37,7 +38,7 @@ dependencies = [
   "h5netcdf>=1.1.0",
   "cftime>=1.6.2",
   "matplotlib>=3.1",
-  "numpy>=1.7.0,<=2.1.0",
+  "numpy>=1.7.0,<2.0.0",
   "pandas>=2.0",
   "pillow>=10.0",
   "pytest>=5.2",
