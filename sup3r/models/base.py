@@ -15,7 +15,6 @@ from sup3r.utilities import VERSION_RECORD
 
 from .abstract import AbstractSingleModel
 from .interface import AbstractInterface
-from .utilities import get_optimizer_class
 
 logger = logging.getLogger(__name__)
 
@@ -354,14 +353,14 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         if 'gen' in option.lower() or 'all' in option.lower():
             conf = self.get_optimizer_config(self.optimizer)
             conf.update(**kwargs)
-            optimizer_class = get_optimizer_class(conf)
-            self._optimizer = optimizer_class.from_config(conf)
+            self._optimizer = self.optimizer.__class__.from_config(conf)
 
         if 'disc' in option.lower() or 'all' in option.lower():
             conf = self.get_optimizer_config(self.optimizer_disc)
             conf.update(**kwargs)
-            optimizer_class = get_optimizer_class(conf)
-            self._optimizer_disc = optimizer_class.from_config(conf)
+            self._optimizer_disc = self.optimizer_disc.__class__.from_config(
+                conf
+            )
 
     @property
     def meta(self):

@@ -10,7 +10,6 @@ import numpy as np
 import phygnn.layers.custom_layers as _phygnn_layers
 import tensorflow as tf
 from scipy.interpolate import RegularGridInterpolator
-from tensorflow.keras import optimizers
 
 from sup3r.utilities.utilities import Timer
 
@@ -155,17 +154,6 @@ class TensorboardMixIn:
         self._tb_log_dir = os.path.join(tb_log_pardir, 'logs')
         os.makedirs(self._tb_log_dir, exist_ok=True)
         self._tb_writer = tf.summary.create_file_writer(self._tb_log_dir)
-
-
-def get_optimizer_class(conf):
-    """Get optimizer class from keras"""
-    if hasattr(optimizers, conf['name']):
-        optimizer_class = getattr(optimizers, conf['name'])
-    else:
-        msg = '%s not found in keras optimizers.'
-        logger.error(msg, conf['name'])
-        raise ValueError(msg)
-    return optimizer_class
 
 
 def st_interp(low, s_enhance, t_enhance, t_centered=False):
