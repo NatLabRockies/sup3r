@@ -5,7 +5,6 @@ import os
 import pprint
 import time
 
-import numpy as np
 import pandas as pd
 from tensorflow.keras import optimizers
 
@@ -25,7 +24,6 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         gen_layers,
         optimizer=None,
         learning_rate=1e-4,
-        num_par=None,
         history=None,
         meta=None,
         means=None,
@@ -47,8 +45,6 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         learning_rate : float, optional
             Optimizer learning rate. Not used if optimizer input arg is a
             pre-initialized object or if optimizer input arg is a config dict.
-        num_par : int | None
-            Number of trainable parameters in the model
         history : pd.DataFrame | str | None
             Model training history with "epoch" index, str pointing to a saved
             history csv file with "epoch" as first column, or None for clean
@@ -82,7 +78,6 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
 
         self.name = name if name is not None else self.__class__.__name__
         self._meta = meta if meta is not None else {}
-        self._num_par = num_par if num_par is not None else 0
         self.loss_name = 'MeanSquaredError'
 
         self._history = history
@@ -185,12 +180,6 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         model_params: dict
         """
 
-        config_optm_g = self.get_optimizer_config(self.optimizer)
-
-        num_par = int(
-            np.sum([np.prod(v.get_shape().as_list()) for v in self.weights])
-        )
-
         means = self._means
         stdevs = self._stdevs
         if means is not None and stdevs is not None:
@@ -199,12 +188,12 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
 
         model_params = {
             'name': self.name,
-            'num_par': num_par,
             'version_record': self.version_record,
-            'optimizer': config_optm_g,
+            'optimizer': self.get_optimizer_config(self.optimizer),
             'means': means,
             'stdevs': stdevs,
             'meta': self.meta,
+            'default_device': self.default_device,
         }
 
         return model_params
@@ -215,6 +204,25 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         generator network
         """
         return self.generator_weights
+
+    def init_weights(self, lr_shape, hr_shape, train_disc=False, device=None):
+        """Initialize generator weights with device placement.
+
+        Parameters
+        ----------
+        lr_shape : tuple
+            Shape of one batch of low resolution input data. The batch size
+            axis must be included, but the exact batch size does not matter.
+        hr_shape : tuple
+            Shape of one batch of high resolution output data. The batch size
+            axis must be included, but the exact batch size does not matter.
+        train_disc : bool
+            Included for API compatibility with other sup3r model classes.
+        device : str | None
+            Option to place model weights on a device. If None,
+            self.default_device will be used.
+        """
+        self._init_generator_weights(lr_shape, hr_shape, device=device)
 
     def calc_loss(self, output_true, output_gen, mask):
         """Calculate the total moment predictor loss
@@ -308,6 +316,9 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         loss_details : dict
             Namespace of the breakdown of loss components
         """
+        lr_shape, hr_shape = batch_handler.shapes
+        self.init_weights(lr_shape, hr_shape)
+
         for ib, batch in enumerate(batch_handler):
             b_loss_details = {}
             b_loss_details = self.run_gradient_descent(

@@ -429,34 +429,15 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         """
 
         no_disc_weights = train_disc and not self.discriminator_weights
-        no_gen_weights = not self.generator_weights
-        if no_disc_weights or no_gen_weights:
+        self._init_generator_weights(lr_shape, hr_shape, device=device)
+
+        if no_disc_weights:
             if device is None:
                 device = self.default_device
 
-            logger.info(
-                'Initializing model weights on device "{}"'.format(device)
-            )
-            low_res = tf.cast(np.ones(lr_shape), dtype=tf.float32)
             hi_res = tf.cast(np.ones(hr_shape), dtype=tf.float32)
-
-            hr_exo_shape = (*hr_shape[:-1], 1)
-            hr_exo = tf.cast(np.ones(hr_exo_shape), dtype=tf.float32)
-
             with tf.device(device):
-                hr_exo_data = {}
-                for feature in self.hr_exo_features:
-                    hr_exo_data[feature] = hr_exo
-                out = self._tf_generate(low_res, hr_exo_data)
-                msg = (
-                    f'Number of model outputs {out.shape[-1]} does not '
-                    'match the number of computed hr_out_features '
-                    f'{len(self.hr_out_features)}'
-                )
-                assert out.shape[-1] == len(self.hr_out_features), msg
-
-                if train_disc:
-                    _ = self._tf_discriminate(hi_res)
+                _ = self._tf_discriminate(hi_res)
 
     @staticmethod
     def get_weight_update_fraction(

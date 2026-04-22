@@ -319,6 +319,47 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """
         return self.generator.weights
 
+    def _init_generator_weights(self, lr_shape, hr_shape, device=None):
+        """Initialize generator weights with a dummy forward pass.
+
+        Parameters
+        ----------
+        lr_shape : tuple
+            Shape of one batch of low resolution input data. The batch size
+            axis must be included, but the exact batch size does not matter.
+        hr_shape : tuple
+            Shape of one batch of high resolution output data. The batch size
+            axis must be included, but the exact batch size does not matter.
+        device : str | None
+            Option to place model weights on a device. If None,
+            self.default_device will be used.
+        """
+
+        if self.generator_weights:
+            return
+
+        if device is None:
+            device = self.default_device
+
+        logger.info('Initializing model weights on device "%s"', device)
+        low_res = tf.cast(np.ones(lr_shape), dtype=tf.float32)
+        hi_res_exo = {}
+
+        if self.hr_exo_features:
+            exo_shape = (*hr_shape[:-1], 1)
+            exo_tensor = tf.cast(np.ones(exo_shape), dtype=tf.float32)
+            hi_res_exo = dict.fromkeys(self.hr_exo_features, exo_tensor)
+
+        with tf.device(device):
+            out = self._tf_generate(low_res, hi_res_exo)
+
+        msg = (
+            f'Number of model outputs {out.shape[-1]} does not '
+            'match the number of computed hr_out_features '
+            f'{len(self.hr_out_features)}'
+        )
+        assert out.shape[-1] == len(self.hr_out_features), msg
+
     @staticmethod
     def init_optimizer(optimizer, learning_rate):
         """Initialize keras optimizer object.

@@ -127,7 +127,8 @@ def gaussian_kernel(x_true, x_gen, sigma=1.0):
 class ExpLoss(Sup3rLoss):
     """Loss class for squared exponential difference"""
 
-    def __call__(self, x_true, x_gen):
+    @staticmethod
+    def call(x_true, x_gen):
         """Exponential difference loss function
 
         Parameters
@@ -150,7 +151,8 @@ class ExpLoss(Sup3rLoss):
 class MmdLoss(Sup3rLoss):
     """Loss class for max mean discrepancy loss"""
 
-    def __call__(self, x_true, x_gen, sigma=1.0):
+    @staticmethod
+    def call(x_true, x_gen, sigma=1.0):
         """Maximum mean discrepancy (MMD) based on Gaussian kernel function
         for keras models
 
@@ -170,6 +172,9 @@ class MmdLoss(Sup3rLoss):
         tf.tensor
             0D tensor with loss value
         """
+        dtype = tf.as_dtype(tf.keras.backend.floatx())
+        x_true = tf.cast(x_true, dtype)
+        x_gen = tf.cast(x_gen, dtype)
         mmd = tf.reduce_mean(gaussian_kernel(x_true, x_true, sigma))
         mmd += tf.reduce_mean(gaussian_kernel(x_gen, x_gen, sigma))
         mmd -= tf.reduce_mean(2 * gaussian_kernel(x_true, x_gen, sigma))
@@ -181,7 +186,7 @@ class SpatialDerivativeLoss(Sup3rLoss):
 
     LOSS_METRIC = MeanAbsoluteError()
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Custom content loss that encourages accuracy of spatial derivatives
 
         Parameters
@@ -218,7 +223,7 @@ class TemporalDerivativeLoss(Sup3rLoss):
 
     LOSS_METRIC = MeanAbsoluteError()
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Custom content loss that encourages accuracy of temporal derivative
 
         Parameters
@@ -252,7 +257,7 @@ class CoarseMseLoss(Sup3rLoss):
 
     MSE_LOSS = MeanSquaredError()
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Exponential difference loss function
 
         Parameters
@@ -281,7 +286,7 @@ class SpatialExtremesLoss(Sup3rLoss):
 
     MAE_LOSS = MeanAbsoluteError()
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Custom content loss that encourages temporal min/max accuracy
 
         Parameters
@@ -316,7 +321,7 @@ class TemporalExtremesLoss(Sup3rLoss):
 
     MAE_LOSS = MeanAbsoluteError()
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Custom content loss that encourages temporal min/max accuracy
 
         Parameters
@@ -368,7 +373,7 @@ class SpatialFftLoss(Sup3rLoss):
         x_hat = tf.math.multiply(self._freq_weights(x), x_hat)
         return tf.math.log(1 + x_hat)
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Custom content loss that encourages frequency domain accuracy
 
         Parameters
@@ -416,7 +421,7 @@ class SpatiotemporalFftLoss(Sup3rLoss):
         x_hat = tf.math.multiply(self._freq_weights(x), x_hat)
         return tf.math.log(1 + x_hat)
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Custom content loss that encourages frequency domain accuracy
 
         Parameters
@@ -455,6 +460,7 @@ class LowResLoss(Sup3rLoss):
         t_method='average',
         tf_loss='MeanSquaredError',
         ex_loss=None,
+        **kwargs,
     ):
         """Initialize the loss with given weight
 
@@ -480,7 +486,7 @@ class LowResLoss(Sup3rLoss):
             "TemporalExtremesLoss" (keys in ``EX_LOSS_METRICS``).
         """
 
-        super().__init__()
+        super().__init__(**kwargs)
         self._s_enhance = s_enhance
         self._t_enhance = t_enhance
         self._t_method = str(t_method).casefold()
@@ -545,7 +551,7 @@ class LowResLoss(Sup3rLoss):
         tensor = tf.math.reduce_sum(tensor, axis=4) / self._t_enhance
         return tensor
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Custom content loss calculated on re-coarsened low-res fields
 
         Parameters
@@ -564,6 +570,10 @@ class LowResLoss(Sup3rLoss):
         tf.tensor
             0D tensor loss value
         """
+
+        dtype = tf.as_dtype(tf.keras.backend.floatx())
+        x_true = tf.cast(x_true, dtype)
+        x_gen = tf.cast(x_gen, dtype)
 
         assert x_true.shape == x_gen.shape
         s_only = len(x_true.shape) == 4
@@ -631,7 +641,7 @@ class PerceptualLoss(Sup3rLoss):
             loss += tf.reduce_mean(tf.square(x_true_f - x_gen_f))
         return loss
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Perceptual loss calculated on true and synthetic feature maps
 
         Parameters
@@ -693,7 +703,7 @@ class SlicedWassersteinLoss(Sup3rLoss):
         super().__init__()
         self._n_projections = n_projections
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Sliced Wasserstein distance based on random 1D projections
 
         Parameters
@@ -809,7 +819,7 @@ class MaterialDerivativeLoss(Sup3rLoss):
 
         return x_div
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Custom content loss that encourages accuracy of the material
         derivative.
 
