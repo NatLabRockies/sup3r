@@ -33,7 +33,7 @@ dependencies = [
   "NREL-gaps>=0.6.13",
   "NREL-farms>=1.0.4",
   "dask>=2022.0",
-  "netCDF4>=1.5.8,<1.7.4",
+  "netCDF4>=1.5.8,<=1.7.4",
   "h5netcdf>=1.1.0",
   "cftime>=1.6.2",
   "matplotlib>=3.1",
@@ -304,11 +304,6 @@ xarray = ">=2023.0"
 
 [tool.pixi.pypi-dependencies]
 NREL-sup3r = { path = ".", editable = true }
-NREL-rex = { version = ">=0.2.91" }
-NREL-phygnn = { version = ">=0.0.23" }
-NREL-gaps = { version = ">=0.6.13" }
-NREL-farms = { version = ">=1.0.4" }
-zarr = { version = ">=2.18.0,<4" }
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
