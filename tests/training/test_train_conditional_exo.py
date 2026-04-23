@@ -115,7 +115,8 @@ def test_wind_non_cc_hi_res_st_topo_mom1(
         sample_shape=(12, 12, 24),
         lower_models={1: model_mom1},
         n_batches=n_batches,
-        feature_sets={'hr_exo_features': ['topography']},
+        feature_sets={'hr_exo_features': ['topography'],
+                      'hr_out_features': ['u_100m', 'v_100m']},
     )
 
     with tempfile.TemporaryDirectory() as td:
