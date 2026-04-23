@@ -386,7 +386,7 @@ def test_optimizer_update():
     assert model.optimizer.learning_rate == 1e-4
     assert model.optimizer_disc.learning_rate == 4e-4
 
-    model.update_optimizer(option='generator', learning_rate=2)
+    model.update_optimizer(option='generator', learning_rate=2.0)
 
     assert model.optimizer.learning_rate == 2
     assert model.optimizer_disc.learning_rate == 4e-4
