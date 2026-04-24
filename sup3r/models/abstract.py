@@ -351,7 +351,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         if device is None:
             device = self.default_device
 
-        logger.info('Initializing model weights on device "%s"', device)
+        logger.info('Initializing generator weights on device "%s"', device)
         low_res = tf.cast(np.ones(lr_shape), dtype=tf.float32)
         hi_res_exo = {}
 
@@ -1366,6 +1366,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """Apply a generator gradient update."""
         self.optimizer.apply_gradients(zip(grad, self.generator_weights))
 
+    '''
     @tf.function
     def get_single_grad_disc(
         self,
@@ -1387,6 +1388,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             'This model does not have a discriminator, so '
             'apply_grad_disc is not implemented.'
         )
+    '''
 
     @abstractmethod
     def calc_loss(

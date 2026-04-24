@@ -470,6 +470,9 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             if device is None:
                 device = self.default_device
 
+            logger.info(
+                'Initializing discriminator weights on device "%s"', device
+            )
             hi_res = tf.cast(np.ones(hr_shape), dtype=tf.float32)
             with tf.device(device):
                 _ = self._tf_discriminate(hi_res)

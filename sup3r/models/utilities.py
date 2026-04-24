@@ -6,7 +6,7 @@ import os
 import sys
 import threading
 from dataclasses import dataclass, replace
-from typing import ClassVar
+from typing import ClassVar, Optional
 
 import numpy as np
 import phygnn.layers.custom_layers as _phygnn_layers
@@ -48,15 +48,15 @@ class TrainingConfig:
         'out_dir': './condMom_{epoch}',
     }
 
-    input_resolution: dict | None = None
-    n_epoch: int | None = None
+    input_resolution: Optional[dict] = None
+    n_epoch: Optional[int] = None
     weight_gen_advers: float = 0.001
     train_gen: bool = True
     train_disc: bool = True
     disc_loss_bounds: tuple = (0.45, 0.6)
-    checkpoint_int: int | None = None
-    out_dir: str | None = None
-    early_stop_on: str | None = None
+    checkpoint_int: Optional[int] = None
+    out_dir: Optional[str] = None
+    early_stop_on: Optional[str] = None
     early_stop_threshold: float = 0.005
     early_stop_n_epoch: int = 5
     adaptive_update_bounds: tuple = (0.9, 0.99)
