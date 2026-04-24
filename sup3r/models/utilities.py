@@ -5,6 +5,8 @@ import logging
 import os
 import sys
 import threading
+from dataclasses import dataclass, replace
+from typing import ClassVar
 
 import numpy as np
 import phygnn.layers.custom_layers as _phygnn_layers
@@ -35,11 +37,122 @@ def get_sup3r_layers():
 SUP3R_LAYERS = get_sup3r_layers()
 
 
+@dataclass
+class TrainingConfig:
+    """Shared training configuration for trainable sup3r models."""
+
+    GAN_DEFAULTS: ClassVar[dict] = {
+        'out_dir': './gan_{epoch}',
+    }
+    CONDITIONAL_DEFAULTS: ClassVar[dict] = {
+        'out_dir': './condMom_{epoch}',
+    }
+
+    input_resolution: dict | None = None
+    n_epoch: int | None = None
+    weight_gen_advers: float = 0.001
+    train_gen: bool = True
+    train_disc: bool = True
+    disc_loss_bounds: tuple = (0.45, 0.6)
+    checkpoint_int: int | None = None
+    out_dir: str | None = None
+    early_stop_on: str | None = None
+    early_stop_threshold: float = 0.005
+    early_stop_n_epoch: int = 5
+    adaptive_update_bounds: tuple = (0.9, 0.99)
+    adaptive_update_fraction: float = 0.0
+    multi_gpu: bool = False
+    log_tb: bool = False
+    export_tb: bool = False
+
+    def __post_init__(self):
+        """Validate required training config fields."""
+        missing = [
+            field
+            for field in ('input_resolution', 'out_dir')
+            if getattr(self, field) is None
+        ]
+        if missing:
+            msg = 'Missing required training config fields: {}'.format(
+                ', '.join(missing)
+            )
+            logger.error(msg)
+            raise ValueError(msg)
+
+    @staticmethod
+    def _normalize_kwargs(kwargs):
+        """Normalize legacy train kwargs into TrainingConfig fields."""
+        kwargs = dict(kwargs)
+        if 'tensorboard_log' in kwargs:
+            if 'log_tb' in kwargs:
+                msg = 'Received both "tensorboard_log" and "log_tb".'
+                logger.error(msg)
+                raise ValueError(msg)
+            kwargs['log_tb'] = kwargs.pop('tensorboard_log')
+        return kwargs
+
+    @classmethod
+    def from_train_kwargs(cls, config=None, **kwargs):
+        """Build a training config from an existing config and/or kwargs."""
+        kwargs = cls._normalize_kwargs(kwargs)
+        if config is None:
+            return cls(**kwargs)
+        if not isinstance(config, cls):
+            msg = (
+                f'config must be a {cls.__name__} instance, got {type(config)}'
+            )
+            logger.error(msg)
+            raise TypeError(msg)
+        return replace(config, **kwargs) if kwargs else config
+
+    @classmethod
+    def _with_profile_defaults(cls, config=None, defaults=None, **kwargs):
+        """Build a config and fill unset fields from a default profile."""
+        defaults = {} if defaults is None else defaults
+        kwargs = cls._normalize_kwargs(kwargs)
+        if config is None:
+            merged = dict(defaults)
+            merged.update(kwargs)
+            return cls(**merged)
+        if not isinstance(config, cls):
+            msg = (
+                f'config must be a {cls.__name__} instance, got '
+                f'{type(config)}'
+            )
+            logger.error(msg)
+            raise TypeError(msg)
+        config = replace(config, **kwargs) if kwargs else config
+        updates = {
+            key: value
+            for key, value in defaults.items()
+            if getattr(config, key) is None
+        }
+        return replace(config, **updates) if updates else config
+
+    @classmethod
+    def for_gan(cls, config=None, **kwargs):
+        """Build a GAN training config with GAN-specific defaults."""
+        return cls._with_profile_defaults(
+            config=config,
+            defaults=cls.GAN_DEFAULTS,
+            **kwargs,
+        )
+
+    @classmethod
+    def for_conditional(cls, config=None, **kwargs):
+        """Build a conditional-model training config with defaults."""
+        return cls._with_profile_defaults(
+            config=config,
+            defaults=cls.CONDITIONAL_DEFAULTS,
+            **kwargs,
+        )
+
+
 class TrainingSession:
     """Wrapper to gracefully exit batch handler thread during training, upon a
     keyboard interruption."""
 
-    def __init__(self, batch_handler, model, **kwargs):
+    def __init__(self, batch_handler, model, config=None, **kwargs):
         """
         Parameters
         ----------
@@ -47,24 +160,26 @@ class TrainingSession:
             Batch iterator
         model: Sup3rGan
             Gan model to run in new thread
+        config : TrainingConfig | None
+            Training configuration for model.train().
         **kwargs : dict
-            Model keyword args
+            Backwards-compatible keyword args for TrainingConfig.
         """
         self.batch_handler = batch_handler
         self.model = model
-        self.kwargs = kwargs
+        self.config = TrainingConfig.from_train_kwargs(config=config, **kwargs)
 
     def run(self):
         """Wrap model.train()."""
         model_thread = threading.Thread(
             target=self.model.train,
             args=(self.batch_handler,),
-            kwargs=self.kwargs,
+            kwargs={'config': self.config},
         )
         try:
             logger.info(
                 'Starting training session. Training for %s epochs',
-                self.kwargs['n_epoch'],
+                self.config.n_epoch,
             )
             model_thread.start()
         except KeyboardInterrupt:

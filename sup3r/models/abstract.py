@@ -930,8 +930,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 calc_loss_kwargs_chunks[i]['mask'] = mask_chunk
 
         futures = []
-        start_time = time.time()
-
         with ThreadPoolExecutor(max_workers=len(self.gpu_list)) as exe:
             for i in range(len(self.gpu_list)):
                 futures.append(
@@ -957,16 +955,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         mean_loss_details = {
             k: tf.reduce_mean([d[k] for d in details]) for k in details[0]
         }
-
         apply_fn(total_grad)
-
-        msg = (
-            f'Finished {len(futures)} gradient descent steps on '
-            f'{len(self.gpu_list)} GPUs in {time.time() - start_time:.4f} '
-            'seconds'
-        )
-        logger.info(msg)
-
         return mean_loss_details
 
     @tf.function
@@ -981,7 +970,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """Compute gradient for one mini-batch of (low_res, hi_res_true) and
         update weights in serial on one device"""
 
-        start_time = time.time()
         grad, loss_details = grad_fn(
             low_res,
             hi_res_true,
@@ -989,13 +977,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             **calc_loss_kwargs,
         )
         apply_fn(grad)
-
-        msg = (
-            'Finished single gradient descent step in '
-            f'{time.time() - start_time:.4f} seconds'
-        )
-        logger.debug(msg)
-
         return loss_details
 
     def run_gradient_descent(
@@ -1039,10 +1020,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         loss_details : dict
             Namespace of the breakdown of loss components
         """
+        start_time = time.time()
         grad_fn, apply_fn = self._get_train_fns(
             train_gen=train_gen, train_disc=train_disc
         )
-
         if not multi_gpu or len(self.gpu_list) < 2:
             loss_details = self._run_serial_grad(
                 low_res,
@@ -1050,6 +1031,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 grad_fn=grad_fn,
                 apply_fn=apply_fn,
                 **calc_loss_kwargs,
+            )
+            msg = (
+                'Finished single gradient descent step in '
+                f'{time.time() - start_time:.4f} seconds'
             )
         else:
             loss_details = self._run_parallel_grad(
@@ -1059,7 +1044,11 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 apply_fn=apply_fn,
                 **calc_loss_kwargs,
             )
-
+            msg = (
+                f'Finished gradient descent steps on {len(self.gpu_list)} '
+                f'GPUs in {time.time() - start_time:.4f} seconds'
+            )
+        logger.debug(msg)
         return loss_details
 
     def _reshape_norm_exo(self, hi_res, hi_res_exo, exo_name, norm_in=True):

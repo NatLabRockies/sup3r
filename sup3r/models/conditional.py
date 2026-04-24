@@ -11,6 +11,7 @@ from sup3r.utilities import VERSION_RECORD
 
 from .abstract import AbstractSingleModel
 from .interface import AbstractInterface
+from .utilities import TrainingConfig
 
 logger = logging.getLogger(__name__)
 
@@ -304,76 +305,34 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
 
         return loss_details
 
-    def train(
-        self,
-        batch_handler,
-        input_resolution,
-        n_epoch,
-        checkpoint_int=None,
-        out_dir='./condMom_{epoch}',
-        early_stop_on=None,
-        early_stop_threshold=0.005,
-        early_stop_n_epoch=5,
-        multi_gpu=False,
-        tensorboard_log=True,
-    ):
+    def train(self, batch_handler, config=None, **kwargs):
         """Train the model on real low res data and real high res data
 
         Parameters
         ----------
         batch_handler : sup3r.preprocessing.BatchHandler
             BatchHandler object to iterate through
-        input_resolution : dict
-            Dictionary specifying spatiotemporal input resolution. e.g.
-            {'temporal': '60min', 'spatial': '30km'}
-        n_epoch : int
-            Number of epochs to train on
-        checkpoint_int : int | None
-            Epoch interval at which to save checkpoint models.
-        out_dir : str
-            Directory to save checkpoint models. Should have {epoch} in
-            the directory name. This directory will be created if it does not
-            already exist.
-        early_stop_on : str | None
-            If not None, this should be a column in the training history to
-            evaluate for early stopping (e.g. validation_loss_gen).
-            If this value in this history decreases by
-            an absolute fractional relative difference of less than 0.01 for
-            more than 5 epochs in a row, the training will stop early.
-        early_stop_threshold : float
-            The absolute relative fractional difference in validation loss
-            between subsequent epochs below which an early termination is
-            warranted. E.g. if val losses were 0.1 and 0.0998 the relative
-            diff would be calculated as 0.0002 / 0.1 = 0.002 which would be
-            less than the default thresold of 0.01 and would satisfy the
-            condition for early termination.
-        early_stop_n_epoch : int
-            The number of consecutive epochs that satisfy the threshold that
-            warrants an early stop.
-        multi_gpu : bool
-            Flag to break up the batch for parallel gradient descent
-            calculations on multiple gpus. If True and multiple GPUs are
-            present, each batch from the batch_handler will be divided up
-            between the GPUs and the resulting gradient from each GPU will
-            constitute a single gradient descent step with the nominal learning
-            rate that the model was initialized with.
-        tensorboard_log : bool
-            Whether to write log file for use with tensorboard. Log data can
-            be viewed with ``tensorboard --logdir <logdir>`` where ``<logdir>``
-            is the parent directory of ``out_dir``, and pointing the browser to
-            the printed address.
+        config : TrainingConfig | None
+            Shared training configuration. Missing values can also be supplied
+            through ``kwargs`` for backwards compatibility.
+        **kwargs : dict
+            Backwards-compatible training keyword args used to build or update
+            ``config``.
         """
-        if tensorboard_log:
-            self._init_tensorboard_writer(out_dir)
+        config = TrainingConfig.for_conditional(config=config, **kwargs)
+
+        if config.log_tb:
+            self._init_tensorboard_writer(config.out_dir)
 
         self.set_norm_stats(batch_handler.means, batch_handler.stds)
         lower_models = getattr(batch_handler, 'lower_models', {})
         for model in [self, *lower_models.values()]:
             model.set_model_params(
-                input_resolution=input_resolution, batch_handler=batch_handler
+                input_resolution=config.input_resolution,
+                batch_handler=batch_handler,
             )
 
-        epochs = list(range(n_epoch))
+        epochs = list(range(config.n_epoch))
 
         if self._history is None:
             self._history = pd.DataFrame(columns=['elapsed_time'])
@@ -384,13 +343,13 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         t0 = time.time()
         logger.info(
             'Training model for {} epochs starting at epoch {}'.format(
-                n_epoch, epochs[0]
+                config.n_epoch, epochs[0]
             )
         )
 
         for epoch in epochs:
             loss_details = self._train_epoch(
-                batch_handler, multi_gpu=multi_gpu
+                batch_handler, multi_gpu=config.multi_gpu
             )
             loss_details.update(self.calc_val_loss(batch_handler))
 
@@ -414,11 +373,11 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
                 epochs,
                 t0,
                 loss_details,
-                checkpoint_int,
-                out_dir,
-                early_stop_on,
-                early_stop_threshold,
-                early_stop_n_epoch,
+                config.checkpoint_int,
+                config.out_dir,
+                config.early_stop_on,
+                config.early_stop_threshold,
+                config.early_stop_n_epoch,
                 extras=extras,
             )
 
