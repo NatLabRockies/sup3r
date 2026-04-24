@@ -198,32 +198,6 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
 
         return model_params
 
-    @property
-    def weights(self):
-        """Get a list of all the layer weights and bias terms for the
-        generator network
-        """
-        return self.generator_weights
-
-    def init_weights(self, lr_shape, hr_shape, train_disc=False, device=None):
-        """Initialize generator weights with device placement.
-
-        Parameters
-        ----------
-        lr_shape : tuple
-            Shape of one batch of low resolution input data. The batch size
-            axis must be included, but the exact batch size does not matter.
-        hr_shape : tuple
-            Shape of one batch of high resolution output data. The batch size
-            axis must be included, but the exact batch size does not matter.
-        train_disc : bool
-            Included for API compatibility with other sup3r model classes.
-        device : str | None
-            Option to place model weights on a device. If None,
-            self.default_device will be used.
-        """
-        self._init_generator_weights(lr_shape, hr_shape, device=device)
-
     def calc_loss(self, output_true, output_gen, mask):
         """Calculate the total moment predictor loss
 
@@ -317,7 +291,7 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
             Namespace of the breakdown of loss components
         """
         lr_shape, hr_shape = batch_handler.shapes
-        self.init_weights(lr_shape, hr_shape)
+        self._init_generator_weights(lr_shape, hr_shape)
 
         for ib, batch in enumerate(batch_handler):
             b_loss_details = {}
