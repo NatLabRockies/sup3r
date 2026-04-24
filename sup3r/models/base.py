@@ -363,7 +363,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
     @tf.function
     def apply_grad_disc(self, grad):
         """Apply a discriminator gradient update."""
-        self.disc_optimizer.apply_gradients(
+        self.optimizer_disc.apply_gradients(
             zip(grad, self.discriminator_weights)
         )
 
