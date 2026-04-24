@@ -324,8 +324,6 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
             b_loss_details = self.run_gradient_descent(
                 batch.low_res,
                 batch.output,
-                self.generator_weights,
-                optimizer=self.optimizer,
                 multi_gpu=multi_gpu,
                 mask=batch.mask,
             )

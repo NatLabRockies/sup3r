@@ -781,6 +781,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         batch_handler.stop()
 
+    @tf.function
     def calc_loss(
         self,
         hi_res_true,
@@ -965,9 +966,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             b_loss_details = self.timer(self.run_gradient_descent)(
                 batch.low_res,
                 batch.high_res,
-                self.generator_weights,
                 weight_gen_advers=weight_gen_advers,
-                optimizer=self.optimizer,
                 train_gen=True,
                 train_disc=False,
                 compute_disc=train_disc,
@@ -980,9 +979,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             b_loss_details = self.timer(self.run_gradient_descent)(
                 batch.low_res,
                 batch.high_res,
-                self.discriminator_weights,
                 weight_gen_advers=weight_gen_advers,
-                optimizer=self.optimizer_disc,
                 train_gen=False,
                 train_disc=True,
                 multi_gpu=multi_gpu,
