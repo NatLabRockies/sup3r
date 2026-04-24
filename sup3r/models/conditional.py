@@ -6,7 +6,6 @@ import pprint
 import time
 
 import pandas as pd
-from tensorflow.keras import optimizers
 
 from sup3r.utilities import VERSION_RECORD
 
@@ -148,20 +147,6 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         params = cls.load_saved_params(model_dir, verbose=verbose)
         return cls(fp_gen, **params)
 
-    def update_optimizer(self, **kwargs):
-        """Update optimizer by changing current configuration
-
-        Parameters
-        ----------
-        kwargs : dict
-            kwargs to use for optimizer configuration update
-        """
-
-        conf = self.get_optimizer_config(self.optimizer)
-        conf.update(**kwargs)
-        OptimizerClass = getattr(optimizers, conf['name'])
-        self._optimizer = OptimizerClass.from_config(conf)
-
     @property
     def meta(self):
         """Get meta data dictionary that defines how the model was created"""
@@ -173,7 +158,7 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
 
     @property
     def model_params(self):
-        """Model parameters, used to save model to disc
+        """Model parameters, used to save model to disk
 
         Returns
         -------

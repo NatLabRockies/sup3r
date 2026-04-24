@@ -278,15 +278,25 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
     @property
     def optimizer(self):
         """Get the tensorflow optimizer to perform gradient descent
-        calculations for the generative network. This is functionally identical
-        to optimizer_disc is no special optimizer model or learning rate was
-        specified for the disc.
+        calculations for the generative network.
 
         Returns
         -------
         tf.keras.optimizers.Optimizer
         """
         return self._optimizer
+
+    def update_optimizer_gen(self, **kwargs):
+        """Update optimizer by changing current configuration
+
+        Parameters
+        ----------
+        kwargs : dict
+            kwargs to use for optimizer configuration update
+        """
+        conf = self.get_optimizer_config(self.optimizer)
+        conf.update(**kwargs)
+        self._optimizer = self.optimizer.__class__.from_config(conf)
 
     @property
     def history(self):
@@ -1366,6 +1376,28 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
     def apply_grad_gen(self, grad):
         """Apply a generator gradient update."""
         self.optimizer.apply_gradients(zip(grad, self.generator_weights))
+
+    @tf.function
+    def get_single_grad_disc(
+        self,
+        low_res,
+        hi_res_true,
+        device_name=None,
+        **calc_loss_kwargs,
+    ):
+        """Run discriminator-only gradient calculation for one mini-batch."""
+        raise NotImplementedError(
+            'This model does not have a discriminator, so '
+            'get_single_grad_disc is not implemented.'
+        )
+
+    @tf.function
+    def apply_grad_disc(self, grad):
+        """Apply a discriminator gradient update."""
+        raise NotImplementedError(
+            'This model does not have a discriminator, so '
+            'apply_grad_disc is not implemented.'
+        )
 
     @abstractmethod
     def calc_loss(

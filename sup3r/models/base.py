@@ -363,8 +363,25 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             zip(grad, self.discriminator_weights)
         )
 
+    def update_optimizer_disc(self, **kwargs):
+        """Update discriminator optimizer by changing current configuration
+        with kwargs and re-instantiating the optimizer with the new config.
+
+        Parameters
+        ----------
+        kwargs : dict
+            kwargs to use for optimizer configuration update
+        """
+
+        conf = self.get_optimizer_config(self.optimizer_disc)
+        conf.update(**kwargs)
+        self._optimizer_disc = self.optimizer_disc.__class__.from_config(
+            conf
+        )
+
     def update_optimizer(self, option='generator', **kwargs):
-        """Update optimizer by changing current configuration
+        """Update optimizer by changing current configuration with kwargs and
+        re-instantiating the optimizer with the new config.
 
         Parameters
         ----------
@@ -376,16 +393,10 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         """
 
         if 'gen' in option.lower() or 'all' in option.lower():
-            conf = self.get_optimizer_config(self.optimizer)
-            conf.update(**kwargs)
-            self._optimizer = self.optimizer.__class__.from_config(conf)
+            self.update_optimizer_gen(**kwargs)
 
         if 'disc' in option.lower() or 'all' in option.lower():
-            conf = self.get_optimizer_config(self.optimizer_disc)
-            conf.update(**kwargs)
-            self._optimizer_disc = self.optimizer_disc.__class__.from_config(
-                conf
-            )
+            self.update_optimizer_disc(**kwargs)
 
     @property
     def meta(self):
