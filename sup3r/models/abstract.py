@@ -1357,9 +1357,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             hi_res_exo = self.get_hr_exo_input(hi_res_true)
             hi_res_gen = self._tf_generate(low_res, hi_res_exo)
             loss, loss_details = self.calc_loss(
-                hi_res_true,
-                hi_res_gen,
-                **calc_loss_kwargs,
+                hi_res_true, hi_res_gen, **calc_loss_kwargs
             )
             grad = tape.gradient(loss, self.generator_weights)
         return grad, loss_details
@@ -1368,60 +1366,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
     def apply_grad_gen(self, grad):
         """Apply a generator gradient update."""
         self.optimizer.apply_gradients(zip(grad, self.generator_weights))
-
-    @tf.function
-    def get_single_grad(
-        self,
-        low_res,
-        hi_res_true,
-        train_gen=True,
-        train_disc=False,
-        device_name=None,
-        **calc_loss_kwargs,
-    ):
-        """Run gradient descent for one mini-batch of (low_res, hi_res_true),
-        do not update weights, just return gradient details.
-
-        Parameters
-        ----------
-        low_res : np.ndarray
-            Real low-resolution data in a 4D or 5D array:
-            (n_observations, spatial_1, spatial_2, features)
-            (n_observations, spatial_1, spatial_2, temporal, features)
-        hi_res_true : np.ndarray
-            Real high-resolution data in a 4D or 5D array:
-            (n_observations, spatial_1, spatial_2, features)
-            (n_observations, spatial_1, spatial_2, temporal, features)
-        train_gen : bool
-            Flag to get generator gradients for training.
-        train_disc : bool
-            Flag to get discriminator gradients for training.
-        device_name : None | str
-            Optional tensorflow device name for GPU placement. Note that if a
-            GPU is available, variables will be placed on that GPU even if
-            device_name=None.
-        calc_loss_kwargs : dict
-            Kwargs to pass to the self.calc_loss() method
-
-        Returns
-        -------
-        grad : list
-            a list or nested structure of Tensors (or IndexedSlices, or None,
-            or CompositeTensor) representing the gradients for the
-            training_weights
-        loss_details : dict
-            Namespace of the breakdown of loss components
-        """
-        grad_fn, _ = self._get_train_fns(
-            train_gen=train_gen,
-            train_disc=train_disc,
-        )
-        return grad_fn(
-            low_res,
-            hi_res_true,
-            device_name=device_name,
-            **calc_loss_kwargs,
-        )
 
     @abstractmethod
     def calc_loss(
