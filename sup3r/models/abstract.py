@@ -1356,11 +1356,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             hi_res_exo = self.get_hr_exo_input(hi_res_true)
             hi_res_gen = self._tf_generate(low_res, hi_res_exo)
             loss, loss_details = self.calc_loss(
-                hi_res_true,
-                hi_res_gen,
-                train_gen=True,
-                train_disc=False,
-                **calc_loss_kwargs,
+                hi_res_true, hi_res_gen, **calc_loss_kwargs
             )
             grad = tape.gradient(loss, self.generator_weights)
         return grad, loss_details
