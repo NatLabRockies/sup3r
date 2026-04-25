@@ -1,6 +1,5 @@
 """Sup3r model software"""
 
-import copy
 import logging
 import os
 import pprint
@@ -27,6 +26,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         self,
         gen_layers,
         disc_layers,
+        *,
         loss='MeanSquaredError',
         optimizer=None,
         learning_rate=1e-4,
@@ -95,8 +95,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             Option for default device placement of model weights. If None and a
             single GPU exists, that GPU will be the default device. If None and
             multiple GPUs exist, the first GPU will be the default device
-            (this was tested as most efficient given the custom multi-gpu
-             strategy developed in self.run_gradient_descent()). Examples:
+            for serial execution and weight initialization. Examples:
             "/gpu:0" or "/cpu:0"
         sparse_disc : bool
             Flag to indicate if the discriminator can handle sparse input data.
@@ -106,7 +105,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             observations for training. Note that if True, the discriminator
             model architecture should be designed to handle sparse data (e.g.
             by using masking layers or other techniques).
-
         name : str | None
             Optional name for the GAN.
         """
@@ -127,15 +125,23 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         self._init_records()
 
-        optimizer_disc = optimizer_disc or copy.deepcopy(optimizer)
-        learning_rate_disc = learning_rate_disc or learning_rate
-        self._optimizer = self.init_optimizer(optimizer, learning_rate)
-        self._optimizer_disc = self.init_optimizer(
+        if optimizer_disc is None:
+            optimizer_disc = optimizer
+        if learning_rate_disc is None:
+            learning_rate_disc = learning_rate
+
+        self._optimizer = None
+        self._optimizer_disc = None
+        self._optimizer_config = self.get_optimizer_init_config(
+            optimizer, learning_rate
+        )
+        self._optimizer_disc_config = self.get_optimizer_init_config(
             optimizer_disc, learning_rate_disc
         )
 
-        self._gen = self.load_network(gen_layers, 'generator')
-        self._disc = self.load_network(disc_layers, 'discriminator')
+        with self._training_scope():
+            self._gen = self.load_network(gen_layers, 'generator')
+            self._disc = self.load_network(disc_layers, 'discriminator')
 
         self._means = means
         self._stdevs = stdevs
@@ -205,7 +211,11 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         return fp_gen, fp_disc, params
 
     @classmethod
-    def load(cls, model_dir, verbose=True):
+    def load(
+        cls,
+        model_dir,
+        verbose=True,
+    ):
         """Load the GAN with its sub-networks from a previously saved-to output
         directory.
 
@@ -337,6 +347,11 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         -------
         tf.keras.optimizers.Optimizer
         """
+        if self._optimizer_disc is None:
+            with self._training_scope():
+                self._optimizer_disc = self.init_optimizer(
+                    self._optimizer_disc_config, learning_rate=None
+                )
         return self._optimizer_disc
 
     @tf.function
@@ -348,7 +363,9 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         **calc_loss_kwargs,
     ):
         """Run discriminator-only gradient calculation for one mini-batch."""
-        with tf.device(device_name), tf.GradientTape() as tape:
+        with self._training_scope(
+            device_name
+        ), tf.GradientTape() as tape:
             hi_res_exo = self.get_hr_exo_input(hi_res_true)
             hi_res_gen = self._tf_generate(low_res, hi_res_exo)
             loss, loss_details = self.calc_loss(
@@ -378,9 +395,13 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             kwargs to use for optimizer configuration update
         """
 
-        conf = self.get_optimizer_config(self.optimizer_disc)
+        conf = self._optimizer_disc_config.copy()
         conf.update(**kwargs)
-        self._optimizer_disc = self.optimizer_disc.__class__.from_config(conf)
+        self._optimizer_disc_config = conf
+        if self.optimizer_disc is not None:
+            self._optimizer_disc = self.optimizer_disc.__class__.from_config(
+                conf
+            )
 
     def update_optimizer(self, option='generator', **kwargs):
         """Update optimizer by changing current configuration with kwargs and
@@ -430,8 +451,8 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             'name': self.name,
             'loss': self.loss_name,
             'version_record': self.version_record,
-            'optimizer': self.get_optimizer_config(self.optimizer),
-            'optimizer_disc': self.get_optimizer_config(self.optimizer_disc),
+            'optimizer': self._optimizer_config,
+            'optimizer_disc': self._optimizer_disc_config,
             'means': means,
             'stdevs': stdevs,
             'meta': self.meta,
@@ -478,7 +499,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 'Initializing discriminator weights on device "%s"', device
             )
             hi_res = tf.cast(np.ones(hr_shape), dtype=tf.float32)
-            with tf.device(device):
+            with self._training_scope(device):
                 _ = self._tf_discriminate(hi_res)
 
     @staticmethod
@@ -644,6 +665,29 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         instead of manually calling .stop() here.
         """
         config = TrainingConfig.for_gan(config=config, **kwargs)
+
+        strategy_was_unset = self.strategy is None
+        self.configure_multi_gpu(multi_gpu=config.multi_gpu)
+
+        if config.multi_gpu and self.strategy is None:
+            logger.warning(
+                'multi_gpu=True was requested but the model does not have a '
+                'configured strategy. Falling back to the existing serial '
+                'logic.'
+            )
+
+        if self.strategy is not None and strategy_was_unset:
+            self._optimizer = None
+            self._optimizer_disc = None
+
+        if self.optimizer is None or self.optimizer_disc is None:
+            with self._training_scope():
+                self._optimizer = self.init_optimizer(
+                    self._optimizer_config, learning_rate=None
+                )
+                self._optimizer_disc = self.init_optimizer(
+                    self._optimizer_disc_config, learning_rate=None
+                )
 
         if config.log_tb:
             self._init_tensorboard_writer(config.out_dir)
@@ -909,14 +953,10 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             Weight factor for the adversarial loss component of the generator
             vs. the discriminator.
         multi_gpu : bool
-            Flag to break up the batch for parallel gradient descent
-            calculations on multiple gpus. If True and multiple GPUs are
-            present, each batch from the batch_handler will be divided up
-            between the GPUs and resulting gradients from each GPU will be
-            summed and then applied once per batch at the nominal learning
-            rate that the model and optimizer were initialized with.
-            If true and multiple gpus are found, ``default_device`` device
-            should be set to /gpu:0
+            Flag to use multi-GPU distributed training. If True and a
+            strategy has been configured, the batch gradient step will be run
+            through the configured strategy. If no strategy is configured,
+            this method falls back to serial execution.
 
         Returns
         -------
@@ -1049,14 +1089,10 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             the discriminators will not train unless train_disc=True or
             and train_gen=False.
         multi_gpu : bool
-            Flag to break up the batch for parallel gradient descent
-            calculations on multiple gpus. If True and multiple GPUs are
-            present, each batch from the batch_handler will be divided up
-            between the GPUs and resulting gradients from each GPU will be
-            summed and then applied once per batch at the nominal learning
-            rate that the model and optimizer were initialized with.
-            If true and multiple gpus are found, ``default_device`` device
-            should be set to /gpu:0
+            Flag to use multi-GPU distributed training. If True and a
+            strategy has been configured, batch updates will be distributed
+            across replicas. If no strategy is configured, this method falls
+            back to serial execution.
         export_tb : bool
             Whether to export profiling information to tensorboard. This can
             then be viewed in the tensorboard dashboard under the profile tab
