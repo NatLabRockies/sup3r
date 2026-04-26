@@ -363,9 +363,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         **calc_loss_kwargs,
     ):
         """Run discriminator-only gradient calculation for one mini-batch."""
-        with self._training_scope(
-            device_name
-        ), tf.GradientTape() as tape:
+        with self._training_scope(device_name), tf.GradientTape() as tape:
             hi_res_exo = self.get_hr_exo_input(hi_res_true)
             hi_res_gen = self._tf_generate(low_res, hi_res_exo)
             loss, loss_details = self.calc_loss(
@@ -848,14 +846,17 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         loss_details = {}
         loss = None
+        loss_gen_advers = None
+        loss_disc = None
+        loss_gen = None
+        loss_gen_content = None
         disc_out_true = None
         disc_out_gen = None
-        loss_gen_advers = None
 
         if train_disc or compute_disc:
             disc_out_true = self._tf_discriminate(hi_res_true)
             disc_out_gen = self._tf_discriminate(hi_res_gen)
-            loss_details['loss_disc'] = self.calc_loss_disc(
+            loss_disc = self.calc_loss_disc(
                 disc_out_true=disc_out_true, disc_out_gen=disc_out_gen
             )
 
@@ -863,7 +864,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             loss_gen_advers = self.calc_loss_disc(
                 disc_out_true=disc_out_gen, disc_out_gen=disc_out_true
             )
-            loss_details['loss_gen_advers'] = loss_gen_advers
 
         if train_gen:
             loss_gen_content, loss_gen_content_details = (
@@ -874,13 +874,20 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 if loss_gen_advers is None
                 else loss_gen_content + weight_gen_advers * loss_gen_advers
             )
-            loss_details['loss_gen'] = loss
-            loss_details['loss_gen_content'] = loss_gen_content
+            loss_gen = loss
             loss_details.update(loss_gen_content_details)
 
         elif train_disc:
-            loss = loss_details['loss_disc']
+            loss = loss_disc
 
+        loss_details['loss_gen_advers'] = loss_gen_advers
+        loss_details['loss'] = loss
+        loss_details['loss_disc'] = loss_disc
+        loss_details['loss_gen'] = loss_gen
+        loss_details['loss_gen_content'] = loss_gen_content
+        loss_details = {
+            k: float(v) for k, v in loss_details.items() if v is not None
+        }
         return loss, loss_details
 
     def calc_val_loss(self, batch_handler, weight_gen_advers):
