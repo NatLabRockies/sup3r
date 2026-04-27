@@ -213,11 +213,6 @@ class DualSampler(Sampler):
             slice(s.start * self.t_enhance, s.stop * self.t_enhance)
             for s in lr_index[2:-1]
         ]
-        hr_feats = (
-            [f for f in self.hr_source_features if f not in self.obs_features]
-            if self.use_proxy_obs
-            else self.hr_source_features
-        )
-        hr_index = (*hr_index, hr_feats)
+        hr_index = (*hr_index, self.hr_sample_features)
 
         return (lr_index, hr_index)

@@ -93,7 +93,45 @@ class Sup3rX:
         self._ds = ds
         self._features = None
         self._meta = None
+        self._shape = None
+        self._loaded = None
+        self._as_array_cache = None
+        self._feature_inds = None
+        self._feature_sel_cache = None
         self.time_slice = None
+
+    def _clear_array_cache(self):
+        """Clear cached eager array views after mutating the dataset."""
+        self._features = None
+        self._shape = None
+        self._loaded = None
+        self._as_array_cache = None
+        self._feature_inds = None
+        self._feature_sel_cache = None
+
+    def _get_feature_inds(self, features):
+        """Get cached feature indices for the ordered eager array."""
+        if self._feature_inds is None:
+            self._feature_inds = {
+                feature: i for i, feature in enumerate(self.features)
+            }
+        return [self._feature_inds[feature] for feature in features]
+
+    def _get_feature_sel(self, features):
+        """Get cached feature selector for eager ordered array slicing."""
+        if self._feature_sel_cache is None:
+            self._feature_sel_cache = {}
+
+        cache_key = tuple(features)
+        if cache_key not in self._feature_sel_cache:
+            feature_inds = self._get_feature_inds(features)
+            self._feature_sel_cache[cache_key] = (
+                slice(None)
+                if feature_inds == list(range(len(self.features)))
+                else feature_inds
+            )
+
+        return self._feature_sel_cache[cache_key]
 
     def __getitem__(
         self, keys
@@ -216,8 +254,16 @@ class Sup3rX:
     def as_array(self):
         """Return ``.data`` attribute of an xarray.DataArray with our standard
         dimension order ``(lats, lons, time, ..., features)``"""
+        if self.loaded and self._as_array_cache is not None:
+            return self._as_array_cache
+
         out = self.to_dataarray()
-        return getattr(out, 'data', out)
+        out = getattr(out, 'data', out)
+
+        if self.loaded:
+            self._as_array_cache = out
+
+        return out
 
     def _stack_features(self, arrs):
         if self.loaded:
@@ -227,6 +273,7 @@ class Sup3rX:
     def compute(self, **kwargs):
         """Load `._ds` into memory. This updates the internal `xr.Dataset` if
         it has not been loaded already."""
+        self._clear_array_cache()
         if not self.loaded:
             logger.debug(f'Loading dataset into memory: {self._ds}')
             logger.debug(f'Pre-loading: {_mem_check()}')
@@ -240,15 +287,18 @@ class Sup3rX:
                 )
             logger.debug(f'Loaded dataset into memory: {self._ds}')
             logger.debug(f'Post-loading: {_mem_check()}')
+            self._loaded = True
         return self
 
     @property
     def loaded(self):
         """Check if data has been loaded as numpy arrays."""
-        return all(
-            isinstance(self._ds[f].data, np.ndarray)
-            for f in list(self._ds.data_vars)
-        )
+        if self._loaded is None:
+            self._loaded = all(
+                isinstance(self._ds[f].data, np.ndarray)
+                for f in self._ds.data_vars
+            )
+        return self._loaded
 
     @property
     def flattened(self):
@@ -291,6 +341,7 @@ class Sup3rX:
         data_vars.update(new_data)
 
         self._ds = xr.Dataset(coords=coords, data_vars=data_vars, attrs=attrs)
+        self._clear_array_cache()
         return self
 
     @property
@@ -316,6 +367,10 @@ class Sup3rX:
         features = (
             _lowered(idx[-1]) if is_type_of(idx[-1], str) else self.features
         )
+
+        if self.loaded:
+            feature_sel = self._get_feature_sel(features)
+            return self.as_array()[(*idx[:-1], feature_sel)]
 
         out = self._ds[features].isel(**isel_kwargs)
         return self.ordered(out.to_array()).data
@@ -356,6 +411,7 @@ class Sup3rX:
     def normalize(self, means, stds):
         """Normalize dataset using given means and stds. These are provided as
         dictionaries."""
+        self._clear_array_cache()
         feats = set(self._ds.data_vars).intersection(means).intersection(stds)
         for f in feats:
             self._ds[f] = (self._ds[f] - means[f]) / stds[f]
@@ -454,6 +510,7 @@ class Sup3rX:
             array). If dims are not provided this will try to use stored dims
             of the variable, if it exists already.
         """
+        self._clear_array_cache()
         data_vars = self.add_dims_to_data_vars(vals)
         if all(f in self.coords for f in vals):
             self._ds = self._ds.assign_coords(data_vars)
@@ -464,7 +521,9 @@ class Sup3rX:
     @property
     def features(self):
         """Features in this container."""
-        return list(self._ds.data_vars)
+        if self._features is None:
+            self._features = list(self._ds.data_vars)
+        return self._features
 
     @property
     def dtype(self):
@@ -475,9 +534,13 @@ class Sup3rX:
     def shape(self):
         """Get shape of underlying xr.DataArray, using our standard dimension
         order."""
-        dim_dict = dict(self._ds.sizes)
-        dim_vals = [dim_dict[k] for k in Dimension.order() if k in dim_dict]
-        return (*dim_vals, len(self._ds.data_vars))
+        if self._shape is None:
+            dim_dict = dict(self._ds.sizes)
+            dim_vals = [
+                dim_dict[k] for k in Dimension.order() if k in dim_dict
+            ]
+            self._shape = (*dim_vals, len(self.features))
+        return self._shape
 
     @property
     def size(self):

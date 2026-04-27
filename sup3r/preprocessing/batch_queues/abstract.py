@@ -124,6 +124,8 @@ class AbstractBatchQueue(Collection, ABC):
     @property
     def queue_len(self):
         """Get number of batches in the queue."""
+        if self.queue is None:
+            return self.queue_futures
         return self.queue.size().numpy() + self.queue_futures
 
     @property
@@ -134,6 +136,8 @@ class AbstractBatchQueue(Collection, ABC):
 
     def get_queue(self):
         """Return FIFO queue for storing batches."""
+        if self.mode == 'eager' or self.queue_cap == 0:
+            return None
         return tf.queue.FIFOQueue(
             self.queue_cap,
             dtypes=[tf.float32] * len(self.queue_shape),
@@ -235,7 +239,7 @@ class AbstractBatchQueue(Collection, ABC):
     def get_batch(self) -> DsetTuple:
         """Get batch from queue or directly from a ``Sampler`` through
         ``sample_batch``."""
-        if self.mode == 'eager' or self.queue_cap == 0 or self.queue_len == 0:
+        if self.queue is None or self.queue_len == 0:
             samples = self.sample_batch()
         else:
             samples = self.queue.dequeue()
@@ -252,6 +256,7 @@ class AbstractBatchQueue(Collection, ABC):
         return (
             self._training_flag.is_set()
             and self.queue_thread.is_alive()
+            and self.queue is not None
             and not self.queue.is_closed()
         )
 
@@ -327,13 +332,14 @@ class AbstractBatchQueue(Collection, ABC):
         These samples are wrapped in an ``np.asarray`` call, so they have been
         loaded into memory.
         """
-        out = next(self.get_random_container())
-        if not isinstance(out, tuple):
-            return tf.convert_to_tensor(out, dtype=tf.float32)
-        return tuple(tf.convert_to_tensor(o, dtype=tf.float32) for o in out)
+        return next(self.get_random_container())
 
     def log_queue_info(self):
         """Log info about queue size."""
+        if self.queue is None:
+            return '{} queue disabled (mode={}, queue_cap={})'.format(
+                self._thread_name.title(), self.mode, self.queue_cap
+            )
         return '{} queue length: {} / {}'.format(
             self._thread_name.title(), self.queue_len, self.queue_cap
         )
