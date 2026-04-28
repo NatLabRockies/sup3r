@@ -18,6 +18,23 @@ from sup3r.utilities.utilities import Timer
 logger = logging.getLogger(__name__)
 
 
+class _ExceptionPropagatingThread(threading.Thread):
+    """Thread wrapper that captures exceptions for re-raising on join."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.exception = None
+        self.exception_traceback = None
+
+    def run(self):
+        """Run the configured target and capture any failure."""
+        try:
+            super().run()
+        except BaseException as exc:
+            self.exception = exc
+            self.exception_traceback = exc.__traceback__
+
+
 def get_sup3r_layers():
     """Get all classes from phygnn.layers.custom_layers whose names start
     with 'Sup3r'.
@@ -171,7 +188,7 @@ class TrainingSession:
 
     def run(self):
         """Wrap model.train()."""
-        model_thread = threading.Thread(
+        model_thread = _ExceptionPropagatingThread(
             target=self.model.train,
             args=(self.batch_handler,),
             kwargs={'config': self.config},
@@ -194,6 +211,11 @@ class TrainingSession:
             sys.exit()
 
         model_thread.join()
+        if model_thread.exception is not None:
+            self.batch_handler.stop()
+            raise model_thread.exception.with_traceback(
+                model_thread.exception_traceback
+            )
         logger.info('Finished training')
 
 
