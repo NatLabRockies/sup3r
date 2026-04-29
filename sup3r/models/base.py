@@ -789,7 +789,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         batch_handler.stop()
 
-    @tf.function
     def calc_loss(
         self,
         hi_res_true,
