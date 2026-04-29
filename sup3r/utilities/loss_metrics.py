@@ -1008,7 +1008,7 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         )
         return -qc + q + int_g
 
-    def __call__(self, __, x_gen):
+    def call(self, __, x_gen):
         """Evaluate the conductive heat-transfer loss
 
         Parameters
@@ -1108,7 +1108,7 @@ class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
         dt = tf_derivative(t, axis=3)
         return tf.math.maximum(-1 * dt, tf.constant([0.0], dt.dtype))
 
-    def __call__(self, __, x_gen):
+    def call(self, __, x_gen):
         """Evaluate the positive temperature-gradient loss
 
         Parameters
@@ -1180,7 +1180,7 @@ class GeothermalMohoBCLoss(Sup3rLoss):
             true_features=[moho_gradient_layer],
         )
 
-    def __call__(self, x_moho, x_gen):
+    def call(self, x_moho, x_gen):
         """Evaluate the Moho heat-flow boundary-condition loss
 
         Parameters
@@ -1226,7 +1226,7 @@ class GeothermalObsLoss(Sup3rLoss):
 
     LOSS_METRIC = MeanAbsoluteError()
 
-    def __call__(self, x_true, x_gen):
+    def call(self, x_true, x_gen):
         """Evaluate the masked geothermal observation loss
 
         The feature dimensions of ``x_true`` and ``x_gen`` must align
