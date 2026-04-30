@@ -1290,7 +1290,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 feat,
                 norm_in=norm_in,
             )
-            exo = exo.astype(input_array.dtype, copy=False)
             if feat in features:
                 feat_stack.append(exo)
             else:
