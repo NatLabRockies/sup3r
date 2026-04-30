@@ -578,7 +578,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """
         if hi_res_true.shape[-1] > hi_res_gen.shape[-1]:
             exo_dict = self.get_hr_exo_input(hi_res_true)
-            exo_data = [exo_dict[feat] for feat in self.hr_exo_features]
+            exo_data = [
+                tf.cast(exo_dict[feat], hi_res_gen.dtype)
+                for feat in self.hr_exo_features
+            ]
             hi_res_gen = tf.concat((hi_res_gen, *exo_data), axis=-1)
         return hi_res_gen
 
@@ -1287,6 +1290,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 feat,
                 norm_in=norm_in,
             )
+            exo = exo.astype(input_array.dtype, copy=False)
             if feat in features:
                 feat_stack.append(exo)
             else:
@@ -1387,9 +1391,9 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         for feat in features + exo_features:
             assert feat in hi_res_exo, msg.format(feat)
             if feat in features:
-                feat_stack.append(hi_res_exo[feat])
+                feat_stack.append(tf.cast(hi_res_exo[feat], input_array.dtype))
             else:
-                extras.append(hi_res_exo[feat])
+                extras.append(tf.cast(hi_res_exo[feat], input_array.dtype))
         hr_exo = tf.concat(feat_stack, axis=-1)
         if len(extras) > 0:
             extras = tf.concat(extras, axis=-1)
