@@ -288,7 +288,7 @@ def test_md_loss():
     with pytest.raises(ValueError):
         tf_derivative(x, axis=0)
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         md_loss(x[..., 0], y[..., 0])
 
     assert np.allclose(u_div, u_div_np)
@@ -346,7 +346,7 @@ def test_geothermal_heat_transfer_loss_depth_intersection_and_errors():
     loss_obj = GeothermalConductiveHeatTransferLoss(
         dx=1, dy=1, depths=[0, 1000, 2000]
     )
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         loss_obj(np.zeros((2, 4, 6)), np.zeros((2, 4, 6)))
 
 
@@ -418,7 +418,7 @@ def test_geothermal_heat_transfer_loss_errors():
     loss_obj = GeothermalConductiveHeatTransferLoss(
         dx=dx, dy=dy, depths=[0, 1, 2, 3]
     )
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         loss_obj(np.zeros((2, 4, 6)), np.zeros((2, 4, 6)))
 
 
@@ -429,7 +429,7 @@ def test_geothermal_temp_grad_loss_depth_intersection_and_errors():
         GeothermalPositiveTemperatureGradientLoss(depths=[0])
 
     loss_obj = GeothermalPositiveTemperatureGradientLoss(depths=[0, 1, 2])
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         loss_obj(np.zeros((2, 4, 6)), np.zeros((2, 4, 6)))
 
 

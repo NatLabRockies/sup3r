@@ -126,13 +126,21 @@ def gaussian_kernel(x_true, x_gen, sigma=1.0):
 
 def _assert_rank_in(x, ranks, message):
     """TensorFlow rank assertion that is safe under tf.function tracing."""
-    tf.debugging.assert_equal(
+    rank = x.shape.rank
+    if rank is not None:
+        if rank not in ranks:
+            raise ValueError(message)
+        return x
+
+    assertion = tf.debugging.assert_equal(
         tf.reduce_any(
             tf.equal(tf.rank(x), tf.constant(ranks, dtype=tf.int32))
         ),
         True,
         message=message,
     )
+    with tf.control_dependencies([assertion]):
+        return tf.identity(x)
 
 
 class ExpLoss(Sup3rLoss):
@@ -260,8 +268,8 @@ class TemporalDerivativeLoss(Sup3rLoss):
             f'The {self.__class__.__name__} is meant to be used on '
             'spatiotemporal data only. Received tensor(s) that are not 5D'
         )
-        _assert_rank_in(x_true, (5,), msg)
-        _assert_rank_in(x_gen, (5,), msg)
+        x_true = _assert_rank_in(x_true, (5,), msg)
+        x_gen = _assert_rank_in(x_gen, (5,), msg)
 
         x_true_div = tf_derivative(x_true, axis=3)
         x_gen_div = tf_derivative(x_gen, axis=3)
@@ -568,7 +576,7 @@ class LowResLoss(Sup3rLoss):
         """Perform temporal coarsening on a 5D tensor of shape
         (n_obs, spatial_1, spatial_2, time, features)"""
         shape = tf.shape(tensor)
-        _assert_rank_in(
+        tensor = _assert_rank_in(
             tensor,
             (5,),
             'LowResLoss temporal coarsening expects 5D tensors',
@@ -759,8 +767,8 @@ class SlicedWassersteinLoss(Sup3rLoss):
             f'The {self.__class__.__name__} is meant to be used on spatial or '
             'spatiotemporal data only. Received tensor(s) that are not 4/5D'
         )
-        _assert_rank_in(x_true, (4, 5), msg)
-        _assert_rank_in(x_gen, (4, 5), msg)
+        x_true = _assert_rank_in(x_true, (4, 5), msg)
+        x_gen = _assert_rank_in(x_gen, (4, 5), msg)
 
         if x_true.shape.rank == 4:
             x_true = tf.expand_dims(x_true, axis=3)
@@ -883,8 +891,8 @@ class MaterialDerivativeLoss(Sup3rLoss):
             f'The {self.__class__.__name__} is meant to be used on '
             'spatiotemporal data only. Received tensor(s) that are not 5D'
         )
-        _assert_rank_in(x_true, (5,), msg)
-        _assert_rank_in(x_gen, (5,), msg)
+        x_true = _assert_rank_in(x_true, (5,), msg)
+        x_gen = _assert_rank_in(x_gen, (5,), msg)
 
         x_true_div = tf.stack(
             [
@@ -1078,7 +1086,7 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
             'or spatiotemporal data only. Received tensor(s) that are not '
             '4D or 5D'
         )
-        _assert_rank_in(x_gen, (4, 5), msg)
+        x_gen = _assert_rank_in(x_gen, (4, 5), msg)
 
         expr = self._compute_heat_transfer_residual(x_gen)
         return self.LOSS_METRIC(tf.zeros_like(expr), expr)
@@ -1177,7 +1185,7 @@ class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
             'or spatiotemporal data only. Received tensor(s) that are not '
             '4D or 5D'
         )
-        _assert_rank_in(x_gen, (4, 5), msg)
+        x_gen = _assert_rank_in(x_gen, (4, 5), msg)
 
         temp_grads = self._compute_temperature_gradient(x_gen)
         return self.LOSS_METRIC(tf.zeros_like(temp_grads), temp_grads)
