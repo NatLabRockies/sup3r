@@ -15,7 +15,7 @@ from sup3r.utilities import VERSION_RECORD
 
 from .abstract import AbstractSingleModel
 from .interface import AbstractInterface
-from .utilities import get_optimizer_class
+from .utilities import TrainingConfig
 
 logger = logging.getLogger(__name__)
 
@@ -339,8 +339,52 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         """
         return self._optimizer_disc
 
+    @tf.function
+    def get_single_grad_disc(
+        self,
+        low_res,
+        hi_res_true,
+        device_name=None,
+        **calc_loss_kwargs,
+    ):
+        """Run discriminator-only gradient calculation for one mini-batch."""
+        with tf.device(device_name), tf.GradientTape() as tape:
+            hi_res_exo = self.get_hr_exo_input(hi_res_true)
+            hi_res_gen = self._tf_generate(low_res, hi_res_exo)
+            loss, loss_details = self.calc_loss(
+                hi_res_true,
+                hi_res_gen,
+                train_disc=True,
+                train_gen=False,
+                **calc_loss_kwargs,
+            )
+            grad = tape.gradient(loss, self.discriminator_weights)
+        return grad, loss_details
+
+    @tf.function
+    def apply_grad_disc(self, grad):
+        """Apply a discriminator gradient update."""
+        self.optimizer_disc.apply_gradients(
+            zip(grad, self.discriminator_weights)
+        )
+
+    def update_optimizer_disc(self, **kwargs):
+        """Update discriminator optimizer by changing current configuration
+        with kwargs and re-instantiating the optimizer with the new config.
+
+        Parameters
+        ----------
+        kwargs : dict
+            kwargs to use for optimizer configuration update
+        """
+
+        conf = self.get_optimizer_config(self.optimizer_disc)
+        conf.update(**kwargs)
+        self._optimizer_disc = self.optimizer_disc.__class__.from_config(conf)
+
     def update_optimizer(self, option='generator', **kwargs):
-        """Update optimizer by changing current configuration
+        """Update optimizer by changing current configuration with kwargs and
+        re-instantiating the optimizer with the new config.
 
         Parameters
         ----------
@@ -352,16 +396,10 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         """
 
         if 'gen' in option.lower() or 'all' in option.lower():
-            conf = self.get_optimizer_config(self.optimizer)
-            conf.update(**kwargs)
-            optimizer_class = get_optimizer_class(conf)
-            self._optimizer = optimizer_class.from_config(conf)
+            self.update_optimizer_gen(**kwargs)
 
         if 'disc' in option.lower() or 'all' in option.lower():
-            conf = self.get_optimizer_config(self.optimizer_disc)
-            conf.update(**kwargs)
-            optimizer_class = get_optimizer_class(conf)
-            self._optimizer_disc = optimizer_class.from_config(conf)
+            self.update_optimizer_disc(**kwargs)
 
     @property
     def meta(self):
@@ -430,34 +468,18 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         """
 
         no_disc_weights = train_disc and not self.discriminator_weights
-        no_gen_weights = not self.generator_weights
-        if no_disc_weights or no_gen_weights:
+        self._init_generator_weights(lr_shape, hr_shape, device=device)
+
+        if no_disc_weights:
             if device is None:
                 device = self.default_device
 
             logger.info(
-                'Initializing model weights on device "{}"'.format(device)
+                'Initializing discriminator weights on device "%s"', device
             )
-            low_res = tf.cast(np.ones(lr_shape), dtype=tf.float32)
             hi_res = tf.cast(np.ones(hr_shape), dtype=tf.float32)
-
-            hr_exo_shape = (*hr_shape[:-1], 1)
-            hr_exo = tf.cast(np.ones(hr_exo_shape), dtype=tf.float32)
-
             with tf.device(device):
-                hr_exo_data = {}
-                for feature in self.hr_exo_features:
-                    hr_exo_data[feature] = hr_exo
-                out = self._tf_generate(low_res, hr_exo_data)
-                msg = (
-                    f'Number of model outputs {out.shape[-1]} does not '
-                    'match the number of computed hr_out_features '
-                    f'{len(self.hr_out_features)}'
-                )
-                assert out.shape[-1] == len(self.hr_out_features), msg
-
-                if train_disc:
-                    _ = self._tf_discriminate(hi_res)
+                _ = self._tf_discriminate(hi_res)
 
     @staticmethod
     def get_weight_update_fraction(
@@ -601,114 +623,38 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         return weight_gen_advers
 
-    def train(
-        self,
-        batch_handler,
-        input_resolution,
-        n_epoch,
-        weight_gen_advers=0.001,
-        train_gen=True,
-        train_disc=True,
-        disc_loss_bounds=(0.45, 0.6),
-        checkpoint_int=None,
-        out_dir='./gan_{epoch}',
-        early_stop_on=None,
-        early_stop_threshold=0.005,
-        early_stop_n_epoch=5,
-        adaptive_update_bounds=(0.9, 0.99),
-        adaptive_update_fraction=0.0,
-        multi_gpu=False,
-        log_tb=False,
-        export_tb=False,
-    ):
+    def train(self, batch_handler, config=None, **kwargs):
         """Train the GAN model on real low res data and real high res data
 
         Parameters
         ----------
         batch_handler : sup3r.preprocessing.BatchHandler
             BatchHandler object to iterate through
-        input_resolution : dict
-            Dictionary specifying spatiotemporal input resolution. e.g.
-            {'temporal': '60min', 'spatial': '30km'}
-        n_epoch : int
-            Number of epochs to train on
-        weight_gen_advers : float
-            Weight factor for the adversarial loss component of the generator
-            vs. the discriminator.
-        train_gen : bool
-            Flag whether to train the generator for this set of epochs
-        train_disc : bool
-            Flag whether to train the discriminator for this set of epochs
-        disc_loss_bounds : tuple
-            Lower and upper bounds for the discriminator loss outside of which
-            the discriminator will not train unless train_disc=True and
-            train_gen=False.
-        checkpoint_int : int | None
-            Epoch interval at which to save checkpoint models.
-        out_dir : str
-            Directory to save checkpoint GAN models. Should have {epoch} in
-            the directory name. This directory will be created if it does not
-            already exist.
-        early_stop_on : str | None
-            If not None, this should be a column in the training history to
-            evaluate for early stopping (e.g. validation_loss_gen,
-            validation_loss_disc). If this value in this history decreases by
-            an absolute fractional relative difference of less than 0.01 for
-            more than 5 epochs in a row, the training will stop early.
-        early_stop_threshold : float
-            The absolute relative fractional difference in validation loss
-            between subsequent epochs below which an early termination is
-            warranted. E.g. if val losses were 0.1 and 0.0998 the relative
-            diff would be calculated as 0.0002 / 0.1 = 0.002 which would be
-            less than the default thresold of 0.01 and would satisfy the
-            condition for early termination.
-        early_stop_n_epoch : int
-            The number of consecutive epochs that satisfy the threshold that
-            warrants an early stop.
-        adaptive_update_bounds : tuple
-            Tuple specifying allowed range for loss_details[comparison_key]. If
-            history[comparison_key] < threshold_range[0] then the weight will
-            be increased by (1 + update_frac). If history[comparison_key] >
-            threshold_range[1] then the weight will be decreased by 1 / (1 +
-            update_frac).
-        adaptive_update_fraction : float
-            Amount by which to increase or decrease adversarial weights for
-            adaptive updates
-        multi_gpu : bool
-            Flag to break up the batch for parallel gradient descent
-            calculations on multiple gpus. If True and multiple GPUs are
-            present, each batch from the batch_handler will be divided up
-            between the GPUs and resulting gradients from each GPU will be
-            summed and then applied once per batch at the nominal learning
-            rate that the model and optimizer were initialized with.
-            If true and multiple gpus are found, ``default_device`` device
-            should be set to /gpu:0
-        log_tb : bool
-            Whether to write log file for use with tensorboard. Log data can
-            be viewed with ``tensorboard --logdir <logdir>`` where ``<logdir>``
-            is the parent directory of ``out_dir``, and pointing the browser to
-            the printed address.
-        export_tb : bool
-            Whether to export profiling information to tensorboard. This can
-            then be viewed in the tensorboard dashboard under the profile tab
+        config : TrainingConfig | None
+            Shared training configuration. Missing values can also be supplied
+            through ``kwargs`` for backwards compatibility.
+        **kwargs : dict
+            Backwards-compatible training keyword args used to build or update
+            ``config``.
 
-        TODO: (1) args here are getting excessive. Might be time for some
-        refactoring.
-        (2) cal_val_loss should be done in a separate thread from train_epoch
-        so they can be done concurrently. This would be especially important
-        for batch handlers which require val data, like dc handlers.
-        (3) Would like an automatic way to exit the batch handler thread
+        TODO: (1) cal_val_loss should be done in a separate thread from
+        train_epoch so they can be done concurrently. This would be especially
+        important for batch handlers which require val data, like dc handlers.
+        (2) Would like an automatic way to exit the batch handler thread
         instead of manually calling .stop() here.
         """
-        if log_tb:
-            self._init_tensorboard_writer(out_dir)
+        config = TrainingConfig.for_gan(config=config, **kwargs)
+
+        if config.log_tb:
+            self._init_tensorboard_writer(config.out_dir)
 
         self.set_norm_stats(batch_handler.means, batch_handler.stds)
         self.set_model_params(
-            input_resolution=input_resolution, batch_handler=batch_handler
+            input_resolution=config.input_resolution,
+            batch_handler=batch_handler,
         )
 
-        epochs = list(range(n_epoch))
+        epochs = list(range(config.n_epoch))
 
         if self._history is None:
             self._history = pd.DataFrame(columns=['elapsed_time'])
@@ -720,22 +666,22 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         logger.info(
             'Training model with adversarial weight: {} '
             'for {} epochs starting at epoch {}'.format(
-                weight_gen_advers, n_epoch, epochs[0]
+                config.weight_gen_advers, config.n_epoch, epochs[0]
             )
         )
         for epoch in epochs:
             t_epoch = time.time()
             loss_details = self._train_epoch(
                 batch_handler,
-                weight_gen_advers,
-                train_gen,
-                train_disc,
-                disc_loss_bounds,
-                multi_gpu=multi_gpu,
-                export_tb=export_tb,
+                config.weight_gen_advers,
+                config.train_gen,
+                config.train_disc,
+                config.disc_loss_bounds,
+                multi_gpu=config.multi_gpu,
+                export_tb=config.export_tb,
             )
             loss_details.update(
-                self.calc_val_loss(batch_handler, weight_gen_advers)
+                self.calc_val_loss(batch_handler, config.weight_gen_advers)
             )
 
             msg = f'Epoch {epoch} of {epochs[-1]} '
@@ -753,9 +699,9 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             logger.info(msg)
 
             extras = {
-                'weight_gen_advers': weight_gen_advers,
-                'disc_loss_bound_0': disc_loss_bounds[0],
-                'disc_loss_bound_1': disc_loss_bounds[1],
+                'weight_gen_advers': config.weight_gen_advers,
+                'disc_loss_bound_0': config.disc_loss_bounds[0],
+                'disc_loss_bound_1': config.disc_loss_bounds[1],
             }
 
             opt_g = self.get_optimizer_state(self.optimizer)
@@ -765,12 +711,12 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             extras.update(opt_g)
             extras.update(opt_d)
 
-            weight_gen_advers = self.update_adversarial_weights(
+            config.weight_gen_advers = self.update_adversarial_weights(
                 loss_details,
-                adaptive_update_fraction,
-                adaptive_update_bounds,
-                weight_gen_advers,
-                train_disc,
+                config.adaptive_update_fraction,
+                config.adaptive_update_bounds,
+                config.weight_gen_advers,
+                config.train_disc,
             )
 
             stop = self.finish_epoch(
@@ -778,11 +724,11 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 epochs,
                 t0,
                 loss_details,
-                checkpoint_int,
-                out_dir,
-                early_stop_on,
-                early_stop_threshold,
-                early_stop_n_epoch,
+                config.checkpoint_int,
+                config.out_dir,
+                config.early_stop_on,
+                config.early_stop_threshold,
+                config.early_stop_n_epoch,
                 extras=extras,
             )
             logger.info(
@@ -794,13 +740,14 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 break
         logger.info(
             'Finished training {} epochs in {:.4f} seconds'.format(
-                n_epoch,
+                config.n_epoch,
                 time.time() - t0,
             )
         )
 
         batch_handler.stop()
 
+    @tf.function
     def calc_loss(
         self,
         hi_res_true,
@@ -985,9 +932,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             b_loss_details = self.timer(self.run_gradient_descent)(
                 batch.low_res,
                 batch.high_res,
-                self.generator_weights,
                 weight_gen_advers=weight_gen_advers,
-                optimizer=self.optimizer,
                 train_gen=True,
                 train_disc=False,
                 compute_disc=train_disc,
@@ -1000,9 +945,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             b_loss_details = self.timer(self.run_gradient_descent)(
                 batch.low_res,
                 batch.high_res,
-                self.discriminator_weights,
                 weight_gen_advers=weight_gen_advers,
-                optimizer=self.optimizer_disc,
                 train_gen=False,
                 train_disc=True,
                 multi_gpu=multi_gpu,

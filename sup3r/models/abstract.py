@@ -6,8 +6,7 @@ import os
 import pprint
 import time
 from abc import ABC, abstractmethod
-from concurrent.futures import ThreadPoolExecutor
-from inspect import signature
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from warnings import warn
 
 import numpy as np
@@ -279,15 +278,25 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
     @property
     def optimizer(self):
         """Get the tensorflow optimizer to perform gradient descent
-        calculations for the generative network. This is functionally identical
-        to optimizer_disc is no special optimizer model or learning rate was
-        specified for the disc.
+        calculations for the generative network.
 
         Returns
         -------
         tf.keras.optimizers.Optimizer
         """
         return self._optimizer
+
+    def update_optimizer_gen(self, **kwargs):
+        """Update optimizer by changing current configuration
+
+        Parameters
+        ----------
+        kwargs : dict
+            kwargs to use for optimizer configuration update
+        """
+        conf = self.get_optimizer_config(self.optimizer)
+        conf.update(**kwargs)
+        self._optimizer = self.optimizer.__class__.from_config(conf)
 
     @property
     def history(self):
@@ -320,6 +329,47 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """
         return self.generator.weights
 
+    def _init_generator_weights(self, lr_shape, hr_shape, device=None):
+        """Initialize generator weights with a dummy forward pass.
+
+        Parameters
+        ----------
+        lr_shape : tuple
+            Shape of one batch of low resolution input data. The batch size
+            axis must be included, but the exact batch size does not matter.
+        hr_shape : tuple
+            Shape of one batch of high resolution output data. The batch size
+            axis must be included, but the exact batch size does not matter.
+        device : str | None
+            Option to place model weights on a device. If None,
+            self.default_device will be used.
+        """
+
+        if self.generator_weights:
+            return
+
+        if device is None:
+            device = self.default_device
+
+        logger.info('Initializing generator weights on device "%s"', device)
+        low_res = tf.cast(np.ones(lr_shape), dtype=tf.float32)
+        hi_res_exo = {}
+
+        if self.hr_exo_features:
+            exo_shape = (*hr_shape[:-1], 1)
+            exo_tensor = tf.cast(np.ones(exo_shape), dtype=tf.float32)
+            hi_res_exo = dict.fromkeys(self.hr_exo_features, exo_tensor)
+
+        with tf.device(device):
+            out = self._tf_generate(low_res, hi_res_exo)
+
+        msg = (
+            f'Number of model outputs {out.shape[-1]} does not '
+            'match the number of computed hr_out_features '
+            f'{len(self.hr_out_features)}'
+        )
+        assert out.shape[-1] == len(self.hr_out_features), msg
+
     @staticmethod
     def init_optimizer(optimizer, learning_rate):
         """Initialize keras optimizer object.
@@ -339,13 +389,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Initialized optimizer object.
         """
         if isinstance(optimizer, dict):
-            class_name = optimizer['name']
-            optimizer_class = getattr(optimizers, class_name)
-            sig = signature(optimizer_class)
-            optimizer_kwargs = {
-                k: v for k, v in optimizer.items() if k in sig.parameters
-            }
-            optimizer = optimizer_class.from_config(optimizer_kwargs)
+            optimizer = optimizers.deserialize({
+                'class_name': optimizer['name'],
+                'config': optimizer,
+            })
         elif optimizer is None:
             optimizer = optimizers.Adam(learning_rate=learning_rate)
 
@@ -859,70 +906,85 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         return stop
 
-    def _sum_parallel_grad(self, futures, start_time):
-        """Sum gradient descent future results"""
-
-        # sum the gradients from each gpu to weight equally in
-        # optimizer momentum calculation
-        total_grad = None
-        for future in futures:
-            grad, loss_details = future.result()
-            if total_grad is None:
-                total_grad = grad
-            else:
-                for i, igrad in enumerate(grad):
-                    total_grad[i] += igrad
-
-        msg = (
-            f'Finished {len(futures)} gradient descent steps on '
-            f'{len(self.gpu_list)} GPUs in {time.time() - start_time:.4f} '
-            'seconds'
-        )
-        logger.info(msg)
-        return total_grad, loss_details
-
-    def _get_parallel_grad(
+    def _run_parallel_grad(
         self,
         low_res,
         hi_res_true,
-        training_weights,
+        grad_fn,
+        apply_fn,
         **calc_loss_kwargs,
     ):
         """Compute gradient for one mini-batch of (low_res, hi_res_true)
         across multiple GPUs"""
 
-        futures = []
-        start_time = time.time()
         lr_chunks = tf.split(low_res, len(self.gpu_list), axis=0)
         hr_true_chunks = tf.split(hi_res_true, len(self.gpu_list), axis=0)
-        mask_chunks = None
+        calc_loss_kwargs_chunks = [
+            dict(calc_loss_kwargs) for _ in range(len(self.gpu_list))
+        ]
         if 'mask' in calc_loss_kwargs:
             mask_chunks = tf.split(
                 calc_loss_kwargs['mask'], len(self.gpu_list), axis=0
             )
+            for i, mask_chunk in enumerate(mask_chunks):
+                calc_loss_kwargs_chunks[i]['mask'] = mask_chunk
 
+        futures = []
         with ThreadPoolExecutor(max_workers=len(self.gpu_list)) as exe:
             for i in range(len(self.gpu_list)):
-                if mask_chunks is not None:
-                    calc_loss_kwargs['mask'] = mask_chunks[i]
                 futures.append(
                     exe.submit(
-                        self.get_single_grad,
+                        grad_fn,
                         lr_chunks[i],
                         hr_true_chunks[i],
-                        training_weights,
                         device_name=f'/gpu:{i}',
-                        **calc_loss_kwargs,
+                        **calc_loss_kwargs_chunks[i],
                     )
                 )
-        return self._sum_parallel_grad(futures, start_time=start_time)
+        # sum the gradients from each gpu to weight equally in
+        # optimizer momentum calculation
+        grads = []
+        details = []
+        for future in as_completed(futures):
+            grad, loss_details = future.result()
+            grads.append(grad)
+            details.append(loss_details)
+        total_grad = tf.nest.map_structure(
+            lambda *x: tf.reduce_sum(x, axis=0), *grads
+        )
+        mean_loss_details = {
+            k: tf.reduce_mean([d[k] for d in details]) for k in details[0]
+        }
+        apply_fn(total_grad)
+        return mean_loss_details
+
+    @tf.function
+    def _run_serial_grad(
+        self,
+        low_res,
+        hi_res_true,
+        grad_fn,
+        apply_fn,
+        **calc_loss_kwargs,
+    ):
+        """Compute gradient for one mini-batch of (low_res, hi_res_true) and
+        update weights in serial on one device"""
+
+        grad, loss_details = grad_fn(
+            low_res,
+            hi_res_true,
+            device_name=self.default_device,
+            **calc_loss_kwargs,
+        )
+        apply_fn(grad)
+        return loss_details
 
     def run_gradient_descent(
         self,
         low_res,
         hi_res_true,
-        training_weights,
-        optimizer=None,
+        train_gen=True,
+        train_disc=False,
         multi_gpu=False,
         **calc_loss_kwargs,
     ):
@@ -939,9 +1001,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Real high-resolution data in a 4D or 5D array:
             (n_observations, spatial_1, spatial_2, features)
             (n_observations, spatial_1, spatial_2, temporal, features)
-        training_weights : list
-            A list of layer weights that are to-be-trained based on the
-            current loss weight values.
         optimizer : tf.keras.optimizers.Optimizer
             Optimizer class to use to update weights. This can be different if
             you're training just the generator or one of the discriminator
@@ -961,33 +1020,35 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         loss_details : dict
             Namespace of the breakdown of loss components
         """
-        if optimizer is None:
-            optimizer = self.optimizer
-
+        start_time = time.time()
+        grad_fn, apply_fn = self._get_train_fns(
+            train_gen=train_gen, train_disc=train_disc
+        )
         if not multi_gpu or len(self.gpu_list) < 2:
-            start_time = time.time()
-            grad, loss_details = self.get_single_grad(
+            loss_details = self._run_serial_grad(
                 low_res,
                 hi_res_true,
-                training_weights,
-                device_name=self.default_device,
+                grad_fn=grad_fn,
+                apply_fn=apply_fn,
                 **calc_loss_kwargs,
             )
-            optimizer.apply_gradients(zip(grad, training_weights))
             msg = (
                 'Finished single gradient descent step in '
                 f'{time.time() - start_time:.4f} seconds'
             )
-            logger.debug(msg)
         else:
-            total_grad, loss_details = self._get_parallel_grad(
+            loss_details = self._run_parallel_grad(
                 low_res,
                 hi_res_true,
-                training_weights,
+                grad_fn=grad_fn,
+                apply_fn=apply_fn,
                 **calc_loss_kwargs,
             )
-            optimizer.apply_gradients(zip(total_grad, training_weights))
-
+            msg = (
+                f'Finished gradient descent steps on {len(self.gpu_list)} '
+                f'GPUs in {time.time() - start_time:.4f} seconds'
+            )
+        logger.debug(msg)
         return loss_details
 
     def _reshape_norm_exo(self, hi_res, hi_res_exo, exo_name, norm_in=True):
@@ -1266,77 +1327,66 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         return hi_res
 
+    def _get_train_fns(self, train_gen=True, train_disc=False):
+        """Get fixed-mode grad/apply functions for the current train step."""
+        if train_gen and not train_disc:
+            return self.get_single_grad_gen, self.apply_grad_gen
+        if train_disc and not train_gen:
+            return self.get_single_grad_disc, self.apply_grad_disc
+
+        msg = (
+            'train_gen and train_disc flags cannot both be True or both '
+            'be False. Received train_gen={} and train_disc={}'.format(
+                train_gen, train_disc
+            )
+        )
+        logger.error(msg)
+        raise ValueError(msg)
+
     @tf.function
-    def _tf_get_single_grad(
+    def get_single_grad_gen(
         self,
         low_res,
         hi_res_true,
-        training_weights,
+        device_name=None,
         **calc_loss_kwargs,
     ):
-        """Compiled per-batch gradient step used by :meth:`get_single_grad`.
-
-        Keeping this method tensor-only allows graph compilation while
-        :meth:`get_single_grad` continues to handle locks and device placement.
-        """
-        with tf.GradientTape(watch_accessed_variables=False) as tape:
-            tape.watch(training_weights)
+        """Run generator-only gradient calculation for one mini-batch."""
+        with tf.device(device_name), tf.GradientTape() as tape:
             hi_res_exo = self.get_hr_exo_input(hi_res_true)
             hi_res_gen = self._tf_generate(low_res, hi_res_exo)
             loss, loss_details = self.calc_loss(
                 hi_res_true, hi_res_gen, **calc_loss_kwargs
             )
-            grad = tape.gradient(loss, training_weights)
+            grad = tape.gradient(loss, self.generator_weights)
         return grad, loss_details
 
-    def get_single_grad(
+    @tf.function
+    def apply_grad_gen(self, grad):
+        """Apply a generator gradient update."""
+        self.optimizer.apply_gradients(zip(grad, self.generator_weights))
+
+    @tf.function
+    def get_single_grad_disc(
         self,
         low_res,
         hi_res_true,
-        training_weights,
         device_name=None,
         **calc_loss_kwargs,
     ):
-        """Run gradient descent for one mini-batch of (low_res, hi_res_true),
-        do not update weights, just return gradient details.
+        """Run discriminator-only gradient calculation for one mini-batch."""
+        raise NotImplementedError(
+            'This model does not have a discriminator, so '
+            'get_single_grad_disc is not implemented.'
+        )
 
-        Parameters
-        ----------
-        low_res : np.ndarray
-            Real low-resolution data in a 4D or 5D array:
-            (n_observations, spatial_1, spatial_2, features)
-            (n_observations, spatial_1, spatial_2, temporal, features)
-        hi_res_true : np.ndarray
-            Real high-resolution data in a 4D or 5D array:
-            (n_observations, spatial_1, spatial_2, features)
-            (n_observations, spatial_1, spatial_2, temporal, features)
-        training_weights : list
-            A list of layer weights that are to-be-trained based on the
-            current loss weight values.
-        device_name : None | str
-            Optional tensorflow device name for GPU placement. Note that if a
-            GPU is available, variables will be placed on that GPU even if
-            device_name=None.
-        calc_loss_kwargs : dict
-            Kwargs to pass to the self.calc_loss() method
-
-        Returns
-        -------
-        grad : list
-            a list or nested structure of Tensors (or IndexedSlices, or None,
-            or CompositeTensor) representing the gradients for the
-            training_weights
-        loss_details : dict
-            Namespace of the breakdown of loss components
-        """
-        with tf.device(device_name):
-            grad, loss_details = self._tf_get_single_grad(
-                low_res,
-                hi_res_true,
-                training_weights,
-                **calc_loss_kwargs,
-            )
-        return grad, loss_details
+    @tf.function
+    def apply_grad_disc(self, grad):
+        """Apply a discriminator gradient update."""
+        raise NotImplementedError(
+            'This model does not have a discriminator, so '
+            'apply_grad_disc is not implemented.'
+        )
 
     @abstractmethod
     def calc_loss(

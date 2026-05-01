@@ -7,5 +7,6 @@ from .linear import LinearInterp
 from .multi_step import MultiStepGan, MultiStepSurfaceMetGan, SolarMultiStepGan
 from .solar_cc import SolarCC
 from .surface import SurfaceSpatialMetModel
+from .utilities import TrainingConfig, TrainingSession
 
 SPATIAL_FIRST_MODELS = (MultiStepSurfaceMetGan, SolarMultiStepGan)
