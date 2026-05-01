@@ -168,7 +168,7 @@ class OutputMixin:
 
 
 class RexOutputs(BaseRexOutputs):
-    """Base class to handle NREL h5 formatted output data"""
+    """Base class to handle NLR h5 formatted output data"""
 
     @property
     def full_version_record(self):

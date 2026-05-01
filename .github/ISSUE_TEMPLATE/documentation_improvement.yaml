@@ -10,7 +10,7 @@ body:
       options:
         - label: >
             I have checked that the issue still exists on the latest versions of the docs
-            on `main` [here](https://nrel.github.io/sup3r/)
+            on `main` [here](https://natlabrockies.github.io/sup3r/)
           required: true
   - type: textarea
     id: location
@@ -18,7 +18,7 @@ body:
       label: Location of the documentation
       description: >
         Please provide the location of the documentation,
-        placeholder: https://nrel.github.io/sup3r/_autosummary/sup3r.cli.html#sup3r.cli
+        placeholder: https://natlabrockies.github.io/sup3r/_autosummary/sup3r.cli.html#sup3r.cli
     validations:
       required: true
   - type: textarea

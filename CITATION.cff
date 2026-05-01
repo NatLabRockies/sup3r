@@ -7,36 +7,36 @@ type: software
 authors:
   - family-names: Benton
     given-names: Brandon
-    affiliation: NREL
+    affiliation: NLR
     orcid: "https://orcid.org/0009-0008-9931-2050"
   - family-names: Buster
     given-names: Grant
-    affiliation: NREL
+    affiliation: NLR
     orcid: "https://orcid.org/0000-0001-8616-8100"
   - family-names: Hassanaly
     given-names: Malik
-    affiliation: NREL
+    affiliation: NLR
     orcid: "https://orcid.org/0000-0002-0425-9090"
   - family-names: Pinchuk
     given-names: Pavlo
-    affiliation: NREL
+    affiliation: NLR
     orcid: "https://orcid.org/0000-0003-4736-4728"
   - family-names: Podgorny
     given-names: Slater
-    affiliation: NREL
+    affiliation: NLR
     orcid: "https://orcid.org/0009-0008-4903-411X"
   - family-names: Glaws
     given-names: Andrew
-    affiliation: NREL
+    affiliation: NLR
     orcid: "https://orcid.org/0000-0002-7268-1883"
   - family-names: King
     given-names: Ryan
-    affiliation: NREL
+    affiliation: NLR
     orcid: "https://orcid.org/0000-0002-0591-7139"
 identifiers:
   - type: doi
     value: 10.5281/zenodo.6808547
-repository-code: 'https://github.com/NREL/sup3r'
+repository-code: 'https://github.com/NatLabRockies/sup3r'
 abstract: >-
   The Super Resolution for Renewable Resource Data (sup3r)
   software uses generative adversarial networks to create

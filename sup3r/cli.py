@@ -116,7 +116,7 @@ def forward_pass(ctx, verbose):
         }
 
     Note that the ``execution_control`` block contains kwargs that would
-    be required to distribute the job on multiple nodes on the NREL HPC.
+    be required to distribute the job on multiple nodes on the NLR HPC.
     To run the job locally, use ``execution_control: {"option": "local"}``.
     """  # noqa : D301
     config_file = ctx.obj['CONFIG_FILE']
@@ -165,7 +165,7 @@ def solar(ctx, verbose):
         }
 
     Note that the ``execution_control`` block contains kwargs that would
-    be required to distribute the job on multiple nodes on the NREL HPC.
+    be required to distribute the job on multiple nodes on the NLR HPC.
     To run the job locally, use ``execution_control: {"option": "local"}``.
     """  # noqa : D301
     config_file = ctx.obj['CONFIG_FILE']
@@ -228,7 +228,7 @@ def bias_calc(ctx, verbose):
         }
 
     Note that the ``execution_control`` block contains kwargs that would
-    be required to distribute the job on multiple nodes on the NREL HPC.
+    be required to distribute the job on multiple nodes on the NLR HPC.
     To run the job locally, use ``execution_control: {"option": "local"}``.
     """  # noqa : D301
     config_file = ctx.obj['CONFIG_FILE']
@@ -271,7 +271,7 @@ def data_collect(ctx, verbose):
         }
 
     Note that the ``execution_control`` has the same options as forward-pass
-    and you can set ``"option": "kestrel"`` to run on the NREL HPC.
+    and you can set ``"option": "kestrel"`` to run on the NLR HPC.
     """  # noqa : D301
     config_file = ctx.obj['CONFIG_FILE']
     verbose = any([verbose, ctx.obj['VERBOSE']])
@@ -314,7 +314,7 @@ def qa(ctx, verbose):
         }
 
     Note that the ``execution_control`` has the same options as forward-pass
-    and you can set ``"option": "kestrel"`` to run on the NREL HPC.
+    and you can set ``"option": "kestrel"`` to run on the NLR HPC.
     """  # noqa : D301
     config_file = ctx.obj['CONFIG_FILE']
     verbose = any([verbose, ctx.obj['VERBOSE']])

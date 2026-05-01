@@ -9,30 +9,30 @@ Sup3rWind Data Access
 
 The Sup3rWind data and models are publicly available in a public AWS S3 bucket. The data files can be downloaded directly from there to your local machine or an EC2 instance using the `OEDI data explorer <https://data.openei.org/s3_viewer?bucket=nrel-pds-wtk&prefix=sup3rwind%2F>`__ or the `AWS CLI <https://aws.amazon.com/cli/>`__. A word of caution: there's a lot of data here. The smallest Sup3rWind file for just a single variable at 2-km 5-minute resolution is 130 GB.
 
-The Sup3rWind data is also loaded into `HSDS <https://www.hdfgroup.org/solutions/highly-scalable-data-service-hsds/>`__ so that you may stream the data via the `NREL developer API <https://developer.nrel.gov/signup/>`__ or your own HSDS server. This is the best option if you're not going to want a full annual dataset. See these `rex instructions <https://nrel.github.io/rex/misc/examples.hsds.html>`__ for more details on how to access this data with HSDS and rex.
+The Sup3rWind data is also loaded into `HSDS <https://www.hdfgroup.org/solutions/highly-scalable-data-service-hsds/>`__ so that you may stream the data via the `NLR developer API <https://developer.nlr.gov/signup/>`__ or your own HSDS server. This is the best option if you're not going to want a full annual dataset. See these `rex instructions <https://natlabrockies.github.io/rex/misc/examples.hsds.html>`__ for more details on how to access this data with HSDS and rex.
 
 Sup3rWind Data Usage
 ---------------------
 
-Sup3rWind data can be used in generally the same way as `Sup3rCC <https://nrel.github.io/sup3r/examples/sup3rcc.html>`__ data, with the condition that Sup3rWind includes only wind data and ancillary variables for modeling wind energy generation. Refer to the Sup3rCC `example notebook <https://github.com/NREL/sup3r/tree/main/examples/sup3rcc/using_the_data.ipynb>`__ for usage patterns.
+Sup3rWind data can be used in generally the same way as `Sup3rCC <https://natlabrockies.github.io/sup3r/examples/sup3rcc.html>`__ data, with the condition that Sup3rWind includes only wind data and ancillary variables for modeling wind energy generation. Refer to the Sup3rCC `example notebook <https://github.com/NatLabRockies/sup3r/tree/main/examples/sup3rcc/using_the_data.ipynb>`__ for usage patterns.
 
 Running Sup3rWind Models
 -------------------------
 
-The process for running the Sup3rWind models is much the same as for `Sup3rCC <https://nrel.github.io/sup3r/examples/sup3rcc.html>`__.
+The process for running the Sup3rWind models is much the same as for `Sup3rCC <https://natlabrockies.github.io/sup3r/examples/sup3rcc.html>`__.
 
 #. Download the Sup3rWind models to your hardware using the AWS CLI: ``$ aws s3 cp s3://nrel-pds-wtk/sup3rwind/models/``
 #. Setup the Sup3rWind software. We recommend using `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__ to manage your python environments. You can create a sup3r environment with the conda file in this example directory: ``$ conda env create -n sup3rwind --file env.yml``
-#. Download the ERA5 data that you want to downscale from `ERA5-single-levels <https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels?tab=overview/>`__ and/or `ERA5-pressure-levels <https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview/>`__ using the `EraDownloader <https://nrel.github.io/sup3r/_autosummary/sup3r.utilities.era_downloader.html#module-sup3r.utilities.era_downloader/>`__.
+#. Download the ERA5 data that you want to downscale from `ERA5-single-levels <https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels?tab=overview/>`__ and/or `ERA5-pressure-levels <https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview/>`__ using the `EraDownloader <https://natlabrockies.github.io/sup3r/_autosummary/sup3r.utilities.era_downloader.html#module-sup3r.utilities.era_downloader/>`__.
 #. Copy this examples directory to your hardware. You're going to be using the folder structure in ``/sup3r/examples/sup3rwind/run_configs`` as your project directories (``/sup3r/`` is a git clone of the sup3r software repo).
 #. Navigate to ``/sup3r/examples/sup3rwind/run_configs/wind/`` and/or ``sup3r/examples/sup3rwind/run_configs/trhp`` and update all of the filepaths in the config files for the source ERA5 data, Sup3rWind models, and exogenous data sources (e.g. the ``topography`` source file).
 #. Update the execution control parameters in the ``config_fwp_spatial.json`` file based on the hardware you're running on.
-#. Run ``sup3r-pipeline`` to run just one job. There are also batch options for running multiple jobs, but we recommend starting with ``sup3r-pipeline`` (more on the sup3r `CLI <https://nrel.github.io/sup3r/_cli/sup3r.html>`__).
+#. Run ``sup3r-pipeline`` to run just one job. There are also batch options for running multiple jobs, but we recommend starting with ``sup3r-pipeline`` (more on the sup3r `CLI <https://natlabrockies.github.io/sup3r/_cli/sup3r.html>`__).
 #. To run ``sup3r-pipeline``, make sure you are in the directory with the ``config_pipeline.json`` and ``config_fwp_spatial.json`` files, and then run this command: ``python -m sup3r.cli -c config_pipeline.json pipeline``
 #. If you're running on a slurm cluster, this will kick off a number of jobs that you can see with the ``squeue`` command. If you're running locally, your terminal should now be running the Sup3rWind models. The software will create a ``./logs/`` directory in which you can monitor the progress of your jobs.
 #. The ``sup3r-pipeline`` is designed to run several modules in serial, with each module running multiple chunks in parallel. Once the first module (forward-pass) finishes, you'll want to run ``python -m sup3r.cli -c config_pipeline.json pipeline`` again. This will clean up status files and kick off the next step in the pipeline (if the current step was successful).
 
-You can also checkout the `example notebook <https://github.com/NREL/sup3r/tree/main/examples/sup3rwind/running_sup3r_models.ipynb>`__ for how to run models without config files.
+You can also checkout the `example notebook <https://github.com/NatLabRockies/sup3r/tree/main/examples/sup3rwind/running_sup3r_models.ipynb>`__ for how to run models without config files.
 
 Training from scratch
 ---------------------
@@ -95,4 +95,4 @@ Benton, B. N., Buster, G., Pinchuk, P., Glaws, A., King, R. N., Maclaurin, G., &
 Acknowledgements
 -----------------
 
-This work was authored by the National Renewable Energy Laboratory, for the U.S. Department of Energy (DOE) under Contract No. DE-AC36-08GO28308. Funding provided by the DOE Grid Deployment Office (GDO), the DOE Advanced Scientific Computing Research (ASCR) program, the DOE Solar Energy Technologies Office (SETO), and the Laboratory Directed Research and Development (LDRD) program at the National Renewable Energy Laboratory. The research was performed using computational resources sponsored by the DOE Office of Energy Efficiency and Renewable Energy and located at the National Renewable Energy Laboratory. The views expressed in the article do not necessarily represent the views of the DOE or the U.S. Government. The U.S. Government retains and the publisher, by accepting the article for publication, acknowledges that the U.S. Government retains a nonexclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of this work, or allow others to do so, for U.S. Government purposes.
+This work was authored by the National Laboratory of the Rockies, for the U.S. Department of Energy (DOE) under Contract No. DE-AC36-08GO28308. Funding provided by the DOE Grid Deployment Office (GDO), the DOE Advanced Scientific Computing Research (ASCR) program, the DOE Solar Energy Technologies Office (SETO), and the Laboratory Directed Research and Development (LDRD) program at the National Laboratory of the Rockies. The research was performed using computational resources sponsored by the DOE Office of Energy Efficiency and Renewable Energy and located at the National Laboratory of the Rockies. The views expressed in the article do not necessarily represent the views of the DOE or the U.S. Government. The U.S. Government retains and the publisher, by accepting the article for publication, acknowledges that the U.S. Government retains a nonexclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of this work, or allow others to do so, for U.S. Government purposes.

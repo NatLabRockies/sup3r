@@ -206,7 +206,7 @@ class ForwardPassStrategy:
     use_cpu : bool
         Flag to only use CPUs or to also use GPUs if available. Default is to
         use CPUs because they have more memory and GPUs are expensive on the
-        NREL HPC.
+        NLR HPC.
     """
 
     file_paths: Union[str, list, pathlib.Path]

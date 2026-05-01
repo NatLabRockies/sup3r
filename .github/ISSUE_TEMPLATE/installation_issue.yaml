@@ -8,7 +8,7 @@ body:
       label: Installation check
       options:
         - label: >
-            I have read the [installation guide](https://nrel.github.io/sup3r/misc/installation.html).
+            I have read the [installation guide](https://natlabrockies.github.io/sup3r/misc/installation.html).
           required: true
   - type: input
     id: platform
