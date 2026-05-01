@@ -29,7 +29,7 @@ classifiers=[
   # for netCDF4 1.7.3+
 ]
 dependencies = [
-  "NLR-phygnn @ git+https://github.com/NatLabRockies/phygnn.git@bnb/tf",
+  "NLR-phygnn>=0.0.35",
   "NREL-rex>=0.2.91",
   "NREL-gaps>=0.6.13",
   "NREL-farms>=1.0.4",
