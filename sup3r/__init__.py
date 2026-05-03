@@ -20,7 +20,7 @@ from ._version import __version__
 from .cli import main
 
 __author__ = """Brandon Benton"""
-__email__ = 'brandon.benton@nrel.gov'
+__email__ = 'brandon.benton@nlr.gov'
 
 SUP3R_DIR = os.path.dirname(os.path.realpath(__file__))
 CONFIG_DIR = os.path.join(SUP3R_DIR, 'configs')

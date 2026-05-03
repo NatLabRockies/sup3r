@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 project = 'sup3r'
-copyright = '2022, Alliance for Sustainable Energy, LLC'
+copyright = '2022, Alliance for Energy Innovation, LLC'
 author = 'Brandon Benton, Grant Buster, Andrew Glaws, Ryan King'
 
 pkg = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
@@ -122,7 +122,7 @@ default_dark_mode = False
 
 html_context = {
     'display_github': True,
-    'github_user': 'nrel',
+    'github_user': 'NatLabRockies',
     'github_repo': 'sup3r',
     'github_version': 'main',
     'conf_py_path': '/docs/source/',

@@ -43,4 +43,4 @@ If applicable, add screenshots to help explain your problem.
 Add any other context about the problem here.
 
 **Charge code**
-If you are at NREL and fixing this bug is urgent, please provide a charge code for our time.
+If you are at NLR and fixing this bug is urgent, please provide a charge code for our time.

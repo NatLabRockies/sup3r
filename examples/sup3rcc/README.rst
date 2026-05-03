@@ -7,13 +7,13 @@ Super-Resolution for Renewable Energy Resource Data with Climate Change Impacts 
 Sup3rCC Data Access
 --------------------
 
-For high level details on accessing the NREL renewable energy resource datasets including Sup3rCC, see the `rex docs pages <https://nrel.github.io/rex/misc/examples.nrel_data.html>`__
+For high level details on accessing the NLR renewable energy resource datasets including Sup3rCC, see the `rex docs pages <https://natlabrockies.github.io/rex/misc/examples.nrel_data.html>`__
 
 The Sup3rCC data and models are publicly available in a public AWS S3 bucket. The data files and models can be downloaded directly from there to your local machine or an EC2 instance using the `OEDI data explorer <https://data.openei.org/s3_viewer?bucket-nrel-pds-sup3rcc>`__ or the `AWS CLI <https://aws.amazon.com/cli/>`__. A word of caution: there's a lot of data here. The smallest Sup3rCC file for just a single variable is ~20 GB, and a full year of data is ~200 GB.
 
-The Sup3rCC data is also loaded into `HSDS <https://www.hdfgroup.org/solutions/highly-scalable-data-service-hsds/>`__ so that you may stream the data via the `NREL developer API <https://developer.nrel.gov/signup/>`__ or your own HSDS server. This is the best option if you're not going to want the full annual dataset over the whole United States. See these `rex instructions <https://nrel.github.io/rex/misc/examples.hsds.html>`__ for more details on how to access this data with HSDS and rex.
+The Sup3rCC data is also loaded into `HSDS <https://www.hdfgroup.org/solutions/highly-scalable-data-service-hsds/>`__ so that you may stream the data via the `NLR developer API <https://developer.nlr.gov/signup/>`__ or your own HSDS server. This is the best option if you're not going to want the full annual dataset over the whole United States. See these `rex instructions <https://natlabrockies.github.io/rex/misc/examples.hsds.html>`__ for more details on how to access this data with HSDS and rex.
 
-The data can now be opened remotely with ``xarray`` and ``rex``. See the docs `here <https://nrel.github.io/rex/misc/examples.xarray.html>`__ for instructions.
+The data can now be opened remotely with ``xarray`` and ``rex``. See the docs `here <https://natlabrockies.github.io/rex/misc/examples.xarray.html>`__ for instructions.
 
 Directory Structure
 -------------------
@@ -25,7 +25,7 @@ Within the S3 bucket there is also a folder ``models`` providing pre-trained Sup
 Example Sup3rCC Data Usage
 --------------------------
 
-The jupyter notebook in this example shows some basic code to access and explore the data. You can walk through the `example notebook <https://github.com/NREL/sup3r/tree/main/examples/sup3rcc/using_the_data.ipynb>`__. You can clone this repo, setup a basic python environment with `rex <https://github.com/NREL/rex>`__, and run the notebook on your own.
+The jupyter notebook in this example shows some basic code to access and explore the data. You can walk through the `example notebook <https://github.com/NatLabRockies/sup3r/tree/main/examples/sup3rcc/using_the_data.ipynb>`__. You can clone this repo, setup a basic python environment with `rex <https://github.com/NatLabRockies/rex>`__, and run the notebook on your own.
 
 Running Sup3rCC Models
 ----------------------
@@ -41,17 +41,17 @@ To run the Sup3rCC models, follow these instructions:
 #. Copy this examples directory to your hardware. You're going to be using the folder structure in ``/sup3r/examples/sup3rcc/run_configs`` as your project directories (``/sup3r/`` is a git clone of the sup3r software repo).
 #. Navigate to ``/sup3r/examples/sup3rcc/run_configs/nearsurf/`` and update all of the filepaths in the config files for the source GCM data, Sup3rCC models, and exogenous data sources (e.g. the ``nsrdb_clearsky.h5`` file downloaded from OEDI).
 #. Update the execution control parameters in the ``config_fwp.json`` file based on the hardware you're running on.
-#. You can either run ``sup3r-batch`` to setup multiple run years, or ``sup3r-pipeline`` to run just one job. We recommend starting with ``sup3r-pipeline`` (more on the sup3r `CLI <https://nrel.github.io/sup3r/_cli/sup3r.html>`__).
+#. You can either run ``sup3r-batch`` to setup multiple run years, or ``sup3r-pipeline`` to run just one job. We recommend starting with ``sup3r-pipeline`` (more on the sup3r `CLI <https://natlabrockies.github.io/sup3r/_cli/sup3r.html>`__).
 #. To run ``sup3r-pipeline``, make sure you are in the directory with the ``config_pipeline.json`` and ``config_fwp.json`` files, and then run this command: ``python -m sup3r.cli -c config_pipeline.json pipeline``
 #. If you're running on a slurm cluster, this will kick off a number of jobs that you can see with the ``squeue`` command. If you're running locally, your terminal should now be running the Sup3rCC models. The software will create a ``./logs/`` directory in which you can monitor the progress of your jobs.
 #. The ``sup3r-pipeline`` is designed to run several modules in serial, with each module running multiple chunks in parallel. Once the first module (forward-pass) finishes, you'll want to run ``python -m sup3r.cli -c config_pipeline.json pipeline`` again. This will clean up status files and kick off the next step in the pipeline (if the current step was successful).
 
-Note that you can get significantly better performance by pre-loading the variable-by-variable and multi-year CMIP6 files using the `Sup3rCC data handler <https://nrel.github.io/sup3r/_autosummary/sup3r.preprocessing.data_handlers.nc_cc.DataHandlerNCforCC.html#sup3r.preprocessing.data_handlers.nc_cc.DataHandlerNCforCC>`__ and saving single files per year with all necessary variables for use in the generative runs.
+Note that you can get significantly better performance by pre-loading the variable-by-variable and multi-year CMIP6 files using the `Sup3rCC data handler <https://natlabrockies.github.io/sup3r/_autosummary/sup3r.preprocessing.data_handlers.nc_cc.DataHandlerNCforCC.html#sup3r.preprocessing.data_handlers.nc_cc.DataHandlerNCforCC>`__ and saving single files per year with all necessary variables for use in the generative runs.
 
 Nuances of Sup3rCC
 ------------------
 
-The Sup3rCC dataset is quite unlike the legacy NREL historical wind and solar datasets. As such, we expect there will be some confusion about how to use the data. There are some nuances of the data enumerated below. If you have any questions about how to apply the Sup3rCC data to your work, please reach out to Grant Buster (Grant.Buster@nrel.gov).
+The Sup3rCC dataset is quite unlike the legacy NLR historical wind and solar datasets. As such, we expect there will be some confusion about how to use the data. There are some nuances of the data enumerated below. If you have any questions about how to apply the Sup3rCC data to your work, please reach out to Grant Buster (Grant.Buster@nlr.gov).
 
 #. Sup3rCC data is based on global climate model (GCM) data, which does not represent historical weather, only historical climate. So for example, Sup3rCC 2015 does not represent the actual historical weather in 2015, just the historical climate in 2015.
 #. Sup3rCC data represents just one possible future climate subject to deep uncertainties. Do not use the Sup3rCC data as an accurate prediction of future weather. Some uncertanties about our future climate can be quantified by exploring a large ensemble of GCM data across multiple climate scenarios and multiple models.
@@ -91,4 +91,4 @@ Buster, Grant, Benton, Brandon, Glaws, Andrew, & King, Ryan. Super-Resolution fo
 Acknowledgements
 ----------------
 
-This work was authored by the National Renewable Energy Laboratory for the U.S. Department of Energy (DOE) under Contract No. DE-AC36-08GO28308. This research was supported by the Grid Modernization Initiative of the U.S. Department of Energy (DOE) as part of its Grid Modernization Laboratory Consortium, a strategic partnership between DOE and the national laboratories to bring together leading experts, technologies, and resources to collaborate on the goal of modernizing the nation’s grid. Funding provided by the DOE Office of Energy Efficiency and Renewable Energy (EERE), the DOE Office of Electricity (OE), DOE Grid Deployment Office (GDO), the DOE Advanced Scientific Computing Research (ASCR) program, the DOE Solar Energy Technologies Office (SETO), and the Laboratory Directed Research and Development (LDRD) program at the National Renewable Energy Laboratory. The research was performed using computational resources sponsored by the DOE Office of Energy Efficiency and Renewable Energy and located at the National Renewable Energy Laboratory. The views expressed in the article do not necessarily represent the views of the DOE or the U.S. Government. The U.S. Government retains and the publisher, by accepting the article for publication, acknowledges that the U.S. Government retains a nonexclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of this work, or allow others to do so, for U.S. Government purposes.
+This work was authored by the National Laboratory of the Rockies for the U.S. Department of Energy (DOE) under Contract No. DE-AC36-08GO28308. This research was supported by the Grid Modernization Initiative of the U.S. Department of Energy (DOE) as part of its Grid Modernization Laboratory Consortium, a strategic partnership between DOE and the national laboratories to bring together leading experts, technologies, and resources to collaborate on the goal of modernizing the nation’s grid. Funding provided by the DOE Office of Energy Efficiency and Renewable Energy (EERE), the DOE Office of Electricity (OE), DOE Grid Deployment Office (GDO), the DOE Advanced Scientific Computing Research (ASCR) program, the DOE Solar Energy Technologies Office (SETO), and the Laboratory Directed Research and Development (LDRD) program at the National Lab of the Rockies. The research was performed using computational resources sponsored by the DOE Office of Energy Efficiency and Renewable Energy and located at the National Lab of the Rockies. The views expressed in the article do not necessarily represent the views of the DOE or the U.S. Government. The U.S. Government retains and the publisher, by accepting the article for publication, acknowledges that the U.S. Government retains a nonexclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of this work, or allow others to do so, for U.S. Government purposes.

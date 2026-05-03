@@ -6,13 +6,13 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "NREL-sup3r"
+name = "NLR-sup3r"
 dynamic = ["version"]
 description = "Super Resolving Renewable Resource Data (sup3r)"
-keywords = ["sup3r", "NREL"]
+keywords = ["sup3r", "NLR"]
 readme = "README.rst"
 authors = [
-  {name = "Brandon Benton", email = "brandon.benton@nrel.gov"},
+  {name = "Brandon Benton", email = "brandon.benton@nlr.gov"},
 ]
 license = {text = "BSD-3-Clause"}
 requires-python = ">= 3.9,<3.13"
@@ -93,9 +93,9 @@ sup3r-forward-pass = "sup3r.pipeline.forward_pass_cli:main"
 sup3r-collect = "sup3r.postprocessing.data_collect_cli:main"
 
 [project.urls]
-homepage = "https://github.com/NREL/sup3r"
-documentation = "https://nrel.github.io/sup3r/"
-repository = "https://github.com/NREL/sup3r"
+homepage = "https://github.com/NatLabRockies/sup3r"
+documentation = "https://natlabrockies.github.io/sup3r/"
+repository = "https://github.com/NatLabRockies/sup3r"
 
 [tool.ruff]
 line-length = 79
@@ -303,7 +303,7 @@ scipy = ">=1.0.0"
 xarray = ">=2023.0"
 
 [tool.pixi.pypi-dependencies]
-NREL-sup3r = { path = ".", editable = true }
+NLR-sup3r = { path = ".", editable = true }
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
