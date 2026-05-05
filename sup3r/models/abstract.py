@@ -509,8 +509,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             version_record = params.pop('version_record')
             if verbose:
                 logger.info(
-                    'Loading model from disk '
-                    'that was created with the '
+                    'Loading model from disk that was created with the '
                     'following package versions: \n{}'.format(
                         pprint.pformat(version_record, indent=2)
                     )

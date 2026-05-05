@@ -1044,7 +1044,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         disc_loss = self._train_record['train_loss_disc'].values.mean()
         gen_loss = self._train_record['train_loss_gen'].values.mean()
 
-        logger.info(
+        logger.debug(
             'Batch {} out of {} has (gen / disc) loss of: ({:.2e} / {:.2e}). '
             'Running mean (gen / disc): ({:.2e} / {:.2e}). Trained '
             '(gen / disc): ({} / {})'.format(
@@ -1153,7 +1153,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             batch_step_time = time.time() - start
             batch_load_time = total_step_time - batch_step_time
 
-            logger.info(
+            logger.debug(
                 f'Finished batch step {ib + 1} / {len(batch_handler)} in '
                 f'{total_step_time:.4f} seconds. Batch load time: '
                 f'{batch_load_time:.4f} seconds. Batch train time: '
