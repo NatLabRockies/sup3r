@@ -71,12 +71,12 @@ class TrainingConfig:
     train_gen: bool = True
     train_disc: bool = True
     disc_loss_bounds: tuple = (0.45, 0.6)
-    checkpoint_int: Optional[int] = None
+    checkpoint_int: int = 10
     out_dir: Optional[str] = None
     early_stop_on: Optional[str] = None
     early_stop_threshold: float = 0.005
     early_stop_n_epoch: int = 5
-    adaptive_update_bounds: tuple = (0.9, 0.99)
+    adaptive_update_bounds: tuple = (0.0, 1.0)
     adaptive_update_fraction: float = 0.0
     multi_gpu: bool = False
     log_tb: bool = False

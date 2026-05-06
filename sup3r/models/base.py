@@ -711,11 +711,20 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 config.weight_gen_advers, config.n_epoch, epochs[0]
             )
         )
+
+        lr_shape, hr_shape = batch_handler.shapes
+        self.init_weights(lr_shape, hr_shape, train_disc=config.train_disc)
+        weight_gen_advers = config.weight_gen_advers
         for epoch in epochs:
             t_epoch = time.time()
+            # convert to tensor to avoid retracing when using adaptive updating
+            # of adversarial weight.
+            weight_gen_advers = tf.convert_to_tensor(
+                weight_gen_advers, dtype=tf.float32
+            )
             loss_details = self._train_epoch(
                 batch_handler,
-                config.weight_gen_advers,
+                weight_gen_advers,
                 config.train_gen,
                 config.train_disc,
                 config.disc_loss_bounds,
@@ -723,7 +732,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 export_tb=config.export_tb,
             )
             loss_details.update(
-                self.calc_val_loss(batch_handler, config.weight_gen_advers)
+                self.calc_val_loss(batch_handler, weight_gen_advers)
             )
 
             msg = f'Epoch {epoch} of {epochs[-1]} '
@@ -741,7 +750,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             logger.info(msg)
 
             extras = {
-                'weight_gen_advers': config.weight_gen_advers,
+                'weight_gen_advers': weight_gen_advers,
                 'disc_loss_bound_0': config.disc_loss_bounds[0],
                 'disc_loss_bound_1': config.disc_loss_bounds[1],
             }
@@ -753,11 +762,11 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             extras.update(opt_g)
             extras.update(opt_d)
 
-            config.weight_gen_advers = self.update_adversarial_weights(
+            weight_gen_advers = self.update_adversarial_weights(
                 loss_details,
                 config.adaptive_update_fraction,
                 config.adaptive_update_bounds,
-                config.weight_gen_advers,
+                weight_gen_advers,
                 config.train_disc,
             )
 
@@ -1108,9 +1117,6 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         loss_details : dict
             Namespace of the breakdown of loss components
         """
-        lr_shape, hr_shape = batch_handler.shapes
-        self.init_weights(lr_shape, hr_shape, train_disc=train_disc)
-
         disc_th_low = np.min(disc_loss_bounds)
         disc_th_high = np.max(disc_loss_bounds)
         loss_means = self._train_record.mean().to_dict()

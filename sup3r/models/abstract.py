@@ -1069,7 +1069,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         apply_fn(total_grad)
         return mean_loss_details
 
-    @tf.function
+    @tf.function(reduce_retracing=True)
     def _run_serial_grad(
         self,
         low_res,
@@ -1459,7 +1459,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         logger.error(msg)
         raise ValueError(msg)
 
-    @tf.function
+    @tf.function(reduce_retracing=True)
     def get_single_grad_gen(
         self,
         low_res,
@@ -1482,7 +1482,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """Apply a generator gradient update."""
         self.optimizer.apply_gradients(zip(grad, self.generator_weights))
 
-    @tf.function
+    @tf.function(reduce_retracing=True)
     def get_single_grad_disc(
         self,
         low_res,
