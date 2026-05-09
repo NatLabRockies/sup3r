@@ -1,4 +1,5 @@
 """sup3r data collection CLI entry points."""
+
 import copy
 import logging
 
@@ -15,8 +16,12 @@ logger = logging.getLogger(__name__)
 
 @click.group()
 @click.version_option(version=__version__)
-@click.option('-v', '--verbose', is_flag=True,
-              help='Flag to turn on debug logging. Default is not verbose.')
+@click.option(
+    '-v',
+    '--verbose',
+    is_flag=True,
+    help='Flag to turn on debug logging. Default is not verbose.',
+)
 @click.pass_context
 def main(ctx, verbose):
     """Sup3r Data Collection Command Line Interface"""
@@ -25,17 +30,26 @@ def main(ctx, verbose):
 
 
 @main.command()
-@click.option('--config_file', '-c', required=True,
-              type=click.Path(exists=True),
-              help='sup3r data collection configuration json file.')
-@click.option('-v', '--verbose', is_flag=True,
-              help='Flag to turn on debug logging. Default is not verbose.')
+@click.option(
+    '--config_file',
+    '-c',
+    required=True,
+    type=click.Path(exists=True),
+    help='sup3r data collection configuration json file.',
+)
+@click.option(
+    '-v',
+    '--verbose',
+    is_flag=True,
+    help='Flag to turn on debug logging. Default is not verbose.',
+)
 @click.pass_context
 def from_config(ctx, config_file, verbose=False, pipeline_step=None):
     """Run sup3r data collection from a config file. If dset_split is True this
     each feature will be collected into a separate file."""
-    config = BaseCLI.from_config_preflight(ModuleName.DATA_COLLECT, ctx,
-                                           config_file, verbose)
+    config = BaseCLI.from_config_preflight(
+        ModuleName.DATA_COLLECT, ctx, config_file, verbose
+    )
 
     dset_split = config.get('dset_split', False)
     exec_kwargs = config.get('execution_control', {})
@@ -44,21 +58,31 @@ def from_config(ctx, config_file, verbose=False, pipeline_step=None):
     collector_types = {'h5': CollectorH5, 'nc': CollectorNC}
     Collector = collector_types[source_type]
 
+    logger.info(
+        'Preparing data collection from %s to %s using %s output files.',
+        config_file,
+        config['out_file'],
+        source_type,
+    )
+
     configs = [config]
     if dset_split:
         configs = []
         for feature in config['features']:
             f_config = copy.deepcopy(config)
             f_out_file = config['out_file'].replace(
-                f'.{source_type}', f'_{feature}.{source_type}')
+                f'.{source_type}', f'_{feature}.{source_type}'
+            )
             f_job_name = config['job_name'] + f'_{feature}'
             f_log_file = config.get('log_file', None)
             if f_log_file is not None:
                 f_log_file = f_log_file.replace('.log', f'_{feature}.log')
-            f_config.update({'features': [feature],
-                             'out_file': f_out_file,
-                             'job_name': f_job_name,
-                             'log_file': f_log_file})
+            f_config.update({
+                'features': [feature],
+                'out_file': f_out_file,
+                'job_name': f_job_name,
+                'log_file': f_log_file,
+            })
 
             configs.append(f_config)
 
@@ -67,10 +91,20 @@ def from_config(ctx, config_file, verbose=False, pipeline_step=None):
         config['pipeline_step'] = pipeline_step
         cmd = Collector.get_node_cmd(config)
 
+        logger.info(
+            'Queueing data collection job "%s" for %s features.',
+            config['job_name'],
+            len(config['features']),
+        )
+
         if hardware_option.lower() in AVAILABLE_HARDWARE_OPTIONS:
             kickoff_slurm_job(ctx, cmd, pipeline_step, **exec_kwargs)
         else:
             kickoff_local_job(ctx, cmd, pipeline_step)
+
+    logger.info(
+        'Finished queueing data collection work for %s jobs.', len(configs)
+    )
 
 
 def kickoff_local_job(ctx, cmd, pipeline_step=None):
@@ -91,9 +125,16 @@ def kickoff_local_job(ctx, cmd, pipeline_step=None):
     BaseCLI.kickoff_local_job(ModuleName.DATA_COLLECT, ctx, cmd, pipeline_step)
 
 
-def kickoff_slurm_job(ctx, cmd, pipeline_step=None, alloc='sup3r',
-                      memory=None, walltime=4, feature=None,
-                      stdout_path='./stdout/'):
+def kickoff_slurm_job(
+    ctx,
+    cmd,
+    pipeline_step=None,
+    alloc='sup3r',
+    memory=None,
+    walltime=4,
+    feature=None,
+    stdout_path='./stdout/',
+):
     """Run sup3r on HPC via SLURM job submission.
 
     Parameters
@@ -119,8 +160,17 @@ def kickoff_slurm_job(ctx, cmd, pipeline_step=None, alloc='sup3r',
     stdout_path : str
         Path to print .stdout and .stderr files.
     """
-    BaseCLI.kickoff_slurm_job(ModuleName.DATA_COLLECT, ctx, cmd, alloc, memory,
-                              walltime, feature, stdout_path, pipeline_step)
+    BaseCLI.kickoff_slurm_job(
+        ModuleName.DATA_COLLECT,
+        ctx,
+        cmd,
+        alloc,
+        memory,
+        walltime,
+        feature,
+        stdout_path,
+        pipeline_step,
+    )
 
 
 if __name__ == '__main__':

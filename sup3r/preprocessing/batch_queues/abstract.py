@@ -218,14 +218,14 @@ class AbstractBatchQueue(Collection, ABC):
             and self.mode == 'lazy'
             and self.queue_cap > 0
         ):
-            logger.info(f'Starting {self._thread_name} queue.')
+            logger.info('Starting %s queue.', self._thread_name)
             self.queue_thread.start()
 
     def stop(self) -> None:
         """Stop loading batches."""
         self._training_flag.clear()
         if self.queue_thread.is_alive():
-            logger.info(f'Stopping {self._thread_name} queue.')
+            logger.info('Stopping %s queue.', self._thread_name)
             self.queue_thread.join()
 
     def __len__(self):

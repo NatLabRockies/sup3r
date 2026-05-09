@@ -130,7 +130,7 @@ class BaseRasterizer(Container):
 
     def rasterize_data(self):
         """Get rasterized data."""
-        logger.info(
+        logger.debug(
             'Rasterizing data for target / shape: %s / %s',
             np.asarray(self._target),
             np.asarray(self._grid_shape),
@@ -152,7 +152,7 @@ class BaseRasterizer(Container):
     def get_raster_index(self):
         """Get set of slices or indices selecting the requested region from
         the contained data."""
-        logger.info(
+        logger.debug(
             'Getting raster index for target / shape: %s / %s',
             np.asarray(self._target),
             np.asarray(self._grid_shape),
@@ -222,7 +222,7 @@ class BaseRasterizer(Container):
             add_msg = f'This exceeds the given threshold: {self.threshold}'
             logger.error(f'{msg} {add_msg}')
             raise RuntimeError(f'{msg} {add_msg}')
-        logger.info(msg)
+        logger.debug(msg)
         return row, col
 
     def get_lat_lon(self):

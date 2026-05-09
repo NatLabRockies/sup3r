@@ -202,11 +202,11 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         if new_means is not None and new_stdevs is not None:
             logger.info('Setting new normalization statistics...')
-            logger.info(
+            logger.debug(
                 "Model's previous data mean values:\n%s",
                 pprint.pformat(self._means, indent=2),
             )
-            logger.info(
+            logger.debug(
                 "Model's previous data stdev values:\n%s",
                 pprint.pformat(self._stdevs, indent=2),
             )
@@ -239,11 +239,11 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                     f'in new means array: {self._means}'
                 )
 
-            logger.info(
+            logger.debug(
                 'Set data normalization mean values:\n%s',
                 pprint.pformat(self._means, indent=2),
             )
-            logger.info(
+            logger.debug(
                 'Set data normalization stdev values:\n%s',
                 pprint.pformat(self._stdevs, indent=2),
             )
@@ -508,7 +508,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         if 'version_record' in params:
             version_record = params.pop('version_record')
             if verbose:
-                logger.info(
+                logger.debug(
                     'Loading model from disk that was created with the '
                     'following package versions: \n{}'.format(
                         pprint.pformat(version_record, indent=2)
@@ -953,7 +953,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         stop : bool
             Flag to early stop training.
         """
-        self.log_loss_details(loss_details)
+        self.log_loss_details(loss_details, level='INFO')
         self._history.at[epoch, 'elapsed_time'] = time.time() - t0
         entry = np.vstack(list(loss_details.values())).T
         self._history.loc[epoch, list(loss_details.keys())] = entry

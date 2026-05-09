@@ -157,7 +157,7 @@ class Rasterizer(BaseRasterizer):
         """Save raster index to cache file."""
         os.makedirs(os.path.dirname(self.raster_file), exist_ok=True)
         np.savetxt(self.raster_file, self.raster_index)
-        logger.info(f'Saved raster_index to {self.raster_file}')
+        logger.info('Saved raster_index to %s', self.raster_file)
 
     def get_raster_index(self):
         """Get set of slices or indices selecting the requested region from
@@ -172,9 +172,10 @@ class Rasterizer(BaseRasterizer):
         from WTK or NSRDB data."""
 
         if self.raster_file is None or not os.path.exists(self.raster_file):
-            logger.info(
-                f'Calculating raster_index for target={self._target}, '
-                f'shape={self._grid_shape}.'
+            logger.debug(
+                'Calculating raster_index for target=%s, shape=%s.',
+                self._target,
+                self._grid_shape,
             )
             msg = ('Either shape + target or a raster_file must be provided '
                    'for flattened data rasterization.')
@@ -186,7 +187,7 @@ class Rasterizer(BaseRasterizer):
             )
         else:
             raster_index = np.loadtxt(self.raster_file).astype(np.int32)
-            logger.info(f'Loaded raster_index from {self.raster_file}')
+            logger.info('Loaded raster_index from %s', self.raster_file)
 
         return raster_index
 

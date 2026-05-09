@@ -115,7 +115,7 @@ class StatsCollection(Collection):
         means = self._init_stats_dict(means)
         needed_features = set(self.features) - set(means)
         if any(needed_features):
-            logger.info(f'Getting means for {needed_features}.')
+            logger.debug('Getting means for %s.', needed_features)
             cmeans = [
                 cm * w
                 for cm, w in zip(
@@ -124,7 +124,7 @@ class StatsCollection(Collection):
                 )
             ]
             for f in needed_features:
-                logger.info(f'Computing mean for {f}.')
+                logger.debug('Computing mean for %s.', f)
                 means[f] = np.float32(np.nansum([cm[f] for cm in cmeans]))
         return means
 
@@ -134,13 +134,13 @@ class StatsCollection(Collection):
         stds = self._init_stats_dict(stds)
         needed_features = set(self.features) - set(stds)
         if any(needed_features):
-            logger.info(f'Getting stds for {needed_features}.')
+            logger.debug('Getting stds for %s.', needed_features)
             cstds = [
                 w * cm**2
                 for cm, w in zip(self._get_stat('std'), self.container_weights)
             ]
             for f in needed_features:
-                logger.info(f'Computing std for {f}.')
+                logger.debug('Computing std for %s.', f)
                 stds[f] = np.float32(
                     np.sqrt(np.nansum([cs[f] for cs in cstds]))
                 )
@@ -159,22 +159,25 @@ class StatsCollection(Collection):
             with open(stds, 'w') as f:
                 f.write(safe_serialize(self.stds))
                 logger.info(
-                    f'Saved standard deviations {self.stds} to {stds}.'
+                    'Saved standard deviations %s to %s.',
+                    self.stds,
+                    stds,
                 )
         if isinstance(means, str) and (
             not os.path.exists(means) or self._added_stats(means, self.means)
         ):
             with open(means, 'w') as f:
                 f.write(safe_serialize(self.means))
-                logger.info(f'Saved means {self.means} to {means}.')
+                logger.info('Saved means %s to %s.', self.means, means)
 
     def normalize(self, containers):
         """Normalize container data with computed stats."""
-        logger.debug(
-            'Normalizing containers with:\n'
-            f'means: {pprint.pformat(self.means, indent=2)}\n'
-            f'stds: {pprint.pformat(self.stds, indent=2)}'
-        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(
+                'Normalizing containers with:\nmeans: %s\nstds: %s',
+                pprint.pformat(self.means, indent=2),
+                pprint.pformat(self.stds, indent=2),
+            )
         for i, c in enumerate(containers):
-            logger.info(f'Normalizing container {i + 1}')
+            logger.debug('Normalizing container %s', i + 1)
             c.normalize(means=self.means, stds=self.stds)

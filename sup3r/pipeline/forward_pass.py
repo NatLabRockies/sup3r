@@ -145,7 +145,7 @@ class ForwardPass:
 
         """
         out = np.pad(input_data, (*pad_width, (0, 0)), mode=mode)
-        logger.info(
+        logger.debug(
             'Padded input data shape from %s to %s using mode "%s" '
             'with padding argument: %s',
             input_data.shape,
@@ -177,8 +177,13 @@ class ForwardPass:
                         )
                     new_exo = np.pad(new_exo, exo_pad_width, mode=mode)
                     exo_data[feature]['steps'][i]['data'] = new_exo
-                    logger.info(
-                        f'Got exo data for feature: {feature}, model step: {i}'
+                    logger.debug(
+                        'Got exo data for feature: %s, model step: %d, '
+                        's_enhance: %d, t_enhance: %d',
+                        feature,
+                        i,
+                        s_enhance,
+                        t_enhance,
                     )
         return out, exo_data
 
@@ -442,6 +447,13 @@ class ForwardPass:
             will be run.
         """
         if not strategy.node_finished(node_index):
+            logger.info(
+                'Starting forward pass on node %s with %s chunks using %s '
+                'execution.',
+                node_index,
+                len(strategy.node_chunks[node_index]),
+                'serial' if strategy.pass_workers == 1 else 'parallel',
+            )
             if strategy.pass_workers == 1:
                 cls._run_serial(strategy, node_index)
             else:
@@ -484,7 +496,7 @@ class ForwardPass:
                     overwrite=(not strategy.incremental),
                     meta=fwp.meta,
                 )
-                logger.info(
+                logger.debug(
                     'Finished forward pass on chunk_index='
                     f'{chunk_index} in {dt.now() - now}. {i + 1} of '
                     f'{len(strategy.node_chunks[node_index])} '
@@ -570,7 +582,7 @@ class ForwardPass:
                         f'{chunk_idx} in {dt.now() - start_time}. '
                         f'{i + 1} of {len(futures)} complete. {_mem_check()}'
                     )
-                    logger.info(msg)
+                    logger.debug(msg)
             except Exception as e:
                 msg = (
                     'Error running forward pass on chunk_index='
@@ -648,7 +660,7 @@ class ForwardPass:
         """
 
         msg = f'Running forward pass for chunk_index={chunk.index}.'
-        logger.info(msg)
+        logger.debug(msg)
 
         model = get_model(model_class, model_kwargs)
 
@@ -685,7 +697,7 @@ class ForwardPass:
         failed = cls._output_check(output_data, allowed_const=allowed_const)
 
         if chunk.out_file is not None and not failed:
-            logger.info(f'Saving forward pass output to {chunk.out_file}.')
+            logger.debug(f'Saving forward pass output to {chunk.out_file}.')
             output_type = get_source_type(chunk.out_file)
             cls.OUTPUT_HANDLER_CLASS[output_type]._write_output(
                 data=output_data,

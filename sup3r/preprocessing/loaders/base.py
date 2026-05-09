@@ -97,7 +97,7 @@ class BaseLoader(Container, ABC):
             self.data.meta = self._res.meta
 
         if self.chunks is None:
-            logger.info(f'Pre-loading data into memory for: {features}')
+            logger.debug('Pre-loading data into memory for: %s', features)
             self.data.compute()
 
     def _parse_chunks(self, dims, feature=None):

@@ -224,7 +224,7 @@ class DataHandler(Deriver):
             )
             self.rasterizer = self.loader = self.cache
         if any(missing_features) or just_coords:
-            logger.info('%s not found in cache', missing_features)
+            logger.debug('%s not found in cache', missing_features)
             self.rasterizer = Rasterizer(
                 file_paths=file_paths,
                 res_kwargs=res_kwargs,
@@ -338,8 +338,8 @@ class DailyDataHandler(DataHandler):
         n_data_days = int(len(self.time_index) / day_steps)
 
         logger.info(
-            'Calculating daily average datasets for {} training '
-            'data days.'.format(n_data_days)
+            'Calculating daily average datasets for %s training data days.',
+            n_data_days,
         )
         daily_data = self.data.coarsen(time=day_steps).mean()
         feats = [f for f in self.features if 'clearsky_ratio' not in f]
@@ -370,8 +370,9 @@ class DailyDataHandler(DataHandler):
             )
 
         logger.info(
-            'Finished calculating daily average datasets for {} '
-            'training data days.'.format(n_data_days)
+            'Finished calculating daily average datasets for %s training '
+            'data days.',
+            n_data_days,
         )
         hourly_data = self.data[self.requested_features]
         daily_data = daily_data[self.requested_features]

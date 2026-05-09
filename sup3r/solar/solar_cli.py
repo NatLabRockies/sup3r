@@ -86,10 +86,18 @@ def from_config(ctx, config_file, verbose=False, pipeline_step=None):
         node_config['temporal_ids'] = list(temporal_ids)
         cmd = Solar.get_node_cmd(node_config)
 
+        logger.info(
+            'Queueing solar node %s as job "%s".',
+            i_node,
+            name,
+        )
+
         if hardware_option.lower() in AVAILABLE_HARDWARE_OPTIONS:
             kickoff_slurm_job(ctx, cmd, pipeline_step, **exec_kwargs)
         else:
             kickoff_local_job(ctx, cmd, pipeline_step)
+
+    logger.info('Finished queueing solar work for %s nodes.', max_nodes)
 
 
 def kickoff_slurm_job(

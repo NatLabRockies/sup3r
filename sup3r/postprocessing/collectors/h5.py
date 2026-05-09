@@ -265,8 +265,8 @@ class CollectorH5(BaseCollector):
 
         t_files = list(t_files.values())
         s_files = list(s_files.values())
-        logger.info('Found %s unique temporal chunks', len(t_files))
-        logger.info('Found %s unique spatial chunks', len(s_files))
+        logger.debug('Found %s unique temporal chunks', len(t_files))
+        logger.debug('Found %s unique spatial chunks', len(s_files))
         return t_files, s_files
 
     def _get_collection_attrs(self, file_paths, max_workers=None):
@@ -309,7 +309,7 @@ class CollectorH5(BaseCollector):
             time_index = dask.compute(
                 *ti_tasks, scheduler='threads', num_workers=max_workers
             )
-        logger.info(
+        logger.debug(
             'Finished getting meta and time_index for all unique chunks.'
         )
         time_index = pd.DatetimeIndex(np.concatenate(time_index))
@@ -323,7 +323,7 @@ class CollectorH5(BaseCollector):
             meta = meta.drop_duplicates(subset=['latitude', 'longitude'])
         meta = meta.sort_values('gid')
 
-        logger.info('Finished building full meta and time index.')
+        logger.debug('Finished building full meta and time index.')
         return time_index, meta
 
     def get_target_and_masked_meta(
@@ -363,12 +363,12 @@ class CollectorH5(BaseCollector):
                 target_meta, meta, threshold=threshold
             )
             masked_meta = meta.iloc[mask]
-            logger.info(f'Masked meta coordinates: {len(masked_meta)}')
+            logger.debug('Masked meta coordinates: %s', len(masked_meta))
             mask = self.get_coordinate_indices(
                 masked_meta, target_meta, threshold=threshold
             )
             target_meta = target_meta.iloc[mask]
-            logger.info(f'Target meta coordinates: {len(target_meta)}')
+            logger.debug('Target meta coordinates: %s', len(target_meta))
         else:
             target_meta = masked_meta = meta
 
@@ -418,7 +418,7 @@ class CollectorH5(BaseCollector):
             that all the files in file_paths have the same global file
             attributes).
         """
-        logger.info(f'Using target_meta_file={target_meta_file}')
+        logger.debug('Using target_meta_file=%s', target_meta_file)
         if isinstance(target_meta_file, str):
             msg = f'Provided target meta ({target_meta_file}) does not exist.'
             assert os.path.exists(target_meta_file), msg
@@ -426,14 +426,14 @@ class CollectorH5(BaseCollector):
         time_index, meta = self._get_collection_attrs(
             file_paths, max_workers=max_workers
         )
-        logger.info('Getting target and masked meta.')
+        logger.debug('Getting target and masked meta.')
         target_meta, masked_meta = self.get_target_and_masked_meta(
             meta, target_meta_file, threshold=threshold
         )
 
         shape = (len(time_index), len(target_meta))
 
-        logger.info('Getting global attrs from %s', file_paths[0])
+        logger.debug('Getting global attrs from %s', file_paths[0])
         with RexOutputs(file_paths[0], mode='r') as fin:
             global_attrs = fin.global_attrs
 
@@ -588,10 +588,10 @@ class CollectorH5(BaseCollector):
         else:
             msg = (
                 'No target coordinates found in masked meta. Skipping '
-                f'collection for {file_paths}.'
+                'collection for %s.'
             )
-            logger.warning(msg)
-            warn(msg)
+            logger.warning(msg, file_paths)
+            warn(msg % file_paths)
 
     def get_flist_chunks(self, file_paths, n_writes=None):
         """Group files by temporal_chunk_index and then combines these groups
@@ -620,8 +620,10 @@ class CollectorH5(BaseCollector):
 
         if n_writes is not None and n_writes > len(file_chunks):
             logger.info(
-                f'n_writes ({n_writes}) too big, setting to the number '
-                f'of temporal chunks ({len(file_chunks)}).'
+                'n_writes (%s) too big, setting to the number of temporal '
+                'chunks (%s).',
+                n_writes,
+                len(file_chunks),
             )
             n_writes = len(file_chunks)
 
@@ -635,7 +637,9 @@ class CollectorH5(BaseCollector):
             n_writes,
         )
 
-        logger.debug(f'Grouped file list into {len(file_chunks)} time chunks.')
+        logger.debug(
+            'Grouped file list into %s time chunks.', len(file_chunks)
+        )
 
         return flist_chunks
 
@@ -698,7 +702,7 @@ class CollectorH5(BaseCollector):
 
         else:
             for i, flist in enumerate(flist_chunks):
-                logger.info(
+                logger.debug(
                     'Collecting file list chunk %s out of %s ',
                     i + 1,
                     len(flist_chunks),

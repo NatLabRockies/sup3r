@@ -202,7 +202,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             msg = 'Active python environment versions: \n{}'.format(
                 pprint.pformat(VERSION_RECORD, indent=4)
             )
-            logger.info(msg)
+            logger.debug(msg)
 
         fp_gen = os.path.join(model_dir, 'model_gen.pkl')
         fp_disc = os.path.join(model_dir, 'model_disc.pkl')
@@ -782,7 +782,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 config.early_stop_n_epoch,
                 extras=extras,
             )
-            logger.info(
+            logger.debug(
                 'Finished training epoch in {:.4f} seconds'.format(
                     time.time() - t_epoch
                 )

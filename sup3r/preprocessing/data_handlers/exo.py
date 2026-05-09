@@ -252,7 +252,7 @@ class ExoData(dict):
            :class:`SingleExoDataStep` objects. This is the sliced exo data for
            the extent specified by `lr_slices`.
         """
-        logger.debug(f'Getting exo data chunk for lr_slices={lr_slices}.')
+        logger.debug('Getting exo data chunk for lr_slices=%s.', lr_slices)
         exo_chunk = {f: {'steps': []} for f in self}
         for feature in self:
             for step in self[feature]['steps']:
@@ -369,12 +369,9 @@ class ExoDataHandler:
         steps = []
         for i, model in enumerate(models):
             is_sfc_model = model.__class__.__name__ == 'SurfaceSpatialMetModel'
-            obs_features = getattr(model, 'obs_features', [])
             if feature.lower() in _lowered(model.lr_features) or is_sfc_model:
                 steps.append({'model': i, 'combine_type': 'input'})
             if feature.lower() in _lowered(model.hr_exo_features):
-                steps.append({'model': i, 'combine_type': 'layer'})
-            if feature.lower() in _lowered(obs_features):
                 steps.append({'model': i, 'combine_type': 'layer'})
             if (
                 feature.lower() in _lowered(model.hr_out_features)
@@ -409,6 +406,12 @@ class ExoDataHandler:
     def get_all_step_data(self):
         """Get exo data for each model step."""
         data = {self.feature: {'steps': []}}
+        logger.debug(
+            'Getting exo data for all steps with s_enhancements=%s and '
+            't_enhancements=%s',
+            self.s_enhancements,
+            self.t_enhancements,
+        )
         for i, (s_enhance, t_enhance) in enumerate(
             zip(self.s_enhancements, self.t_enhancements)
         ):
@@ -428,7 +431,7 @@ class ExoDataHandler:
             None if step is None else step.shape
             for step in data[self.feature]['steps']
         ]
-        logger.info(
+        logger.debug(
             'Got exogenous_data of length {} with shapes: {}'.format(
                 len(data[self.feature]['steps']), shapes
             )

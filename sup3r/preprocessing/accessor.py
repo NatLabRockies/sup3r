@@ -275,18 +275,20 @@ class Sup3rX:
         it has not been loaded already."""
         self._clear_array_cache()
         if not self.loaded:
-            logger.debug(f'Loading dataset into memory: {self._ds}')
-            logger.debug(f'Pre-loading: {_mem_check()}')
+            logger.debug('Loading dataset into memory: %s', self._ds)
+            logger.debug('Pre-loading: %s', _mem_check())
 
             for f in list(self._ds.data_vars) + list(self._ds.coords):
                 if hasattr(self._ds[f], 'compute'):
                     self._ds[f] = self._ds[f].compute(**kwargs)
                 logger.debug(
-                    f'Loaded {f} into memory with shape '
-                    f'{self._ds[f].shape}. {_mem_check()}'
+                    'Loaded %s into memory with shape %s. %s',
+                    f,
+                    self._ds[f].shape,
+                    _mem_check(),
                 )
-            logger.debug(f'Loaded dataset into memory: {self._ds}')
-            logger.debug(f'Post-loading: {_mem_check()}')
+            logger.debug('Loaded dataset into memory: %s', self._ds)
+            logger.debug('Post-loading: %s', _mem_check())
             self._loaded = True
         return self
 

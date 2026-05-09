@@ -365,6 +365,7 @@ class ForwardPassStrategy:
         """Initialize feature attributes."""
         self.exo_handler_kwargs = self.exo_handler_kwargs or {}
         exo_features = list(self.exo_handler_kwargs)
+        exo_features = [f for f in exo_features if f in model.hr_exo_features]
         features = [f for f in model.lr_features if f not in exo_features]
         return features, exo_features
 
@@ -455,7 +456,7 @@ class ForwardPassStrategy:
         """Get high resolution lat lons"""
         lr_lat_lon = self.input_handler.lat_lon
         shape = tuple(d * self.s_enhance for d in lr_lat_lon.shape[:-1])
-        logger.info(
+        logger.debug(
             f'Getting high-resolution grid for full output domain: {shape}'
         )
         return OutputHandler.get_lat_lon(lr_lat_lon, shape)
@@ -512,13 +513,13 @@ class ForwardPassStrategy:
         kwargs = dict(zip(Dimension.dims_2d(), lr_pad_slice))
         kwargs[Dimension.TIME] = ti_pad_slice
         input_data = self.input_handler[self.features].isel(**kwargs)
-        logger.info(
+        logger.debug(
             'Loading data for chunk_index=%s into memory.', chunk_index
         )
         input_data.load()
 
         if self.bias_correct_kwargs != {}:
-            logger.info(
+            logger.debug(
                 f'Bias correcting data for chunk_index={chunk_index}, '
                 f'with shape={input_data.shape}'
             )
@@ -570,12 +571,12 @@ class ForwardPassStrategy:
             'lr_pad_slice': lr_pad_slice,
             'ti_pad_slice': ti_pad_slice,
         }
-        logger.info(
+        logger.debug(
             'Initializing ForwardPassChunk with: '
             f'{pprint.pformat(args_dict, indent=2)}'
         )
 
-        logger.info(f'Getting input data for chunk_index={chunk_index}.')
+        logger.debug(f'Getting input data for chunk_index={chunk_index}.')
 
         input_data, exo_data = self.timer(
             self.prep_chunk_data, log=True, call_id=chunk_index
@@ -661,13 +662,13 @@ class ForwardPassStrategy:
         sup3r.pipeline.strategy.ForwardPassStrategy
         """
         mask = np.zeros(len(self.lr_pad_slices))
-        logger.info('Checking for mask in input handler.')
+        logger.debug('Checking for mask in input handler.')
         input_handler_kwargs = copy.deepcopy(self.input_handler_kwargs)
         try:
             InputHandler = get_input_handler_class(self.input_handler_name)
             input_handler_kwargs['features'] = ['mask']
             handler = InputHandler(**input_handler_kwargs)
-            logger.info(
+            logger.debug(
                 'Found "mask" in DataHandler. Computing forward pass '
                 'chunk mask for %s chunks',
                 len(self.lr_pad_slices),
@@ -698,7 +699,7 @@ class ForwardPassStrategy:
             and self.incremental
         )
         if check and log:
-            logger.info(
+            logger.debug(
                 '%s already exists and incremental = True. Skipping forward '
                 'pass for chunk index %s.',
                 out_file,
@@ -713,7 +714,7 @@ class ForwardPassStrategy:
         s_chunk_idx, _ = self.fwp_slicer.get_chunk_indices(chunk_idx)
         mask_check = self.fwp_mask[s_chunk_idx]
         if mask_check and log:
-            logger.info(
+            logger.debug(
                 'Chunk %s has spatial chunk index %s, which corresponds to a '
                 'masked spatial region. Skipping forward pass for this chunk.',
                 chunk_idx,

@@ -62,6 +62,13 @@ def from_config(ctx, config_file, verbose=False, pipeline_step=None):
     strategy_kwargs = {k: v for k, v in config.items() if k in sig.parameters}
     strategy = ForwardPassStrategy(**strategy_kwargs, head_node=True)
 
+    logger.info(
+        'Preparing forward pass from %s with hardware=%s across %s nodes.',
+        config_file,
+        hardware_option,
+        len(strategy.node_chunks),
+    )
+
     if node_index is not None:
         nodes = (
             [node_index] if not isinstance(node_index, list) else node_index
@@ -82,10 +89,20 @@ def from_config(ctx, config_file, verbose=False, pipeline_step=None):
         node_config['pipeline_step'] = pipeline_step
         cmd = ForwardPass.get_node_cmd(node_config)
 
+        logger.info(
+            'Queueing forward pass node %s as job "%s".',
+            i_node,
+            name,
+        )
+
         if hardware_option.lower() in AVAILABLE_HARDWARE_OPTIONS:
             kickoff_slurm_job(ctx, cmd, pipeline_step, **exec_kwargs)
         else:
             kickoff_local_job(ctx, cmd, pipeline_step)
+
+    logger.info(
+        'Finished queueing forward pass work for %s nodes.', len(nodes)
+    )
 
 
 def kickoff_slurm_job(

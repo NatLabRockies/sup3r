@@ -170,7 +170,7 @@ class LoaderH5(BaseLoader):
     def _get_data_vars(self, dims):
         """Define data_vars dict for xr.Dataset construction."""
         data_vars = {}
-        logger.debug(f'Rechunking features with chunks: {self.chunks}')
+        logger.debug('Rechunking features with chunks: %s', self.chunks)
         chunks = self._parse_chunks(dims)
         data_vars = self._check_for_elevation(
             data_vars, dims=dims, chunks=chunks

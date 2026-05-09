@@ -336,14 +336,14 @@ class BaseExoRasterizer(ABC):
         cache_fp = self.cache_file
         if cache_fp is not None and os.path.exists(cache_fp):
             logger.info(
-                'Loading cached data for {} from {}'.format(
-                    self.feature, cache_fp
-                )
+                'Loading cached data for %s from %s',
+                self.feature,
+                cache_fp,
             )
             data = Loader(cache_fp)
         else:
             data = self.get_data()
-            logger.info(f'Finished rasterizing "{self.feature}"')
+            logger.info('Finished rasterizing "%s"', self.feature)
 
         if cache_fp is not None and not os.path.exists(cache_fp):
             Cacher._write_single(
