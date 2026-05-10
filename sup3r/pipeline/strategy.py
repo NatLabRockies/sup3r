@@ -392,7 +392,11 @@ class ForwardPassStrategy:
         """Initialize feature attributes."""
         self.exo_handler_kwargs = self.exo_handler_kwargs or {}
         exo_features = list(self.exo_handler_kwargs)
-        exo_features = [f for f in exo_features if f in model.hr_exo_features]
+        exo_features = [
+            f
+            for f in exo_features
+            if f in model.hr_exo_features or f in model.lr_features
+        ]
         features = [f for f in model.lr_features if f not in exo_features]
         return features, exo_features
 
