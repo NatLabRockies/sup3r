@@ -392,11 +392,14 @@ class ForwardPassStrategy:
         """Initialize feature attributes."""
         self.exo_handler_kwargs = self.exo_handler_kwargs or {}
         exo_features = list(self.exo_handler_kwargs)
-        exo_features = [
-            f
-            for f in exo_features
-            if f in model.hr_exo_features or f in model.lr_features
-        ]
+        # If the model has multiple submodels with different features, we need
+        # to keep all exo features that are needed for any of the submodels.
+        # model.lr_features only inputs for the first model
+        models = getattr(model, 'models', [model])
+        lr_features = {f for m in models for f in m.lr_features}
+        exo_features = set(exo_features).intersection(
+            lr_features | set(model.hr_exo_features)
+        )
         features = [f for f in model.lr_features if f not in exo_features]
         return features, exo_features
 
