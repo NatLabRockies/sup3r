@@ -394,7 +394,7 @@ class ForwardPassStrategy:
         exo_features = list(self.exo_handler_kwargs)
         # If the model has multiple submodels with different features, we need
         # to keep all exo features that are needed for any of the submodels.
-        # model.lr_features only inputs for the first model
+        # model.lr_features only includes inputs for the first model
         models = getattr(model, 'models', [model])
         lr_features = {f for m in models for f in m.lr_features}
         exo_features = [
