@@ -397,9 +397,11 @@ class ForwardPassStrategy:
         # model.lr_features only inputs for the first model
         models = getattr(model, 'models', [model])
         lr_features = {f for m in models for f in m.lr_features}
-        exo_features = set(exo_features).intersection(
-            lr_features | set(model.hr_exo_features)
-        )
+        exo_features = [
+            f
+            for f in exo_features
+            if f in lr_features or f in model.hr_exo_features
+        ]
         features = [f for f in model.lr_features if f not in exo_features]
         return features, exo_features
 
