@@ -76,7 +76,7 @@ class OutputMixin:
 
         with RexOutputs(out_file, mode='w-') as f:
             logger.info('Initializing output file: {}'.format(out_file))
-            logger.info(
+            logger.debug(
                 'Initializing output file with shape {} '
                 'and meta data:\n{}'.format((len(time_index), len(meta)), meta)
             )
@@ -101,7 +101,7 @@ class OutputMixin:
         with RexOutputs(out_file, mode='a') as f:
             if dset not in f.dsets:
                 attrs, dtype = get_dset_attrs(dset)
-                logger.info(
+                logger.debug(
                     'Initializing dataset "{}" with shape {} and '
                     'dtype {}'.format(dset, f.shape, dtype)
                 )
@@ -150,7 +150,7 @@ class OutputMixin:
                     attrs=attrs,
                     chunks=attrs['chunks'],
                 )
-                logger.info(f'Added {dset} to output file {out_file}.')
+                logger.debug('Added %s to output file %s.', dset, out_file)
 
             if global_attrs is not None:
                 attrs = {

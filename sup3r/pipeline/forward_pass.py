@@ -52,7 +52,7 @@ class ForwardPass:
         """
         self.timer = Timer()
         self.strategy = strategy
-        self.model = get_model(strategy.model_class, strategy.model_kwargs)
+        self.model = strategy.model
         self.node_index = node_index
 
         output_type = get_source_type(strategy.out_pattern)
@@ -458,6 +458,7 @@ class ForwardPass:
                 cls._run_serial(strategy, node_index)
             else:
                 cls._run_parallel(strategy, node_index)
+            logger.info('Finished forward pass on node %s.', node_index)
             logger.debug(
                 'Timing report:\n%s',
                 pprint.pformat(strategy.timer.log, indent=2),
@@ -490,6 +491,7 @@ class ForwardPass:
                     model_kwargs=strategy.model_kwargs,
                     model_class=strategy.model_class,
                     allowed_const=strategy.allowed_const,
+                    model=fwp.model,
                     output_workers=strategy.output_workers,
                     invert_uv=strategy.invert_uv,
                     nn_fill=strategy.nn_fill,
@@ -604,6 +606,7 @@ class ForwardPass:
         model_kwargs,
         model_class,
         allowed_const,
+        model=None,
         invert_uv=False,
         meta=None,
         nn_fill=True,
@@ -631,6 +634,10 @@ class ForwardPass:
             True to allow any constant output or a list of allowed possible
             constant outputs. See :class:`ForwardPassStrategy` for more
             information on this argument.
+        model : Sup3rGan | None
+            Optional preloaded model instance to reuse for the chunk. If
+            ``None``, the model is loaded from ``model_class`` and
+            ``model_kwargs``.
         invert_uv : bool
             Whether to convert uv to windspeed and winddirection for writing
             output. When this method is called during a pipeline forward pass
@@ -662,7 +669,8 @@ class ForwardPass:
         msg = f'Running forward pass for chunk_index={chunk.index}.'
         logger.debug(msg)
 
-        model = get_model(model_class, model_kwargs)
+        if model is None:
+            model = get_model(model_class, model_kwargs)
 
         mask = np.isnan(chunk.input_data).any(axis=(0, 1, 2))
         feats = np.array(model.lr_features[: len(mask)])[mask]

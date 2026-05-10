@@ -124,7 +124,7 @@ class DataHandlerNCforCC(DataHandler):
 
     def run_wrap_checks(self, cs_ghi):
         """Run check on rasterized data from clearsky_ghi source."""
-        logger.info(
+        logger.debug(
             'Reshaped clearsky_ghi data to final shape {} to '
             'correspond with CC daily average data over source '
             'time_slice {} with (lat, lon) grid shape of {}'.format(

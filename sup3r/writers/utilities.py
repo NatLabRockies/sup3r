@@ -32,7 +32,7 @@ def _check_for_cache(features, cache_kwargs):
         ]
 
     if any(cached_files):
-        logger.info(
+        logger.debug(
             'Found cache files for %s with file pattern: %s',
             cached_features, cache_pattern
         )

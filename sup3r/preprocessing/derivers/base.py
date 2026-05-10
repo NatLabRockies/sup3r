@@ -205,23 +205,25 @@ class BaseDeriver(Container):
                 count += 1
         return count > 1 or fstruct.basename in self.data
 
-    def derive(self, feature) -> Union[np.ndarray, da.core.Array]:
-        """Routine to derive requested features. Employs a little recursion to
-        locate differently named features with a name map in the feature
-        registry. i.e. if  `FEATURE_REGISTRY` contains a key, value pair like
-        "windspeed": "wind_speed" then requesting "windspeed" will ultimately
-        return a compute method (or fetch from raw data) for "wind_speed
+    def resolve_feature(
+        self, feature, strict=True
+    ) -> Union[np.ndarray, da.core.Array, None]:
+        """Resolve a feature from contained data or available derivations.
 
-        Note
-        ----
-        Features are all saved as lower case names and __contains__ checks will
-        use feature.lower()
+        Parameters
+        ----------
+        feature : str
+            Feature to resolve from the contained data or available compute
+            methods.
+        strict : bool
+            Whether to raise if the feature cannot be resolved. If ``False``,
+            return ``None`` instead.
         """
         if feature not in self.data:
             compute_check = self.check_registry(feature)
             if compute_check is not None and isinstance(compute_check, str):
                 new_feature = self.map_new_name(feature, compute_check)
-                return self.derive(new_feature)
+                return self.resolve_feature(new_feature, strict=strict)
 
             if compute_check is not None:
                 return compute_check
@@ -233,6 +235,9 @@ class BaseDeriver(Container):
                 return self.do_level_interpolation(
                     feature, interp_kwargs=self.interp_kwargs
                 )
+
+            if not strict:
+                return None
 
             msg = (
                 'Could not find "%s" in contained data or in the available '
@@ -249,6 +254,20 @@ class BaseDeriver(Container):
             logger.warning(msg)
             warn(msg)
         return self.data[feature]
+
+    def derive(self, feature) -> Union[np.ndarray, da.core.Array]:
+        """Routine to derive requested features. Employs a little recursion to
+        locate differently named features with a name map in the feature
+        registry. i.e. if  `FEATURE_REGISTRY` contains a key, value pair like
+        "windspeed": "wind_speed" then requesting "windspeed" will ultimately
+        return a compute method (or fetch from raw data) for "wind_speed
+
+        Note
+        ----
+        Features are all saved as lower case names and __contains__ checks will
+        use feature.lower()
+        """
+        return self.resolve_feature(feature, strict=True)
 
     def get_single_level_data(self, feature):
         """When doing level interpolation we should include the single level

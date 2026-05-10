@@ -177,7 +177,7 @@ class DualRasterizer(Container):
                     : self.hr_required_shape[2]
                 ],
             }
-            logger.info(
+            logger.debug(
                 'Updating self.data.high_res with new shape: '
                 f'{self.hr_required_shape[:3]}'
             )
@@ -203,7 +203,7 @@ class DualRasterizer(Container):
         cached features if available and overwrite=False"""
 
         if self._regrid_lr:
-            logger.info('Regridding low resolution feature data.')
+            logger.debug('Regridding low resolution feature data.')
             regridder = self.get_regridder()
 
             lr_data_new = {}
@@ -219,7 +219,7 @@ class DualRasterizer(Container):
                     : self.lr_required_shape[2]
                 ],
             }
-            logger.info('Updating self.data.low_res with regridded data.')
+            logger.debug('Updating self.data.low_res with regridded data.')
             self.data.low_res = self.data.low_res.update_ds({
                 **lr_coords_new,
                 **lr_data_new,
@@ -228,7 +228,7 @@ class DualRasterizer(Container):
     def check_regridded_lr_data(self):
         """Check for NaNs after regridding and do NN fill if needed."""
         fill_feats = []
-        logger.info('Checking for NaNs after regridding')
+        logger.debug('Checking for NaNs after regridding')
         qa_info = self.data.low_res.qa(stats=['nan_perc'])
         for f in self.data.low_res.features:
             nan_perc = qa_info[f]['nan_perc']

@@ -78,6 +78,12 @@ class OutputHandlerNC(OutputHandler):
             already exists. Default is False to avoid accidentally overwriting
             files.
         """
+        logger.info(
+            'Writing NETCDF output to %s for %s features with shape %s.',
+            out_file,
+            len(features),
+            data.shape,
+        )
         data, features = cls._transform_output(
             data=data,
             features=features,

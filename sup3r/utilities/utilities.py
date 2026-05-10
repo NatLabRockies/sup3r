@@ -120,7 +120,7 @@ def preprocess_datasets(dset):
 
 def xr_open_mfdataset(files, **kwargs):
     """Wrapper for xr.open_mfdataset with default opening options."""
-    default_kwargs = {'engine': 'netcdf4'}
+    default_kwargs = {'engine': 'netcdf4', 'compat': 'override'}
     default_kwargs.update(kwargs)
     if isinstance(files, str):
         files = [files]

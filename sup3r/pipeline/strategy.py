@@ -239,13 +239,25 @@ class ForwardPassStrategy:
         self.bias_correct_kwargs = self.bias_correct_kwargs or {}
         self.timer = Timer()
 
-        model = get_model(self.model_class, self.model_kwargs)
-        self.s_enhancements = model.s_enhancements
-        self.t_enhancements = model.t_enhancements
-        self.s_enhance, self.t_enhance = model.s_enhance, model.t_enhance
-        self.input_features = model.lr_features
-        self.output_features = model.hr_out_features
-        self.features, self.exo_features = self._init_features(model)
+        logger.info(
+            'Initializing forward pass strategy for model=%s with '
+            'input_handler=%s across %s input files.',
+            self.model_class,
+            self.input_handler_name or 'DataHandler',
+            len(self.file_paths),
+        )
+        logger.debug('Forward pass strategy input files: %s', self.file_paths)
+
+        self.model = get_model(self.model_class, self.model_kwargs)
+        self.s_enhancements = self.model.s_enhancements
+        self.t_enhancements = self.model.t_enhancements
+        self.s_enhance, self.t_enhance = (
+            self.model.s_enhance,
+            self.model.t_enhance,
+        )
+        self.input_features = self.model.lr_features
+        self.output_features = self.model.hr_out_features
+        self.features, self.exo_features = self._init_features(self.model)
         self.time_slice, self.padded_time_slice = self.get_time_slices()
         self.input_handler = self.timer(self.init_input_handler, log=True)()
         self.fwp_chunk_shape = self._get_fwp_chunk_shape()
@@ -274,14 +286,16 @@ class ForwardPassStrategy:
         if self.head_node and cache_check:
             logger.warning(msg)
             warn(msg)
-            _ = self.timer(self.load_exo_data, log=True)(model)
+            _ = self.timer(self.load_exo_data, log=True)(self.model)
 
         if not self.head_node:
             # This will either load cache files created on the head node or
             # directly load the exogenous data if no cache is being used.
             hr_shape = self.hr_lat_lon.shape[:-1]
             self.gids = np.arange(np.prod(hr_shape)).reshape(hr_shape)
-            self.exo_data = self.timer(self.load_exo_data, log=True)(model)
+            self.exo_data = self.timer(self.load_exo_data, log=True)(
+                self.model
+            )
 
         self.preflight()
 
@@ -359,7 +373,20 @@ class ForwardPassStrategy:
             input_handler_kwargs['chunks'] = 'auto'
 
         input_handler_kwargs['time_slice'] = self.padded_time_slice
-        return InputHandler(**input_handler_kwargs)
+        logger.info(
+            'Initializing %s for %s features over padded time slice %s.',
+            InputHandler.__name__,
+            len(input_handler_kwargs['features']),
+            self.padded_time_slice,
+        )
+        handler = InputHandler(**input_handler_kwargs)
+        logger.info(
+            '%s ready with grid shape %s and %s time steps.',
+            InputHandler.__name__,
+            handler.grid_shape,
+            len(handler.time_index),
+        )
+        return handler
 
     def _init_features(self, model):
         """Initialize feature attributes."""
@@ -431,17 +458,15 @@ class ForwardPassStrategy:
         self.lr_slices, self.lr_pad_slices, self.hr_slices = out
 
         non_masked = self.fwp_slicer.n_spatial_chunks - sum(self.fwp_mask)
-        non_masked *= int(self.fwp_slicer.n_time_chunks)
-        log_dict = {
-            'n_nodes': len(self.node_chunks),
-            'n_spatial_chunks': self.fwp_slicer.n_spatial_chunks,
-            'n_time_chunks': self.fwp_slicer.n_time_chunks,
-            'n_total_chunks': self.fwp_slicer.n_chunks,
-            'non_masked_chunks': non_masked,
-        }
+        non_masked *= self.fwp_slicer.n_time_chunks
         logger.info(
-            f'Chunk strategy description:\n'
-            f'{pprint.pformat(log_dict, indent=2)}'
+            'Chunk strategy uses %s nodes across %s total chunks '
+            '(%s spatial x %s temporal, %s unmasked).',
+            len(self.node_chunks),
+            self.fwp_slicer.n_chunks,
+            self.fwp_slicer.n_spatial_chunks,
+            self.fwp_slicer.n_time_chunks,
+            int(non_masked),
         )
 
     def get_chunk_indices(self, chunk_index):
@@ -643,9 +668,21 @@ class ForwardPassStrategy:
         """
         data = {}
         exo_data = None
-        for exo_kwargs in self.get_exo_kwargs(model):
+        exo_kwargs_list = self.get_exo_kwargs(model)
+        if exo_kwargs_list:
+            logger.info(
+                'Loading exogenous data for %s features: %s.',
+                len(exo_kwargs_list),
+                [kwargs['feature'] for kwargs in exo_kwargs_list],
+            )
+        for exo_kwargs in exo_kwargs_list:
             data.update(ExoDataHandler(**exo_kwargs).data)
         exo_data = ExoData(data)
+        if exo_kwargs_list:
+            logger.info(
+                'Finished loading exogenous data for %s features.',
+                len(exo_kwargs_list),
+            )
         return exo_data
 
     @cached_property
@@ -664,23 +701,25 @@ class ForwardPassStrategy:
         mask = np.zeros(len(self.lr_pad_slices))
         logger.debug('Checking for mask in input handler.')
         input_handler_kwargs = copy.deepcopy(self.input_handler_kwargs)
-        try:
-            InputHandler = get_input_handler_class(self.input_handler_name)
-            input_handler_kwargs['features'] = ['mask']
-            handler = InputHandler(**input_handler_kwargs)
+        InputHandler = get_input_handler_class(self.input_handler_name)
+        input_handler_kwargs['features'] = []
+        handler = InputHandler(**input_handler_kwargs)
+        mask_feature = handler.resolve_feature('mask', strict=False)
+        if mask_feature is None:
             logger.debug(
-                'Found "mask" in DataHandler. Computing forward pass '
-                'chunk mask for %s chunks',
-                len(self.lr_pad_slices),
-            )
-            mask_vals = handler.data['mask'].values
-            for s_chunk_idx, lr_slices in enumerate(self.lr_pad_slices):
-                mask_check = mask_vals[lr_slices[0], lr_slices[1]]
-                mask[s_chunk_idx] = bool(np.prod(mask_check.flatten()))
-        except Exception:
-            logger.info(
                 'No "mask" found in DataHandler. No chunks will be masked.'
             )
+            return mask
+
+        logger.debug(
+            'Found "mask" in DataHandler. Computing forward pass '
+            'chunk mask for %s chunks',
+            len(self.lr_pad_slices),
+        )
+        mask_vals = getattr(mask_feature, 'values', mask_feature)
+        for s_chunk_idx, lr_slices in enumerate(self.lr_pad_slices):
+            mask_check = mask_vals[lr_slices[0], lr_slices[1]]
+            mask[s_chunk_idx] = bool(np.prod(mask_check.flatten()))
         return mask
 
     def node_finished(self, node_idx):

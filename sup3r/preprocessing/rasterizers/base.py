@@ -58,8 +58,8 @@ class BaseRasterizer(Container):
             are more than this value away from the target lat/lon, an error is
             raised.
         """
-        logger.info(
-            'Rasterizing features: %s from files: %s',
+        logger.debug(
+            'Rasterizing features: "%s" from files: %s',
             features,
             loader.file_paths,
         )

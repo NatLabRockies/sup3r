@@ -207,11 +207,23 @@ class DataHandler(Deriver):
         """  # pylint: disable=line-too-long
 
         features = parse_to_list(features=features)
+        source_files = expand_paths(file_paths)
         cached_files, cached_features, _, missing_features = _check_for_cache(
             features=features, cache_kwargs=cache_kwargs
         )
 
+        logger.debug(
+            'DataHandler preparing %s requested features from %s source files '
+            '(%s cached, %s via rasterizer).',
+            len(features),
+            len(source_files),
+            len(cached_features),
+            len(missing_features),
+        )
+
         just_coords = not features
+        if just_coords:
+            logger.info('Rasterizing source data for coordinate-only access.')
         raster_feats = load_features if any(missing_features) else []
         self.rasterizer = self.loader = self.cache = None
         if any(cached_features):
@@ -263,7 +275,10 @@ class DataHandler(Deriver):
                 expand_paths(file_paths) + cached_files
             )
 
-        if cache_kwargs is not None and 'cache_pattern' in cache_kwargs:
+        should_cache = cache_kwargs is not None and (
+            bool(missing_features) or cache_kwargs.get('overwrite', False)
+        )
+        if should_cache and 'cache_pattern' in cache_kwargs:
             self.cacher = Cacher(data=self.data, cache_kwargs=cache_kwargs)
         self._deriver_hook()
 

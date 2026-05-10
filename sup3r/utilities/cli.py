@@ -70,6 +70,13 @@ class BaseCLI:
         exec_kwargs = config.get('execution_control', {})
         hardware_option = exec_kwargs.pop('option', 'local')
 
+        logger.info(
+            'Preparing sup3r %s from %s with hardware=%s.',
+            module_name,
+            config_file,
+            hardware_option,
+        )
+
         cmd = module_class.get_node_cmd(config)
 
         if hardware_option.lower() in AVAILABLE_HARDWARE_OPTIONS:
@@ -79,6 +86,12 @@ class BaseCLI:
         else:
             cls.kickoff_local_job(module_name, ctx, cmd,
                                   pipeline_step=pipeline_step)
+
+        logger.info(
+            'Finished sup3r %s submission for %s.',
+            module_name,
+            config_file,
+        )
 
     @classmethod
     def from_config_preflight(cls, module_name, ctx, config_file, verbose):

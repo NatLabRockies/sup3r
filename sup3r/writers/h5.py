@@ -85,6 +85,12 @@ class OutputHandlerH5(OutputHandler):
                     f'File already exists at {out_file}. Skipping write.'
                 )
                 return
+        logger.info(
+            'Writing H5 output to %s for %s features with shape %s.',
+            out_file,
+            len(features),
+            data.shape,
+        )
         msg = (
             f'Output data shape ({data.shape}) and lat_lon shape '
             f'({lat_lon.shape}) conflict.'

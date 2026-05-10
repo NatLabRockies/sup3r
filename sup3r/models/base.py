@@ -176,7 +176,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         logger.info('Saved GAN to disk in directory: {}'.format(out_dir))
 
     @classmethod
-    def _load(cls, model_dir, verbose=True):
+    def _load(cls, model_dir, verbose=False):
         """Get gen, disc, and params for given model_dir.
 
         Parameters

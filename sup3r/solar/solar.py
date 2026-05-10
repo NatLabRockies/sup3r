@@ -578,7 +578,7 @@ class Solar:
             run_attrs['nsrdb_source'] = self._nsrdb_fp
             fh.run_attrs = run_attrs
 
-        logger.info(f'Finished writing file: {fp_out}')
+        logger.debug(f'Finished writing file: {fp_out}')
 
     @classmethod
     def run_temporal_chunks(

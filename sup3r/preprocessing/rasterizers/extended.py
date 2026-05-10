@@ -157,7 +157,7 @@ class Rasterizer(BaseRasterizer):
         """Save raster index to cache file."""
         os.makedirs(os.path.dirname(self.raster_file), exist_ok=True)
         np.savetxt(self.raster_file, self.raster_index)
-        logger.info('Saved raster_index to %s', self.raster_file)
+        logger.debug('Saved raster_index to %s', self.raster_file)
 
     def get_raster_index(self):
         """Get set of slices or indices selecting the requested region from
@@ -187,7 +187,7 @@ class Rasterizer(BaseRasterizer):
             )
         else:
             raster_index = np.loadtxt(self.raster_file).astype(np.int32)
-            logger.info('Loaded raster_index from %s', self.raster_file)
+            logger.debug('Loaded raster_index from %s', self.raster_file)
 
         return raster_index
 
