@@ -247,7 +247,7 @@ class Sup3rQa:
 
         (1) Check if we need to derive any features included in the
         bias_correct_kwargs.
-        (2) Derive these features using input_handler.resolve_feature, and
+        (2) Derive these features using input_handler.derive, and
         update the stored data.
         (3) Apply bias correction to all the features in the
         bias_correct_kwargs
@@ -261,15 +261,15 @@ class Sup3rQa:
         )
         msg = (
             f'Features {need_derive} need to be derived prior to bias '
-            'correction, but the input_handler has no resolve_feature method. '
+            'correction, but the input_handler has no derive method. '
             'Request an appropriate input_handler with '
             'input_handler_name=DataHandlerName.'
         )
         assert len(need_derive) == 0 or hasattr(
-            input_handler, 'resolve_feature'
+            input_handler, 'derive'
         ), msg
         for f in need_derive:
-            input_handler.data[f] = input_handler.resolve_feature(f)
+            input_handler.data[f] = input_handler.derive(f)
         bc_feats = list(
             set(input_handler.features).intersection(
                 set(lowered(self.bias_correct_kwargs.keys()))

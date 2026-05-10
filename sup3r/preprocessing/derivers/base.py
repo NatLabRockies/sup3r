@@ -70,7 +70,7 @@ class BaseDeriver(Container):
         features = parse_to_list(data=data, features=features)
         new_features = [f for f in features if f not in self.data]
         for f in new_features:
-            self.data[f] = self.resolve_feature(f)
+            self.data[f] = self.derive(f)
             logger.info('Finished deriving %s.', f)
         self.data = (
             self.data[list(self.data.coords)]
@@ -131,7 +131,7 @@ class BaseDeriver(Container):
             if any(missing) and can_derive:
                 logger.debug(msg, missing)
                 for f in missing:
-                    self.data[f] = self.resolve_feature(f)
+                    self.data[f] = self.derive(f)
             msg = 'All required features %s found. Proceeding.'
             if not missing or all(f in self.data for f in missing):
                 logger.debug(msg, inputs)
@@ -205,7 +205,7 @@ class BaseDeriver(Container):
                 count += 1
         return count > 1 or fstruct.basename in self.data
 
-    def resolve_feature(
+    def derive(
         self, feature, strict=True
     ) -> Union[np.ndarray, da.core.Array, None]:
         """Resolve a feature from contained data or available derivations.
@@ -223,7 +223,7 @@ class BaseDeriver(Container):
             compute_check = self.check_registry(feature)
             if compute_check is not None and isinstance(compute_check, str):
                 new_feature = self.map_new_name(feature, compute_check)
-                return self.resolve_feature(new_feature, strict=strict)
+                return self.derive(new_feature, strict=strict)
 
             if compute_check is not None:
                 return compute_check

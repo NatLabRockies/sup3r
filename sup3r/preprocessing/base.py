@@ -434,9 +434,10 @@ class Container(metaclass=Sup3rMeta):
         """Get shape of underlying data."""
         return self.data.shape
 
-    def resolve_feature(self, feature, strict=True):
+    def derive(self, feature, strict=True):
         """Resolve feature name to a feature in the underlying data. This is
-        used for handling feature aliases."""
+        used for handling feature aliases and for deriving new features from
+        existing ones."""
         if feature in self.data.features:
             return self.data[feature]
         elif strict:
