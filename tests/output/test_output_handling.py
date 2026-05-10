@@ -285,8 +285,8 @@ def test_netcdf_uv_invert():
         dh = DataHandler(
             fp_out, features=['windspeed_10m', 'winddirection_10m']
         )
-        uvals = dh.derive('u_10m').values
-        vvals = dh.derive('v_10m').values
+        uvals = dh.resolve_feature('u_10m').values
+        vvals = dh.resolve_feature('v_10m').values
         assert np.allclose(data[..., 0], uvals, atol=1e-5)
         assert np.allclose(data[..., 1], vvals, atol=1e-5)
 
