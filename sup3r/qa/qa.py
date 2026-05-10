@@ -234,7 +234,7 @@ class Sup3rQa:
             e.g. 'nc' or 'h5'
         """
         ftype = get_source_type(self._out_fp)
-        if ftype not in ('nc', 'h5'):
+        if ftype not in {'nc', 'h5'}:
             msg = 'Did not recognize output file type: {}'.format(self._out_fp)
             logger.error(msg)
             raise TypeError(msg)
@@ -247,7 +247,7 @@ class Sup3rQa:
 
         (1) Check if we need to derive any features included in the
         bias_correct_kwargs.
-        (2) Derive these features using the input_handler.derive method, and
+        (2) Derive these features using input_handler.resolve_feature, and
         update the stored data.
         (3) Apply bias correction to all the features in the
         bias_correct_kwargs
@@ -261,13 +261,15 @@ class Sup3rQa:
         )
         msg = (
             f'Features {need_derive} need to be derived prior to bias '
-            'correction, but the input_handler has no derive method. '
+            'correction, but the input_handler has no resolve_feature method. '
             'Request an appropriate input_handler with '
             'input_handler_name=DataHandlerName.'
         )
-        assert len(need_derive) == 0 or hasattr(input_handler, 'derive'), msg
+        assert len(need_derive) == 0 or hasattr(
+            input_handler, 'resolve_feature'
+        ), msg
         for f in need_derive:
-            input_handler.data[f] = input_handler.derive(f)
+            input_handler.data[f] = input_handler.resolve_feature(f)
         bc_feats = list(
             set(input_handler.features).intersection(
                 set(lowered(self.bias_correct_kwargs.keys()))

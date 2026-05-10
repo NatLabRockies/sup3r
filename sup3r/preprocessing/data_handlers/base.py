@@ -74,7 +74,7 @@ class DataHandler(Deriver):
     ...                   'chunks': cache_chunks})
 
     >>> # Derive more features from already initialized data handler:
-    >>> dh['windspeed_60m'] = dh.derive('windspeed_60m')
+    >>> dh['windspeed_60m'] = dh.resolve_feature('windspeed_60m')
 
     Derive wind speed and direction at 200m above the ground from files
     for geopotential height (zg), surface elevation (orog), and u/v at 10m,

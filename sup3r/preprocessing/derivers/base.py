@@ -70,7 +70,7 @@ class BaseDeriver(Container):
         features = parse_to_list(data=data, features=features)
         new_features = [f for f in features if f not in self.data]
         for f in new_features:
-            self.data[f] = self.derive(f)
+            self.data[f] = self.resolve_feature(f)
             logger.info('Finished deriving %s.', f)
         self.data = (
             self.data[list(self.data.coords)]
@@ -131,7 +131,7 @@ class BaseDeriver(Container):
             if any(missing) and can_derive:
                 logger.debug(msg, missing)
                 for f in missing:
-                    self.data[f] = self.derive(f)
+                    self.data[f] = self.resolve_feature(f)
             msg = 'All required features %s found. Proceeding.'
             if not missing or all(f in self.data for f in missing):
                 logger.debug(msg, inputs)
@@ -254,20 +254,6 @@ class BaseDeriver(Container):
             logger.warning(msg)
             warn(msg)
         return self.data[feature]
-
-    def derive(self, feature) -> Union[np.ndarray, da.core.Array]:
-        """Routine to derive requested features. Employs a little recursion to
-        locate differently named features with a name map in the feature
-        registry. i.e. if  `FEATURE_REGISTRY` contains a key, value pair like
-        "windspeed": "wind_speed" then requesting "windspeed" will ultimately
-        return a compute method (or fetch from raw data) for "wind_speed
-
-        Note
-        ----
-        Features are all saved as lower case names and __contains__ checks will
-        use feature.lower()
-        """
-        return self.resolve_feature(feature, strict=True)
 
     def get_single_level_data(self, feature):
         """When doing level interpolation we should include the single level
