@@ -839,7 +839,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Log level (e.g. INFO, DEBUG)
         """
         for k, v in sorted(loss_details.items()):
-            msg_format = '\t{}: {}' if isinstance(v, str) else '\t{}: {:.2e}'
+            msg_format = '\t%s: %s' if isinstance(v, str) else '\t%s: %.2e'
             if level.lower() == 'info':
                 logger.info(msg_format, k, v)
             else:
