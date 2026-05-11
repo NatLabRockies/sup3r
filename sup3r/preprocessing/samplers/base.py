@@ -310,9 +310,8 @@ class Sampler(Container):
         self._sample_shape = sample_shape
         if len(self._sample_shape) == 2:
             logger.info(
-                'Found 2D sample shape of {}. Adding temporal dim of 1'.format(
-                    self._sample_shape
-                )
+                'Found 2D sample shape of %s. Adding temporal dim of 1',
+                self._sample_shape,
             )
             self._sample_shape = (*self._sample_shape, 1)
 

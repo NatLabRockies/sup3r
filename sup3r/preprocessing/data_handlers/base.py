@@ -224,9 +224,9 @@ class DataHandler(Deriver):
         just_coords = not features
         if just_coords:
             logger.info('Rasterizing source data for coordinate-only access.')
-        raster_feats = load_features if any(missing_features) else []
+        raster_feats = load_features if missing_features else []
         self.rasterizer = self.loader = self.cache = None
-        if any(cached_features):
+        if cached_features:
             self.cache = Loader(
                 file_paths=cached_files,
                 features=load_features,

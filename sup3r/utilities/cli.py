@@ -128,7 +128,7 @@ class BaseCLI:
         log_pattern = config.get('log_pattern', None)
         config_verbose = config.get('log_level', 'INFO')
         config_verbose = config_verbose == 'DEBUG'
-        verbose = any([verbose, config_verbose, ctx.obj['VERBOSE']])
+        verbose = any((verbose, config_verbose, ctx.obj['VERBOSE']))
         exec_kwargs = config.get('execution_control', {})
         hardware_option = exec_kwargs.get('option', 'local')
 
@@ -150,8 +150,8 @@ class BaseCLI:
                 log_pattern = log_pattern.replace('.log', '_{node_index}.log')
 
         exec_kwargs['stdout_path'] = os.path.join(status_dir, 'stdout/')
-        logger.debug('Found execution kwargs: {}'.format(exec_kwargs))
-        logger.debug('Hardware run option: "{}"'.format(hardware_option))
+        logger.debug('Found execution kwargs: %s', exec_kwargs)
+        logger.debug('Hardware run option: "%s"', hardware_option)
 
         name = f'sup3r_{module_name.replace("-", "_")}'
         name += '_{}'.format(os.path.basename(status_dir))
@@ -249,8 +249,9 @@ class BaseCLI:
             if pipeline_step != module_name:
                 job_info = f"{job_info} (pipeline step {pipeline_step!r})"
             logger.info(
-                f'Running sup3r {job_info} on SLURM with node '
-                f'name "{name}".'
+                'Running sup3r %s on SLURM with node name "%s".',
+                job_info,
+                name,
             )
             out = slurm_manager.sbatch(
                 cmd,
@@ -327,8 +328,9 @@ class BaseCLI:
             if pipeline_step != module_name:
                 job_info = f"{job_info} (pipeline step {pipeline_step!r})"
             logger.info(
-                f'Running sup3r {job_info} locally with job '
-                f'name "{name}".'
+                'Running sup3r %s locally with job name "%s".',
+                job_info,
+                name,
             )
             Status.mark_job_as_submitted(
                 out_dir,
@@ -381,6 +383,6 @@ class BaseCLI:
             cmd += f"Status.make_single_job_file({status_file_arg_str})"
 
         cmd_log = '\n\t'.join(cmd.split('\n'))
-        logger.debug(f'Running command:\n\t{cmd_log}')
+        logger.debug('Running command:\n\t%s', cmd_log)
 
         return cmd

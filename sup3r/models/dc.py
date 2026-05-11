@@ -49,8 +49,11 @@ class Sup3rGanDC(Sup3rGan):
             dtype=np.float32,
         )
         for i, batch in enumerate(batch_handler.val_data):
-            logger.info(f'Calculating validation loss for batch {i} / '
-                        f'{len(batch_handler.val_data)}...')
+            logger.info(
+                'Calculating validation loss for batch %s / %s...',
+                i,
+                len(batch_handler.val_data),
+            )
             hi_res_exo = self.get_hr_exo_input(batch.high_res)
             hi_res_gen = self._tf_generate(batch.low_res, hi_res_exo)
             loss, loss_details = self.calc_loss(
@@ -96,20 +99,20 @@ class Sup3rGanDC(Sup3rGan):
         s_weights /= s_weights.sum()
 
         logger.debug(
-            f'Previous spatial weights: {batch_handler.spatial_weights}'
+            'Previous spatial weights: %s', batch_handler.spatial_weights
         )
         logger.debug(
-            f'Previous temporal weights: {batch_handler.temporal_weights}'
+            'Previous temporal weights: %s', batch_handler.temporal_weights
         )
         batch_handler.update_weights(
             spatial_weights=s_weights, temporal_weights=t_weights
         )
         logger.debug(
-            'New spatiotemporal weights (space, time):\n'
-            f'{total_losses / total_losses.sum()}'
+            'New spatiotemporal weights (space, time):\n%s',
+            total_losses / total_losses.sum(),
         )
-        logger.debug(f'New spatial weights: {s_weights}')
-        logger.debug(f'New temporal weights: {t_weights}')
+        logger.debug('New spatial weights: %s', s_weights)
+        logger.debug('New temporal weights: %s', t_weights)
 
         loss_details['mean_val_loss_gen'] = round(np.mean(total_losses), 3)
         loss_details['mean_val_loss_gen_content'] = round(

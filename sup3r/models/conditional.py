@@ -115,7 +115,7 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
 
         self.save_params(out_dir)
 
-        logger.info('Saved model to disk in directory: {}'.format(out_dir))
+        logger.info('Saved model to disk in directory: %s', out_dir)
 
     @classmethod
     def load(cls, model_dir, verbose=True):
@@ -135,13 +135,11 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
             Returns a pretrained gan model that was previously saved to out_dir
         """
         if verbose:
+            logger.info('Loading model from disk in directory: %s', model_dir)
             logger.info(
-                'Loading model from disk in directory: {}'.format(model_dir)
+                'Active python environment versions: \n%s',
+                pprint.pformat(VERSION_RECORD, indent=4),
             )
-            msg = 'Active python environment versions: \n{}'.format(
-                pprint.pformat(VERSION_RECORD, indent=4)
-            )
-            logger.info(msg)
 
         fp_gen = os.path.join(model_dir, 'model_gen.pkl')
         params = cls.load_saved_params(model_dir, verbose=verbose)
@@ -294,10 +292,10 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
             loss_details = self._train_record.mean().to_dict()
 
             logger.debug(
-                'Batch {} out of {} has epoch-average gen loss of: '
-                '{:.2e}. '.format(
-                    ib, len(batch_handler), loss_details['train_loss_gen']
-                )
+                'Batch %s out of %s has epoch-average gen loss of: %.2e. ',
+                ib,
+                len(batch_handler),
+                loss_details['train_loss_gen'],
             )
 
         return loss_details
@@ -329,19 +327,20 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
                 batch_handler=batch_handler,
             )
 
-        epochs = list(range(config.n_epoch))
-
         if self._history is None:
             self._history = pd.DataFrame(columns=['elapsed_time'])
             self._history.index.name = 'epoch'
+            start_epoch = 0
         else:
-            epochs += self._history.index.values[-1] + 1
+            start_epoch = int(self._history.index.values[-1]) + 1
+
+        epochs = range(start_epoch, start_epoch + config.n_epoch)
 
         t0 = time.time()
         logger.info(
-            'Training model for {} epochs starting at epoch {}'.format(
-                config.n_epoch, epochs[0]
-            )
+            'Training model for %s epochs starting at epoch %s',
+            config.n_epoch,
+            epochs[0],
         )
 
         for epoch in epochs:

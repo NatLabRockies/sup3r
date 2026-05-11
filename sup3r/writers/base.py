@@ -75,10 +75,11 @@ class OutputMixin:
         """
 
         with RexOutputs(out_file, mode='w-') as f:
-            logger.info('Initializing output file: {}'.format(out_file))
+            logger.info('Initializing output file: %s', out_file)
             logger.debug(
-                'Initializing output file with shape {} '
-                'and meta data:\n{}'.format((len(time_index), len(meta)), meta)
+                'Initializing output file with shape %s and meta data:\n%s',
+                (len(time_index), len(meta)),
+                meta,
             )
             f.time_index = time_index
             f.meta = meta
@@ -102,8 +103,10 @@ class OutputMixin:
             if dset not in f.dsets:
                 attrs, dtype = get_dset_attrs(dset)
                 logger.debug(
-                    'Initializing dataset "{}" with shape {} and '
-                    'dtype {}'.format(dset, f.shape, dtype)
+                    'Initializing dataset "%s" with shape %s and dtype %s',
+                    dset,
+                    f.shape,
+                    dtype,
                 )
                 f._create_dset(
                     dset,
@@ -160,11 +163,11 @@ class OutputMixin:
                 fh.run_attrs = attrs
 
         os.replace(tmp_file, out_file)
-        msg = (
-            'Saved output of size '
-            f'{(len(data_list), *data_list[0].shape)} to: {out_file}'
+        logger.info(
+            'Saved output of size %s to: %s',
+            (len(data_list), *data_list[0].shape),
+            out_file,
         )
-        logger.info(msg)
 
 
 class RexOutputs(BaseRexOutputs):
@@ -530,7 +533,7 @@ class OutputHandler(OutputMixin):
         """
         logger.debug('Getting high resolution time indices')
         logger.debug(
-            f'Low res times: {low_res_times[0]} to {low_res_times[-1]}'
+            'Low res times: %s to %s', low_res_times[0], low_res_times[-1]
         )
         t_enhance = int(shape / len(low_res_times))
 
@@ -547,7 +550,7 @@ class OutputHandler(OutputMixin):
             leap_mask = (times.month == 2) & (times.day == 29)
             times = times[~leap_mask]
 
-        logger.debug(f'High res times: {times[0]} to {times[-1]}')
+        logger.debug('High res times: %s to %s', times[0], times[-1])
         assert len(times) == shape, (
             f'High res times length {len(times)} does not match expected '
             f'shape {shape}'

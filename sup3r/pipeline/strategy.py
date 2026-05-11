@@ -491,7 +491,7 @@ class ForwardPassStrategy:
         lr_lat_lon = self.input_handler.lat_lon
         shape = tuple(d * self.s_enhance for d in lr_lat_lon.shape[:-1])
         logger.debug(
-            f'Getting high-resolution grid for full output domain: {shape}'
+            'Getting high-resolution grid for full output domain: %s', shape
         )
         return OutputHandler.get_lat_lon(lr_lat_lon, shape)
 
@@ -554,8 +554,9 @@ class ForwardPassStrategy:
 
         if self.bias_correct_kwargs != {}:
             logger.debug(
-                f'Bias correcting data for chunk_index={chunk_index}, '
-                f'with shape={input_data.shape}'
+                'Bias correcting data for chunk_index=%s, with shape=%s',
+                chunk_index,
+                input_data.shape,
             )
             fun = self.timer(
                 bias_correct_features,
@@ -606,11 +607,11 @@ class ForwardPassStrategy:
             'ti_pad_slice': ti_pad_slice,
         }
         logger.debug(
-            'Initializing ForwardPassChunk with: '
-            f'{pprint.pformat(args_dict, indent=2)}'
+            'Initializing ForwardPassChunk with: %s',
+            pprint.pformat(args_dict, indent=2),
         )
 
-        logger.debug(f'Getting input data for chunk_index={chunk_index}.')
+        logger.debug('Getting input data for chunk_index=%s.', chunk_index)
 
         input_data, exo_data = self.timer(
             self.prep_chunk_data, log=True, call_id=chunk_index

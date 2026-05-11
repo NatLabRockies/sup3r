@@ -82,7 +82,7 @@ def from_config(ctx, config_file, verbose=False, pipeline_step=None):
         cmd = BiasCalcClass.get_node_cmd(node_config)
 
         cmd_log = '\n\t'.join(cmd.split('\n'))
-        logger.debug(f'Running command:\n\t{cmd_log}')
+        logger.debug('Running command:\n\t%s', cmd_log)
         logger.info(
             'Queueing bias calculation node %s as job "%s".',
             i_node,

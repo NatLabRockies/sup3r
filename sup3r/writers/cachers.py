@@ -104,8 +104,9 @@ class Cacher(Container):
         """Write single NETCDF or H5 cache file."""
         if os.path.exists(out_file) and not overwrite:
             logger.info(
-                f'{out_file} already exists. Delete or specify overwrite=True '
-                'if you want to overwrite.'
+                '%s already exists. Delete or specify overwrite=True if you '
+                'want to overwrite.',
+                out_file,
             )
             return
         if features == 'all':
@@ -192,15 +193,16 @@ class Cacher(Container):
             cache_kwargs={'cache_pattern': cache_pattern},
         )
 
-        if any(cached_files) and not overwrite:
+        if cached_files and not overwrite:
             logger.info(
-                f'Cache files with pattern {cache_pattern} already exist. '
-                'Delete or specify overwrite=True to overwrite.'
+                'Cache files with pattern %s already exist. Delete or specify '
+                'overwrite=True to overwrite.',
+                cache_pattern,
             )
-        elif any(cached_files) and overwrite:
+        elif cached_files and overwrite:
             missing_files += cached_files
 
-        if any(missing_files):
+        if missing_files:
             logger.info('Caching %s to %s', missing_features, missing_files)
             for feature, out_file in zip(missing_features, missing_files):
                 self._write_single(

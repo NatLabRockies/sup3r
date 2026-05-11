@@ -116,6 +116,7 @@ def test_era_dl_year(tmpdir_factory):
         yearly_file_pattern=yearly_file_pattern,
         max_workers=1,
         combine_all_files=True,
+        res_kwargs={'compat': 'no_conflicts'},
     )
 
     combined_file = yearly_file_pattern.replace('_{var}_', '').format(

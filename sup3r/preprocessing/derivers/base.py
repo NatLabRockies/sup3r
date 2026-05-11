@@ -69,6 +69,8 @@ class BaseDeriver(Container):
         self.interp_kwargs = interp_kwargs
         features = parse_to_list(data=data, features=features)
         new_features = [f for f in features if f not in self.data]
+        # Persist derived dependencies back onto self.data so downstream
+        # derivations can reuse them instead of recomputing the same feature.
         for f in new_features:
             self.data[f] = self.derive(f)
             logger.info('Finished deriving %s.', f)
@@ -122,6 +124,9 @@ class BaseDeriver(Container):
         if hasattr(method, 'inputs'):
             inputs = self._get_inputs(feature, method)
             missing = [f for f in inputs if f not in self.data]
+            # Recursive derivation is only safe when the dependency chain does
+            # not loop back to the requested feature, unless interpolation can
+            # break that cycle from nearby levels.
             can_derive = all(
                 (self.no_overlap(m) or self.has_interp_variables(m))
                 for m in missing
@@ -164,6 +169,8 @@ class BaseDeriver(Container):
         name."""
         fstruct = parse_feature(feature)
         pstruct = parse_feature(pattern)
+        # Registry aliases can point from one naming convention to another,
+        # including wildcard patterns like basename_*m.
         if '*' not in pattern:
             new_feature = pattern
         elif fstruct.height is not None:
@@ -228,6 +235,8 @@ class BaseDeriver(Container):
             if compute_check is not None:
                 return compute_check
 
+            # If no direct compute method exists, fall back to vertical
+            # interpolation from nearby heights or pressure levels.
             if self.has_interp_variables(feature):
                 logger.debug(
                     'Attempting level interpolation for "%s"', feature
@@ -279,6 +288,8 @@ class BaseDeriver(Container):
 
         if len(var_list) > 0:
             var_array = da.stack(var_list, axis=-1)
+            # Broadcast the scalar levels to match the stacked data shape so
+            # interpolation can treat data values and their levels uniformly.
             sl_shape = (*var_array.shape[:-1], len(lev_list))
             lev_array = da.broadcast_to(da.from_array(lev_list), sl_shape)
 
@@ -373,6 +384,8 @@ class BaseDeriver(Container):
             var_array = sl_var
             lev_array = sl_levs
         elif ml_var is not None and sl_var is not None:
+            # Prefer using every available level by combining explicit
+            # single-level fields with multi-level arrays before interpolation.
             var_array = np.concatenate([ml_var, sl_var], axis=-1)
             lev_array = np.concatenate([ml_levs, sl_levs], axis=-1)
         else:
@@ -499,7 +512,7 @@ class Deriver(BaseDeriver):
 
             elif np.isnan(self.data.as_array()).any():
                 logger.info(
-                    f'Filling nan values with nan_method_kwargs='
-                    f'{nan_method_kwargs}'
+                    'Filling nan values with nan_method_kwargs=%s.',
+                    nan_method_kwargs,
                 )
                 self.data = self.data.interpolate_na(**nan_method_kwargs)

@@ -111,7 +111,7 @@ class VortexMeanPrepper:
         corresponding input file and write this to a netcdf file.
         """
         infile = self.get_input_file(month, height)
-        logger.info(f'Getting mean windspeed_{height}m for {month}.')
+        logger.info('Getting mean windspeed_%sm for %s.', height, month)
         out_file = infile.replace('.tif', '.nc')
         if os.path.exists(out_file) and self.overwrite:
             os.remove(out_file)
@@ -138,7 +138,7 @@ class VortexMeanPrepper:
         """Write netcdf files for all heights for all months."""
         for i in range(1, 13):
             month = calendar.month_name[i]
-            logger.info(f'Converting tif files to netcdf files for {month}')
+            logger.info('Converting tif files to netcdf files for %s', month)
             self.convert_month_tif(month)
 
     @property
@@ -175,23 +175,26 @@ class VortexMeanPrepper:
             os.remove(month_file)
 
         if os.path.exists(month_file) and not self.overwrite:
-            logger.info(f'Loading month_file {month_file}.')
+            logger.info('Loading month_file %s.', month_file)
             data = xr.open_mfdataset(month_file)
         else:
             logger.info(
-                'Getting mean windspeed for all heights '
-                f'({self.in_heights}) for {month}'
+                'Getting mean windspeed for all heights (%s) for %s',
+                self.in_heights,
+                month,
             )
             data = xr.open_mfdataset(self.get_height_files(month))
             logger.info(
-                'Interpolating windspeed for all heights '
-                f'({self.out_heights}) for {month}.'
+                'Interpolating windspeed for all heights (%s) for %s.',
+                self.out_heights,
+                month,
             )
             data = self.interp(data)
             data.to_netcdf(month_file, format='NETCDF4', engine='h5netcdf')
             logger.info(
-                'Saved interpolated means for all heights for '
-                f'{month} to {month_file}.'
+                'Saved interpolated means for all heights for %s to %s.',
+                month,
+                month_file,
             )
         return data
 
@@ -222,8 +225,10 @@ class VortexMeanPrepper:
             lev_array[..., i] = h
 
         logger.info(
-            f'Interpolating {self.in_features} to {self.out_features} '
-            f'for {var_array.shape[0]} coordinates.'
+            'Interpolating %s to %s for %s coordinates.',
+            self.in_features,
+            self.out_features,
+            var_array.shape[0],
         )
         tmp = [
             interp1d(h, v, fill_value='extrapolate')(self.out_heights)
@@ -312,13 +317,13 @@ class VortexMeanPrepper:
                     for dset, data in out.items():
                         OutputHandler._ensure_dset_in_output(fp_out, dset)
                         f[dset] = data.T
-                        logger.info(f'Added {dset} to {fp_out}.')
+                        logger.info('Added %s to %s.', dset, fp_out)
 
                     logger.info(
-                        f'Wrote monthly means for all out heights: {fp_out}'
+                        'Wrote monthly means for all out heights: %s', fp_out
                     )
             elif os.path.exists(fp_out):
-                logger.info(f'{fp_out} already exists and overwrite=False.')
+                logger.info('%s already exists and overwrite=False.', fp_out)
 
     @classmethod
     def run(
@@ -376,13 +381,18 @@ class BiasCorrectUpdate:
         """
         with Resource(bc_file) as res:
             logger.info(
-                f'Getting {dset} bias correction factors for month {month}.'
+                'Getting %s bias correction factors for month %s.',
+                dset,
+                month,
             )
             bc_factor = res[f'{dset}_scalar', :, month - 1]
             factors = global_scalar * bc_factor
             logger.info(
-                f'Retrieved {dset} bias correction factors for month {month}. '
-                f'Using global_scalar={global_scalar}.'
+                'Retrieved %s bias correction factors for month %s. '
+                'Using global_scalar=%s.',
+                dset,
+                month,
+                global_scalar,
             )
         return factors
 
@@ -419,7 +429,9 @@ class BiasCorrectUpdate:
                 month=month,
                 global_scalar=global_scalar,
             )
-            logger.info(f'Applying bias correction factors for month {month}')
+            logger.info(
+                'Applying bias correction factors for month %s', month
+            )
             fh[dset, mask, :] = bc_factors * fh_in[dset, mask, :]
 
     @classmethod
@@ -453,7 +465,9 @@ class BiasCorrectUpdate:
             Number of workers to use for parallel processing.
         """
         tmp_file = get_tmp_file(out_file)
-        logger.info(f'Bias correcting {dset} in {in_file} with {bc_file}.')
+        logger.info(
+            'Bias correcting %s in %s with %s.', dset, in_file, bc_file
+        )
         with Resource(in_file) as fh_in:
             OutputHandler._init_h5(
                 tmp_file, fh_in.time_index, fh_in.meta, fh_in.global_attrs
@@ -482,8 +496,7 @@ class BiasCorrectUpdate:
             logger.info('Finished bias correcting %s in %s', dset, in_file)
 
         os.replace(tmp_file, out_file)
-        msg = f'Saved bias corrected {dset} to: {out_file}'
-        logger.info(msg)
+        logger.info('Saved bias corrected %s to: %s', dset, out_file)
 
     @classmethod
     def run(
@@ -518,14 +531,16 @@ class BiasCorrectUpdate:
             Number of workers to use for parallel processing.
         """
         if os.path.exists(out_file) and not overwrite:
-            logger.info(
-                f'{out_file} already exists and overwrite=False. Skipping.'
-            )
+                logger.info(
+                    '%s already exists and overwrite=False. Skipping.',
+                    out_file,
+                )
         else:
             if os.path.exists(out_file) and overwrite:
                 logger.info(
-                    f'{out_file} exists but overwrite=True. '
-                    f'Removing {out_file}.'
+                    '%s exists but overwrite=True. Removing %s.',
+                    out_file,
+                    out_file,
                 )
                 os.remove(out_file)
             cls.update_file(

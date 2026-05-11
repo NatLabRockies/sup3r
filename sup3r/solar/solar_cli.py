@@ -60,14 +60,13 @@ def from_config(ctx, config_file, verbose=False, pipeline_step=None):
     max_nodes = config.get('max_nodes', len(temporal_ids))
     max_nodes = min((max_nodes, len(temporal_ids)))
     logger.info(
-        'Solar module found {} sets of chunked source files to run '
-        'on. Submitting to {} nodes based on the number of temporal '
-        'chunks {} and the requested number of nodes {}'.format(
-            len(fp_sets),
-            max_nodes,
-            len(temporal_ids),
-            config.get('max_nodes', None),
-        )
+        'Solar module found %s sets of chunked source files to run on. '
+        'Submitting to %s nodes based on the number of temporal chunks %s '
+        'and the requested number of nodes %s',
+        len(fp_sets),
+        max_nodes,
+        len(temporal_ids),
+        config.get('max_nodes', None),
     )
 
     temporal_id_chunks = np.array_split(temporal_ids, max_nodes)

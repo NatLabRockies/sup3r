@@ -173,7 +173,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
         self.save_params(out_dir)
 
-        logger.info('Saved GAN to disk in directory: {}'.format(out_dir))
+        logger.info('Saved GAN to disk in directory: %s', out_dir)
 
     @classmethod
     def _load(cls, model_dir, verbose=False):
@@ -196,13 +196,11 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             Dictionary of model params to be used in model initialization
         """
         if verbose:
-            logger.info(
-                'Loading GAN from disk in directory: {}'.format(model_dir)
+            logger.info('Loading GAN from disk in directory: %s', model_dir)
+            logger.debug(
+                'Active python environment versions: \n%s',
+                pprint.pformat(VERSION_RECORD, indent=4),
             )
-            msg = 'Active python environment versions: \n{}'.format(
-                pprint.pformat(VERSION_RECORD, indent=4)
-            )
-            logger.debug(msg)
 
         fp_gen = os.path.join(model_dir, 'model_gen.pkl')
         fp_disc = os.path.join(model_dir, 'model_disc.pkl')
@@ -637,7 +635,8 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
 
             if update_frac != 1:
                 logger.debug(
-                    f'New discriminator weight: {weight_gen_advers:.4e}'
+                    'New discriminator weight: %.4e',
+                    weight_gen_advers,
                 )
 
         return weight_gen_advers
@@ -696,20 +695,15 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             batch_handler=batch_handler,
         )
 
-        epochs = list(range(config.n_epoch))
-
-        if self._history is None:
-            self._history = pd.DataFrame(columns=['elapsed_time'])
-            self._history.index.name = 'epoch'
-        else:
-            epochs += self._history.index.values[-1] + 1
+        epochs = range(len(self.history), len(self.history) + config.n_epoch)
 
         t0 = time.time()
         logger.info(
-            'Training model with adversarial weight: {} '
-            'for {} epochs starting at epoch {}'.format(
-                config.weight_gen_advers, config.n_epoch, epochs[0]
-            )
+            'Training model with adversarial weight: %s for %s epochs '
+            'starting at epoch %s',
+            config.weight_gen_advers,
+            config.n_epoch,
+            epochs[0],
         )
 
         lr_shape, hr_shape = batch_handler.shapes
@@ -783,17 +777,15 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
                 extras=extras,
             )
             logger.debug(
-                'Finished training epoch in {:.4f} seconds'.format(
-                    time.time() - t_epoch
-                )
+                'Finished training epoch in %.4f seconds',
+                time.time() - t_epoch,
             )
             if stop:
                 break
         logger.info(
-            'Finished training {} epochs in {:.4f} seconds'.format(
-                config.n_epoch,
-                time.time() - t0,
-            )
+            'Finished training %s epochs in %.4f seconds',
+            config.n_epoch,
+            time.time() - t0,
         )
 
         batch_handler.stop()
@@ -1054,20 +1046,19 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         gen_loss = self._train_record['train_loss_gen'].values.mean()
 
         logger.debug(
-            'Batch {} out of {} has (gen / disc) loss of: ({:.2e} / {:.2e}). '
-            'Running mean (gen / disc): ({:.2e} / {:.2e}). Trained '
-            '(gen / disc): ({} / {})'.format(
-                ib + 1,
-                n_batches,
-                b_loss_details['loss_gen'],
-                b_loss_details['loss_disc'],
-                gen_loss,
-                disc_loss,
-                trained_gen,
-                trained_disc,
-            )
+            'Batch %s out of %s has (gen / disc) loss of: (%.2e / %.2e). '
+            'Running mean (gen / disc): (%.2e / %.2e). Trained '
+            '(gen / disc): (%s / %s)',
+            ib + 1,
+            n_batches,
+            b_loss_details['loss_gen'],
+            b_loss_details['loss_disc'],
+            gen_loss,
+            disc_loss,
+            trained_gen,
+            trained_disc,
         )
-        if all([not trained_gen, not trained_disc]):
+        if all((not trained_gen, not trained_disc)):
             msg = (
                 'For some reason none of the GAN networks trained during '
                 'batch {} out of {}!'.format(ib, n_batches)
@@ -1160,10 +1151,13 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             batch_load_time = total_step_time - batch_step_time
 
             logger.debug(
-                f'Finished batch step {ib + 1} / {len(batch_handler)} in '
-                f'{total_step_time:.4f} seconds. Batch load time: '
-                f'{batch_load_time:.4f} seconds. Batch train time: '
-                f'{batch_step_time:.4f} seconds.'
+                'Finished batch step %s / %s in %.4f seconds. Batch load '
+                'time: %.4f seconds. Batch train time: %.4f seconds.',
+                ib + 1,
+                len(batch_handler),
+                total_step_time,
+                batch_load_time,
+                batch_step_time,
             )
 
             prev_time = time.time()

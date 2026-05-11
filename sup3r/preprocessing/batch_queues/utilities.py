@@ -28,16 +28,16 @@ def temporal_simple_enhancing(data, t_enhance=4, mode='constant'):
         5D array with same dimensions as data with new enhanced resolution
     """
 
-    if t_enhance in [None, 1]:
+    if t_enhance in {None, 1}:
         enhanced_data = data
-    elif t_enhance not in [None, 1] and len(data.shape) == 5:
+    elif t_enhance not in {None, 1} and len(data.shape) == 5:
         if mode == 'constant':
             enhancement = [1, 1, 1, t_enhance, 1]
             enhanced_data = zoom(
                 data, enhancement, order=0, mode='nearest', grid_mode=True
             )
         elif mode == 'linear':
-            index_t_hr = np.array(list(range(data.shape[3] * t_enhance)))
+            index_t_hr = np.arange(data.shape[3] * t_enhance)
             index_t_lr = index_t_hr[::t_enhance]
             enhanced_data = interp1d(
                 index_t_lr, data, axis=3, fill_value='extrapolate'

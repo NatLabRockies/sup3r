@@ -158,9 +158,7 @@ class LinearCorrection(
                 for k, v in self.meta.items():
                     f.attrs[k] = json.dumps(v)
 
-                logger.info(
-                    'Wrote scalar adder factors to file: {}'.format(fp_out)
-                )
+                logger.info('Wrote scalar adder factors to file: %s', fp_out)
 
     def _get_run_kwargs(self, **kwargs_extras):
         """Get dictionary of kwarg dictionaries to use for calls to
@@ -236,9 +234,8 @@ class LinearCorrection(
         logger.debug('Starting linear correction calculation...')
 
         logger.info(
-            'Initialized scalar / adder with shape: {}'.format(
-                self.bias_gid_raster.shape
-            )
+            'Initialized scalar / adder with shape: %s',
+            self.bias_gid_raster.shape,
         )
         self.out = self._run(
             out=self.out,

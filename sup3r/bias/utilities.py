@@ -15,7 +15,6 @@ from sup3r.preprocessing.utilities import (
     get_date_range_kwargs,
 )
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -90,10 +89,9 @@ def lin_bc(handler, bc_files, bias_feature=None, threshold=0.1):
                     raise RuntimeError(msg)
 
                 logger.info(
-                    'Bias correcting "{}" with linear '
-                    'correction from "{}"'.format(
-                        feature, os.path.basename(fp)
-                    )
+                    'Bias correcting "%s" with linear correction from "%s"',
+                    feature,
+                    os.path.basename(fp),
                 )
                 handler.data[feature] = (
                     scalar * handler.data[feature][...] + adder
@@ -193,10 +191,9 @@ def qdm_bc(
 
             if feature not in completed and check:
                 logger.info(
-                    'Bias correcting "{}" with QDM '
-                    'correction from "{}"'.format(
-                        feature, os.path.basename(fp)
-                    )
+                    'Bias correcting "%s" with QDM correction from "%s"',
+                    feature,
+                    os.path.basename(fp),
                 )
                 handler.data[feature] = local_qdm_bc(
                     handler.data[feature],
@@ -257,7 +254,7 @@ def bias_correct_feature(
     lat_lon = input_handler.lat_lon
     if bc_method is not None:
         bc_method = getattr(sup3r.bias.bias_transforms, bc_method)
-        logger.info(f'Running bias correction with: {bc_method}.')
+        logger.info('Running bias correction with: %s.', bc_method)
         feature_kwargs = bc_kwargs[source_feature]
 
         if 'date_range_kwargs' in signature(bc_method).parameters:

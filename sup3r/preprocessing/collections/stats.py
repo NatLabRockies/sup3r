@@ -114,7 +114,7 @@ class StatsCollection(Collection):
         handlers."""
         means = self._init_stats_dict(means)
         needed_features = set(self.features) - set(means)
-        if any(needed_features):
+        if needed_features:
             logger.debug('Getting means for %s.', needed_features)
             cmeans = [
                 cm * w
@@ -125,6 +125,9 @@ class StatsCollection(Collection):
             ]
             for f in needed_features:
                 logger.debug('Computing mean for %s.', f)
+                # we use nansum here because the mean could be nan for a given
+                # container if all values are nan but there could be non-nan
+                # values in other containers
                 means[f] = np.float32(np.nansum([cm[f] for cm in cmeans]))
         return means
 
@@ -133,7 +136,7 @@ class StatsCollection(Collection):
         all data handlers."""
         stds = self._init_stats_dict(stds)
         needed_features = set(self.features) - set(stds)
-        if any(needed_features):
+        if needed_features:
             logger.debug('Getting stds for %s.', needed_features)
             cstds = [
                 w * cm**2
@@ -141,6 +144,8 @@ class StatsCollection(Collection):
             ]
             for f in needed_features:
                 logger.debug('Computing std for %s.', f)
+                # we use nansum here because one container could have all nans
+                # but there could be non-nan values in other containers
                 stds[f] = np.float32(
                     np.sqrt(np.nansum([cs[f] for cs in cstds]))
                 )

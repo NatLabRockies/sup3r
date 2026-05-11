@@ -178,8 +178,8 @@ class DualRasterizer(Container):
                 ],
             }
             logger.debug(
-                'Updating self.data.high_res with new shape: '
-                f'{self.hr_required_shape[:3]}'
+                'Updating self.data.high_res with new shape: %s',
+                self.hr_required_shape[:3],
             )
             self.data.high_res = self.data.high_res.update_ds({
                 **hr_coords_new,
@@ -242,7 +242,7 @@ class DualRasterizer(Container):
                     logger.error(msg)
                     raise ValueError(msg)
 
-        if any(fill_feats):
+        if fill_feats:
             msg = (
                 'Doing nearest neighbor nan fill on low_res data for '
                 f'features = {fill_feats}'

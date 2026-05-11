@@ -425,8 +425,9 @@ class Container(metaclass=Sup3rMeta):
         """Log additional arguments after initialization."""
         if args_dict is not None:
             logger.info(
-                f'Finished initializing {self.__class__.__name__} with:\n'
-                f'{pprint.pformat(args_dict, indent=2)}'
+                'Finished initializing %s with:\n%s',
+                self.__class__.__name__,
+                pprint.pformat(args_dict, indent=2),
             )
 
     @property

@@ -233,7 +233,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             missing += [
                 f for f in self.hr_out_features if f not in self._means
             ]
-            if any(missing):
+            if missing:
                 msg = (
                     f'Need means for features "{missing}" but did not find '
                     f'in new means array: {self._means}'
@@ -272,7 +272,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 low_res = low_res.numpy()
 
             missing = [fn for fn in self.lr_features if fn not in self._means]
-            if any(missing):
+            if missing:
                 msg = (
                     f'Could not find low-res input features {missing} in '
                     f'means/stdevs: {self._means}/{self._stdevs}'
@@ -311,7 +311,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             missing = [
                 fn for fn in self.hr_out_features if fn not in self._means
             ]
-            if any(missing):
+            if missing:
                 msg = (
                     f'Could not find high-res output features {missing} in '
                     f'means/stdevs: {self._means}/{self._stdevs}'
@@ -367,6 +367,9 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         -------
         pandas.DataFrame | None
         """
+        if self._history is None:
+            self._history = pd.DataFrame(columns=['elapsed_time'])
+            self._history.index.name = 'epoch'
         return self._history
 
     @property
@@ -510,9 +513,8 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             if verbose:
                 logger.debug(
                     'Loading model from disk that was created with the '
-                    'following package versions: \n{}'.format(
-                        pprint.pformat(version_record, indent=2)
-                    )
+                    'following package versions: \n%s',
+                    pprint.pformat(version_record, indent=2),
                 )
 
         means = params.get('means', None)
@@ -839,9 +841,9 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         for k, v in sorted(loss_details.items()):
             msg_format = '\t{}: {}' if isinstance(v, str) else '\t{}: {:.2e}'
             if level.lower() == 'info':
-                logger.info(msg_format.format(k, v))
+                logger.info(msg_format, k, v)
             else:
-                logger.debug(msg_format.format(k, v))
+                logger.debug(msg_format, k, v)
 
     @staticmethod
     def early_stop(history, column, threshold=0.005, n_epoch=5):
@@ -878,11 +880,11 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             if all(diffs[-n_epoch:] < threshold):
                 stop = True
                 logger.info(
-                    'Found early stop condition, loss values "{}" '
-                    'have absolute relative differences less than '
-                    'threshold {}: {}'.format(
-                        column, threshold, diffs[-n_epoch:]
-                    )
+                    'Found early stop condition, loss values "%s" have '
+                    'absolute relative differences less than threshold %s: %s',
+                    column,
+                    threshold,
+                    diffs[-n_epoch:],
                 )
 
         return stop

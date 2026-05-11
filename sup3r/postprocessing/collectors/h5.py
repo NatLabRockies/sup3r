@@ -486,12 +486,11 @@ class CollectorH5(BaseCollector):
                 raise OSError(msg) from e
 
         logger.debug(
-            'Finished writing "{}" for row {} and col {} to: {}'.format(
-                feature,
-                y_write_slice,
-                x_write_slice,
-                os.path.basename(out_file),
-            )
+            'Finished writing "%s" for row %s and col %s to: %s',
+            feature,
+            y_write_slice,
+            x_write_slice,
+            os.path.basename(out_file),
         )
 
     def _collect_flist(

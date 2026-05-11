@@ -120,7 +120,7 @@ def forward_pass(ctx, verbose):
     To run the job locally, use ``execution_control: {"option": "local"}``.
     """  # noqa : D301
     config_file = ctx.obj['CONFIG_FILE']
-    verbose = any([verbose, ctx.obj['VERBOSE']])
+    verbose = any((verbose, ctx.obj['VERBOSE']))
     ctx.invoke(fwp_cli, config_file=config_file, verbose=verbose)
 
 
@@ -169,7 +169,7 @@ def solar(ctx, verbose):
     To run the job locally, use ``execution_control: {"option": "local"}``.
     """  # noqa : D301
     config_file = ctx.obj['CONFIG_FILE']
-    verbose = any([verbose, ctx.obj['VERBOSE']])
+    verbose = any((verbose, ctx.obj['VERBOSE']))
     ctx.invoke(solar_cli, config_file=config_file, verbose=verbose)
 
 
@@ -232,7 +232,7 @@ def bias_calc(ctx, verbose):
     To run the job locally, use ``execution_control: {"option": "local"}``.
     """  # noqa : D301
     config_file = ctx.obj['CONFIG_FILE']
-    verbose = any([verbose, ctx.obj['VERBOSE']])
+    verbose = any((verbose, ctx.obj['VERBOSE']))
     ctx.invoke(bias_calc_cli, config_file=config_file, verbose=verbose)
 
 
@@ -274,7 +274,7 @@ def data_collect(ctx, verbose):
     and you can set ``"option": "kestrel"`` to run on the NLR HPC.
     """  # noqa : D301
     config_file = ctx.obj['CONFIG_FILE']
-    verbose = any([verbose, ctx.obj['VERBOSE']])
+    verbose = any((verbose, ctx.obj['VERBOSE']))
     ctx.invoke(dc_cli, config_file=config_file, verbose=verbose)
 
 
@@ -317,7 +317,7 @@ def qa(ctx, verbose):
     and you can set ``"option": "kestrel"`` to run on the NLR HPC.
     """  # noqa : D301
     config_file = ctx.obj['CONFIG_FILE']
-    verbose = any([verbose, ctx.obj['VERBOSE']])
+    verbose = any((verbose, ctx.obj['VERBOSE']))
     ctx.invoke(qa_cli, config_file=config_file, verbose=verbose)
 
 
@@ -373,7 +373,7 @@ def pipeline(ctx, cancel, monitor, background, verbose):
     """  # noqa: D301
     if ctx.invoked_subcommand is None:
         config_file = ctx.obj['CONFIG_FILE']
-        verbose = any([verbose, ctx.obj['VERBOSE']])
+        verbose = any((verbose, ctx.obj['VERBOSE']))
         ctx.invoke(
             pipe_cli,
             config_file=config_file,
@@ -443,7 +443,7 @@ def batch(ctx, dry_run, cancel, delete, monitor_background, verbose):
     """  # noqa : D301
     if ctx.invoked_subcommand is None:
         config_file = ctx.obj['CONFIG_FILE']
-        verbose = any([verbose, ctx.obj['VERBOSE']])
+        verbose = any((verbose, ctx.obj['VERBOSE']))
         ctx.invoke(
             batch_cli,
             config_file=config_file,

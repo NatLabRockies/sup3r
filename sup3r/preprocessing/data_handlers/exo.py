@@ -188,7 +188,7 @@ class ExoData(dict):
                 )
                 for s in steps_i:
                     s.update({'model': s['model'] - min_step})
-                if any(steps_i):
+                if steps_i:
                     split_dict[i][feature] = {'steps': steps_i}
         return [ExoData(split) for split in split_dict.values()]
 
@@ -432,9 +432,9 @@ class ExoDataHandler:
             for step in data[self.feature]['steps']
         ]
         logger.debug(
-            'Got exogenous_data of length {} with shapes: {}'.format(
-                len(data[self.feature]['steps']), shapes
-            )
+            'Got exogenous_data of length %s with shapes: %s',
+            len(data[self.feature]['steps']),
+            shapes,
         )
         return data
 

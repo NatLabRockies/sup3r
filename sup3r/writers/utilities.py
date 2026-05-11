@@ -31,7 +31,7 @@ def _check_for_cache(features, cache_kwargs):
             cache_pattern.format(feature=f) for f in missing_features
         ]
 
-    if any(cached_files):
+    if cached_files:
         logger.debug(
             'Found cache files for %s with file pattern: %s',
             cached_features, cache_pattern

@@ -610,7 +610,9 @@ class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):
             **kwargs,
         }
         logger.debug(
-            f'Using {ExoClass.__name__} to rasterize feature "{feature}"'
+            'Using %s to rasterize feature "%s"',
+            ExoClass.__name__,
+            feature,
         )
         return ExoClass(**kwargs)
 

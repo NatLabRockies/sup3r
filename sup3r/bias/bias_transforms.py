@@ -610,9 +610,9 @@ def _apply_qdm(
     tmp = np.reshape(subset.data, (-1, subset.shape[-1])).T
 
     # Apply QDM correction
-    logger.info(f'Applying QDM to data with shape {tmp.shape}...')
+    logger.info('Applying QDM to data with shape %s...', tmp.shape)
     tmp = QDM(tmp, max_workers=max_workers)
-    logger.info(f'Finished QDM on data shape {tmp.shape}!')
+    logger.info('Finished QDM on data shape %s!', tmp.shape)
 
     # Reorgnize array back from  (time, space)
     # to (spatial, spatial, temporal)
@@ -1074,8 +1074,10 @@ def local_presrat_bc(
         k_factor = np.minimum(k_factor, np.max(k_range))
 
     logger.debug(
-        f'Presrat K Factor has shape {k_factor.shape} and ranges '
-        f'from {k_factor.min()} to {k_factor.max()}'
+        'Presrat K Factor has shape %s and ranges from %s to %s',
+        k_factor.shape,
+        k_factor.min(),
+        k_factor.max(),
     )
 
     if lr_padded_slice is not None:

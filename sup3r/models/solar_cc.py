@@ -297,7 +297,7 @@ class SolarCC(Sup3rGan):
             low_res, super().generate(low_res=low_res, **kwargs)
         )
 
-        logger.debug('Final SolarCC output has shape: {}'.format(hi_res.shape))
+        logger.debug('Final SolarCC output has shape: %s', hi_res.shape)
 
         return hi_res
 

@@ -314,7 +314,7 @@ class Sup3rQa:
             array of shape (spatial_1, spatial_2, temporal)
         """
 
-        logger.debug('Getting sup3r output dataset "{}"'.format(name))
+        logger.debug('Getting sup3r output dataset "%s"', name)
         data = self.output_handler[name]
         if self.output_type == 'nc':
             data = data.values
@@ -356,9 +356,12 @@ class Sup3rQa:
         )
 
         logger.info(
-            f'Coarsening feature "{feature}" with {self.s_enhance}x '
-            f'spatial averaging and "{t_meth}" {self.t_enhance}x '
-            'temporal averaging'
+            'Coarsening feature "%s" with %sx spatial averaging and "%s" '
+            '%sx temporal averaging',
+            feature,
+            self.s_enhance,
+            t_meth,
+            self.t_enhance,
         )
 
         data = spatial_coarsening(
@@ -434,7 +437,7 @@ class Sup3rQa:
         """
 
         if not os.path.exists(qa_fp):
-            logger.info('Initializing qa output file: "{}"'.format(qa_fp))
+            logger.info('Initializing qa output file: "%s"', qa_fp)
             with RexOutputs(qa_fp, mode='w') as f:
                 f.meta = self.input_handler.meta
                 f.time_index = self.input_handler.time_index
@@ -452,7 +455,7 @@ class Sup3rQa:
         if dset_suffix:
             dset_name = dset_name + '_' + dset_suffix
 
-        logger.info('Adding dataset "{}" to output file.'.format(dset_name))
+        logger.info('Adding dataset "%s" to output file.', dset_name)
 
         # transpose and flatten to typical h5 (time, space) dimensions
         data = np.transpose(np.asarray(data), axes=(2, 0, 1)).reshape(shape)
@@ -482,10 +485,12 @@ class Sup3rQa:
         ziter = zip(self.features, self.source_features, self.output_names)
         for idf, (feature, source_feature, dset_out) in enumerate(ziter):
             logger.info(
-                'Running QA on dataset {} of {} for feature "{}" '
-                'with source feature name "{}"'.format(
-                    idf + 1, len(self.features), feature, source_feature,
-                )
+                'Running QA on dataset %s of %s for feature "%s" with '
+                'source feature name "%s"',
+                idf + 1,
+                len(self.features),
+                feature,
+                source_feature,
             )
             data_syn = self.get_dset_out(feature)
             data_syn = self.coarsen_data(idf, feature, data_syn)

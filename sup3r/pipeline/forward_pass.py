@@ -480,7 +480,9 @@ class ForwardPass:
         """
 
         start = dt.now()
-        logger.debug(f'Running forward passes on node {node_index} in serial.')
+        logger.debug(
+            'Running forward passes on node %s in serial.', node_index
+        )
         fwp = cls(strategy, node_index=node_index)
         for i, chunk_index in enumerate(strategy.node_chunks[node_index]):
             now = dt.now()
@@ -499,10 +501,13 @@ class ForwardPass:
                     meta=fwp.meta,
                 )
                 logger.debug(
-                    'Finished forward pass on chunk_index='
-                    f'{chunk_index} in {dt.now() - now}. {i + 1} of '
-                    f'{len(strategy.node_chunks[node_index])} '
-                    f'complete. {_mem_check()}.'
+                    'Finished forward pass on chunk_index=%s in %s. %s of %s '
+                    'complete. %s.',
+                    chunk_index,
+                    dt.now() - now,
+                    i + 1,
+                    len(strategy.node_chunks[node_index]),
+                    _mem_check(),
                 )
                 if failed:
                     msg = (
@@ -512,9 +517,9 @@ class ForwardPass:
                     raise MemoryError(msg)
 
         logger.info(
-            'Finished forward passes on '
-            f'{len(strategy.node_chunks[node_index])} chunks in '
-            f'{dt.now() - start}'
+            'Finished forward passes on %s chunks in %s',
+            len(strategy.node_chunks[node_index]),
+            dt.now() - start,
         )
 
     @classmethod
@@ -533,8 +538,10 @@ class ForwardPass:
         """
 
         logger.info(
-            f'Running parallel forward passes on node {node_index}'
-            f' with pass_workers={strategy.pass_workers}.'
+            'Running parallel forward passes on node %s with '
+            'pass_workers=%s.',
+            node_index,
+            strategy.pass_workers,
         )
 
         futures = {}
@@ -564,8 +571,9 @@ class ForwardPass:
                     }
 
             logger.info(
-                f'Started {len(futures)} forward pass runs in '
-                f'{dt.now() - now}.'
+                'Started %s forward pass runs in %s.',
+                len(futures),
+                dt.now() - now,
             )
 
             try:
@@ -579,24 +587,25 @@ class ForwardPass:
                             'with constant output or NaNs.'
                         )
                         raise MemoryError(msg)
-                    msg = (
-                        'Finished forward pass on chunk_index='
-                        f'{chunk_idx} in {dt.now() - start_time}. '
-                        f'{i + 1} of {len(futures)} complete. {_mem_check()}'
+                    logger.debug(
+                        'Finished forward pass on chunk_index=%s in %s. %s '
+                        'of %s complete. %s',
+                        chunk_idx,
+                        dt.now() - start_time,
+                        i + 1,
+                        len(futures),
+                        _mem_check(),
                     )
-                    logger.debug(msg)
             except Exception as e:
-                msg = (
-                    'Error running forward pass on chunk_index='
-                    f'{futures[future]["chunk_index"]}.'
-                )
-                logger.exception(msg)
-                raise RuntimeError(msg) from e
+                msg = 'Error running forward pass on chunk_index=%s.'
+                chunk_idx = futures[future]['chunk_index']
+                logger.exception(msg, chunk_idx)
+                raise RuntimeError(msg % chunk_idx) from e
 
         logger.info(
-            'Finished asynchronous forward passes on '
-            f'{len(strategy.node_chunks[node_index])} chunks in '
-            f'{dt.now() - start}'
+            'Finished asynchronous forward passes on %s chunks in %s',
+            len(strategy.node_chunks[node_index]),
+            dt.now() - start,
         )
 
     @classmethod
@@ -666,8 +675,9 @@ class ForwardPass:
             Array of high-resolution output from generator
         """
 
-        msg = f'Running forward pass for chunk_index={chunk.index}.'
-        logger.debug(msg)
+        logger.debug(
+            'Running forward pass for chunk_index=%s.', chunk.index
+        )
 
         if model is None:
             model = get_model(model_class, model_kwargs)
@@ -705,7 +715,9 @@ class ForwardPass:
         failed = cls._output_check(output_data, allowed_const=allowed_const)
 
         if chunk.out_file is not None and not failed:
-            logger.debug(f'Saving forward pass output to {chunk.out_file}.')
+            logger.debug(
+                'Saving forward pass output to %s.', chunk.out_file
+            )
             output_type = get_source_type(chunk.out_file)
             cls.OUTPUT_HANDLER_CLASS[output_type]._write_output(
                 data=output_data,
