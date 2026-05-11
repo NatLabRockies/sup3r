@@ -243,7 +243,6 @@ class BaseDeriver(Container):
                 'Could not find "%s" in contained data or in the available '
                 'compute methods.'
             )
-            logger.error(msg, feature)
             raise RuntimeError(msg % feature)
 
         if np.isnan(self.data[feature]).any():

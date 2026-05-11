@@ -710,22 +710,25 @@ class ForwardPassStrategy:
         mask = np.zeros(len(self.lr_pad_slices))
         logger.debug('Checking for mask in input handler.')
         input_handler_kwargs = copy.deepcopy(self.input_handler_kwargs)
-        input_handler_kwargs['features'] = 'all'
-        InputHandler = get_input_handler_class(self.input_handler_name)
-        handler = InputHandler(**input_handler_kwargs)
-        if 'mask' not in handler:
-            logger.debug('No "mask" found in data. No chunks will be masked.')
-            return mask
-
-        logger.debug(
-            'Found "mask" in DataHandler. Computing forward pass '
-            'chunk mask for %s chunks',
-            len(self.lr_pad_slices),
-        )
-        mask_vals = handler.data['mask'].values
-        for s_chunk_idx, lr_slices in enumerate(self.lr_pad_slices):
-            mask_check = mask_vals[lr_slices[0], lr_slices[1]]
-            mask[s_chunk_idx] = bool(np.prod(mask_check.flatten()))
+        try:
+            InputHandler = get_input_handler_class(self.input_handler_name)
+            input_handler_kwargs['features'] = ['mask']
+            handler = InputHandler(**input_handler_kwargs)
+            logger.debug(
+                'Found "mask" in %s. Computing forward pass '
+                'chunk mask for %s chunks',
+                self.input_handler_name,
+                len(self.lr_pad_slices),
+            )
+            mask_vals = handler.data['mask'].values
+            for s_chunk_idx, lr_slices in enumerate(self.lr_pad_slices):
+                mask_check = mask_vals[lr_slices[0], lr_slices[1]]
+                mask[s_chunk_idx] = bool(np.prod(mask_check.flatten()))
+        except Exception:
+            logger.debug(
+                'No "mask" found in %s. No chunks will be masked.',
+                self.input_handler_name,
+            )
         return mask
 
     def node_finished(self, node_idx):
