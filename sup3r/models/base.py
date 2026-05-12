@@ -885,9 +885,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         loss_details['loss_disc'] = loss_disc
         loss_details['loss_gen'] = loss_gen
         loss_details['loss_gen_content'] = loss_gen_content
-        loss_details = {
-            k: float(v) for k, v in loss_details.items() if v is not None
-        }
+        loss_details = {k: v for k, v in loss_details.items() if v is not None}
         return loss, loss_details
 
     def calc_val_loss(self, batch_handler, weight_gen_advers):
