@@ -105,8 +105,8 @@ class LinearInterp(AbstractInterface):
 
     @property
     def hr_exo_features(self):
-        """Returns topography for LinearInterp model"""
-        return ['topography']
+        """Returns empty list for LinearInterp model"""
+        return []
 
     def save(self, out_dir):
         """

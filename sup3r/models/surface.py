@@ -209,6 +209,11 @@ class SurfaceSpatialMetModel(LinearInterp):
         ]
         return inds
 
+    @property
+    def hr_exo_features(self):
+        """Returns topography for Surface model"""
+        return ["topography"]
+
     def _get_temp_rh_ind(self, idf_rh):
         """Get the feature index value for the temperature feature
         corresponding to a relative humidity feature at the same hub height.
