@@ -1030,7 +1030,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             raise RuntimeError(msg)
 
         num_replicas = self.strategy.num_replicas_in_sync
-        batch_size = tf.shape(low_res) [0]
+        batch_size = low_res.shape[0]
         if batch_size % num_replicas != 0:
             msg = (
                 'Batch size must be divisible by the number of mirrored '
