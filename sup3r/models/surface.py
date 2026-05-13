@@ -203,16 +203,15 @@ class SurfaceSpatialMetModel(LinearInterp):
             + self.feature_inds_rh
         )
         inds = [
-            i
-            for i, name in enumerate(self._lr_features)
-            if i not in finds_tprh
+            i for i in range(len(self._lr_features)) if i not in finds_tprh
         ]
         return inds
 
     @property
     def hr_exo_features(self):
-        """Returns topography for Surface model"""
-        return ["topography"]
+        """Returns topography for surface model so the inference machinery
+        knows to pass in the exogenous data"""
+        return ['topography']
 
     def _get_temp_rh_ind(self, idf_rh):
         """Get the feature index value for the temperature feature
