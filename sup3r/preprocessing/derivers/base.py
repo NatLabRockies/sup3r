@@ -73,7 +73,7 @@ class BaseDeriver(Container):
         # derivations can reuse them instead of recomputing the same feature.
         for f in new_features:
             self.data[f] = self.derive(f)
-            logger.info('Finished deriving %s.', f)
+            logger.debug('Finished deriving %s.', f)
         self.data = (
             self.data[list(self.data.coords)]
             if not features

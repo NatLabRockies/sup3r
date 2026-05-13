@@ -53,10 +53,10 @@ dependencies = [
 # # 8.9.7
 
 [tool.pixi.target.linux-64.pypi-dependencies]
-tensorflow = {version = "~=2.16.1", extras = ["and-cuda"] }
+tensorflow = {version = "~=2.16.2", extras = ["and-cuda"] }
 
 [tool.pixi.target.osx-arm64.dependencies]
-tensorflow = {version = "~=2.16.1", channel = "conda-forge"}
+tensorflow = {version = "~=2.16.2", channel = "conda-forge"}
 
 [project.optional-dependencies]
 dev = [
