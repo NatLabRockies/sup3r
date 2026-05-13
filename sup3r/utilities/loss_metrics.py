@@ -617,8 +617,7 @@ class LowResLoss(Sup3rLoss):
             tf.shape(x_true),
             tf.shape(x_gen),
             message=(
-                'LowResLoss requires x_true and x_gen to have matching '
-                'shapes'
+                'LowResLoss requires x_true and x_gen to have matching shapes'
             ),
         )
         s_only = x_true.shape.rank == 4
@@ -716,7 +715,6 @@ class PerceptualLoss(Sup3rLoss):
         for x_true_f, x_gen_f in zip(
             tf.unstack(x_true, axis=-1), tf.unstack(x_gen, axis=-1)
         ):
-
             # VGG input needs 3 RGB channels
             x_true_f = tf.stack([x_true_f] * 3, axis=-1)
             x_gen_f = tf.stack([x_gen_f] * 3, axis=-1)
@@ -894,15 +892,12 @@ class MaterialDerivativeLoss(Sup3rLoss):
         x_true = _assert_rank_in(x_true, (5,), msg)
         x_gen = _assert_rank_in(x_gen, (5,), msg)
 
-        x_true_div = tf.stack(
-            [
-                self._compute_md(x_true, feature)
-                for feature in self.gen_features
-            ]
-        )
-        x_gen_div = tf.stack(
-            [self._compute_md(x_gen, feature) for feature in self.gen_features]
-        )
+        x_true_div = tf.stack([
+            self._compute_md(x_true, feature) for feature in self.gen_features
+        ])
+        x_gen_div = tf.stack([
+            self._compute_md(x_gen, feature) for feature in self.gen_features
+        ])
 
         return self.LOSS_METRIC(x_true_div, x_gen_div)
 
@@ -1310,6 +1305,243 @@ class GeothermalObsLoss(Sup3rLoss):
             lambda: self.LOSS_METRIC(x_true_m, x_gen_m),
         )
         return obs_loss
+
+
+class ObsAssimilationLoss(Sup3rLoss):
+    """Loss for training with both dense and sparse ground truth where the obs
+    locations are explicitly considered. This is designed to encourage
+    matching observations where they exist, matching the dense true fields
+    where obs are missing, and blend smoothly between the two in a
+    neighbourhood around obs locations through a gradient penalty.
+
+    Assumes ``true_features`` contains ``gen_features`` followed by sparse
+    observation versions of those same features in matching order. For
+    example::
+
+        gen_features  = ['u_10m', 'v_10m']
+        true_features = ['u_10m', 'v_10m', 'u_10m_obs', 'v_10m_obs']
+
+    Three weighted terms are combined:
+
+    1. **Background MAE** – MAE between generator output and the dense true
+       fields at locations where sparse obs are *missing* (NaN).
+    2. **Observation MAE** – MAE between generator output and sparse obs at
+       locations where sparse obs are *present* (not NaN).
+    3. **Gradient penalty** – mean spatial gradient magnitude of the
+       generator output inside a neighbourhood around each obs location,
+       encouraging spatial smoothness near observations.
+    """
+
+    LOSS_METRIC = MeanAbsoluteError()
+
+    def __init__(
+        self,
+        gen_features,
+        true_features=None,
+        background_weight=1.0,
+        obs_weight=1.0,
+        gradient_weight=1.0,
+        gradient_radius=1,
+    ):
+        """
+        Parameters
+        ----------
+        gen_features : list of str
+            Generator output feature names (N features).
+        true_features : list of str | None
+            True-data feature names. Must contain 2N entries: the first N
+            match ``gen_features`` (dense reference) and the last N are the
+            corresponding sparse observation features (NaN where missing).
+            Defaults to ``gen_features + [f + '_obs' for f in gen_features]``.
+        background_weight : float
+            Weight for the background (non-observed) MAE term.
+        obs_weight : float
+            Weight for the observation MAE term.
+        gradient_weight : float
+            Weight for the spatial gradient penalty near obs locations.
+        gradient_radius : int
+            Radius in grid cells of the neighbourhood around each obs
+            location where the gradient penalty is applied. 0 restricts
+            the penalty to the obs locations themselves.
+        """
+        gen_features = list(gen_features)
+        if true_features is None:
+            true_features = gen_features + [f + '_obs' for f in gen_features]
+        true_features = list(true_features)
+
+        n = len(gen_features)
+        if len(true_features) != 2 * n:
+            raise ValueError(
+                'ObsBlendLoss requires len(true_features) == '
+                f'2 * len(gen_features). Got {len(true_features)} true '
+                f'features and {n} gen features.'
+            )
+
+        super().__init__(
+            gen_features=gen_features, true_features=true_features
+        )
+        self._bg_weight = background_weight
+        self._obs_weight = obs_weight
+        self._gradient_weight = gradient_weight
+        self._gradient_radius = gradient_radius
+
+    def _dilate_obs_mask(self, mask):
+        """Dilate a 2-D spatial obs mask by ``gradient_radius`` grid cells.
+
+        Parameters
+        ----------
+        mask : tf.Tensor
+            Float tensor of shape ``(B, H, W)`` with 1 where an observation
+            is present and 0 elsewhere.
+
+        Returns
+        -------
+        tf.Tensor
+            Dilated float mask of shape ``(B, H, W)``.
+        """
+        r = self._gradient_radius
+        if r == 0:
+            return mask
+        mask_4d = mask[..., tf.newaxis]  # (B, H, W, 1)
+        mask_4d = tf.pad(mask_4d, [[0, 0], [r, r], [r, r], [0, 0]])
+        mask_4d = tf.nn.max_pool2d(
+            mask_4d, ksize=2 * r + 1, strides=1, padding='VALID'
+        )
+        return mask_4d[..., 0]  # (B, H, W)
+
+    def _dilate_obs_mask_3d(self, mask):
+        """Dilate a spatiotemporal obs mask by ``gradient_radius`` in 3-D.
+
+        The dilation is applied jointly over the H, W, and T axes so that
+        observations spread their neighbourhood through time as well as space.
+
+        Parameters
+        ----------
+        mask : tf.Tensor
+            Float tensor of shape ``(B, H, W, T)`` with 1 where an
+            observation is present and 0 elsewhere.
+
+        Returns
+        -------
+        tf.Tensor
+            Dilated float mask of shape ``(B, H, W, T)``.
+        """
+        r = self._gradient_radius
+        if r == 0:
+            return mask
+        # max_pool3d expects (B, D, H, W, C); treat T as depth D.
+        mask_5d = tf.transpose(mask, [0, 3, 1, 2])[
+            ..., tf.newaxis
+        ]  # (B, T, H, W, 1)
+        mask_5d = tf.pad(mask_5d, [[0, 0], [r, r], [r, r], [r, r], [0, 0]])
+        mask_5d = tf.nn.max_pool3d(
+            mask_5d,
+            ksize=[2 * r + 1, 2 * r + 1, 2 * r + 1],
+            strides=[1, 1, 1],
+            padding='VALID',
+        )
+        return tf.transpose(mask_5d[..., 0], [0, 2, 3, 1])  # (B, H, W, T)
+
+    def _gradient_penalty(self, x_gen, obs_present):
+        """Spatial gradient penalty weighted by a dilated obs neighbourhood.
+
+        For 5-D inputs ``(B, H, W, T, C)`` the neighbourhood dilation is
+        performed in 3-D (H, W, T) so that observations extend their
+        influence through time.
+
+        Parameters
+        ----------
+        x_gen : tf.Tensor
+            Generator output ``(B, H, W, C)`` or ``(B, H, W, T, C)``.
+        obs_present : tf.Tensor
+            Float mask of same shape as ``x_gen`` with 1 where a sparse
+            observation is present for that feature.
+
+        Returns
+        -------
+        tf.Tensor
+            Scalar gradient penalty.
+        """
+        # Reduce over feature dim → (B, H, W) or (B, H, W, T)
+        spatial_obs = tf.reduce_max(obs_present, axis=-1)
+        if len(x_gen.shape) == 5:
+            spatial_obs = self._dilate_obs_mask_3d(spatial_obs)  # (B, H, W, T)
+        else:
+            spatial_obs = self._dilate_obs_mask(spatial_obs)  # (B, H, W)
+
+        grad_mag = tf.abs(tf_derivative(x_gen, axis=1)) + tf.abs(
+            tf_derivative(x_gen, axis=2)
+        )  # (B, H, W, [T,] C)
+        # Broadcast spatial mask over the feature axis to match grad_mag
+        mask = tf.cast(
+            tf.broadcast_to(spatial_obs[..., tf.newaxis], tf.shape(grad_mag)),
+            bool,
+        )
+        return tf.cond(
+            tf.math.reduce_all(~mask),
+            lambda: tf.constant(0.0, dtype=x_gen.dtype),
+            lambda: self.LOSS_METRIC(
+                tf.zeros_like(tf.boolean_mask(grad_mag, mask)),
+                tf.boolean_mask(grad_mag, mask),
+            ),
+        )
+
+    @tf.function
+    def call(self, x_true, x_gen):
+        """Evaluate the sparse observation loss.
+
+        Parameters
+        ----------
+        x_true : tf.Tensor
+            True data of shape ``(B, H, W, 2C)`` or ``(B, H, W, T, 2C)``.
+            The first C channels are dense reference fields; the last C
+            channels are sparse obs fields (NaN where no observation).
+        x_gen : tf.Tensor
+            Generator output of shape ``(B, H, W, C)`` or ``(B, H, W, T, C)``.
+
+        Returns
+        -------
+        tf.Tensor
+            Scalar (0-D) loss value.
+        """
+        dtype = tf.as_dtype(tf.keras.backend.floatx())
+        x_true = tf.cast(x_true, dtype)
+        x_gen = tf.cast(x_gen, dtype)
+
+        n = len(self.gen_features)
+        x_true_bg = x_true[..., :n]  # dense reference, shape (..., n)
+        x_obs = x_true[
+            ..., n:
+        ]  # sparse obs, shape (..., n); NaN where missing
+
+        obs_mask = ~tf.math.is_nan(x_obs)
+        obs_present = tf.cast(obs_mask, dtype)
+
+        # 1. Background MAE at locations where obs is missing
+        bg_mask = ~obs_mask
+        bg_loss = self.LOSS_METRIC(
+            tf.boolean_mask(x_true_bg, bg_mask),
+            tf.boolean_mask(x_gen, bg_mask),
+        )
+
+        # 2. Observation MAE at locations where obs are present
+        obs_loss = tf.cond(
+            tf.math.reduce_all(tf.math.is_nan(x_obs)),
+            lambda: tf.constant(0.0, dtype=dtype),
+            lambda: self.LOSS_METRIC(
+                tf.boolean_mask(x_obs, obs_mask),
+                tf.boolean_mask(x_gen, obs_mask),
+            ),
+        )
+
+        # 3. Spatial gradient penalty around obs locations
+        grad_loss = self._gradient_penalty(x_gen, obs_present)
+
+        return (
+            self._bg_weight * bg_loss
+            + self._obs_weight * obs_loss
+            + self._gradient_weight * grad_loss
+        )
 
 
 def _reshape_depth_feature_for_vertical_derivative(x):
