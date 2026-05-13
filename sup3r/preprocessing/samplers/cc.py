@@ -42,48 +42,22 @@ class DualSamplerCC(DualSampler):
         Parameters
         ----------
         data : Sup3rDataset
-            A :class:`~sup3r.preprocessing.Sup3rDataset` instance with low-res
-            and high-res data members
+            See :class:`~sup3r.preprocessing.DualSampler`
+            for full documentation.
         sample_shape : tuple
-            Size of arrays to sample from the high-res data. The sample shape
-            for the low-res sampler will be determined from the enhancement
-            factors.
+            See :class:`~sup3r.preprocessing.DualSampler`
+            for full documentation.
         s_enhance : int
-            Spatial enhancement factor
+            See :class:`~sup3r.preprocessing.DualSampler`
+            for full documentation.
         t_enhance : int
-            Temporal enhancement factor
+            Temporal enhancement factor. Defaults to 24 for daily data.
         feature_sets : Optional[dict]
-            Optional dictionary describing how the full set of features is
-            split between ``lr_features``, ``hr_exo_features``, and
-            ``hr_out_features``.
-
-            lr_features : list | tuple
-                List of feature names or patt*erns to use as low-resolution
-                model inputs. If no entry is provided then all available
-                features from the data will be used.
-            hr_out_features : list | tuple
-                List of feature names or patt*erns that should be output
-                by the generative model and available as ground truth targets.
-                If no entry is provided then all features in lr_features will
-                be used.
-            hr_exo_features : list | tuple
-                List of feature names or patt*erns that should be available as
-                high-resolution model inputs (like topography or observations)
-                or for bespoke loss functions. Features used as inputs are
-                injected into the model mid-network to condition output on
-                high-resolution information. The model configuration should
-                have the appropriate layers to use these features. e.g.
-                ``Sup3rConcat`` for topography injection, ``Sup3rObsModel`` or
-                ``Sup3rCrossAttention`` for obs injection.  If no entry is
-                provided then hr_exo_features will be empty.
-
-            *To include sparse features as inputs or targets the features
-            must have an "_obs" suffix.
+            See :class:`~sup3r.preprocessing.DualSampler`
+            for full documentation.
         mode : str
-            Mode for sampling data. Options are 'lazy' or 'eager'. 'eager' mode
-            pre-loads all data into memory as numpy arrays for faster access.
-            'lazy' mode samples directly from the underlying data object, which
-            could be backed by dask arrays or on-disk netCDF files.
+            See :class:`~sup3r.preprocessing.DualSampler`
+            for full documentation.
 
         See Also
         --------
@@ -99,10 +73,12 @@ class DualSamplerCC(DualSampler):
         if t_enhance == 1:
             hr = data.daily
         if s_enhance > 1:
-            lr = lr.coarsen({
-                Dimension.SOUTH_NORTH: s_enhance,
-                Dimension.WEST_EAST: s_enhance,
-            }).mean()
+            lr = lr.coarsen(
+                {
+                    Dimension.SOUTH_NORTH: s_enhance,
+                    Dimension.WEST_EAST: s_enhance,
+                }
+            ).mean()
         data = Sup3rDataset(low_res=lr, high_res=hr)
         super().__init__(
             data=data,

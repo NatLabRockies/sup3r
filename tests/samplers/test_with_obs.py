@@ -152,3 +152,31 @@ def test_proxy_obs_onshore_offshore_topography_fractions(sampler_cls):
     assert np.isclose(onshore_frac, 0.8, atol=0.12)
     assert np.isclose(offshore_frac, 0.1, atol=0.08)
     assert onshore_frac > offshore_frac
+
+
+@pytest.mark.parametrize('sampler_cls', [Sampler, DualSampler])
+def test_proxy_obs_per_feature_override(sampler_cls):
+    """Feature-level override in proxy_obs_kwargs yields different observed
+    fractions per obs channel."""
+    sampler = _make_sampler(
+        sampler_cls=sampler_cls,
+        hr_shape=(60, 60, 500),
+        sample_shape=(30, 30, 1),
+        batch_size=20,
+        proxy_obs_kwargs={
+            'onshore_obs_frac': {'spatial': 0.1, 'temporal': 1.0},
+            'u_100m': {
+                'onshore_obs_frac': {'spatial': 0.8, 'temporal': 1.0}
+            },
+        },
+    )
+
+    batch = _get_hr_batch(sampler)
+    obs = batch[..., -2:]
+
+    u_frac = np.isfinite(obs[..., 0]).mean()  # u_100m_obs (overridden to 0.8)
+    v_frac = np.isfinite(obs[..., 1]).mean()  # v_100m_obs (global default 0.1)
+
+    assert u_frac > v_frac
+    assert np.isclose(u_frac, 0.8, atol=0.1)
+    assert np.isclose(v_frac, 0.1, atol=0.08)
