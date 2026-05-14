@@ -154,8 +154,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
     def _training_scope(self, device=None):
         """Get a strategy scope or a concrete device context."""
         if tf.distribute.get_replica_context() is not None:
-            if device is not None:
-                return tf.device(device)
             return nullcontext()
 
         if self.strategy is not None:
@@ -1068,8 +1066,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             )
             for key, value in per_replica_details.items()
         }
-        with self.strategy.scope():
-            apply_fn(total_grad)
+        apply_fn(total_grad)
         return mean_loss_details
 
     @tf.function(reduce_retracing=True)
