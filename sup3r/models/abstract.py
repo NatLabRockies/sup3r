@@ -1068,7 +1068,8 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             )
             for key, value in per_replica_details.items()
         }
-        apply_fn(total_grad)
+        with self.strategy.scope():
+            apply_fn(total_grad)
         return mean_loss_details
 
     @tf.function(reduce_retracing=True)
