@@ -356,7 +356,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         conf.update(**kwargs)
         self._optimizer_config = conf
         if self._optimizer is not None:
-            self._optimizer = self.optimizer.__class__.from_config(conf)
+            self._optimizer = self._optimizer.__class__.from_config(conf)
 
     @property
     def history(self):

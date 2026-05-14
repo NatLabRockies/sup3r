@@ -394,8 +394,8 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         conf = self._optimizer_disc_config.copy()
         conf.update(**kwargs)
         self._optimizer_disc_config = conf
-        if self.optimizer_disc is not None:
-            self._optimizer_disc = self.optimizer_disc.__class__.from_config(
+        if self._optimizer_disc is not None:
+            self._optimizer_disc = self._optimizer_disc.__class__.from_config(
                 conf
             )
 
@@ -677,7 +677,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             self._optimizer = None
             self._optimizer_disc = None
 
-        if self.optimizer is None or self.optimizer_disc is None:
+        if self._optimizer is None or self._optimizer_disc is None:
             with self._training_scope():
                 self._optimizer = self.init_optimizer(
                     self._optimizer_config, learning_rate=None
