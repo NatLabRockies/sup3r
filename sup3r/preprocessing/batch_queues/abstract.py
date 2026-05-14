@@ -325,13 +325,7 @@ class AbstractBatchQueue(Collection, ABC):
 
     def sample_batch(self):
         """Get random sampler from collection and return a batch of samples
-        from that sampler.
-
-        Notes
-        -----
-        These samples are wrapped in an ``np.asarray`` call, so they have been
-        loaded into memory.
-        """
+        from that sampler."""
         return next(self.get_random_container())
 
     def log_queue_info(self):
