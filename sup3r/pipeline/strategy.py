@@ -374,7 +374,7 @@ class ForwardPassStrategy:
 
         input_handler_kwargs['time_slice'] = self.padded_time_slice
         logger.info(
-            'Loading low-resolution input data for %s features: %s',
+            'Loading low-resolution data for %s features: %s',
             len(input_handler_kwargs['features']),
             input_handler_kwargs['features'],
         )
@@ -688,7 +688,7 @@ class ForwardPassStrategy:
             data.update(ExoDataHandler(**exo_kwargs).data)
         exo_data = ExoData(data)
         if exo_kwargs_list:
-            logger.info(
+            logger.debug(
                 'Finished loading exogenous data for %s features.',
                 len(exo_kwargs_list),
             )

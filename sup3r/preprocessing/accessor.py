@@ -244,11 +244,18 @@ class Sup3rX:
             return np.asarray(out)
         return out
 
-    def to_dataarray(self) -> Union[np.ndarray, da.core.Array]:
+    def to_dataarray(self) -> xr.DataArray:
         """Return xr.DataArray for the contained xr.Dataset."""
         if not self.features:
-            coords = [self._ds[f] for f in Dimension.coords_2d()]
-            return da.stack(coords, axis=-1)
+            # xarray raises when to_array() is called on an empty dataset.
+            # Return a zero-variable DataArray with the correct dims.
+            spatial_time_dims = tuple(
+                d for d in Dimension.order() if d in self._ds.sizes
+            )
+            dims = (*spatial_time_dims, Dimension.VARIABLE)
+            return xr.DataArray(
+                np.empty(self.shape, dtype=np.float32), dims=dims
+            )
         return self.ordered(self._ds.to_array())
 
     def as_array(self):
@@ -259,8 +266,8 @@ class Sup3rX:
 
         out = self.to_dataarray()
         out = getattr(out, 'data', out)
-
         if self.loaded:
+            out = np.asarray(out)
             self._as_array_cache = out
 
         return out
@@ -670,8 +677,10 @@ class Sup3rX:
             np.diff(self._ds[Dimension.LONGITUDE].values, axis=0), 0
         )
         if not (lat_lon_2d and same_lats and same_lons):
-            msg = ('Cannot set regular grid for non-regular data. Latitude '
-                   f'check = {same_lats}, Longitude check = {same_lons}.')
+            msg = (
+                'Cannot set regular grid for non-regular data. Latitude '
+                f'check = {same_lats}, Longitude check = {same_lons}.'
+            )
             logger.warning(msg)
             warn(msg)
         else:

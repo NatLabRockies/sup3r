@@ -59,8 +59,8 @@ def from_config(ctx, config_file, verbose=False, pipeline_step=None):
     log_pattern = config.get('log_pattern', None)
 
     logger.info(
-        'Initializing ForwardPassStrategy from config %s on head node to '
-        'compute chunk distribution indices.',
+        'Initializing forward pass strategy on head node to '
+        'compute chunk distribution indices: %s',
         config_file,
     )
     sig = signature(ForwardPassStrategy)

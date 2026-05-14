@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from sup3r.preprocessing import Dimension, Loader
+from sup3r.preprocessing import Loader
 from sup3r.preprocessing.accessor import Sup3rX
 from sup3r.preprocessing.base import Sup3rDataset
 from sup3r.utilities.pytest.helpers import (
@@ -70,9 +70,7 @@ def test_correct_single_member_access(data):
         _ = data['u', 0, 0, 0, 0]
     assert data['u'][0, 0, 0, 0].shape == ()
     assert ['u', 'v'] in data
-    out = data[[Dimension.LATITUDE, Dimension.LONGITUDE]][:]
-    assert out.shape == (20, 20, 2)
-    assert np.array_equal(np.asarray(out), np.asarray(data.lat_lon))
+    assert data.lat_lon.shape == (20, 20, 2)
     assert len(data.time_index) == 100
     out = data.isel(time=slice(0, 10))
     assert out.sx.as_array().shape == (20, 20, 10, 3, 2)
@@ -104,14 +102,9 @@ def test_correct_multi_member_access():
 
     _ = data['u']
     _ = data[['u', 'v']]
-    out = data[[Dimension.LATITUDE, Dimension.LONGITUDE]][...]
     lat_lon = data.lat_lon
     time_index = data.time_index
-    assert all(o.shape == (20, 20, 2) for o in out)
-    assert all(
-        np.array_equal(np.asarray(o), np.asarray(ll))
-        for o, ll in zip(out, lat_lon)
-    )
+    assert all(o.shape == (20, 20, 2) for o in lat_lon)
     assert all(len(ti) == 100 for ti in time_index)
     out = data.isel(time=slice(0, 10))
     assert (o.as_array().shape == (20, 20, 10, 3, 2) for o in out)
