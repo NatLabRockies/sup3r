@@ -183,7 +183,7 @@ class Interpolator:
             raise RuntimeError(msg)
 
         nans = np.isnan(lev_array)
-        logger.debug('Level array shape: {}'.format(lev_array.shape))
+        logger.debug('Level array shape: %s', lev_array.shape)
 
         lowest_height = np.min(lev_array, axis=-1)
         highest_height = np.max(lev_array, axis=-1)

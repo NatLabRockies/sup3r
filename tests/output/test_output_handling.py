@@ -179,7 +179,7 @@ def test_general_nc_collect():
             out_files,
             fp_out,
             features=[*features, 'latitude', 'longitude'],
-            res_kwargs={'combine': 'nested', 'concat_dim': 'time'},
+            res_kwargs={'compat': 'no_conflicts'},
         )
 
         with Loader(fp_out) as res:

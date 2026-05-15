@@ -46,7 +46,7 @@ def get_tmp_file(file):
     tmp_file = file + '.tmp'
     if os.path.exists(tmp_file):
         logger.warning(
-            f'Temporary file {tmp_file} already exists. Removing...'
+            'Temporary file %s already exists. Removing...', tmp_file
         )
         os.remove(tmp_file)
     return tmp_file
@@ -120,7 +120,7 @@ def preprocess_datasets(dset):
 
 def xr_open_mfdataset(files, **kwargs):
     """Wrapper for xr.open_mfdataset with default opening options."""
-    default_kwargs = {'engine': 'netcdf4'}
+    default_kwargs = {'engine': 'netcdf4', 'compat': 'override'}
     default_kwargs.update(kwargs)
     if isinstance(files, str):
         files = [files]

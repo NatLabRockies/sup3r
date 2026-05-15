@@ -414,9 +414,7 @@ class PresRat(ZeroRateMixin, QuantileDeltaMappingCorrection):
         logger.debug('Calculating CDF parameters for QDM')
 
         logger.info(
-            'Initialized params with shape: {}'.format(
-                self.bias_gid_raster.shape
-            )
+            'Initialized params with shape: %s', self.bias_gid_raster.shape
         )
         self.out = self._run(
             out=self.out,
@@ -491,4 +489,4 @@ class PresRat(ZeroRateMixin, QuantileDeltaMappingCorrection):
                 if extra_attrs is not None:
                     for a, v in extra_attrs.items():
                         f.attrs[a] = v
-                logger.info('Wrote quantiles to file: {}'.format(fp_out))
+                logger.info('Wrote quantiles to file: %s', fp_out)

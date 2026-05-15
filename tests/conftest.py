@@ -12,6 +12,9 @@ from sup3r.utilities.utilities import RANDOM_GENERATOR
 
 GLOBAL_STATE = RANDOM_GENERATOR.bit_generator.state
 
+os.environ.setdefault('CUDA_VISIBLE_DEVICES', '-1')
+os.environ.setdefault('TF_ENABLE_ONEDNN_OPTS', '0')
+
 
 @pytest.hookimpl
 def pytest_configure(config):  # pylint: disable=unused-argument # noqa: ARG001

@@ -79,12 +79,18 @@ class OutputHandlerH5(OutputHandler):
         """
         if os.path.exists(out_file):
             if overwrite:
-                logger.warning(f'Overwriting existing file at {out_file}.')
+                logger.warning('Overwriting existing file at %s.', out_file)
             else:
                 logger.info(
-                    f'File already exists at {out_file}. Skipping write.'
+                    'File already exists at %s. Skipping write.', out_file
                 )
                 return
+        logger.info(
+            'Writing H5 output to %s for %s features with shape %s.',
+            out_file,
+            len(features),
+            data.shape,
+        )
         msg = (
             f'Output data shape ({data.shape}) and lat_lon shape '
             f'({lat_lon.shape}) conflict.'

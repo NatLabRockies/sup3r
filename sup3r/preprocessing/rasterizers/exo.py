@@ -288,10 +288,9 @@ class BaseExoRasterizer(ABC):
             diff = da.diff(self.hr_lat_lon, axis=0)
             diff = da.abs(da.median(diff, axis=0)).max()
             self.distance_upper_bound = np.asarray(diff)
-            logger.info(
-                'Set distance upper bound to {:.4f}'.format(
-                    self.distance_upper_bound
-                )
+            logger.debug(
+                'Set distance upper bound to %.4f',
+                self.distance_upper_bound,
             )
         return self.distance_upper_bound
 
@@ -335,15 +334,15 @@ class BaseExoRasterizer(ABC):
 
         cache_fp = self.cache_file
         if cache_fp is not None and os.path.exists(cache_fp):
-            logger.info(
-                'Loading cached data for {} from {}'.format(
-                    self.feature, cache_fp
-                )
+            logger.debug(
+                'Loading cached data for %s from %s',
+                self.feature,
+                cache_fp,
             )
             data = Loader(cache_fp)
         else:
             data = self.get_data()
-            logger.info(f'Finished rasterizing "{self.feature}"')
+            logger.debug('Finished rasterizing "%s"', self.feature)
 
         if cache_fp is not None and not os.path.exists(cache_fp):
             Cacher._write_single(
@@ -367,7 +366,7 @@ class BaseExoRasterizer(ABC):
                 'probably means the source data is not high enough '
                 'resolution. Filling raster with NN.'
             )
-            logger.warning(msg)
+            logger.debug(msg)
             warn(msg)
             hr_data = nn_fill_array(hr_data)
         return hr_data
@@ -610,8 +609,10 @@ class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):
             'feature': feature,
             **kwargs,
         }
-        logger.info(
-            f'Using {ExoClass.__name__} to rasterize feature "{feature}"'
+        logger.debug(
+            'Using %s to rasterize feature "%s"',
+            ExoClass.__name__,
+            feature,
         )
         return ExoClass(**kwargs)
 

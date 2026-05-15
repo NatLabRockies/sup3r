@@ -6,7 +6,7 @@ import os
 import pprint
 import time
 from abc import ABC, abstractmethod
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import nullcontext
 from warnings import warn
 
 import numpy as np
@@ -36,10 +36,12 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
     def __init__(self):
         super().__init__()
         self.gpu_list = tf.config.list_physical_devices('GPU')
-        self.default_device = '/cpu:0' if len(self.gpu_list) == 0 else '/gpu:0'
+        self.default_device = '/gpu:0' if len(self.gpu_list) > 0 else '/cpu:0'
         self.timer = Timer()
         self.name = None
         self.loss_name = None
+        self._strategy = None
+        self._multi_gpu = False
         self._loss_fun = None
         self._version_record = VERSION_RECORD
         self._meta = None
@@ -73,7 +75,8 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             model = self._load_model_from_string(model, name)
 
         if isinstance(model, list):
-            model = CustomNetwork(hidden_layers=model, name=name)
+            with self._training_scope():
+                model = CustomNetwork(hidden_layers=model, name=name)
 
         if not isinstance(model, CustomNetwork):
             msg = (
@@ -88,7 +91,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
     def _load_model_from_string(self, model, name):
         """Load a CustomNetwork object from a config or a .pkl file"""
         if model.endswith('.pkl'):
-            with tf.device(self.default_device):
+            with self._training_scope(self.default_device):
                 return CustomNetwork.load(model)
 
         model = load_config(model)
@@ -110,6 +113,54 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         )
         logger.error(msg)
         raise KeyError(msg)
+
+    @property
+    def strategy(self):
+        """Optional TensorFlow distribution strategy."""
+        return self._strategy
+
+    def configure_multi_gpu(self, multi_gpu=False):
+        """Configure optional multi-GPU training through MirroredStrategy.
+
+        Parameters
+        ----------
+        multi_gpu : bool
+            Flag to create a MirroredStrategy automatically when multiple GPUs
+            are available.
+        """
+
+        self._multi_gpu = bool(multi_gpu)
+        if self._strategy is not None or not multi_gpu:
+            return self._strategy
+
+        if len(self.gpu_list) > 1:
+            devices = [f'/gpu:{i}' for i in range(len(self.gpu_list))]
+            self._strategy = tf.distribute.MirroredStrategy(devices=devices)
+        else:
+            self._strategy = None
+
+        if self._strategy is not None:
+            logger.info(
+                'Configured distribution strategy "%s" with %s replicas.',
+                self._strategy.__class__.__name__,
+                self._strategy.num_replicas_in_sync,
+            )
+        elif multi_gpu:
+            logger.warning(
+                'multi_gpu=True was requested but fewer than two GPUs are '
+                'available. Falling back to non-strategy execution.'
+            )
+
+    def _training_scope(self, device=None):
+        """Get a strategy scope or a concrete device context."""
+        if tf.distribute.get_replica_context() is not None:
+            return nullcontext()
+
+        if self.strategy is not None:
+            return self.strategy.scope()
+        if device is not None:
+            return tf.device(device)
+        return nullcontext()
 
     @property
     def means(self):
@@ -149,11 +200,11 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         if new_means is not None and new_stdevs is not None:
             logger.info('Setting new normalization statistics...')
-            logger.info(
+            logger.debug(
                 "Model's previous data mean values:\n%s",
                 pprint.pformat(self._means, indent=2),
             )
-            logger.info(
+            logger.debug(
                 "Model's previous data stdev values:\n%s",
                 pprint.pformat(self._stdevs, indent=2),
             )
@@ -180,17 +231,17 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             missing += [
                 f for f in self.hr_out_features if f not in self._means
             ]
-            if any(missing):
+            if missing:
                 msg = (
                     f'Need means for features "{missing}" but did not find '
                     f'in new means array: {self._means}'
                 )
 
-            logger.info(
+            logger.debug(
                 'Set data normalization mean values:\n%s',
                 pprint.pformat(self._means, indent=2),
             )
-            logger.info(
+            logger.debug(
                 'Set data normalization stdev values:\n%s',
                 pprint.pformat(self._stdevs, indent=2),
             )
@@ -219,7 +270,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
                 low_res = low_res.numpy()
 
             missing = [fn for fn in self.lr_features if fn not in self._means]
-            if any(missing):
+            if missing:
                 msg = (
                     f'Could not find low-res input features {missing} in '
                     f'means/stdevs: {self._means}/{self._stdevs}'
@@ -258,7 +309,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             missing = [
                 fn for fn in self.hr_out_features if fn not in self._means
             ]
-            if any(missing):
+            if missing:
                 msg = (
                     f'Could not find high-res output features {missing} in '
                     f'means/stdevs: {self._means}/{self._stdevs}'
@@ -284,6 +335,11 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         -------
         tf.keras.optimizers.Optimizer
         """
+        if self._optimizer is None:
+            with self._training_scope():
+                self._optimizer = self.init_optimizer(
+                    self._optimizer_config, learning_rate=None
+                )
         return self._optimizer
 
     def update_optimizer_gen(self, **kwargs):
@@ -294,9 +350,11 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         kwargs : dict
             kwargs to use for optimizer configuration update
         """
-        conf = self.get_optimizer_config(self.optimizer)
+        conf = self._optimizer_config.copy()
         conf.update(**kwargs)
-        self._optimizer = self.optimizer.__class__.from_config(conf)
+        self._optimizer_config = conf
+        if self._optimizer is not None:
+            self._optimizer = self._optimizer.__class__.from_config(conf)
 
     @property
     def history(self):
@@ -307,6 +365,9 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         -------
         pandas.DataFrame | None
         """
+        if self._history is None:
+            self._history = pd.DataFrame(columns=['elapsed_time'])
+            self._history.index.name = 'epoch'
         return self._history
 
     @property
@@ -360,7 +421,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             exo_tensor = tf.cast(np.ones(exo_shape), dtype=tf.float32)
             hi_res_exo = dict.fromkeys(self.hr_exo_features, exo_tensor)
 
-        with tf.device(device):
+        with self._training_scope(device):
             out = self._tf_generate(low_res, hi_res_exo)
 
         msg = (
@@ -398,6 +459,23 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         return optimizer
 
+    @classmethod
+    def get_optimizer_init_config(cls, optimizer, learning_rate):
+        """Get a serializable optimizer config from init inputs."""
+        if isinstance(optimizer, dict):
+            conf = optimizer.copy()
+        else:
+            conf = cls.get_optimizer_config(
+                cls.init_optimizer(optimizer, learning_rate)
+            )
+
+        for key, value in conf.items():
+            if np.issubdtype(type(value), np.floating):
+                conf[key] = float(value)
+            elif np.issubdtype(type(value), np.integer):
+                conf[key] = int(value)
+        return conf
+
     @staticmethod
     def load_saved_params(out_dir, verbose=True):
         """Load saved model_params (you need this and the gen+disc models
@@ -431,12 +509,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         if 'version_record' in params:
             version_record = params.pop('version_record')
             if verbose:
-                logger.info(
-                    'Loading model from disk '
-                    'that was created with the '
-                    'following package versions: \n{}'.format(
-                        pprint.pformat(version_record, indent=2)
-                    )
+                logger.debug(
+                    'Loading model from disk that was created with the '
+                    'following package versions: \n%s',
+                    pprint.pformat(version_record, indent=2),
                 )
 
         means = params.get('means', None)
@@ -501,7 +577,10 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """
         if hi_res_true.shape[-1] > hi_res_gen.shape[-1]:
             exo_dict = self.get_hr_exo_input(hi_res_true)
-            exo_data = [exo_dict[feat] for feat in self.hr_exo_features]
+            exo_data = [
+                tf.cast(exo_dict[feat], hi_res_gen.dtype)
+                for feat in self.hr_exo_features
+            ]
             hi_res_gen = tf.concat((hi_res_gen, *exo_data), axis=-1)
         return hi_res_gen
 
@@ -758,11 +837,11 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Log level (e.g. INFO, DEBUG)
         """
         for k, v in sorted(loss_details.items()):
-            msg_format = '\t{}: {}' if isinstance(v, str) else '\t{}: {:.2e}'
+            msg_format = '\t%s: %s' if isinstance(v, str) else '\t%s: %.2e'
             if level.lower() == 'info':
-                logger.info(msg_format.format(k, v))
+                logger.info(msg_format, k, v)
             else:
-                logger.debug(msg_format.format(k, v))
+                logger.debug(msg_format, k, v)
 
     @staticmethod
     def early_stop(history, column, threshold=0.005, n_epoch=5):
@@ -799,11 +878,11 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             if all(diffs[-n_epoch:] < threshold):
                 stop = True
                 logger.info(
-                    'Found early stop condition, loss values "{}" '
-                    'have absolute relative differences less than '
-                    'threshold {}: {}'.format(
-                        column, threshold, diffs[-n_epoch:]
-                    )
+                    'Found early stop condition, loss values "%s" have '
+                    'absolute relative differences less than threshold %s: %s',
+                    column,
+                    threshold,
+                    diffs[-n_epoch:],
                 )
 
         return stop
@@ -874,7 +953,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         stop : bool
             Flag to early stop training.
         """
-        self.log_loss_details(loss_details)
+        self.log_loss_details(loss_details, level='INFO')
         self._history.at[epoch, 'elapsed_time'] = time.time() - t0
         entry = np.vstack(list(loss_details.values())).T
         self._history.loc[epoch, list(loss_details.keys())] = entry
@@ -906,7 +985,31 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         return stop
 
-    def _run_parallel_grad(
+    def _distribute_value(self, value, num_replicas):
+        """Split a batch-like tensor and distribute one chunk per replica."""
+        value = tf.convert_to_tensor(value)
+        chunks = tf.split(value, num_replicas, axis=0)
+        return self.strategy.experimental_distribute_values_from_function(
+            lambda ctx: chunks[ctx.replica_id_in_sync_group]
+        )
+
+    def _distribute_calc_loss_kwargs(
+        self, calc_loss_kwargs, batch_size, num_replicas
+    ):
+        """Distribute batch-shaped loss kwargs and pass through scalars."""
+        distributed = {}
+        for key, value in calc_loss_kwargs.items():
+            if (
+                isinstance(value, (np.ndarray, tf.Tensor))
+                and value.shape
+                and value.shape[0] == batch_size
+            ):
+                distributed[key] = self._distribute_value(value, num_replicas)
+                continue
+            distributed[key] = value
+        return distributed
+
+    def _run_mirrored_grad(
         self,
         low_res,
         hi_res_true,
@@ -914,51 +1017,59 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         apply_fn,
         **calc_loss_kwargs,
     ):
-        """Compute gradient for one mini-batch of (low_res, hi_res_true)
-        across multiple GPUs"""
+        """Compute gradient for one mini-batch using MirroredStrategy."""
 
-        lr_chunks = tf.split(low_res, len(self.gpu_list), axis=0)
-        hr_true_chunks = tf.split(hi_res_true, len(self.gpu_list), axis=0)
-        calc_loss_kwargs_chunks = [
-            dict(calc_loss_kwargs) for _ in range(len(self.gpu_list))
-        ]
-        if 'mask' in calc_loss_kwargs:
-            mask_chunks = tf.split(
-                calc_loss_kwargs['mask'], len(self.gpu_list), axis=0
+        if self.strategy is None:
+            msg = (
+                'Mirrored strategy execution requested but no strategy is '
+                'configured on the model.'
             )
-            for i, mask_chunk in enumerate(mask_chunks):
-                calc_loss_kwargs_chunks[i]['mask'] = mask_chunk
+            logger.error(msg)
+            raise RuntimeError(msg)
 
-        futures = []
-        with ThreadPoolExecutor(max_workers=len(self.gpu_list)) as exe:
-            for i in range(len(self.gpu_list)):
-                futures.append(
-                    exe.submit(
-                        grad_fn,
-                        lr_chunks[i],
-                        hr_true_chunks[i],
-                        device_name=f'/gpu:{i}',
-                        **calc_loss_kwargs_chunks[i],
-                    )
-                )
-        # sum the gradients from each gpu to weight equally in
-        # optimizer momentum calculation
-        grads = []
-        details = []
-        for future in as_completed(futures):
-            grad, loss_details = future.result()
-            grads.append(grad)
-            details.append(loss_details)
+        num_replicas = self.strategy.num_replicas_in_sync
+        batch_size = low_res.shape[0]
+        if batch_size % num_replicas != 0:
+            msg = (
+                'Batch size must be divisible by the number of mirrored '
+                f'replicas. Received batch_size={batch_size} and '
+                f'num_replicas={num_replicas}.'
+            )
+            logger.error(msg)
+            raise ValueError(msg)
+
+        dist_low_res = self._distribute_value(low_res, num_replicas)
+        dist_hi_res_true = self._distribute_value(hi_res_true, num_replicas)
+        dist_loss_kwargs = self._distribute_calc_loss_kwargs(
+            calc_loss_kwargs, batch_size, num_replicas
+        )
+
+        per_replica_grad, per_replica_details = self.strategy.run(
+            grad_fn,
+            args=(dist_low_res, dist_hi_res_true),
+            kwargs=dist_loss_kwargs,
+        )
+
         total_grad = tf.nest.map_structure(
-            lambda *x: tf.reduce_sum(x, axis=0), *grads
+            lambda grad: (
+                None
+                if grad is None
+                else self.strategy.reduce(
+                    tf.distribute.ReduceOp.MEAN, grad, axis=None
+                )
+            ),
+            per_replica_grad,
         )
         mean_loss_details = {
-            k: tf.reduce_mean([d[k] for d in details]) for k in details[0]
+            key: self.strategy.reduce(
+                tf.distribute.ReduceOp.MEAN, value, axis=None
+            )
+            for key, value in per_replica_details.items()
         }
         apply_fn(total_grad)
         return mean_loss_details
 
-    @tf.function
+    @tf.function(reduce_retracing=True)
     def _run_serial_grad(
         self,
         low_res,
@@ -1006,12 +1117,11 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             you're training just the generator or one of the discriminator
             models. Defaults to the generator optimizer.
         multi_gpu : bool
-            Flag to break up the batch for parallel gradient descent
-            calculations on multiple gpus. If True and multiple GPUs are
-            present, each batch from the batch_handler will be divided up
-            between the GPUs and resulting gradients from each GPU will be
-            summed and then applied once per batch at the nominal learning
-            rate that the model and optimizer were initialized with.
+            Flag to use multi-GPU distributed training. If True and a
+            strategy has been configured, the mini-batch will be distributed
+            across replicas and gradients will be reduced before a single
+            optimizer update is applied. If True and no strategy is
+            configured, this method falls back to serial execution.
         calc_loss_kwargs : dict
             Kwargs to pass to the self.calc_loss() method
 
@@ -1024,7 +1134,25 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         grad_fn, apply_fn = self._get_train_fns(
             train_gen=train_gen, train_disc=train_disc
         )
-        if not multi_gpu or len(self.gpu_list) < 2:
+        use_strategy = (
+            multi_gpu
+            and self.strategy is not None
+            and self.strategy.num_replicas_in_sync >= 1
+        )
+        if use_strategy:
+            loss_details = self._run_mirrored_grad(
+                low_res,
+                hi_res_true,
+                grad_fn=grad_fn,
+                apply_fn=apply_fn,
+                **calc_loss_kwargs,
+            )
+            msg = (
+                'Finished mirrored gradient descent step on '
+                f'{self.strategy.num_replicas_in_sync} replicas in '
+                f'{time.time() - start_time:.4f} seconds'
+            )
+        else:
             loss_details = self._run_serial_grad(
                 low_res,
                 hi_res_true,
@@ -1035,18 +1163,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             msg = (
                 'Finished single gradient descent step in '
                 f'{time.time() - start_time:.4f} seconds'
-            )
-        else:
-            loss_details = self._run_parallel_grad(
-                low_res,
-                hi_res_true,
-                grad_fn=grad_fn,
-                apply_fn=apply_fn,
-                **calc_loss_kwargs,
-            )
-            msg = (
-                f'Finished gradient descent steps on {len(self.gpu_list)} '
-                f'GPUs in {time.time() - start_time:.4f} seconds'
             )
         logger.debug(msg)
         return loss_details
@@ -1273,9 +1389,9 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         for feat in features + exo_features:
             assert feat in hi_res_exo, msg.format(feat)
             if feat in features:
-                feat_stack.append(hi_res_exo[feat])
+                feat_stack.append(tf.cast(hi_res_exo[feat], input_array.dtype))
             else:
-                extras.append(hi_res_exo[feat])
+                extras.append(tf.cast(hi_res_exo[feat], input_array.dtype))
         hr_exo = tf.concat(feat_stack, axis=-1)
         if len(extras) > 0:
             extras = tf.concat(extras, axis=-1)
@@ -1343,7 +1459,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         logger.error(msg)
         raise ValueError(msg)
 
-    @tf.function
+    @tf.function(reduce_retracing=True)
     def get_single_grad_gen(
         self,
         low_res,
@@ -1352,7 +1468,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         **calc_loss_kwargs,
     ):
         """Run generator-only gradient calculation for one mini-batch."""
-        with tf.device(device_name), tf.GradientTape() as tape:
+        with self._training_scope(device_name), tf.GradientTape() as tape:
             hi_res_exo = self.get_hr_exo_input(hi_res_true)
             hi_res_gen = self._tf_generate(low_res, hi_res_exo)
             loss, loss_details = self.calc_loss(
@@ -1366,7 +1482,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """Apply a generator gradient update."""
         self.optimizer.apply_gradients(zip(grad, self.generator_weights))
 
-    @tf.function
+    @tf.function(reduce_retracing=True)
     def get_single_grad_disc(
         self,
         low_res,

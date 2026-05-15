@@ -207,14 +207,26 @@ class DataHandler(Deriver):
         """  # pylint: disable=line-too-long
 
         features = parse_to_list(features=features)
+        source_files = expand_paths(file_paths)
         cached_files, cached_features, _, missing_features = _check_for_cache(
             features=features, cache_kwargs=cache_kwargs
         )
 
+        logger.debug(
+            'DataHandler preparing %s requested features from %s source files '
+            '(%s cached, %s via rasterizer).',
+            len(features),
+            len(source_files),
+            len(cached_features),
+            len(missing_features),
+        )
+
         just_coords = not features
-        raster_feats = load_features if any(missing_features) else []
+        if just_coords:
+            logger.info('Rasterizing source data for coordinate-only access.')
+        raster_feats = load_features if missing_features else []
         self.rasterizer = self.loader = self.cache = None
-        if any(cached_features):
+        if cached_features:
             self.cache = Loader(
                 file_paths=cached_files,
                 features=load_features,
@@ -224,7 +236,7 @@ class DataHandler(Deriver):
             )
             self.rasterizer = self.loader = self.cache
         if any(missing_features) or just_coords:
-            logger.info('%s not found in cache', missing_features)
+            logger.debug('%s not found in cache', missing_features)
             self.rasterizer = Rasterizer(
                 file_paths=file_paths,
                 res_kwargs=res_kwargs,
@@ -263,7 +275,10 @@ class DataHandler(Deriver):
                 expand_paths(file_paths) + cached_files
             )
 
-        if cache_kwargs is not None and 'cache_pattern' in cache_kwargs:
+        should_cache = cache_kwargs is not None and (
+            bool(missing_features) or cache_kwargs.get('overwrite', False)
+        )
+        if should_cache and 'cache_pattern' in cache_kwargs:
             self.cacher = Cacher(data=self.data, cache_kwargs=cache_kwargs)
         self._deriver_hook()
 
@@ -338,8 +353,8 @@ class DailyDataHandler(DataHandler):
         n_data_days = int(len(self.time_index) / day_steps)
 
         logger.info(
-            'Calculating daily average datasets for {} training '
-            'data days.'.format(n_data_days)
+            'Calculating daily average datasets for %s training data days.',
+            n_data_days,
         )
         daily_data = self.data.coarsen(time=day_steps).mean()
         feats = [f for f in self.features if 'clearsky_ratio' not in f]
@@ -370,8 +385,9 @@ class DailyDataHandler(DataHandler):
             )
 
         logger.info(
-            'Finished calculating daily average datasets for {} '
-            'training data days.'.format(n_data_days)
+            'Finished calculating daily average datasets for %s training '
+            'data days.',
+            n_data_days,
         )
         hourly_data = self.data[self.requested_features]
         daily_data = daily_data[self.requested_features]

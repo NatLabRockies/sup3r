@@ -124,14 +124,13 @@ class DataHandlerNCforCC(DataHandler):
 
     def run_wrap_checks(self, cs_ghi):
         """Run check on rasterized data from clearsky_ghi source."""
-        logger.info(
-            'Reshaped clearsky_ghi data to final shape {} to '
-            'correspond with CC daily average data over source '
-            'time_slice {} with (lat, lon) grid shape of {}'.format(
-                cs_ghi.shape,
-                self.rasterizer.time_slice,
-                self.rasterizer.grid_shape,
-            )
+        logger.debug(
+            'Reshaped clearsky_ghi data to final shape %s to correspond '
+            'with CC daily average data over source time_slice %s with '
+            '(lat, lon) grid shape of %s',
+            cs_ghi.shape,
+            self.rasterizer.time_slice,
+            self.rasterizer.grid_shape,
         )
         msg = (
             'nsrdb clearsky GHI time dimension {} '
@@ -182,13 +181,12 @@ class DataHandlerNCforCC(DataHandler):
         i = np.expand_dims(i, axis=1) if len(i.shape) == 1 else i
 
         logger.info(
-            'Extracting clearsky_ghi data from "{}" with time slice '
-            '{} and {} locations with agg factor {}.'.format(
-                os.path.basename(self._nsrdb_source_fp),
-                t_slice,
-                i.shape[0],
-                i.shape[1],
-            )
+            'Extracting clearsky_ghi data from "%s" with time slice %s '
+            'and %s locations with agg factor %s.',
+            os.path.basename(self._nsrdb_source_fp),
+            t_slice,
+            i.shape[0],
+            i.shape[1],
         )
 
         # spatial coarsening from NSRDB to GCM

@@ -74,8 +74,7 @@ class LinearInterp(AbstractInterface):
         model = cls(**kwargs)
 
         if verbose:
-            logger.info('Loading LinearInterp with meta data: {}'
-                        .format(model.meta))
+            logger.info('Loading LinearInterp with meta data: %s', model.meta)
 
         return model
 
@@ -106,7 +105,7 @@ class LinearInterp(AbstractInterface):
 
     @property
     def hr_exo_features(self):
-        """Returns an empty list for LinearInterp model"""
+        """Returns empty list for LinearInterp model"""
         return []
 
     def save(self, out_dir):
@@ -152,11 +151,14 @@ class LinearInterp(AbstractInterface):
                     int(low_res.shape[2] * self._s_enhance),
                     int(low_res.shape[3] * self._t_enhance),
                     len(self.hr_out_features))
-        logger.debug('LinearInterp model with s_enhance of {} '
-                     'and t_enhance of {} '
-                     'downscaling low-res shape {} to high-res shape {}'
-                     .format(self._s_enhance, self._t_enhance,
-                             low_res.shape, hr_shape))
+        logger.debug(
+            'LinearInterp model with s_enhance of %s and t_enhance of %s '
+            'downscaling low-res shape %s to high-res shape %s',
+            self._s_enhance,
+            self._t_enhance,
+            low_res.shape,
+            hr_shape,
+        )
 
         hi_res = np.zeros(hr_shape, dtype=np.float32)
 

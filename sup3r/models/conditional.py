@@ -62,9 +62,8 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         default_device : str | None
             Option for default device placement of model weights. If None and a
             single GPU exists, that GPU will be the default device. If None and
-            multiple GPUs exist, the CPU will be the default device (this was
-            tested as most efficient given the custom multi-gpu strategy
-            developed in self.run_gradient_descent())
+            multiple GPUs exist, the CPU will be the default device for
+            serial execution and weight initialization.
         name : str | None
             Optional name for the model.
         """
@@ -116,7 +115,7 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
 
         self.save_params(out_dir)
 
-        logger.info('Saved model to disk in directory: {}'.format(out_dir))
+        logger.info('Saved model to disk in directory: %s', out_dir)
 
     @classmethod
     def load(cls, model_dir, verbose=True):
@@ -136,13 +135,11 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
             Returns a pretrained gan model that was previously saved to out_dir
         """
         if verbose:
+            logger.info('Loading model from disk in directory: %s', model_dir)
             logger.info(
-                'Loading model from disk in directory: {}'.format(model_dir)
+                'Active python environment versions: \n%s',
+                pprint.pformat(VERSION_RECORD, indent=4),
             )
-            msg = 'Active python environment versions: \n{}'.format(
-                pprint.pformat(VERSION_RECORD, indent=4)
-            )
-            logger.info(msg)
 
         fp_gen = os.path.join(model_dir, 'model_gen.pkl')
         params = cls.load_saved_params(model_dir, verbose=verbose)
@@ -264,12 +261,10 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
         batch_handler : sup3r.preprocessing.BatchHandler
             BatchHandler object to iterate through
         multi_gpu : bool
-            Flag to break up the batch for parallel gradient descent
-            calculations on multiple gpus. If True and multiple GPUs are
-            present, each batch from the batch_handler will be divided up
-            between the GPUs and the resulting gradient from each GPU will
-            constitute a single gradient descent step with the nominal learning
-            rate that the model was initialized with.
+            Flag to use multi-GPU distributed training. If True and a
+            strategy has been configured, batch updates will be distributed
+            across replicas. If no strategy is configured, this method falls
+            back to serial execution.
 
         Returns
         -------
@@ -297,10 +292,10 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
             loss_details = self._train_record.mean().to_dict()
 
             logger.debug(
-                'Batch {} out of {} has epoch-average gen loss of: '
-                '{:.2e}. '.format(
-                    ib, len(batch_handler), loss_details['train_loss_gen']
-                )
+                'Batch %s out of %s has epoch-average gen loss of: %.2e. ',
+                ib,
+                len(batch_handler),
+                loss_details['train_loss_gen'],
             )
 
         return loss_details
@@ -332,19 +327,20 @@ class Sup3rCondMom(AbstractSingleModel, AbstractInterface):
                 batch_handler=batch_handler,
             )
 
-        epochs = list(range(config.n_epoch))
-
         if self._history is None:
             self._history = pd.DataFrame(columns=['elapsed_time'])
             self._history.index.name = 'epoch'
+            start_epoch = 0
         else:
-            epochs += self._history.index.values[-1] + 1
+            start_epoch = int(self._history.index.values[-1]) + 1
+
+        epochs = range(start_epoch, start_epoch + config.n_epoch)
 
         t0 = time.time()
         logger.info(
-            'Training model for {} epochs starting at epoch {}'.format(
-                config.n_epoch, epochs[0]
-            )
+            'Training model for %s epochs starting at epoch %s',
+            config.n_epoch,
+            epochs[0],
         )
 
         for epoch in epochs:

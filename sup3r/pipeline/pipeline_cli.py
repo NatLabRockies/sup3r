@@ -42,7 +42,15 @@ def from_config(ctx, config_file, cancel, monitor, background, verbose=False):
     """Run sup3r pipeline from a config file."""
     ctx.ensure_object(dict)
     ctx.obj['VERBOSE'] = verbose or ctx.obj.get('VERBOSE', False)
+    logger.info(
+        'Starting pipeline from %s (cancel=%s, monitor=%s, background=%s).',
+        config_file,
+        cancel,
+        monitor,
+        background,
+    )
     pipeline(config_file, cancel, monitor, background)
+    logger.info('Finished pipeline invocation for %s.', config_file)
 
 
 if __name__ == '__main__':

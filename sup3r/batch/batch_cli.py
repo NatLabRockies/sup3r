@@ -1,9 +1,13 @@
 # pylint: disable=all
 """Batch Job CLI entry points."""
+import logging
+
 import click
 from gaps.batch import BatchJob
 
 from sup3r import __version__
+
+logger = logging.getLogger(__name__)
 
 
 @click.group()
@@ -41,6 +45,15 @@ def from_config(ctx, config_file, dry_run, cancel, delete, monitor_background,
     """Run Sup3r batch from a config file."""
     ctx.ensure_object(dict)
     ctx.obj['VERBOSE'] = verbose or ctx.obj.get('VERBOSE', False)
+    logger.info(
+        'Starting batch job from %s (dry_run=%s, cancel=%s, delete=%s, '
+        'monitor_background=%s).',
+        config_file,
+        dry_run,
+        cancel,
+        delete,
+        monitor_background,
+    )
     batch = BatchJob(config_file)
 
     if cancel:
@@ -49,6 +62,8 @@ def from_config(ctx, config_file, dry_run, cancel, delete, monitor_background,
         batch.delete()
     else:
         batch.run(dry_run=dry_run, monitor_background=monitor_background)
+
+    logger.info('Finished batch CLI invocation for %s.', config_file)
 
 
 if __name__ == '__main__':

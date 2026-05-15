@@ -402,6 +402,70 @@ def test_optimizer_update():
     assert model.optimizer_disc.learning_rate == 0.1
 
 
+def test_run_gradient_descent_multi_gpu_dispatch(monkeypatch):
+    """Test that multi_gpu execution uses the strategy-backed path."""
+
+    class FakeStrategy:
+        num_replicas_in_sync = 2
+
+    model = Sup3rGan(
+        pytest.S_FP_GEN,
+        pytest.S_FP_DISC,
+        learning_rate=1e-4,
+    )
+    model._strategy = FakeStrategy()
+    model._multi_gpu = True
+
+    called = {}
+
+    def fake_get_train_fns(train_gen=True, train_disc=False):
+        called['train_flags'] = (train_gen, train_disc)
+        return 'grad_fn', 'apply_fn'
+
+    def fake_run_mirrored_grad(
+        low_res,
+        hi_res_true,
+        grad_fn,
+        apply_fn,
+        **calc_loss_kwargs,
+    ):
+        called['mirrored'] = {
+            'grad_fn': grad_fn,
+            'apply_fn': apply_fn,
+            'kwargs': calc_loss_kwargs,
+            'low_res_shape': low_res.shape,
+            'hi_res_shape': hi_res_true.shape,
+        }
+        return {'loss_gen': tf.constant(0.0)}
+
+    monkeypatch.setattr(model, '_get_train_fns', fake_get_train_fns)
+    monkeypatch.setattr(model, '_run_mirrored_grad', fake_run_mirrored_grad)
+    monkeypatch.setattr(
+        model,
+        '_run_serial_grad',
+        lambda *args, **kwargs: pytest.fail('serial path should not run'),
+    )
+
+    low_res = np.ones((2, 4, 4, len(FEATURES)), dtype=np.float32)
+    hi_res = np.ones((2, 8, 8, len(FEATURES)), dtype=np.float32)
+    loss_details = model.run_gradient_descent(
+        low_res,
+        hi_res,
+        train_gen=True,
+        train_disc=False,
+        multi_gpu=True,
+        weight_gen_advers=0.0,
+    )
+
+    assert called['train_flags'] == (True, False)
+    assert called['mirrored']['grad_fn'] == 'grad_fn'
+    assert called['mirrored']['apply_fn'] == 'apply_fn'
+    assert called['mirrored']['kwargs']['weight_gen_advers'] == 0.0
+    assert called['mirrored']['low_res_shape'] == low_res.shape
+    assert called['mirrored']['hi_res_shape'] == hi_res.shape
+    assert float(loss_details['loss_gen']) == 0.0
+
+
 def test_input_res_check():
     """Make sure error is raised for invalid input resolution"""
 

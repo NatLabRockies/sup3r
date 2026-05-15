@@ -373,7 +373,7 @@ def continuous_dist(diffs, bins=None, range=None, interpolate=False):
         dx = dx[dx > 0]
         dx = np.mean(dx)
         bins = int((np.max(diffs) - np.min(diffs)) / dx)
-        logger.debug(f'Using n_bins={bins} to compute distribution')
+        logger.debug('Using n_bins=%s to compute distribution', bins)
     counts, edges = np.histogram(diffs, bins=bins, range=range)
     centers = edges[:-1] + (np.diff(edges) / 2)
     if interpolate:

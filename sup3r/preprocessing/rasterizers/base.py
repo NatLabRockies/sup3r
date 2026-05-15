@@ -58,8 +58,8 @@ class BaseRasterizer(Container):
             are more than this value away from the target lat/lon, an error is
             raised.
         """
-        logger.info(
-            'Rasterizing features: %s from files: %s',
+        logger.debug(
+            'Rasterizing features: "%s" from files: %s',
             features,
             loader.file_paths,
         )
@@ -130,7 +130,7 @@ class BaseRasterizer(Container):
 
     def rasterize_data(self):
         """Get rasterized data."""
-        logger.info(
+        logger.debug(
             'Rasterizing data for target / shape: %s / %s',
             np.asarray(self._target),
             np.asarray(self._grid_shape),
@@ -152,7 +152,7 @@ class BaseRasterizer(Container):
     def get_raster_index(self):
         """Get set of slices or indices selecting the requested region from
         the contained data."""
-        logger.info(
+        logger.debug(
             'Getting raster index for target / shape: %s / %s',
             np.asarray(self._target),
             np.asarray(self._grid_shape),
@@ -213,16 +213,36 @@ class BaseRasterizer(Container):
             lat_lon[..., 0] - target[0], lat_lon[..., 1] - target[1]
         )
         row, col = np.unravel_index(np.argmin(dist, axis=None), dist.shape)
-        msg = (
-            'The distance between the closest coordinate: '
-            f'{np.asarray(lat_lon[row, col])} and the requested '
-            f'target: {np.asarray(target)} is {np.asarray(dist.min())}. '
-        )
+        closest_coord = np.asarray(lat_lon[row, col])
+        requested_target = np.asarray(target)
+        min_dist = np.asarray(dist.min())
         if self.threshold is not None and dist.min() > self.threshold:
-            add_msg = f'This exceeds the given threshold: {self.threshold}'
-            logger.error(f'{msg} {add_msg}')
-            raise RuntimeError(f'{msg} {add_msg}')
-        logger.info(msg)
+            logger.error(
+                'The distance between the closest coordinate: %s and the '
+                'requested target: %s is %s. This exceeds the given '
+                'threshold: %s',
+                closest_coord,
+                requested_target,
+                min_dist,
+                self.threshold,
+            )
+            raise RuntimeError(
+                'The distance between the closest coordinate: {} and the '
+                'requested target: {} is {}. This exceeds the given '
+                'threshold: {}'.format(
+                    closest_coord,
+                    requested_target,
+                    min_dist,
+                    self.threshold,
+                )
+            )
+        logger.debug(
+            'The distance between the closest coordinate: %s and the '
+            'requested target: %s is %s.',
+            closest_coord,
+            requested_target,
+            min_dist,
+        )
         return row, col
 
     def get_lat_lon(self):

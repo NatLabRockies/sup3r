@@ -381,7 +381,7 @@ def test_surf_min_max_vars():
         assert batch.low_res.shape[-1] == len(surf_features)
 
         # compare daily avg temp vs min and max
-        blr = batch.low_res.numpy()
+        blr = batch.low_res
         assert (blr[..., 0] > blr[..., 2]).all()
         assert (blr[..., 0] < blr[..., 3]).all()
 

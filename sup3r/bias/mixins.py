@@ -61,9 +61,9 @@ class FillAndSmoothMixin:
         """
         if len(self.bad_bias_gids) > 0:
             logger.info(
-                'Found {} bias gids that are out of bounds: {}'.format(
-                    len(self.bad_bias_gids), self.bad_bias_gids
-                )
+                'Found %s bias gids that are out of bounds: %s',
+                len(self.bad_bias_gids),
+                self.bad_bias_gids,
             )
 
         for key, arr in out.items():
@@ -77,10 +77,10 @@ class FillAndSmoothMixin:
 
                 if needs_fill:
                     logger.info(
-                        'Filling NaN values outside of valid spatial '
-                        'extent for dataset "{}" for timestep {}'.format(
-                            key, idt
-                        )
+                        'Filling NaN values outside of valid spatial extent '
+                        'for dataset "%s" for timestep %s',
+                        key,
+                        idt,
                     )
                     arr_smooth = nn_fill_array(arr_smooth)
 

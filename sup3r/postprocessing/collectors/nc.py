@@ -59,7 +59,7 @@ class CollectorNC(BaseCollector):
         cacher_kwargs : dict | None
             Dictionary of kwargs to pass to Cacher._write_single.
         """
-        logger.info(f'Initializing collection for file_paths={file_paths}')
+        logger.info('Initializing collection for file_paths=%s', file_paths)
 
         if log_level is not None:
             init_logger(
@@ -71,10 +71,10 @@ class CollectorNC(BaseCollector):
 
         collector = cls(file_paths)
         logger.info(
-            'Collecting {} files to {}'.format(len(collector.flist), out_file)
+            'Collecting %s files to %s', len(collector.flist), out_file
         )
         if overwrite and os.path.exists(out_file):
-            logger.info(f'overwrite=True, removing {out_file}.')
+            logger.info('overwrite=True, removing %s.', out_file)
             os.remove(out_file)
 
         if not os.path.exists(out_file):

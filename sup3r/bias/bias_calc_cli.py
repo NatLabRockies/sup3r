@@ -1,4 +1,5 @@
 """sup3r bias correction calculation CLI entry points."""
+
 import copy
 import logging
 import os
@@ -15,8 +16,12 @@ logger = logging.getLogger(__name__)
 
 @click.group()
 @click.version_option(version=__version__)
-@click.option('-v', '--verbose', is_flag=True,
-              help='Flag to turn on debug logging. Default is not verbose.')
+@click.option(
+    '-v',
+    '--verbose',
+    is_flag=True,
+    help='Flag to turn on debug logging. Default is not verbose.',
+)
 @click.pass_context
 def main(ctx, verbose):
     """Sup3r bias calc Command Line Interface"""
@@ -25,16 +30,25 @@ def main(ctx, verbose):
 
 
 @main.command()
-@click.option('--config_file', '-c', required=True,
-              type=click.Path(exists=True),
-              help='sup3r bias correction calculation config .json file.')
-@click.option('-v', '--verbose', is_flag=True,
-              help='Flag to turn on debug logging. Default is not verbose.')
+@click.option(
+    '--config_file',
+    '-c',
+    required=True,
+    type=click.Path(exists=True),
+    help='sup3r bias correction calculation config .json file.',
+)
+@click.option(
+    '-v',
+    '--verbose',
+    is_flag=True,
+    help='Flag to turn on debug logging. Default is not verbose.',
+)
 @click.pass_context
 def from_config(ctx, config_file, verbose=False, pipeline_step=None):
     """Run sup3r bias correction calculation from a config file."""
-    config = BaseCLI.from_config_preflight(ModuleName.BIAS_CALC, ctx,
-                                           config_file, verbose)
+    config = BaseCLI.from_config_preflight(
+        ModuleName.BIAS_CALC, ctx, config_file, verbose
+    )
 
     exec_kwargs = config.get('execution_control', {})
     hardware_option = exec_kwargs.pop('option', 'local')
@@ -44,31 +58,57 @@ def from_config(ctx, config_file, verbose=False, pipeline_step=None):
     log_pattern = config.get('log_pattern', None)
 
     jobs = config['jobs']
+    logger.info(
+        'Preparing bias calculation from %s with hardware=%s across %s jobs '
+        'using %s.',
+        config_file,
+        hardware_option,
+        len(jobs),
+        calc_class_name,
+    )
     for i_node, job in enumerate(jobs):
         node_config = copy.deepcopy(job)
         node_config['status_dir'] = config['status_dir']
         node_config['log_file'] = (
-            log_pattern if log_pattern is None
-            else os.path.normpath(log_pattern.format(node_index=i_node)))
-        name = ('{}_{}'.format(basename, str(i_node).zfill(6)))
+            log_pattern
+            if log_pattern is None
+            else os.path.normpath(log_pattern.format(node_index=i_node))
+        )
+        name = '{}_{}'.format(basename, str(i_node).zfill(6))
         ctx.obj['NAME'] = name
         node_config['job_name'] = name
-        node_config["pipeline_step"] = pipeline_step
+        node_config['pipeline_step'] = pipeline_step
 
         cmd = BiasCalcClass.get_node_cmd(node_config)
 
         cmd_log = '\n\t'.join(cmd.split('\n'))
-        logger.debug(f'Running command:\n\t{cmd_log}')
+        logger.debug('Running command:\n\t%s', cmd_log)
+        logger.info(
+            'Queueing bias calculation node %s as job "%s".',
+            i_node,
+            name,
+        )
 
         if hardware_option.lower() in AVAILABLE_HARDWARE_OPTIONS:
             kickoff_slurm_job(ctx, cmd, pipeline_step, **exec_kwargs)
         else:
             kickoff_local_job(ctx, cmd, pipeline_step)
 
+    logger.info(
+        'Finished queueing bias calculation work for %s jobs.', len(jobs)
+    )
 
-def kickoff_slurm_job(ctx, cmd, pipeline_step=None, alloc='sup3r',
-                      memory=None, walltime=4, feature=None,
-                      stdout_path='./stdout/'):
+
+def kickoff_slurm_job(
+    ctx,
+    cmd,
+    pipeline_step=None,
+    alloc='sup3r',
+    memory=None,
+    walltime=4,
+    feature=None,
+    stdout_path='./stdout/',
+):
     """Run sup3r on HPC via SLURM job submission.
 
     Parameters
@@ -94,8 +134,17 @@ def kickoff_slurm_job(ctx, cmd, pipeline_step=None, alloc='sup3r',
     stdout_path : str
         Path to print .stdout and .stderr files.
     """
-    BaseCLI.kickoff_slurm_job(ModuleName.BIAS_CALC, ctx, cmd, alloc, memory,
-                              walltime, feature, stdout_path, pipeline_step)
+    BaseCLI.kickoff_slurm_job(
+        ModuleName.BIAS_CALC,
+        ctx,
+        cmd,
+        alloc,
+        memory,
+        walltime,
+        feature,
+        stdout_path,
+        pipeline_step,
+    )
 
 
 def kickoff_local_job(ctx, cmd, pipeline_step=None):

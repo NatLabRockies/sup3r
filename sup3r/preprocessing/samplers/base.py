@@ -4,6 +4,7 @@ additional information about how different features are used by models."""
 
 import logging
 from fnmatch import fnmatch
+from functools import cached_property
 from typing import Optional
 from warnings import warn
 
@@ -186,12 +187,7 @@ class Sampler(Container):
         time_slice = uniform_time_sampler(
             self.shape, self.sample_shape[2] * n_obs
         )
-        feats = (
-            [f for f in self.hr_source_features if f not in self.obs_features]
-            if self.use_proxy_obs
-            else self.hr_source_features
-        )
-        return (*spatial_slice, time_slice, feats)
+        return (*spatial_slice, time_slice, self.hr_sample_features)
 
     def preflight(self):
         """Perform shape and feature checks."""
@@ -225,6 +221,7 @@ class Sampler(Container):
         if self.data.shape[2] < self.sample_shape[2] * self.batch_size:
             logger.warning(msg)
             warn(msg)
+
         if self.mode == 'eager':
             logger.info('Received mode = "eager".')
             _ = self.compute()
@@ -313,9 +310,8 @@ class Sampler(Container):
         self._sample_shape = sample_shape
         if len(self._sample_shape) == 2:
             logger.info(
-                'Found 2D sample shape of {}. Adding temporal dim of 1'.format(
-                    self._sample_shape
-                )
+                'Found 2D sample shape of %s. Adding temporal dim of 1',
+                self._sample_shape,
             )
             self._sample_shape = (*self._sample_shape, 1)
 
@@ -410,7 +406,8 @@ class Sampler(Container):
 
     def _fast_batch(self):
         """Get batch of samples with adjacent time slices."""
-        out = self.data.sample(self.get_sample_index(n_obs=self.batch_size))
+        idx = self.get_sample_index(n_obs=self.batch_size)
+        out = self.data.sample(idx)
         out = self._compute_samples(out)
         if isinstance(out, tuple):
             out = tuple(self._reshape_samples(o) for o in out)
@@ -537,14 +534,14 @@ class Sampler(Container):
             parsed_feats = out
         return lowered(parsed_feats)
 
-    @property
+    @cached_property
     def lr_features(self):
         """List of feature names or patt*erns to use as low-resolution model
         inputs. If no entry is provided then all available features from the
         data will be used."""
         return self._parse_features(self._lr_features)
 
-    @property
+    @cached_property
     def hr_source_features(self):
         """List of feature names or patt*erns that should be available natively
         as high-resolution.  For a non-dual sampler this is all features, since
@@ -562,19 +559,29 @@ class Sampler(Container):
         feats += [f for f in self.hr_exo_features if f not in feats]
         return feats
 
-    @property
+    @cached_property
     def hr_features(self):
         """List of feature names or patt*erns that the model is shown at
         high-resolution. This does not include features that are only shown to
-        the model after coarsening.  Thus, this includes hr_out_features and
-        and hr_exo_features."""
+        the model after coarsening. Thus, this includes hr_out_features and
+        and hr_exo_features but not lr_features."""
         out = [
             f for f in self.hr_out_features if f not in self.hr_exo_features
         ]
         out += self.hr_exo_features
         return out
 
-    @property
+    @cached_property
+    def hr_sample_features(self):
+        """List of feature names used in the sample index for the
+        high-resolution training data."""
+        return (
+            [f for f in self.hr_source_features if f not in self.obs_features]
+            if self.use_proxy_obs
+            else self.hr_source_features
+        )
+
+    @cached_property
     def hr_out_features(self):
         """List of feature names or patt*erns that should be output by the
         generative model. If no entry is provided then all features in
@@ -582,7 +589,7 @@ class Sampler(Container):
         hr_out = self._parse_features(self._hr_out_features)
         return self.lr_features if len(hr_out) == 0 else hr_out
 
-    @property
+    @cached_property
     def hr_exo_features(self):
         """Get a list of exogenous high-resolution features that are only used
         for training e.g., mid-network high-res topo injection. These must come
@@ -590,7 +597,7 @@ class Sampler(Container):
         model as low-res features."""
         return self._parse_features(self._hr_exo_features)
 
-    @property
+    @cached_property
     def obs_features(self):
         """List of feature names or patt*erns that should be treated as
         observations. These features will be included in the high-res data but
@@ -600,7 +607,7 @@ class Sampler(Container):
         values where observations are not available."""
         return [f for f in self.hr_source_features if '_obs' in f]
 
-    @property
+    @cached_property
     def hr_features_ind(self):
         """Get the high-resolution feature channel indices that should be
         included for loss calculations. This includes hr_out_features and
@@ -609,14 +616,14 @@ class Sampler(Container):
         """
         return [self.hr_source_features.index(f) for f in self.hr_features]
 
-    @property
+    @cached_property
     def lr_features_ind(self):
         """Get the low-resolution feature channel indices that should be
         included for training. This includes lr_features.
         """
         return [self.hr_source_features.index(f) for f in self.lr_features]
 
-    @property
+    @cached_property
     def obs_features_ind(self):
         """Get the source feature indices in ``features`` for each obs
         feature. Each obs feature named ``<feature>_obs`` maps to the
@@ -632,7 +639,6 @@ class Sampler(Container):
             if self.use_proxy_obs
             else self.obs_features
         )
-
         return [self.hr_source_features.index(f) for f in check_feats]
 
     def _get_obs_mask(self, hi_res, spatial_frac, time_frac=1.0):

@@ -115,8 +115,10 @@ class DataRetrievalBase:
         """
 
         logger.info(
-            'Initializing DataRetrievalBase for base dset "{}" '
-            'correcting biased dataset(s): {}'.format(base_dset, bias_feature)
+            'Initializing DataRetrievalBase for base dset "%s" correcting '
+            'biased dataset(s): %s',
+            base_dset,
+            bias_feature,
         )
         self.base_fps = base_fps
         self.bias_fps = bias_fps
@@ -235,9 +237,8 @@ class DataRetrievalBase:
             diff = np.max(np.median(diff, axis=0))
             self._distance_upper_bound = diff
             logger.info(
-                'Set distance upper bound to {:.4f}'.format(
-                    self._distance_upper_bound
-                )
+                'Set distance upper bound to %.4f',
+                self._distance_upper_bound,
             )
         return self._distance_upper_bound
 
@@ -587,13 +588,11 @@ class DataRetrievalBase:
         q_zero_bias_out = np.nanmean(bias_data == 0)
 
         logger.debug(
-            'Input bias/base zero rate is {:.3e}/{:.3e}, '
-            'output is {:.3e}/{:.3e}'.format(
-                q_zero_bias_in,
-                q_zero_base_in,
-                q_zero_bias_out,
-                q_zero_base_out,
-            )
+            'Input bias/base zero rate is %.3e/%.3e, output is %.3e/%.3e',
+            q_zero_bias_in,
+            q_zero_base_in,
+            q_zero_bias_out,
+            q_zero_base_out,
         )
 
         return bias_data

@@ -243,9 +243,10 @@ class MultiStepGan(AbstractInterface):
             try:
                 hi_res = self._transpose_model_input(model, hi_res)
                 logger.debug(
-                    'Data input to model #{} of {} has shape {}'.format(
-                        i + 1, len(self.models), hi_res.shape
-                    )
+                    'Data input to model #%s of %s has shape %s',
+                    i + 1,
+                    len(self.models),
+                    hi_res.shape,
                 )
 
                 hi_res = self._match_model_input(i, hi_res, i_exo_data)
@@ -257,9 +258,10 @@ class MultiStepGan(AbstractInterface):
                     exogenous_data=i_exo_data,
                 )
                 logger.debug(
-                    'Data output from model #{} of {} has shape {}'.format(
-                        i + 1, len(self.models), hi_res.shape
-                    )
+                    'Data output from model #%s of %s has shape %s',
+                    i + 1,
+                    len(self.models),
+                    hi_res.shape,
                 )
             except Exception as e:
                 msg = (
@@ -409,8 +411,8 @@ class MultiStepSurfaceMetGan(MultiStepGan):
             and/or pressure_*m
         """
         logger.debug(
-            'Data input to the 1st step spatial-only '
-            'enhancement has shape {}'.format(low_res.shape)
+            'Data input to the 1st step spatial-only enhancement has shape %s',
+            low_res.shape,
         )
 
         msg = (
@@ -660,13 +662,11 @@ class SolarMultiStepGan(MultiStepGan):
         """Get an array of feature indices for the subset of features required
         for the spatial_wind_models. This excludes topography which is assumed
         to be provided as exogenous_data."""
-        return np.array(
-            [
-                self.lr_features.index(fn)
-                for fn in self.spatial_wind_models.lr_features
-                if fn != 'topography'
-            ]
-        )
+        return np.array([
+            self.lr_features.index(fn)
+            for fn in self.spatial_wind_models.lr_features
+            if fn != 'topography'
+        ])
 
     @property
     def idf_wind_out(self):
@@ -675,25 +675,21 @@ class SolarMultiStepGan(MultiStepGan):
         indices of u_200m + v_200m from the output features of
         spatial_wind_models"""
         temporal_solar_features = self.temporal_solar_models.lr_features
-        return np.array(
-            [
-                self.spatial_wind_models.hr_out_features.index(fn)
-                for fn in temporal_solar_features[1:]
-            ]
-        )
+        return np.array([
+            self.spatial_wind_models.hr_out_features.index(fn)
+            for fn in temporal_solar_features[1:]
+        ])
 
     @property
     def idf_solar(self):
         """Get an array of feature indices for the subset of features required
         for the spatial_solar_models. This excludes topography which is assumed
         to be provided as exogenous_data."""
-        return np.array(
-            [
-                self.lr_features.index(fn)
-                for fn in self.spatial_solar_models.lr_features
-                if fn != 'topography'
-            ]
-        )
+        return np.array([
+            self.lr_features.index(fn)
+            for fn in self.spatial_solar_models.lr_features
+            if fn != 'topography'
+        ])
 
     def generate(
         self, low_res, norm_in=True, un_norm_out=True, exogenous_data=None
@@ -735,10 +731,9 @@ class SolarMultiStepGan(MultiStepGan):
         """
 
         logger.debug(
-            'Data input to the SolarMultiStepGan has shape {} which '
-            'will be split up for solar- and wind-only features.'.format(
-                low_res.shape
-            )
+            'Data input to the SolarMultiStepGan has shape %s which will be '
+            'split up for solar- and wind-only features.',
+            low_res.shape,
         )
         if isinstance(exogenous_data, dict) and not isinstance(
             exogenous_data, ExoData
@@ -780,10 +775,10 @@ class SolarMultiStepGan(MultiStepGan):
             raise RuntimeError(msg) from e
 
         logger.debug(
-            'Data output from the 1st step spatial enhancement has '
-            'shape {} (solar) and shape {} (wind)'.format(
-                hi_res_solar.shape, hi_res_wind.shape
-            )
+            'Data output from the 1st step spatial enhancement has shape %s '
+            '(solar) and shape %s (wind)',
+            hi_res_solar.shape,
+            hi_res_wind.shape,
         )
 
         hi_res = (hi_res_solar, hi_res_wind[..., self.idf_wind_out])
@@ -791,15 +786,15 @@ class SolarMultiStepGan(MultiStepGan):
 
         logger.debug(
             'Data output from the concatenated solar + wind 1st step '
-            'spatial-only enhancement has shape {}'.format(hi_res.shape)
+            'spatial-only enhancement has shape %s',
+            hi_res.shape,
         )
         hi_res = np.transpose(hi_res, axes=(1, 2, 0, 3))
         hi_res = np.expand_dims(hi_res, axis=0)
         logger.debug(
-            'Data from the concatenated solar + wind 1st step '
-            'spatial-only enhancement has been reshaped to {}'.format(
-                hi_res.shape
-            )
+            'Data from the concatenated solar + wind 1st step spatial-only '
+            'enhancement has been reshaped to %s',
+            hi_res.shape,
         )
 
         try:
@@ -820,7 +815,7 @@ class SolarMultiStepGan(MultiStepGan):
         hi_res = self.temporal_pad(low_res, hi_res)
 
         logger.debug(
-            'Final SolarMultiStepGan output has shape: {}'.format(hi_res.shape)
+            'Final SolarMultiStepGan output has shape: %s', hi_res.shape
         )
 
         return hi_res

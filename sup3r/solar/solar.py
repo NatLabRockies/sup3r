@@ -91,19 +91,16 @@ class Solar:
             self._sup3r_fps = [self._sup3r_fps]
 
         logger.debug(
-            'Initializing solar module with sup3r files: {}'.format(
-                [os.path.basename(fp) for fp in self._sup3r_fps]
-            )
+            'Initializing solar module with sup3r files: %s',
+            [os.path.basename(fp) for fp in self._sup3r_fps],
         )
         logger.debug(
-            'Initializing solar module with temporal slice: {}'.format(
-                self.t_slice
-            )
+            'Initializing solar module with temporal slice: %s',
+            self.t_slice,
         )
         logger.debug(
-            'Initializing solar module with NSRDB source fp: {}'.format(
-                self._nsrdb_fp
-            )
+            'Initializing solar module with NSRDB source fp: %s',
+            self._nsrdb_fp,
         )
 
         self.gan_data = MultiTimeResource(self._sup3r_fps)
@@ -247,11 +244,9 @@ class Solar:
             self._nsrdb_tslice = slice(t0, t1, step)
 
             logger.debug(
-                'Found nsrdb_tslice {} with corresponding '
-                'time index:\n\t{}'.format(
-                    self._nsrdb_tslice,
-                    self.nsrdb.time_index[self._nsrdb_tslice],
-                )
+                'Found nsrdb_tslice %s with corresponding time index:\n\t%s',
+                self._nsrdb_tslice,
+                self.nsrdb.time_index[self._nsrdb_tslice],
             )
 
         return self._nsrdb_tslice
@@ -384,7 +379,7 @@ class Solar:
             the sites is an average across multiple NSRDB sites.
         """
 
-        logger.debug('Retrieving "{}" from NSRDB source data.'.format(dset))
+        logger.debug('Retrieving "%s" from NSRDB source data.', dset)
         out = None
 
         for idx in range(self.idnn.shape[1]):
@@ -573,12 +568,12 @@ class Solar:
                     attrs=attrs,
                     chunks=attrs['chunks'],
                 )
-                logger.info(f'Added "{feature}" to output file.')
+                logger.info('Added "%s" to output file.', feature)
             run_attrs = self.gan_data.h5[self._sup3r_fps[0]].global_attrs
             run_attrs['nsrdb_source'] = self._nsrdb_fp
             fh.run_attrs = run_attrs
 
-        logger.info(f'Finished writing file: {fp_out}')
+        logger.debug('Finished writing file: %s', fp_out)
 
     @classmethod
     def run_temporal_chunks(
@@ -709,9 +704,9 @@ class Solar:
 
             else:
                 logger.info(
-                    'Running temporal index {} out of {}.'.format(
-                        i + 1, len(fp_sets)
-                    )
+                    'Running temporal index %s out of %s.',
+                    i + 1,
+                    len(fp_sets),
                 )
 
                 kwargs = {

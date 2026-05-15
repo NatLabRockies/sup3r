@@ -345,11 +345,12 @@ class EraDownloader:
             os.remove(out_file)
 
         if not cls._can_skip_file(out_file) or overwrite:
-            msg = (
-                f'Downloading {variables} to {out_file} with levels '
-                f'= {levels}.'
+            logger.info(
+                'Downloading %s to %s with levels = %s.',
+                variables,
+                out_file,
+                levels,
             )
-            logger.info(msg)
             dataset = f'reanalysis-era5-{level_type}-levels'
             if 'monthly' in product_type:
                 dataset += '-monthly-means'
@@ -370,7 +371,7 @@ class EraDownloader:
 
             cds_api_client.retrieve(dataset, entry, out_file)
         else:
-            logger.info(f'File already exists: {out_file}.')
+            logger.info('File already exists: %s.', out_file)
 
     def process_surface_file(self):
         """Rename variables and convert geopotential to geopotential height."""
@@ -393,8 +394,10 @@ class EraDownloader:
         ds.compute().to_netcdf(tmp_file, format='NETCDF4', engine='h5netcdf')
         os.replace(tmp_file, self.surface_file)
         logger.info(
-            f'Finished processing {self.surface_file}. Moved {tmp_file} to '
-            f'{self.surface_file}.'
+            'Finished processing %s. Moved %s to %s.',
+            self.surface_file,
+            tmp_file,
+            self.surface_file,
         )
 
     def add_pressure(self, ds):
@@ -466,8 +469,10 @@ class EraDownloader:
         ds.compute().to_netcdf(tmp_file, format='NETCDF4', engine='h5netcdf')
         os.replace(tmp_file, self.level_file)
         logger.info(
-            f'Finished processing {self.level_file}. Moved '
-            f'{tmp_file} to {self.level_file}.'
+            'Finished processing %s. Moved %s to %s.',
+            self.level_file,
+            tmp_file,
+            self.level_file,
         )
 
     def process_and_combine(self):
@@ -483,11 +488,11 @@ class EraDownloader:
         if not self._can_skip_file(self.monthly_file) or self.overwrite:
             files = []
             if os.path.exists(self.level_file):
-                logger.info(f'Processing {self.level_file}.')
+                logger.info('Processing %s.', self.level_file)
                 self.process_level_file()
                 files.append(self.level_file)
             if os.path.exists(self.surface_file):
-                logger.info(f'Processing {self.surface_file}.')
+                logger.info('Processing %s.', self.surface_file)
                 self.process_surface_file()
                 files.append(self.surface_file)
 
@@ -499,7 +504,7 @@ class EraDownloader:
             if os.path.exists(self.surface_file):
                 os.remove(self.surface_file)
         else:
-            logger.info(f'{self.monthly_file} already exists.')
+            logger.info('%s already exists.', self.monthly_file)
 
     def get_monthly_file(self):
         """Download level and surface files, process variables, and combine
@@ -665,10 +670,10 @@ class EraDownloader:
         ), msg
 
         tasks = []
-        months = list(range(1, 13)) if months is None else months
+        months = range(1, 13) if months is None else months
         if days is None:
             days = [
-                list(np.arange(1, monthrange(year, month)[1] + 1))
+                range(1, monthrange(year, month)[1] + 1)
                 for month in months
             ]
         days = [[str(day).zfill(2) for day in d] for d in days]
@@ -871,7 +876,7 @@ class EraDownloader:
     def _combine_files(cls, files, out_file, chunks='auto', res_kwargs=None):
         if not os.path.exists(out_file):
             os.makedirs(os.path.dirname(out_file), exist_ok=True)
-            logger.info(f'Combining {files} into {out_file}.')
+            logger.info('Combining %s into %s.', files, out_file)
             try:
                 res_kwargs = res_kwargs or {}
                 loader = Loader(files, res_kwargs=res_kwargs)
@@ -885,11 +890,11 @@ class EraDownloader:
                     chunks=chunks,
                 )
             except Exception as e:
-                msg = f'Error combining {files}. {e}'
-                logger.error(msg)
-                raise RuntimeError(msg) from e
+                msg = 'Error combining %s. %s'
+                logger.error(msg, files, e)
+                raise RuntimeError(msg % (files, e)) from e
         else:
-            logger.info(f'{out_file} already exists.')
+            logger.info('%s already exists.', out_file)
 
     @classmethod
     def make_yearly_file(

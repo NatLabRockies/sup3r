@@ -52,7 +52,7 @@ class ForwardPass:
         """
         self.timer = Timer()
         self.strategy = strategy
-        self.model = get_model(strategy.model_class, strategy.model_kwargs)
+        self.model = strategy.model
         self.node_index = node_index
 
         output_type = get_source_type(strategy.out_pattern)
@@ -145,7 +145,7 @@ class ForwardPass:
 
         """
         out = np.pad(input_data, (*pad_width, (0, 0)), mode=mode)
-        logger.info(
+        logger.debug(
             'Padded input data shape from %s to %s using mode "%s" '
             'with padding argument: %s',
             input_data.shape,
@@ -177,8 +177,13 @@ class ForwardPass:
                         )
                     new_exo = np.pad(new_exo, exo_pad_width, mode=mode)
                     exo_data[feature]['steps'][i]['data'] = new_exo
-                    logger.info(
-                        f'Got exo data for feature: {feature}, model step: {i}'
+                    logger.debug(
+                        'Got exo data for feature: %s, model step: %d, '
+                        's_enhance: %d, t_enhance: %d',
+                        feature,
+                        i,
+                        s_enhance,
+                        t_enhance,
                     )
         return out, exo_data
 
@@ -442,10 +447,18 @@ class ForwardPass:
             will be run.
         """
         if not strategy.node_finished(node_index):
+            logger.info(
+                'Starting forward pass on node %s with %s chunks using %s '
+                'execution.',
+                node_index,
+                len(strategy.node_chunks[node_index]),
+                'serial' if strategy.pass_workers == 1 else 'parallel',
+            )
             if strategy.pass_workers == 1:
                 cls._run_serial(strategy, node_index)
             else:
                 cls._run_parallel(strategy, node_index)
+            logger.info('Finished forward pass on node %s.', node_index)
             logger.debug(
                 'Timing report:\n%s',
                 pprint.pformat(strategy.timer.log, indent=2),
@@ -467,7 +480,9 @@ class ForwardPass:
         """
 
         start = dt.now()
-        logger.debug(f'Running forward passes on node {node_index} in serial.')
+        logger.debug(
+            'Running forward passes on node %s in serial.', node_index
+        )
         fwp = cls(strategy, node_index=node_index)
         for i, chunk_index in enumerate(strategy.node_chunks[node_index]):
             now = dt.now()
@@ -478,17 +493,21 @@ class ForwardPass:
                     model_kwargs=strategy.model_kwargs,
                     model_class=strategy.model_class,
                     allowed_const=strategy.allowed_const,
+                    model=fwp.model,
                     output_workers=strategy.output_workers,
                     invert_uv=strategy.invert_uv,
                     nn_fill=strategy.nn_fill,
                     overwrite=(not strategy.incremental),
                     meta=fwp.meta,
                 )
-                logger.info(
-                    'Finished forward pass on chunk_index='
-                    f'{chunk_index} in {dt.now() - now}. {i + 1} of '
-                    f'{len(strategy.node_chunks[node_index])} '
-                    f'complete. {_mem_check()}.'
+                logger.debug(
+                    'Finished forward pass on chunk_index=%s in %s. %s of %s '
+                    'complete. %s.',
+                    chunk_index,
+                    dt.now() - now,
+                    i + 1,
+                    len(strategy.node_chunks[node_index]),
+                    _mem_check(),
                 )
                 if failed:
                     msg = (
@@ -498,9 +517,9 @@ class ForwardPass:
                     raise MemoryError(msg)
 
         logger.info(
-            'Finished forward passes on '
-            f'{len(strategy.node_chunks[node_index])} chunks in '
-            f'{dt.now() - start}'
+            'Finished forward passes on %s chunks in %s',
+            len(strategy.node_chunks[node_index]),
+            dt.now() - start,
         )
 
     @classmethod
@@ -519,8 +538,10 @@ class ForwardPass:
         """
 
         logger.info(
-            f'Running parallel forward passes on node {node_index}'
-            f' with pass_workers={strategy.pass_workers}.'
+            'Running parallel forward passes on node %s with '
+            'pass_workers=%s.',
+            node_index,
+            strategy.pass_workers,
         )
 
         futures = {}
@@ -550,8 +571,9 @@ class ForwardPass:
                     }
 
             logger.info(
-                f'Started {len(futures)} forward pass runs in '
-                f'{dt.now() - now}.'
+                'Started %s forward pass runs in %s.',
+                len(futures),
+                dt.now() - now,
             )
 
             try:
@@ -565,24 +587,25 @@ class ForwardPass:
                             'with constant output or NaNs.'
                         )
                         raise MemoryError(msg)
-                    msg = (
-                        'Finished forward pass on chunk_index='
-                        f'{chunk_idx} in {dt.now() - start_time}. '
-                        f'{i + 1} of {len(futures)} complete. {_mem_check()}'
+                    logger.debug(
+                        'Finished forward pass on chunk_index=%s in %s. %s '
+                        'of %s complete. %s',
+                        chunk_idx,
+                        dt.now() - start_time,
+                        i + 1,
+                        len(futures),
+                        _mem_check(),
                     )
-                    logger.info(msg)
             except Exception as e:
-                msg = (
-                    'Error running forward pass on chunk_index='
-                    f'{futures[future]["chunk_index"]}.'
-                )
-                logger.exception(msg)
-                raise RuntimeError(msg) from e
+                msg = 'Error running forward pass on chunk_index=%s.'
+                chunk_idx = futures[future]['chunk_index']
+                logger.exception(msg, chunk_idx)
+                raise RuntimeError(msg % chunk_idx) from e
 
         logger.info(
-            'Finished asynchronous forward passes on '
-            f'{len(strategy.node_chunks[node_index])} chunks in '
-            f'{dt.now() - start}'
+            'Finished asynchronous forward passes on %s chunks in %s',
+            len(strategy.node_chunks[node_index]),
+            dt.now() - start,
         )
 
     @classmethod
@@ -592,6 +615,7 @@ class ForwardPass:
         model_kwargs,
         model_class,
         allowed_const,
+        model=None,
         invert_uv=False,
         meta=None,
         nn_fill=True,
@@ -619,6 +643,10 @@ class ForwardPass:
             True to allow any constant output or a list of allowed possible
             constant outputs. See :class:`ForwardPassStrategy` for more
             information on this argument.
+        model : Sup3rGan | None
+            Optional preloaded model instance to reuse for the chunk. If
+            ``None``, the model is loaded from ``model_class`` and
+            ``model_kwargs``.
         invert_uv : bool
             Whether to convert uv to windspeed and winddirection for writing
             output. When this method is called during a pipeline forward pass
@@ -647,10 +675,12 @@ class ForwardPass:
             Array of high-resolution output from generator
         """
 
-        msg = f'Running forward pass for chunk_index={chunk.index}.'
-        logger.info(msg)
+        logger.debug(
+            'Running forward pass for chunk_index=%s.', chunk.index
+        )
 
-        model = get_model(model_class, model_kwargs)
+        if model is None:
+            model = get_model(model_class, model_kwargs)
 
         mask = np.isnan(chunk.input_data).any(axis=(0, 1, 2))
         feats = np.array(model.lr_features[: len(mask)])[mask]
@@ -685,7 +715,9 @@ class ForwardPass:
         failed = cls._output_check(output_data, allowed_const=allowed_const)
 
         if chunk.out_file is not None and not failed:
-            logger.info(f'Saving forward pass output to {chunk.out_file}.')
+            logger.debug(
+                'Saving forward pass output to %s.', chunk.out_file
+            )
             output_type = get_source_type(chunk.out_file)
             cls.OUTPUT_HANDLER_CLASS[output_type]._write_output(
                 data=output_data,

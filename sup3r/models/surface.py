@@ -203,11 +203,15 @@ class SurfaceSpatialMetModel(LinearInterp):
             + self.feature_inds_rh
         )
         inds = [
-            i
-            for i, name in enumerate(self._lr_features)
-            if i not in finds_tprh
+            i for i in range(len(self._lr_features)) if i not in finds_tprh
         ]
         return inds
+
+    @property
+    def hr_exo_features(self):
+        """Returns topography for surface model so the inference machinery
+        knows to pass in the exogenous data"""
+        return ['topography']
 
     def _get_temp_rh_ind(self, idf_rh):
         """Get the feature index value for the temperature feature
@@ -621,8 +625,10 @@ class SurfaceSpatialMetModel(LinearInterp):
         lr_topo = np.asarray(lr_topo)
         hr_topo = np.asarray(hr_topo)
         logger.debug(
-            'SurfaceSpatialMetModel received low/high res topo '
-            'shapes of {} and {}'.format(lr_topo.shape, hr_topo.shape)
+            'SurfaceSpatialMetModel received low/high res topo shapes of %s '
+            'and %s',
+            lr_topo.shape,
+            hr_topo.shape,
         )
 
         msg = f'topo_lr needs to be 2d but has shape {lr_topo.shape}'
@@ -651,10 +657,11 @@ class SurfaceSpatialMetModel(LinearInterp):
             len(self.hr_out_features),
         )
         logger.debug(
-            'SurfaceSpatialMetModel with s_enhance of {} '
-            'downscaling low-res shape {} to high-res shape {}'.format(
-                self._s_enhance, low_res.shape, hr_shape
-            )
+            'SurfaceSpatialMetModel with s_enhance of %s downscaling '
+            'low-res shape %s to high-res shape %s',
+            self._s_enhance,
+            low_res.shape,
+            hr_shape,
         )
 
         hi_res = np.zeros(hr_shape, dtype=np.float32)

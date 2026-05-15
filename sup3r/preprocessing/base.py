@@ -20,10 +20,7 @@ import xarray as xr
 
 import sup3r.preprocessing.accessor  # noqa: F401 # pylint: disable=W0611
 from sup3r.preprocessing.accessor import Sup3rX
-from sup3r.preprocessing.utilities import (
-    composite_info,
-    is_type_of,
-)
+from sup3r.preprocessing.utilities import composite_info, is_type_of
 from sup3r.utilities.utilities import Timer
 
 logger = logging.getLogger(__name__)
@@ -225,9 +222,13 @@ class Sup3rDataset:
         of slices for the dimensions (south_north, west_east, time) and a list
         of feature names or a tuple of the same, for multi-member datasets
         (dual datasets and dual with observations datasets)."""
+        if len(self._ds) == 2:
+            return (self._ds[0].sample(idx[0]), self._ds[1].sample(idx[1]))
+
         if len(self._ds) > 1:
             return tuple(d.sample(idx[i]) for i, d in enumerate(self))
-        return self._ds[-1].sample(idx)
+
+        return self._ds[0].sample(idx)
 
     def isel(self, *args, **kwargs):
         """Return new Sup3rDataset with isel applied to each member."""
@@ -236,7 +237,7 @@ class Sup3rDataset:
     def __getitem__(self, keys):
         """If keys is an int this is interpreted as a request for that member
         of ``self._ds``. Otherwise, if there's only a single member of
-        ``self._ds`` we get self._ds[-1][keys]. If there's two members we get
+        ``self._ds`` we get self._ds[0][keys]. If there's two members we get
         ``(self._ds[0][keys], self._ds[1][keys])`` and cast this back to a
         ``Sup3rDataset`` if each of ``self._ds[i][keys]`` is a ``Sup3rX``
         object"""
@@ -245,7 +246,7 @@ class Sup3rDataset:
 
         out = tuple(self._getitem(d, keys) for d in self._ds)
         if len(self._ds) == 1:
-            return out[-1]
+            return out[0]
         if all(isinstance(o, Sup3rX) for o in out):
             return type(self)(**dict(zip(self._ds.dset_names, out)))
         return out
@@ -282,7 +283,7 @@ class Sup3rDataset:
         so interpret this as sending a tuple / list element to each dset
         member. e.g. ``vals[0] -> dsets[0]``, ``vals[1] -> dsets[1]``, etc"""
         if len(self._ds) == 1:
-            self._ds[-1].__setitem__(keys, data)
+            self._ds[0].__setitem__(keys, data)
         else:
             for i, self_i in enumerate(self):
                 dat = data[i] if isinstance(data, (tuple, list)) else data
@@ -424,14 +425,30 @@ class Container(metaclass=Sup3rMeta):
         """Log additional arguments after initialization."""
         if args_dict is not None:
             logger.info(
-                f'Finished initializing {self.__class__.__name__} with:\n'
-                f'{pprint.pformat(args_dict, indent=2)}'
+                'Finished initializing %s with:\n%s',
+                self.__class__.__name__,
+                pprint.pformat(args_dict, indent=2),
             )
 
     @property
     def shape(self):
         """Get shape of underlying data."""
         return self.data.shape
+
+    def derive(self, feature, strict=True):
+        """Resolve feature name to a feature in the underlying data. This is
+        used for handling feature aliases and for deriving new features from
+        existing ones."""
+        if feature in self.data.features:
+            return self.data[feature]
+        elif strict:
+            msg = (
+                'Did not find feature %s in underlying data. Available '
+                'features are: %s'
+            )
+            logger.error(msg, feature, self.data.features)
+            raise KeyError(msg % (feature, self.data.features))
+        return None
 
     def __len__(self):
         return len(self.data)

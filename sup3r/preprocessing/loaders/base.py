@@ -73,7 +73,7 @@ class BaseLoader(Container, ABC):
             Optional base loader update. The default for H5 files is
             MultiFileResourceX and for NETCDF or ZARR is xarray.open_mfdataset
         """
-        logger.info(
+        logger.debug(
             'Loading features: %s from files: %s', features, file_paths
         )
         super().__init__()
@@ -97,7 +97,7 @@ class BaseLoader(Container, ABC):
             self.data.meta = self._res.meta
 
         if self.chunks is None:
-            logger.info(f'Pre-loading data into memory for: {features}')
+            logger.debug('Pre-loading data into memory for: %s', features)
             self.data.compute()
 
     def _parse_chunks(self, dims, feature=None):

@@ -490,7 +490,7 @@ class QuantileDeltaMappingCorrection(
                 f.attrs['bias_fps'] = self.bias_fps
                 f.attrs['bias_fut_fps'] = self.bias_fut_fps
                 f.attrs['time_window_center'] = self.time_window_center
-                logger.info('Wrote quantiles to file: {}'.format(fp_out))
+                logger.info('Wrote quantiles to file: %s', fp_out)
 
     def _get_run_kwargs(self, **kwargs_extras):
         """Get dictionary of kwarg dictionaries to use for calls to
@@ -562,9 +562,7 @@ class QuantileDeltaMappingCorrection(
         logger.debug('Calculating CDF parameters for QDM')
 
         logger.info(
-            'Initialized params with shape: {}'.format(
-                self.bias_gid_raster.shape
-            )
+            'Initialized params with shape: %s', self.bias_gid_raster.shape
         )
 
         self.out = self._run(

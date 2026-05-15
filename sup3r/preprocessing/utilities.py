@@ -56,10 +56,11 @@ def get_input_handler_class(input_handler_name: Optional[str] = None):
     if input_handler_name is None:
         input_handler_name = 'DataHandler'
 
-        logger.info(
-            '"input_handler_name" arg was not provided. Using '
-            f'"{input_handler_name}". If this is incorrect, please provide '
-            'input_handler_name="DataHandlerName".'
+        logger.debug(
+            '"input_handler_name" arg was not provided. Using "%s". If '
+            'this is incorrect, please provide '
+            'input_handler_name="DataHandlerName".',
+            input_handler_name,
         )
 
     HandlerClass = (
@@ -119,13 +120,15 @@ def log_args(func):
 
     def _log_args(thing, fun, *args, **kwargs):
         """Log annotated attributes and args."""
-
-        args_dict = _get_args_dict(thing, fun, *args, **kwargs)
-        name = thing.__class__.__name__
-        logger.info(
-            f'Initialized {name} with:\n{pprint.pformat(args_dict, indent=2)}'
-        )
-        logger.debug(_mem_check())
+        if logger.isEnabledFor(logging.DEBUG):
+            args_dict = _get_args_dict(thing, fun, *args, **kwargs)
+            name = thing.__class__.__name__
+            logger.debug(
+                'Initialized %s with:\n%s',
+                name,
+                pprint.pformat(args_dict, indent=2),
+            )
+            logger.debug('%s', _mem_check())
 
     def wrapper(self, *args, **kwargs):
         _log_args(self, func, *args, **kwargs)
@@ -338,7 +341,7 @@ def get_source_type(file_paths):
 
     if isinstance(file_paths, str) and '*' in file_paths:
         temp = glob(file_paths)
-        if any(temp):
+        if temp:
             file_paths = temp
 
     if not isinstance(file_paths, list):
