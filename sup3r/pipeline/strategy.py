@@ -468,7 +468,7 @@ class ForwardPassStrategy:
         non_masked = self.fwp_slicer.n_spatial_chunks - sum(self.fwp_mask)
         non_masked *= self.fwp_slicer.n_time_chunks
         logger.info(
-            'Chunk strategy uses %s nodes across %s total chunks '
+            'Chunk strategy uses %s node(s) across %s chunk(s): '
             '(%s spatial x %s temporal, %s unmasked).',
             len(self.node_chunks),
             self.fwp_slicer.n_chunks,

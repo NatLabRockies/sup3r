@@ -191,12 +191,15 @@ class Sampler(Container):
             'building batches with n_samples = batch_size, each with '
             'n_time_steps = sample_shape[2].'
         )
-        if self.data.shape[2] < self.sample_shape[2] * self.batch_size:
+        if (
+            self.data.shape[2] < self.sample_shape[2] * self.batch_size
+            and self.data.shape[2] > 1
+        ):
             logger.warning(msg)
             warn(msg)
 
         if self.mode == 'eager':
-            logger.info('Received mode = "eager".')
+            logger.debug('Received mode = "eager".')
             _ = self.compute()
 
     def check_proxy_obs_consistency(self):
