@@ -16,7 +16,11 @@ from sup3r.preprocessing.samplers.utilities import (
     uniform_time_sampler,
 )
 from sup3r.preprocessing.utilities import compute_if_dask, lowered
-from sup3r.utilities.utilities import RANDOM_GENERATOR
+from sup3r.utilities.utilities import (
+    OUTPUT_ATTRS,
+    RANDOM_GENERATOR,
+    get_feature_basename,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -429,12 +433,22 @@ class Sampler(Container):
         """
         obs_mask = self._get_full_obs_mask(hi_res)
         obs = hi_res[..., self.obs_features_ind].copy()
+        stds = np.std(obs, axis=(1, 2, 3), keepdims=True)
         obs[obs_mask[..., : obs.shape[-1]]] = np.nan
         for i, feat in enumerate(self.obs_features):
             scale = self._get_proxy_kwarg('perturbation_scale', feat, 0)
             if scale > 0:
-                srange = np.nanstd(obs[..., i], keepdims=True) * scale
-                obs[..., i] += np.random.uniform(-srange, srange)
+                srange = stds[..., i] * scale
+                obs[..., i] += np.random.normal(scale=srange)
+                base = get_feature_basename(feat.replace('_obs', ''))
+                attrs = OUTPUT_ATTRS.get(base, {})
+                lo = attrs.get('min', -np.inf)
+                hi = attrs.get('max', np.inf)
+                obs[..., i] = np.where(
+                    np.isnan(obs[..., i]),
+                    obs[..., i],
+                    np.clip(obs[..., i], lo, hi),
+                )
         return obs
 
     def _append_obs_features(self, samples):

@@ -1310,9 +1310,9 @@ class GeothermalObsLoss(Sup3rLoss):
 class ObsAssimilationLoss(Sup3rLoss):
     """Loss for training with both dense and sparse ground truth where the obs
     locations are explicitly considered. This is designed to encourage
-    matching observations where they exist, matching the dense true fields
-    where obs are missing, and blend smoothly between the two in a
-    neighbourhood around obs locations through a gradient penalty.
+    matching observations where they exist while blending smoothly back to
+    the dense background field over a Gaussian neighbourhood around each
+    observation.
 
     Assumes ``true_features`` contains ``gen_features`` followed by sparse
     observation versions of those same features in matching order. For
@@ -1321,28 +1321,18 @@ class ObsAssimilationLoss(Sup3rLoss):
         gen_features  = ['u_10m', 'v_10m']
         true_features = ['u_10m', 'v_10m', 'u_10m_obs', 'v_10m_obs']
 
-    Three weighted terms are combined:
+     The loss is a single MAE term between generator output and a blended
+     target field:
 
-    1. **Background MAE** – MAE between generator output and the dense true
-       fields at locations where sparse obs are *missing* (NaN).
-    2. **Observation MAE** – MAE between generator output and sparse obs at
-       locations where sparse obs are *present* (not NaN).
-    3. **Gradient penalty** – mean spatial gradient magnitude of the
-       generator output inside a neighbourhood around each obs location,
-       encouraging spatial smoothness near observations.
+     1. At obs locations, the target is the observed value.
+     2. Away from obs, the target relaxes back toward the dense background.
+     3. Between the two, a Gaussian kernel determines the observation
+         influence out to ``blend_distance`` grid cells.
     """
 
     LOSS_METRIC = MeanAbsoluteError()
 
-    def __init__(
-        self,
-        gen_features,
-        true_features=None,
-        background_weight=1.0,
-        obs_weight=1.0,
-        gradient_weight=1.0,
-        gradient_radius=1,
-    ):
+    def __init__(self, gen_features, true_features=None, blend_distance=1):
         """
         Parameters
         ----------
@@ -1353,16 +1343,11 @@ class ObsAssimilationLoss(Sup3rLoss):
             match ``gen_features`` (dense reference) and the last N are the
             corresponding sparse observation features (NaN where missing).
             Defaults to ``gen_features + [f + '_obs' for f in gen_features]``.
-        background_weight : float
-            Weight for the background (non-observed) MAE term.
-        obs_weight : float
-            Weight for the observation MAE term.
-        gradient_weight : float
-            Weight for the spatial gradient penalty near obs locations.
-        gradient_radius : int
-            Radius in grid cells of the neighbourhood around each obs
-            location where the gradient penalty is applied. 0 restricts
-            the penalty to the obs locations themselves.
+        blend_distance : int
+            Spatial distance in grid cells over which the Gaussian
+            observation/background blend is applied. A value of 0 uses the
+            observation exactly at observed cells and the background
+            everywhere else.
         """
         gen_features = list(gen_features)
         if true_features is None:
@@ -1380,111 +1365,120 @@ class ObsAssimilationLoss(Sup3rLoss):
         super().__init__(
             gen_features=gen_features, true_features=true_features
         )
-        self._bg_weight = background_weight
-        self._obs_weight = obs_weight
-        self._gradient_weight = gradient_weight
-        self._gradient_radius = gradient_radius
+        self._blend_distance = blend_distance
 
-    def _dilate_obs_mask(self, mask):
-        """Dilate a 2-D spatial obs mask by ``gradient_radius`` grid cells.
+    def _get_gaussian_kernel(self, dtype):
+        """Get a 2-D Gaussian kernel for observation blending.
 
         Parameters
         ----------
-        mask : tf.Tensor
-            Float tensor of shape ``(B, H, W)`` with 1 where an observation
-            is present and 0 elsewhere.
+        dtype : tf.DType
+            Tensor dtype for the kernel.
 
         Returns
         -------
         tf.Tensor
-            Dilated float mask of shape ``(B, H, W)``.
+            Gaussian kernel with shape ``(K, K)`` and center weight 1.
         """
-        r = self._gradient_radius
+        r = self._blend_distance
         if r == 0:
-            return mask
-        mask_4d = mask[..., tf.newaxis]  # (B, H, W, 1)
-        mask_4d = tf.pad(mask_4d, [[0, 0], [r, r], [r, r], [0, 0]])
-        mask_4d = tf.nn.max_pool2d(
-            mask_4d, ksize=2 * r + 1, strides=1, padding='VALID'
-        )
-        return mask_4d[..., 0]  # (B, H, W)
+            return tf.ones((1, 1), dtype=dtype)
 
-    def _dilate_obs_mask_3d(self, mask):
-        """Dilate a spatiotemporal obs mask by ``gradient_radius`` in 3-D.
+        sigma = tf.cast(r / 2.0, dtype)
+        coords = tf.cast(tf.range(-r, r + 1), dtype)
+        weights = tf.exp(-0.5 * tf.square(coords / sigma))
+        return tf.expand_dims(weights, 0) * tf.expand_dims(weights, 1)
 
-        The dilation is applied jointly over the H, W, and T axes so that
-        observations spread their neighbourhood through time as well as space.
+    @staticmethod
+    def _to_spatial_4d(x):
+        """Reshape 4-D or 5-D tensors to 4-D for spatial filtering.
 
         Parameters
         ----------
-        mask : tf.Tensor
-            Float tensor of shape ``(B, H, W, T)`` with 1 where an
-            observation is present and 0 elsewhere.
+        x : tf.Tensor
+            Tensor with shape ``(B, H, W, C)`` or ``(B, H, W, T, C)``.
 
         Returns
         -------
-        tf.Tensor
-            Dilated float mask of shape ``(B, H, W, T)``.
+        tuple[tf.Tensor, tf.Tensor | None]
+            Reshaped 4-D tensor and the original shape tensor when input was
+            5-D. The original shape is ``None`` for 4-D inputs.
         """
-        r = self._gradient_radius
-        if r == 0:
-            return mask
-        # max_pool3d expects (B, D, H, W, C); treat T as depth D.
-        mask_5d = tf.transpose(mask, [0, 3, 1, 2])[
-            ..., tf.newaxis
-        ]  # (B, T, H, W, 1)
-        mask_5d = tf.pad(mask_5d, [[0, 0], [r, r], [r, r], [r, r], [0, 0]])
-        mask_5d = tf.nn.max_pool3d(
-            mask_5d,
-            ksize=[2 * r + 1, 2 * r + 1, 2 * r + 1],
-            strides=[1, 1, 1],
-            padding='VALID',
-        )
-        return tf.transpose(mask_5d[..., 0], [0, 2, 3, 1])  # (B, H, W, T)
+        if x.shape.rank == 4:
+            return x, None
 
-    def _gradient_penalty(self, x_gen, obs_present):
-        """Spatial gradient penalty weighted by a dilated obs neighbourhood.
+        shape = tf.shape(x)
+        x = tf.transpose(x, [0, 3, 1, 2, 4])
+        return tf.reshape(
+            x, (shape[0] * shape[3], shape[1], shape[2], shape[4])
+        ), shape
 
-        For 5-D inputs ``(B, H, W, T, C)`` the neighbourhood dilation is
-        performed in 3-D (H, W, T) so that observations extend their
-        influence through time.
+    @staticmethod
+    def _from_spatial_4d(x, original_shape):
+        """Restore a filtered tensor to its original 4-D or 5-D shape."""
+        if original_shape is None:
+            return x
 
-        Parameters
-        ----------
-        x_gen : tf.Tensor
-            Generator output ``(B, H, W, C)`` or ``(B, H, W, T, C)``.
-        obs_present : tf.Tensor
-            Float mask of same shape as ``x_gen`` with 1 where a sparse
-            observation is present for that feature.
-
-        Returns
-        -------
-        tf.Tensor
-            Scalar gradient penalty.
-        """
-        # Reduce over feature dim → (B, H, W) or (B, H, W, T)
-        spatial_obs = tf.reduce_max(obs_present, axis=-1)
-        if len(x_gen.shape) == 5:
-            spatial_obs = self._dilate_obs_mask_3d(spatial_obs)  # (B, H, W, T)
-        else:
-            spatial_obs = self._dilate_obs_mask(spatial_obs)  # (B, H, W)
-
-        grad_mag = tf.abs(tf_derivative(x_gen, axis=1)) + tf.abs(
-            tf_derivative(x_gen, axis=2)
-        )  # (B, H, W, [T,] C)
-        # Broadcast spatial mask over the feature axis to match grad_mag
-        mask = tf.cast(
-            tf.broadcast_to(spatial_obs[..., tf.newaxis], tf.shape(grad_mag)),
-            bool,
-        )
-        return tf.cond(
-            tf.math.reduce_all(~mask),
-            lambda: tf.constant(0.0, dtype=x_gen.dtype),
-            lambda: self.LOSS_METRIC(
-                tf.zeros_like(tf.boolean_mask(grad_mag, mask)),
-                tf.boolean_mask(grad_mag, mask),
+        x = tf.reshape(
+            x,
+            (
+                original_shape[0],
+                original_shape[3],
+                original_shape[1],
+                original_shape[2],
+                original_shape[4],
             ),
         )
+        return tf.transpose(x, [0, 2, 3, 1, 4])
+
+    def _gaussian_blend_target(self, x_true_bg, x_obs, obs_mask):
+        """Blend sparse observations into the dense background field.
+
+        Parameters
+        ----------
+        x_true_bg : tf.Tensor
+            Dense background tensor with shape ``(B, H, W, C)`` or
+            ``(B, H, W, T, C)``.
+        x_obs : tf.Tensor
+            Sparse observation tensor matching ``x_true_bg`` with NaNs where
+            observations are missing.
+        obs_mask : tf.Tensor
+            Boolean mask matching ``x_obs`` where True marks valid obs.
+
+        Returns
+        -------
+        tf.Tensor
+            Blended target tensor with no NaNs.
+        """
+        if self._blend_distance == 0:
+            return tf.where(obs_mask, x_obs, x_true_bg)
+
+        x_true_bg_4d, original_shape = self._to_spatial_4d(x_true_bg)
+        x_obs_4d, _ = self._to_spatial_4d(x_obs)
+        obs_mask_4d, _ = self._to_spatial_4d(
+            tf.cast(obs_mask, x_true_bg.dtype)
+        )
+
+        kernel = self._get_gaussian_kernel(x_true_bg.dtype)
+        channels = tf.shape(x_true_bg_4d)[-1]
+        kernel = tf.tile(
+            kernel[..., tf.newaxis, tf.newaxis], [1, 1, channels, 1]
+        )
+
+        obs_values = tf.where(
+            obs_mask_4d > 0, x_obs_4d, tf.zeros_like(x_obs_4d)
+        )
+        obs_weight = tf.nn.depthwise_conv2d(
+            obs_mask_4d, kernel, strides=[1, 1, 1, 1], padding='SAME'
+        )
+        obs_smooth = tf.nn.depthwise_conv2d(
+            obs_values, kernel, strides=[1, 1, 1, 1], padding='SAME'
+        )
+        obs_blend = tf.math.divide_no_nan(obs_smooth, obs_weight)
+        blend_weight = tf.minimum(obs_weight, tf.ones_like(obs_weight))
+        target = blend_weight * obs_blend + (1.0 - blend_weight) * x_true_bg_4d
+        target = tf.where(obs_mask_4d > 0, x_obs_4d, target)
+        return self._from_spatial_4d(target, original_shape)
 
     @tf.function
     def call(self, x_true, x_gen):
@@ -1515,33 +1509,8 @@ class ObsAssimilationLoss(Sup3rLoss):
         ]  # sparse obs, shape (..., n); NaN where missing
 
         obs_mask = ~tf.math.is_nan(x_obs)
-        obs_present = tf.cast(obs_mask, dtype)
-
-        # 1. Background MAE at locations where obs is missing
-        bg_mask = ~obs_mask
-        bg_loss = self.LOSS_METRIC(
-            tf.boolean_mask(x_true_bg, bg_mask),
-            tf.boolean_mask(x_gen, bg_mask),
-        )
-
-        # 2. Observation MAE at locations where obs are present
-        obs_loss = tf.cond(
-            tf.math.reduce_all(tf.math.is_nan(x_obs)),
-            lambda: tf.constant(0.0, dtype=dtype),
-            lambda: self.LOSS_METRIC(
-                tf.boolean_mask(x_obs, obs_mask),
-                tf.boolean_mask(x_gen, obs_mask),
-            ),
-        )
-
-        # 3. Spatial gradient penalty around obs locations
-        grad_loss = self._gradient_penalty(x_gen, obs_present)
-
-        return (
-            self._bg_weight * bg_loss
-            + self._obs_weight * obs_loss
-            + self._gradient_weight * grad_loss
-        )
+        target = self._gaussian_blend_target(x_true_bg, x_obs, obs_mask)
+        return self.LOSS_METRIC(target, x_gen)
 
 
 def _reshape_depth_feature_for_vertical_derivative(x):
