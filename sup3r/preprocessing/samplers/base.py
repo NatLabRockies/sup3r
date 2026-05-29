@@ -102,7 +102,7 @@ class Sampler(Container):
                 }
 
             perturbation_scale : float
-                If non-zero, uniform noise scaled by this value times the
+                If non-zero, gaussian noise scaled by this value times the
                 per-feature batch standard deviation is added to proxy obs.
             onshore_obs_frac : dict
                 Fraction of onshore observations per batch. Keys are

@@ -1357,7 +1357,7 @@ class ObsAssimilationLoss(Sup3rLoss):
         n = len(gen_features)
         if len(true_features) != 2 * n:
             raise ValueError(
-                'ObsBlendLoss requires len(true_features) == '
+                'ObsAssimilationLoss requires len(true_features) == '
                 f'2 * len(gen_features). Got {len(true_features)} true '
                 f'features and {n} gen features.'
             )
