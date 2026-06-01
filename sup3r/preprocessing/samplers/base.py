@@ -16,11 +16,7 @@ from sup3r.preprocessing.samplers.utilities import (
     uniform_time_sampler,
 )
 from sup3r.preprocessing.utilities import compute_if_dask, lowered
-from sup3r.utilities.utilities import (
-    OUTPUT_ATTRS,
-    RANDOM_GENERATOR,
-    get_feature_basename,
-)
+from sup3r.utilities.utilities import RANDOM_GENERATOR
 
 logger = logging.getLogger(__name__)
 
@@ -440,15 +436,6 @@ class Sampler(Container):
             if scale > 0:
                 srange = stds[..., i] * scale
                 obs[..., i] += np.random.normal(scale=srange)
-                base = get_feature_basename(feat.replace('_obs', ''))
-                attrs = OUTPUT_ATTRS.get(base, {})
-                lo = attrs.get('min', -np.inf)
-                hi = attrs.get('max', np.inf)
-                obs[..., i] = np.where(
-                    np.isnan(obs[..., i]),
-                    obs[..., i],
-                    np.clip(obs[..., i], lo, hi),
-                )
         return obs
 
     def _append_obs_features(self, samples):
