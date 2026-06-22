@@ -1301,8 +1301,8 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         )
         if len(extras) > 0:
             extras = np.concatenate(extras, axis=-1)
-            return layer(input_array, hr_exo, extras)
-        return layer(input_array, hr_exo)
+            return layer(input_array, hr_exo, extras, training=False)
+        return layer(input_array, hr_exo, training=False)
 
     def generate(
         self, low_res, norm_in=True, un_norm_out=True, exogenous_data=None
@@ -1348,18 +1348,18 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         if norm_in and self._means is not None:
             low_res = self.norm_input(low_res)
 
-        hi_res = self.generator.layers[0](low_res)
+        hi_res = self.generator.layers[0](low_res, training=False)
         layer_num = 1
         try:
             for i, layer in enumerate(self.generator.layers[1:]):
                 layer_num = i + 1
-                is_exo_layer = isinstance(layer, SUP3R_LAYERS)
-                if is_exo_layer:
-                    hi_res = self.run_exo_layer(
+                hi_res = (
+                    self.run_exo_layer(
                         layer, hi_res, exogenous_data, norm_in=norm_in
                     )
-                else:
-                    hi_res = layer(hi_res)
+                    if isinstance(layer, SUP3R_LAYERS)
+                    else layer(hi_res, training=False)
+                )
         except Exception as e:
             msg = 'Could not run layer #{} "{}" on tensor of shape {}'.format(
                 layer_num, layer, hi_res.shape
