@@ -1066,7 +1066,8 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             )
             for key, value in per_replica_details.items()
         }
-        apply_fn(total_grad)
+        with self.strategy.scope():
+            apply_fn(total_grad)
         return mean_loss_details
 
     @tf.function(reduce_retracing=True)
@@ -1459,6 +1460,36 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         logger.error(msg)
         raise ValueError(msg)
 
+    def _mask_obs_in_exo(self, hi_res_exo):
+        """Randomly mask a fraction of non-NaN obs values in the exo dict.
+
+        For each key in ``self.obs_features``, ``self._obs_mask_fraction`` of
+        the existing non-NaN locations are replaced with NaN.  All other
+        keys are returned unchanged.  This is called inside
+        ``get_single_grad_gen`` so that the generator receives sparser
+        observations than those used by the loss.
+
+        Parameters
+        ----------
+        hi_res_exo : dict
+            Exogenous high-resolution input dict returned by
+            ``get_hr_exo_input``.
+
+        Returns
+        -------
+        dict
+            Copy of ``hi_res_exo`` with obs features partially masked.
+        """
+        out = dict(hi_res_exo)
+        for k in self.obs_features:
+            v = out[k]
+            not_nan = tf.math.logical_not(tf.math.is_nan(v))
+            rand = tf.random.uniform(tf.shape(v), dtype=v.dtype)
+            drop = tf.math.logical_and(not_nan, rand < self._obs_mask_fraction)
+            nan_fill = tf.fill(tf.shape(v), tf.cast(float('nan'), v.dtype))
+            out[k] = tf.where(drop, nan_fill, v)
+        return out
+
     @tf.function(reduce_retracing=True)
     def get_single_grad_gen(
         self,
@@ -1470,6 +1501,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         """Run generator-only gradient calculation for one mini-batch."""
         with self._training_scope(device_name), tf.GradientTape() as tape:
             hi_res_exo = self.get_hr_exo_input(hi_res_true)
+            hi_res_exo = self._mask_obs_in_exo(hi_res_exo)
             hi_res_gen = self._tf_generate(low_res, hi_res_exo)
             loss, loss_details = self.calc_loss(
                 hi_res_true, hi_res_gen, **calc_loss_kwargs
@@ -1477,7 +1509,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             grad = tape.gradient(loss, self.generator_weights)
         return grad, loss_details
 
-    @tf.function
+    @tf.function(reduce_retracing=True)
     def apply_grad_gen(self, grad):
         """Apply a generator gradient update."""
         self.optimizer.apply_gradients(zip(grad, self.generator_weights))

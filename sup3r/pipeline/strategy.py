@@ -355,11 +355,11 @@ class ForwardPassStrategy:
         return unpadded_slice, padded_slice
 
     def init_input_handler(self):
-        """Get input handler instance for given input kwargs. If self.head_node
-        is False or features are being cached we get all requested features.
-        Otherwise this is part of initialization on a head node and just used
-        to get the shape of the input domain, so we don't need to get any
-        features yet."""
+        """Get input handler instance for given input kwargs. If
+        `self.head_node` is False or features are being cached we get all
+        requested features.  Otherwise this is part of initialization on a head
+        node and just used to get the shape of the input domain, so we don't
+        need to get any features yet."""
         self.input_handler_kwargs = self.input_handler_kwargs or {}
         self.input_handler_kwargs['file_paths'] = self.file_paths
         self.input_handler_kwargs['features'] = self.features
@@ -374,10 +374,9 @@ class ForwardPassStrategy:
 
         input_handler_kwargs['time_slice'] = self.padded_time_slice
         logger.info(
-            'Initializing %s for %s features over padded time slice %s.',
-            InputHandler.__name__,
+            'Loading low-resolution data for %s features: %s',
             len(input_handler_kwargs['features']),
-            self.padded_time_slice,
+            input_handler_kwargs['features'],
         )
         handler = InputHandler(**input_handler_kwargs)
         logger.info(
@@ -469,7 +468,7 @@ class ForwardPassStrategy:
         non_masked = self.fwp_slicer.n_spatial_chunks - sum(self.fwp_mask)
         non_masked *= self.fwp_slicer.n_time_chunks
         logger.info(
-            'Chunk strategy uses %s nodes across %s total chunks '
+            'Chunk strategy uses %s node(s) across %s chunk(s): '
             '(%s spatial x %s temporal, %s unmasked).',
             len(self.node_chunks),
             self.fwp_slicer.n_chunks,
@@ -689,7 +688,7 @@ class ForwardPassStrategy:
             data.update(ExoDataHandler(**exo_kwargs).data)
         exo_data = ExoData(data)
         if exo_kwargs_list:
-            logger.info(
+            logger.debug(
                 'Finished loading exogenous data for %s features.',
                 len(exo_kwargs_list),
             )

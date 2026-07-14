@@ -448,7 +448,7 @@ class ForwardPass:
         """
         if not strategy.node_finished(node_index):
             logger.info(
-                'Starting forward pass on node %s with %s chunks using %s '
+                'Starting forward pass on node %s with %s chunk(s) using %s '
                 'execution.',
                 node_index,
                 len(strategy.node_chunks[node_index]),
@@ -517,7 +517,7 @@ class ForwardPass:
                     raise MemoryError(msg)
 
         logger.info(
-            'Finished forward passes on %s chunks in %s',
+            'Finished forward pass(es) on %s chunk(s) in %s',
             len(strategy.node_chunks[node_index]),
             dt.now() - start,
         )

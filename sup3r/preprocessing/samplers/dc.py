@@ -42,49 +42,15 @@ class SamplerDC(Sampler):
         Parameters
         ----------
         data : Union[Sup3rX, Sup3rDataset],
-            Object with data that will be sampled from. Usually the `.data`
-            attribute of various :class:`Container` objects.  i.e.
-            :class:`Loader`, :class:`Rasterizer`, :class:`Deriver`, as long as
-            the spatial dimensions are not flattened.
+            See :class:`~sup3r.preprocessing.Sampler` for full documentation.
         sample_shape : tuple
-            Size of arrays to sample from the contained data.
+            See :class:`~sup3r.preprocessing.Sampler` for full documentation.
         batch_size : int
-            Number of samples to get to build a single batch. A sample of
-            (sample_shape[0], sample_shape[1], batch_size * sample_shape[2])
-            is first selected from underlying dataset and then reshaped into
-            (batch_size, *sample_shape) to get a single batch. This is more
-            efficient than getting N = batch_size samples and then stacking.
+            See :class:`~sup3r.preprocessing.Sampler` for full documentation.
         feature_sets : Optional[dict]
-            Optional dictionary describing how the full set of features is
-            split between ``lr_features``, ``hr_exo_features``, and
-            ``hr_out_features``.
-
-            lr_features : list | tuple
-                List of feature names or patt*erns to use as low-resolution
-                model inputs. If no entry is provided then all available
-                features from the data will be used.
-            hr_out_features : list | tuple
-                List of feature names or patt*erns that should be output
-                by the generative model and available as ground truth targets.
-                If no entry is provided then all features in lr_features will
-                be used.
-            hr_exo_features : list | tuple
-                List of feature names or patt*erns that should be available as
-                high-resolution model inputs (like topography or observations)
-                or for bespoke loss functions. Features used as inputs are
-                injected into the model mid-network to condition output on
-                high-resolution information. The model configuration should
-                have the appropriate layers to use these features. e.g.
-                ``Sup3rConcat`` for topography injection, ``Sup3rObsModel`` or
-                ``Sup3rCrossAttention`` for obs injection.  If no entry is
-                provided then hr_exo_features will be empty.
-
-
-            *To include sparse features as inputs or targets the features
-            must have an "_obs" suffix.
+            See :class:`~sup3r.preprocessing.Sampler` for full documentation.
         mode : str
-            Loading mode for sampling.
-            See :class:`~sup3r.preprocessing.Sampler`
+            See :class:`~sup3r.preprocessing.Sampler` for full documentation.
         spatial_weights : Union[np.ndarray, da.core.Array] | List | None
             Set of weights used to initialize the spatial sampling. e.g. If we
             want to start off sampling across 2 spatial bins evenly this should

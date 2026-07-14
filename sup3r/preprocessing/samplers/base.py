@@ -82,29 +82,31 @@ class Sampler(Container):
         proxy_obs_kwargs : dict | None
             Optional dictionary of keyword arguments to pass to the proxy
             observation generator. This is only used when training with proxy
-            observations. Keys can include ``onshore_obs_frac``,
-            ``offshore_obs_frac``, and ``perturbation_scale``.
+            observations. Top-level keys (``onshore_obs_frac``,
+            ``offshore_obs_frac``, ``perturbation_scale``) apply to all obs
+            features as defaults. A source-feature-named sub-dict (keyed by
+            the gridded feature name, e.g. ``u_100m`` for ``u_100m_obs``)
+            overrides any of those keys for that specific feature::
+
+                proxy_obs_kwargs = {
+                    'onshore_obs_frac': {'spatial': [0.3, 0.7], 'temporal': 1},
+                    'perturbation_scale': 0.01,
+                    'u_100m': {
+                        'onshore_obs_frac': {'spatial': 0.9},
+                        'perturbation_scale': 0.05,
+                    },
+                }
 
             perturbation_scale : float
-                Scale of the perturbation to add to the proxy observations when
-                using proxy observations. This specifies the multiplier of the
-                noise sampled from (-standard deviation, standard deviation).
-                The standdard deviation is calculated per feature over each
-                batch.
-            onshore_obs_frac : float | dict
-                Fraction of onshore observations to include in each batch when
-                using proxy observations. This can be a single float or a
-                dictionary with keys 'spatial' and 'temporal' to specify the
-                fraction for each domain. If a dictionary is provided, the
-                actual fraction for each batch will be sampled uniformly
-                between the specified spatial and temporal fractions.
-            offshore_obs_frac : float | dict
-                Fraction of offshore observations to include in each batch when
-                using proxy observations. This can be a single float or a
-                dictionary with keys 'spatial' and 'temporal' to specify the
-                fraction for each domain. If a dictionary is provided, the
-                actual fraction for each batch will be sampled uniformly
-                between the specified spatial and temporal fractions.
+                If non-zero, gaussian noise scaled by this value times the
+                per-feature batch standard deviation is added to proxy obs.
+            onshore_obs_frac : dict
+                Fraction of onshore observations per batch. Keys are
+                'spatial' and 'temporal'. Each value is a float (fixed
+                fraction) or a [min, max] list to sample uniformly per batch.
+            offshore_obs_frac : dict
+                Same as ``onshore_obs_frac`` but applied where topography
+                <= 0. Ignored when topography is not a source feature.
         mode : str
             Mode for sampling data. Options are 'lazy' or 'eager'. 'eager' mode
             pre-loads all data into memory as numpy arrays for faster access.
@@ -135,35 +137,6 @@ class Sampler(Container):
         ``temperature``.
         """
         return bool(self.proxy_obs_kwargs)
-
-    @property
-    def onshore_obs_frac(self):
-        """Fraction of onshore observations to include in each batch when using
-        proxy observations. This can be a single float or a dictionary with
-        keys 'spatial' and 'temporal' to specify the fraction for each domain.
-        If a dictionary is provided, the actual fraction for each batch will be
-        sampled uniformly between the specified spatial and temporal fractions.
-        """
-        return self.proxy_obs_kwargs.get('onshore_obs_frac', {})
-
-    @property
-    def offshore_obs_frac(self):
-        """Fraction of offshore observations to include in each batch when
-        using proxy observations. This can be a single float or a dictionary
-        with keys 'spatial' and 'temporal' to specify the fraction for each
-        domain.  If a dictionary is provided, the actual fraction for each
-        batch will be sampled uniformly between the specified spatial and
-        temporal fractions.
-        """
-        return self.proxy_obs_kwargs.get('offshore_obs_frac', {})
-
-    @property
-    def perturbation_scale(self):
-        """Scale of the perturbation to add to the proxy observations when
-        using proxy observations. This specifies the multiplier of the noise
-        sampled from (-standard deviation, standard deviation).
-        """
-        return self.proxy_obs_kwargs.get('perturbation_scale', 0.01)
 
     def get_sample_index(self, n_obs=None):
         """Randomly gets spatiotemporal sample index.
@@ -218,12 +191,15 @@ class Sampler(Container):
             'building batches with n_samples = batch_size, each with '
             'n_time_steps = sample_shape[2].'
         )
-        if self.data.shape[2] < self.sample_shape[2] * self.batch_size:
+        if (
+            self.data.shape[2] < self.sample_shape[2] * self.batch_size
+            and self.data.shape[2] > 1
+        ):
             logger.warning(msg)
             warn(msg)
 
         if self.mode == 'eager':
-            logger.info('Received mode = "eager".')
+            logger.debug('Received mode = "eager".')
             _ = self.compute()
 
     def check_proxy_obs_consistency(self):
@@ -430,12 +406,14 @@ class Sampler(Container):
 
     def _get_proxy_obs(self, hi_res):
         """Generate proxy observation data by masking the gridded high-res
-        data. Adds a perturbation to the proxy observations sampled from a
-        gaussian distribution with mean 0 and standard deviation equal to the
-        standard deviation of the unmasked values for each feature. This is
-        done to prevent the model from learning to ignore the obs features
-        because they are exactly the same as the gridded features at the
-        observed locations. Unobserved locations are set to NaN.
+        data. Optionally adds a perturbation to the proxy observations sampled
+        from a gaussian distribution with mean 0 and standard deviation equal
+        to the standard deviation of the unmasked values for each feature
+        multiplied by perturbation_scale. This is done to prevent the model
+        from learning to ignore the obs features because they are exactly the
+        same as the gridded features at the observed locations. This can also
+        encourage the model to condition on obs that differ significantly from
+        the gridded data. Unobserved locations are set to NaN.
 
         Parameters
         ----------
@@ -451,11 +429,13 @@ class Sampler(Container):
         """
         obs_mask = self._get_full_obs_mask(hi_res)
         obs = hi_res[..., self.obs_features_ind].copy()
+        stds = np.std(obs, axis=(1, 2, 3), keepdims=True)
         obs[obs_mask[..., : obs.shape[-1]]] = np.nan
-        if self.perturbation_scale > 0:
-            stdev = np.nanstd(obs, axis=(0, 1, 2, 3), keepdims=True)
-            noise = np.random.uniform(-stdev, stdev)
-            obs += self.perturbation_scale * noise
+        for i, feat in enumerate(self.obs_features):
+            scale = self._get_proxy_kwarg('perturbation_scale', feat, 0)
+            if scale > 0:
+                srange = stds[..., i] * scale
+                obs[..., i] += np.random.normal(scale=srange)
         return obs
 
     def _append_obs_features(self, samples):
@@ -641,6 +621,28 @@ class Sampler(Container):
         )
         return [self.hr_source_features.index(f) for f in check_feats]
 
+    def _get_proxy_kwarg(self, key, feat, default):
+        """Get a proxy obs kwarg value for a specific obs feature, with
+        fallback to the global default in ``proxy_obs_kwargs``.
+
+        Parameters
+        ----------
+        key : str
+            The kwarg name, e.g. ``'onshore_obs_frac'`` or
+            ``'perturbation_scale'``.
+        feat : str
+            The obs feature name (e.g. ``'u_100m_obs'``). The ``'_obs'``
+            suffix is stripped to look up the source-feature override key.
+        default :
+            Value returned when neither a feature-level nor a global entry
+            exists in ``proxy_obs_kwargs``.
+        """
+        src = feat.replace('_obs', '')
+        feat_overrides = self.proxy_obs_kwargs.get(src, {})
+        if key in feat_overrides:
+            return feat_overrides[key]
+        return self.proxy_obs_kwargs.get(key, default)
+
     def _get_obs_mask(self, hi_res, spatial_frac, time_frac=1.0):
         """Get observation mask for a given spatial and time obs fraction for
         an entire batch. This is divided between spatial and time fractions
@@ -666,16 +668,14 @@ class Sampler(Container):
         -------
         np.ndarray
             Mask which is True for locations that are not observed and False
-            for locations that are observed.
-            (n_obs, spatial_1, spatial_2, n_features)
-            (n_obs, spatial_1, spatial_2, n_temporal, n_features)
+            for locations that are observed. Shape:
+            (n_obs, spatial_1, spatial_2, n_temporal, 1)
 
         Notes
         -----
-        The output mask is repeated along the feature dimension, so each
-        feature will have the same observation mask. The output mask is not
-        repeated along the batch dimension, so each sample in the batch will
-        have a different observation mask.
+        The output mask has a trailing singleton feature dimension. Callers
+        are responsible for repeating or concatenating across features.
+        Each sample in the batch has an independent mask.
         """
         s_range = (
             spatial_frac
@@ -688,7 +688,6 @@ class Sampler(Container):
             else [time_frac, time_frac]
         )
         n_obs, n_spatial_1, n_spatial_2, n_temporal = hi_res.shape[:-1]
-        n_features = len(self.obs_features)
 
         s_fracs = RANDOM_GENERATOR.uniform(*s_range, size=n_obs)
         t_fracs = RANDOM_GENERATOR.uniform(*t_range, size=n_obs)
@@ -706,21 +705,57 @@ class Sampler(Container):
         t_mask = t_mask[:, None, None, :, None]
 
         mask = ~(s_mask & t_mask)
-        return np.repeat(mask, n_features, axis=-1)
+        return mask
+
+    def _get_topo(self, hi_res):
+        """Return the topography slice from ``hi_res``, or ``None`` if
+        topography is not in the source features."""
+        if 'topography' not in self.hr_source_features:
+            return None
+        topo_idx = self.hr_source_features.index('topography')
+        return hi_res[..., topo_idx]
+
+    def _get_feat_obs_mask(self, hi_res, feat, topo):
+        """Build the observation mask for a single obs feature, applying the
+        offshore mask where topography is non-positive when ``topo`` is
+        provided.
+
+        Parameters
+        ----------
+        hi_res : np.ndarray
+            High-resolution batch data.
+        feat : str
+            Obs feature name (e.g. ``'u_100m_obs'``).
+        topo : np.ndarray | None
+            Topography array with shape ``(n_obs, s1, s2, n_temporal)``, or
+            ``None`` when topography is unavailable.
+
+        Returns
+        -------
+        np.ndarray
+            Boolean mask with shape ``(n_obs, s1, s2, n_temporal, 1)``.
+        """
+        on_frac = self._get_proxy_kwarg('onshore_obs_frac', feat, {})
+        on_sf = on_frac.get('spatial', 0.0)
+        on_tf = on_frac.get('temporal', 1.0)
+        feat_mask = self._get_obs_mask(hi_res, on_sf, on_tf)
+        if topo is None:
+            return feat_mask
+        off_frac = self._get_proxy_kwarg('offshore_obs_frac', feat, {})
+        if not off_frac:
+            return feat_mask
+        off_sf = off_frac.get('spatial', 0.0)
+        off_tf = off_frac.get('temporal', 1.0)
+        offshore_mask = self._get_obs_mask(hi_res, off_sf, off_tf)
+        return np.where(topo[..., None] > 0, feat_mask, offshore_mask)
 
     def _get_full_obs_mask(self, hi_res):
-        """Define observation mask for the current batch. This differs from
-        ``_get_obs_mask`` by defining a composite mask based on separate
-        onshore and offshore masks. This is because there is often more
-        observation data available onshore than offshore."""
-        on_sf = self.onshore_obs_frac.get('spatial', 0.0)
-        on_tf = self.onshore_obs_frac.get('temporal', 1.0)
-        obs_mask = self._get_obs_mask(hi_res, on_sf, on_tf)
-        if 'topography' in self.hr_source_features and self.offshore_obs_frac:
-            topo_idx = self.hr_source_features.index('topography')
-            topo = hi_res[..., topo_idx]
-            off_sf = self.offshore_obs_frac.get('spatial', 0.0)
-            off_tf = self.offshore_obs_frac.get('temporal', 1.0)
-            offshore_mask = self._get_obs_mask(hi_res, off_sf, off_tf)
-            obs_mask = np.where(topo[..., None] > 0, obs_mask, offshore_mask)
-        return obs_mask
+        """Define observation mask for the current batch. Builds a per-feature
+        composite mask that applies separate onshore and offshore fractions and
+        supports per-feature ``proxy_obs_kwargs`` overrides."""
+        topo = self._get_topo(hi_res)
+        per_feat_masks = [
+            self._get_feat_obs_mask(hi_res, feat, topo)
+            for feat in self.obs_features
+        ]
+        return np.concatenate(per_feat_masks, axis=-1)

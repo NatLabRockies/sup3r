@@ -17,6 +17,7 @@ from sup3r.utilities.loss_metrics import (
     LowResLoss,
     MaterialDerivativeLoss,
     MmdLoss,
+    ObsAssimilationLoss,
     SpatialExtremesLoss,
     SpatiotemporalFftLoss,
     TemporalExtremesLoss,
@@ -264,6 +265,43 @@ def test_lr_loss():
     )
     ex_loss = loss_obj(xtensor, ytensor)
     assert ex_loss > loss
+
+
+def test_obs_assimilation_loss_no_obs_matches_background_mae():
+    """Obs assimilation loss should reduce to background MAE without obs."""
+    x_true_bg = np.arange(25, dtype=np.float32).reshape(1, 5, 5, 1)
+    x_obs = np.full_like(x_true_bg, np.nan)
+    x_true = np.concatenate([x_true_bg, x_obs], axis=-1)
+    x_gen = x_true_bg + 2.0
+
+    loss = ObsAssimilationLoss(
+        gen_features=['f'],
+        true_features=['f', 'f_obs'],
+        blend_distance=2,
+    )(x_true, x_gen)
+
+    assert np.allclose(loss, MeanAbsoluteError()(x_true_bg, x_gen))
+
+
+def test_obs_assimilation_loss_blends_obs_into_background():
+    """Obs assimilation loss should apply Gaussian blending around obs."""
+    x_true_bg = np.zeros((1, 5, 5, 1), dtype=np.float32)
+    x_obs = np.full_like(x_true_bg, np.nan)
+    x_obs[:, 2, 2, 0] = 1.0
+    x_true = np.concatenate([x_true_bg, x_obs], axis=-1)
+    x_gen = np.zeros_like(x_true_bg)
+
+    loss = ObsAssimilationLoss(
+        gen_features=['f'],
+        true_features=['f', 'f_obs'],
+        blend_distance=1,
+    )(x_true, x_gen)
+
+    edge_weight = np.exp(-2.0)
+    corner_weight = np.exp(-4.0)
+    expected = (1.0 + 4 * edge_weight + 4 * corner_weight) / 25.0
+
+    assert np.allclose(loss, expected)
 
 
 def test_md_loss():

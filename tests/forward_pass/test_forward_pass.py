@@ -926,3 +926,87 @@ def test_slicing_pad(input_files):
 
             assert chunk.input_data.shape == padded_truth.shape
             assert np.allclose(chunk.input_data, padded_truth)
+
+
+def test_fwp_all_features_as_exo(input_files):
+    """Test that ForwardPassStrategy and ForwardPass correctly handles the edge
+    case where all low-resolution model features are provided through
+    ``exo_handler_kwargs``.
+
+    When all lr features are in ``exo_handler_kwargs``, ``_init_features``
+    returns ``features=[]``. The ``DataHandler`` is then initialized with no
+    features, so ``input_handler[[]].isel(...).as_array()`` must return an
+    array shaped ``(s1, s2, t, 0)`` (zero feature channels). However, the
+    ``to_dataarray()`` fallback in ``accessor.py`` currently returns
+    latitude/longitude coordinate arrays stacked as ``(s1, s2, 2)`` instead,
+    which breaks downstream exo temporal-expansion logic in
+    ``pad_source_data`` (``input_data.shape[2]`` yields 2 rather than the
+    number of time steps).
+    """
+    fp_gen = os.path.join(CONFIG_DIR, 'spatiotemporal/gen_3x_4x_2f.json')
+    fp_disc = os.path.join(CONFIG_DIR, 'spatiotemporal/disc.json')
+
+    Sup3rGan.seed()
+    model = Sup3rGan(fp_gen, fp_disc, learning_rate=1e-4)
+    model.meta['lr_features'] = FEATURES
+    model.meta['hr_out_features'] = FEATURES
+    model.meta['s_enhance'] = s_enhance
+    model.meta['t_enhance'] = t_enhance
+    _ = model.generate(np.ones((4, 10, 10, 12, len(FEATURES))))
+
+    with tempfile.TemporaryDirectory() as td:
+        model_dir = os.path.join(td, 'model')
+        model.save(model_dir)
+
+        # Route all lr features through exo_handler_kwargs so that
+        # _init_features returns features=[].
+        exo_handler_kwargs = {f: {'file_paths': input_files} for f in FEATURES}
+        input_handler_kwargs = {
+            'target': target,
+            'shape': shape,
+            'time_slice': time_slice,
+        }
+
+        # head_node=True skips load_exo_data (no cache_dir in exo kwargs,
+        # max_nodes=1), letting us test the _init_features / input_data shape
+        # logic without needing fully-configured ExoDataHandler source files.
+        strat = ForwardPassStrategy(
+            input_files,
+            model_kwargs={'model_dir': model_dir},
+            fwp_chunk_shape=fwp_chunk_shape,
+            spatial_pad=0,
+            temporal_pad=0,
+            input_handler_kwargs=input_handler_kwargs,
+            exo_handler_kwargs=exo_handler_kwargs,
+            head_node=True,
+            max_nodes=1,
+        )
+
+        # _init_features must return [] when all lr features are exo.
+        assert strat.features == [], (
+            f'Expected features=[] when all lr features are in '
+            f'exo_handler_kwargs, got features={strat.features}'
+        )
+
+        # Replicate the slice kwargs built by prep_chunk_data for chunk 0.
+        lr_pad_slice = strat.lr_pad_slices[0]
+        ti_pad_slice = strat.ti_pad_slices[0]
+        kwargs = dict(zip(Dimension.dims_2d(), lr_pad_slice))
+        kwargs[Dimension.TIME] = ti_pad_slice
+
+        input_data = strat.input_handler[strat.features].isel(**kwargs)
+        input_data.load()
+        arr = input_data.as_array()
+
+        # input_data should carry 0 feature channels with a valid time axis,
+        # not lat/lon coordinate arrays collapsed into the last dimension.
+        assert arr.ndim == 4, (
+            f'input_data.as_array() returned a {arr.ndim}D array with shape '
+            f'{arr.shape}; expected 4D (s1, s2, t, 0). This indicates that '
+            'to_dataarray() falls back to returning coordinate arrays '
+            '(lat/lon) when features=[], producing shape (s1, s2, 2) instead '
+            'of (s1, s2, t, 0).'
+        )
+        assert arr.shape[-1] == 0, (
+            f'Expected 0 feature channels (features=[]), got shape {arr.shape}'
+        )

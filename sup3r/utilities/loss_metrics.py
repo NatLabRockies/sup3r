@@ -617,8 +617,7 @@ class LowResLoss(Sup3rLoss):
             tf.shape(x_true),
             tf.shape(x_gen),
             message=(
-                'LowResLoss requires x_true and x_gen to have matching '
-                'shapes'
+                'LowResLoss requires x_true and x_gen to have matching shapes'
             ),
         )
         s_only = x_true.shape.rank == 4
@@ -716,7 +715,6 @@ class PerceptualLoss(Sup3rLoss):
         for x_true_f, x_gen_f in zip(
             tf.unstack(x_true, axis=-1), tf.unstack(x_gen, axis=-1)
         ):
-
             # VGG input needs 3 RGB channels
             x_true_f = tf.stack([x_true_f] * 3, axis=-1)
             x_gen_f = tf.stack([x_gen_f] * 3, axis=-1)
@@ -894,15 +892,12 @@ class MaterialDerivativeLoss(Sup3rLoss):
         x_true = _assert_rank_in(x_true, (5,), msg)
         x_gen = _assert_rank_in(x_gen, (5,), msg)
 
-        x_true_div = tf.stack(
-            [
-                self._compute_md(x_true, feature)
-                for feature in self.gen_features
-            ]
-        )
-        x_gen_div = tf.stack(
-            [self._compute_md(x_gen, feature) for feature in self.gen_features]
-        )
+        x_true_div = tf.stack([
+            self._compute_md(x_true, feature) for feature in self.gen_features
+        ])
+        x_gen_div = tf.stack([
+            self._compute_md(x_gen, feature) for feature in self.gen_features
+        ])
 
         return self.LOSS_METRIC(x_true_div, x_gen_div)
 
@@ -1310,6 +1305,212 @@ class GeothermalObsLoss(Sup3rLoss):
             lambda: self.LOSS_METRIC(x_true_m, x_gen_m),
         )
         return obs_loss
+
+
+class ObsAssimilationLoss(Sup3rLoss):
+    """Loss for training with both dense and sparse ground truth where the obs
+    locations are explicitly considered. This is designed to encourage
+    matching observations where they exist while blending smoothly back to
+    the dense background field over a Gaussian neighbourhood around each
+    observation.
+
+    Assumes ``true_features`` contains ``gen_features`` followed by sparse
+    observation versions of those same features in matching order. For
+    example::
+
+        gen_features  = ['u_10m', 'v_10m']
+        true_features = ['u_10m', 'v_10m', 'u_10m_obs', 'v_10m_obs']
+
+     The loss is a single MAE term between generator output and a blended
+     target field:
+
+     1. At obs locations, the target is the observed value.
+     2. Away from obs, the target relaxes back toward the dense background.
+     3. Between the two, a Gaussian kernel determines the observation
+         influence out to ``blend_distance`` grid cells.
+    """
+
+    LOSS_METRIC = MeanAbsoluteError()
+
+    def __init__(self, gen_features, true_features=None, blend_distance=1):
+        """
+        Parameters
+        ----------
+        gen_features : list of str
+            Generator output feature names (N features).
+        true_features : list of str | None
+            True-data feature names. Must contain 2N entries: the first N
+            match ``gen_features`` (dense reference) and the last N are the
+            corresponding sparse observation features (NaN where missing).
+            Defaults to ``gen_features + [f + '_obs' for f in gen_features]``.
+        blend_distance : int
+            Spatial distance in grid cells over which the Gaussian
+            observation/background blend is applied. A value of 0 uses the
+            observation exactly at observed cells and the background
+            everywhere else.
+        """
+        gen_features = list(gen_features)
+        if true_features is None:
+            true_features = gen_features + [f + '_obs' for f in gen_features]
+        true_features = list(true_features)
+
+        n = len(gen_features)
+        if len(true_features) != 2 * n:
+            raise ValueError(
+                'ObsAssimilationLoss requires len(true_features) == '
+                f'2 * len(gen_features). Got {len(true_features)} true '
+                f'features and {n} gen features.'
+            )
+
+        super().__init__(
+            gen_features=gen_features, true_features=true_features
+        )
+        self._blend_distance = blend_distance
+
+    def _get_gaussian_kernel(self, dtype):
+        """Get a 2-D Gaussian kernel for observation blending.
+
+        Parameters
+        ----------
+        dtype : tf.DType
+            Tensor dtype for the kernel.
+
+        Returns
+        -------
+        tf.Tensor
+            Gaussian kernel with shape ``(K, K)`` and center weight 1.
+        """
+        r = self._blend_distance
+        if r == 0:
+            return tf.ones((1, 1), dtype=dtype)
+
+        sigma = tf.cast(r / 2.0, dtype)
+        coords = tf.cast(tf.range(-r, r + 1), dtype)
+        weights = tf.exp(-0.5 * tf.square(coords / sigma))
+        return tf.expand_dims(weights, 0) * tf.expand_dims(weights, 1)
+
+    @staticmethod
+    def _to_spatial_4d(x):
+        """Reshape 4-D or 5-D tensors to 4-D for spatial filtering.
+
+        Parameters
+        ----------
+        x : tf.Tensor
+            Tensor with shape ``(B, H, W, C)`` or ``(B, H, W, T, C)``.
+
+        Returns
+        -------
+        tuple[tf.Tensor, tf.Tensor | None]
+            Reshaped 4-D tensor and the original shape tensor when input was
+            5-D. The original shape is ``None`` for 4-D inputs.
+        """
+        if x.shape.rank == 4:
+            return x, None
+
+        shape = tf.shape(x)
+        x = tf.transpose(x, [0, 3, 1, 2, 4])
+        return tf.reshape(
+            x, (shape[0] * shape[3], shape[1], shape[2], shape[4])
+        ), shape
+
+    @staticmethod
+    def _from_spatial_4d(x, original_shape):
+        """Restore a filtered tensor to its original 4-D or 5-D shape."""
+        if original_shape is None:
+            return x
+
+        x = tf.reshape(
+            x,
+            (
+                original_shape[0],
+                original_shape[3],
+                original_shape[1],
+                original_shape[2],
+                original_shape[4],
+            ),
+        )
+        return tf.transpose(x, [0, 2, 3, 1, 4])
+
+    def _gaussian_blend_target(self, x_true_bg, x_obs, obs_mask):
+        """Blend sparse observations into the dense background field.
+
+        Parameters
+        ----------
+        x_true_bg : tf.Tensor
+            Dense background tensor with shape ``(B, H, W, C)`` or
+            ``(B, H, W, T, C)``.
+        x_obs : tf.Tensor
+            Sparse observation tensor matching ``x_true_bg`` with NaNs where
+            observations are missing.
+        obs_mask : tf.Tensor
+            Boolean mask matching ``x_obs`` where True marks valid obs.
+
+        Returns
+        -------
+        tf.Tensor
+            Blended target tensor with no NaNs.
+        """
+        if self._blend_distance == 0:
+            return tf.where(obs_mask, x_obs, x_true_bg)
+
+        x_true_bg_4d, original_shape = self._to_spatial_4d(x_true_bg)
+        x_obs_4d, _ = self._to_spatial_4d(x_obs)
+        obs_mask_4d, _ = self._to_spatial_4d(
+            tf.cast(obs_mask, x_true_bg.dtype)
+        )
+
+        kernel = self._get_gaussian_kernel(x_true_bg.dtype)
+        channels = tf.shape(x_true_bg_4d)[-1]
+        kernel = tf.tile(
+            kernel[..., tf.newaxis, tf.newaxis], [1, 1, channels, 1]
+        )
+
+        obs_values = tf.where(
+            obs_mask_4d > 0, x_obs_4d, tf.zeros_like(x_obs_4d)
+        )
+        obs_weight = tf.nn.depthwise_conv2d(
+            obs_mask_4d, kernel, strides=[1, 1, 1, 1], padding='SAME'
+        )
+        obs_smooth = tf.nn.depthwise_conv2d(
+            obs_values, kernel, strides=[1, 1, 1, 1], padding='SAME'
+        )
+        obs_blend = tf.math.divide_no_nan(obs_smooth, obs_weight)
+        blend_weight = tf.minimum(obs_weight, tf.ones_like(obs_weight))
+        target = blend_weight * obs_blend + (1.0 - blend_weight) * x_true_bg_4d
+        target = tf.where(obs_mask_4d > 0, x_obs_4d, target)
+        return self._from_spatial_4d(target, original_shape)
+
+    @tf.function
+    def call(self, x_true, x_gen):
+        """Evaluate the sparse observation loss.
+
+        Parameters
+        ----------
+        x_true : tf.Tensor
+            True data of shape ``(B, H, W, 2C)`` or ``(B, H, W, T, 2C)``.
+            The first C channels are dense reference fields; the last C
+            channels are sparse obs fields (NaN where no observation).
+        x_gen : tf.Tensor
+            Generator output of shape ``(B, H, W, C)`` or ``(B, H, W, T, C)``.
+
+        Returns
+        -------
+        tf.Tensor
+            Scalar (0-D) loss value.
+        """
+        dtype = tf.as_dtype(tf.keras.backend.floatx())
+        x_true = tf.cast(x_true, dtype)
+        x_gen = tf.cast(x_gen, dtype)
+
+        n = len(self.gen_features)
+        x_true_bg = x_true[..., :n]  # dense reference, shape (..., n)
+        x_obs = x_true[
+            ..., n:
+        ]  # sparse obs, shape (..., n); NaN where missing
+
+        obs_mask = ~tf.math.is_nan(x_obs)
+        target = self._gaussian_blend_target(x_true_bg, x_obs, obs_mask)
+        return self.LOSS_METRIC(target, x_gen)
 
 
 def _reshape_depth_feature_for_vertical_derivative(x):

@@ -78,17 +78,14 @@ class ValBatchQueueDC(BatchQueueDC):
         Parameters
         ----------
         samplers : list[Sampler]
-            List of Sampler instances
+            See :class:`~sup3r.preprocessing.BatchQueueDC`
+            for full documentation.
         n_space_bins : int
-            Number of spatial bins to use for weighted sampling. e.g. if this
-            is 4 the spatial domain will be divided into 4 equal regions and
-            losses will be calculated across these regions during traning in
-            order to adaptively sample from lower performing regions.
+            See :class:`~sup3r.preprocessing.BatchQueueDC`
+            for full documentation.
         n_time_bins : int
-            Number of time bins to use for weighted sampling. e.g. if this
-            is 4 the temporal domain will be divided into 4 equal periods and
-            losses will be calculated across these periods during traning in
-            order to adaptively sample from lower performing time periods.
+            See :class:`~sup3r.preprocessing.BatchQueueDC`
+            for full documentation.
         kwargs : dict
             Keyword arguments for parent class.
         """

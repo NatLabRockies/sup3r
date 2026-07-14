@@ -47,58 +47,9 @@ class DualSampler(Sampler):
         t_enhance : int
             Temporal enhancement factor
         feature_sets : Optional[dict]
-            Optional dictionary describing how the full set of features is
-            split between ``lr_features``, ``hr_exo_features``, and
-            ``hr_out_features``.
-
-            lr_features : list | tuple
-                List of feature names or patt*erns to use as low-resolution
-                model inputs. If no entry is provided then all available
-                features from the data will be used.
-            hr_out_features : list | tuple
-                List of feature names or patt*erns that should be output
-                by the generative model and available as ground truth targets.
-                If no entry is provided then all features in the high res data
-                will be used.
-            hr_exo_features : list | tuple
-                List of feature names or patt*erns that should be available
-                as high-resolution model inputs (like topography or
-                observations) or bespoke loss functions. Features used for
-                input are injected into the model mid-network to condition
-                output on high-resolution information. The model configuration
-                should have the appropriate layers to use these features. e.g.
-                ``Sup3rConcat`` for topography injection, ``Sup3rObsModel`` or
-                ``Sup3rCrossAttention`` for obs injection.  If no entry is
-                provided then hr_exo_features will be empty.
-
-            *To include sparse features as inputs or targets the features
-            must have an "_obs" suffix.
+            See :class:`~sup3r.preprocessing.Sampler` for full documentation.
         proxy_obs_kwargs : dict | None
-            Optional dictionary of keyword arguments to pass to the proxy
-            observation generator. This is only used when training with proxy
-            observations. Keys can include ``onshore_obs_frac``,
-            ``offshore_obs_frac``, and ``perturbation_scale``.
-
-            perturbation_scale : float
-                Scale of the perturbation to add to the proxy observations when
-                using proxy observations. This specifies the multiplier of the
-                noise sampled from (-standard deviation, standard deviation).
-                The standdard deviation is calculated per feature over each
-                batch.
-            onshore_obs_frac : float | dict
-                Fraction of onshore observations to include in each batch when
-                using proxy observations. This can be a single float or a
-                dictionary with keys 'spatial' and 'temporal' to specify the
-                fraction for each domain. If a dictionary is provided, the
-                actual fraction for each batch will be sampled uniformly
-                between the specified spatial and temporal fractions.
-            offshore_obs_frac : float | dict
-                Fraction of offshore observations to include in each batch when
-                using proxy observations. This can be a single float or a
-                dictionary with keys 'spatial' and 'temporal' to specify the
-                fraction for each domain. If a dictionary is provided, the
-                actual fraction for each batch will be sampled uniformly
-                between the specified spatial and temporal fractions.
+            See :class:`~sup3r.preprocessing.Sampler` for full documentation.
         mode : str
             Mode for sampling data. Options are 'lazy' or 'eager'. 'eager' mode
             pre-loads all data into memory as numpy arrays for faster access.
