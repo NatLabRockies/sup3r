@@ -354,7 +354,9 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         conf.update(**kwargs)
         self._optimizer_config = conf
         if self._optimizer is not None:
-            self._optimizer = self._optimizer.__class__.from_config(conf)
+            opt_conf = conf.copy()
+            opt_conf.pop('class_name', None)
+            self._optimizer = self._optimizer.__class__.from_config(opt_conf)
 
     @property
     def history(self):
@@ -450,8 +452,12 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Initialized optimizer object.
         """
         if isinstance(optimizer, dict):
+            optimizer = optimizer.copy()
+            class_name = optimizer.pop('class_name', None)
+            if class_name is None:
+                class_name = optimizer['name']
             optimizer = optimizers.deserialize({
-                'class_name': optimizer['name'],
+                'class_name': class_name,
                 'config': optimizer,
             })
         elif optimizer is None:
@@ -468,7 +474,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             conf = cls.get_optimizer_config(
                 cls.init_optimizer(optimizer, learning_rate)
             )
-
         for key, value in conf.items():
             if np.issubdtype(type(value), np.floating):
                 conf[key] = float(value)
@@ -758,6 +763,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Optimizer config
         """
         conf = optimizer.get_config()
+        conf['class_name'] = optimizer.__class__.__name__
         for k, v in conf.items():
             # need to convert numpy dtypes to float/int for json.dump()
             if np.issubdtype(type(v), np.floating):

@@ -406,8 +406,10 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         conf.update(**kwargs)
         self._optimizer_disc_config = conf
         if self._optimizer_disc is not None:
+            opt_conf = conf.copy()
+            opt_conf.pop('class_name', None)
             self._optimizer_disc = self._optimizer_disc.__class__.from_config(
-                conf
+                opt_conf
             )
 
     def update_optimizer(self, option='generator', **kwargs):
