@@ -180,3 +180,68 @@ def test_proxy_obs_per_feature_override(sampler_cls):
     assert u_frac > v_frac
     assert np.isclose(u_frac, 0.8, atol=0.1)
     assert np.isclose(v_frac, 0.1, atol=0.08)
+
+
+@pytest.mark.parametrize('sampler_cls', [Sampler, DualSampler])
+def test_merge_real_and_proxy_obs(sampler_cls):
+    """When real obs features are in the data, they are merged with proxy obs.
+    Real obs values take priority over proxy where not NaN."""
+    hr_shape = (60, 60, 500)
+    sample_shape = (30, 30, 1)
+    batch_size = 8
+    # Include obs features in the data itself
+    hr_features = [*LR_FEATURES, 'u_100m_obs', 'v_100m_obs']
+    feature_sets = {
+        'lr_features': LR_FEATURES,
+        'hr_out_features': HR_OUT_FEATURES,
+        'hr_exo_features': OBS_FEATURES,
+    }
+
+    if sampler_cls is Sampler:
+        data = DummyData(data_shape=hr_shape, features=hr_features)
+        # Set real obs to have NaN in half the spatial domain
+        for feat in ['u_100m_obs', 'v_100m_obs']:
+            arr = data.data.high_res[feat].values
+            arr[:30, :, :] = np.nan
+            data.data.high_res[feat] = (
+                data.data.high_res[feat].dims,
+                arr,
+            )
+        sampler = Sampler(
+            data,
+            sample_shape=sample_shape,
+            batch_size=batch_size,
+            proxy_obs_kwargs={'onshore_obs_frac': {'spatial': 0.5}},
+            feature_sets=feature_sets,
+        )
+    else:
+        lr_shape = (hr_shape[0] // 2, hr_shape[1] // 2, hr_shape[2])
+        lr = DummyData(
+            data_shape=lr_shape, features=LR_FEATURES
+        ).data.high_res
+        hr = DummyData(data_shape=hr_shape, features=hr_features).data.high_res
+        for feat in ['u_100m_obs', 'v_100m_obs']:
+            arr = hr[feat].values
+            arr[:30, :, :] = np.nan
+            hr[feat] = (hr[feat].dims, arr)
+        data = Sup3rDataset(low_res=lr, high_res=hr)
+        sampler = DualSampler(
+            data,
+            sample_shape=sample_shape,
+            batch_size=batch_size,
+            s_enhance=2,
+            t_enhance=1,
+            proxy_obs_kwargs={'onshore_obs_frac': {'spatial': 0.5}},
+            feature_sets=feature_sets,
+        )
+
+    batch = next(sampler)
+    hr_batch = batch[-1] if isinstance(batch, tuple) else batch
+    obs = hr_batch[..., -2:]
+
+    # Merged obs should have MORE observed values than proxy alone
+    # because real obs fill in where proxy would have NaN
+    observed_frac = np.isfinite(obs).mean()
+    # With 50% proxy coverage + real obs in ~half the domain,
+    # total coverage should exceed 50%
+    assert observed_frac > 0.5

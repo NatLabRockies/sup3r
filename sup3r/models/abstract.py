@@ -354,7 +354,9 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         conf.update(**kwargs)
         self._optimizer_config = conf
         if self._optimizer is not None:
-            self._optimizer = self._optimizer.__class__.from_config(conf)
+            opt_conf = conf.copy()
+            opt_conf.pop('class_name', None)
+            self._optimizer = self._optimizer.__class__.from_config(opt_conf)
 
     @property
     def history(self):
@@ -450,8 +452,12 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Initialized optimizer object.
         """
         if isinstance(optimizer, dict):
+            optimizer = optimizer.copy()
+            class_name = optimizer.pop('class_name', None)
+            if class_name is None:
+                class_name = optimizer['name']
             optimizer = optimizers.deserialize({
-                'class_name': optimizer['name'],
+                'class_name': class_name,
                 'config': optimizer,
             })
         elif optimizer is None:
@@ -468,7 +474,6 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             conf = cls.get_optimizer_config(
                 cls.init_optimizer(optimizer, learning_rate)
             )
-
         for key, value in conf.items():
             if np.issubdtype(type(value), np.floating):
                 conf[key] = float(value)
@@ -758,6 +763,7 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
             Optimizer config
         """
         conf = optimizer.get_config()
+        conf['class_name'] = optimizer.__class__.__name__
         for k, v in conf.items():
             # need to convert numpy dtypes to float/int for json.dump()
             if np.issubdtype(type(v), np.floating):
@@ -1301,8 +1307,8 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         )
         if len(extras) > 0:
             extras = np.concatenate(extras, axis=-1)
-            return layer(input_array, hr_exo, extras)
-        return layer(input_array, hr_exo)
+            return layer(input_array, hr_exo, extras, training=False)
+        return layer(input_array, hr_exo, training=False)
 
     def generate(
         self, low_res, norm_in=True, un_norm_out=True, exogenous_data=None
@@ -1348,18 +1354,18 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         if norm_in and self._means is not None:
             low_res = self.norm_input(low_res)
 
-        hi_res = self.generator.layers[0](low_res)
+        hi_res = self.generator.layers[0](low_res, training=False)
         layer_num = 1
         try:
             for i, layer in enumerate(self.generator.layers[1:]):
                 layer_num = i + 1
-                is_exo_layer = isinstance(layer, SUP3R_LAYERS)
-                if is_exo_layer:
-                    hi_res = self.run_exo_layer(
+                hi_res = (
+                    self.run_exo_layer(
                         layer, hi_res, exogenous_data, norm_in=norm_in
                     )
-                else:
-                    hi_res = layer(hi_res)
+                    if isinstance(layer, SUP3R_LAYERS)
+                    else layer(hi_res, training=False)
+                )
         except Exception as e:
             msg = 'Could not run layer #{} "{}" on tensor of shape {}'.format(
                 layer_num, layer, hi_res.shape
