@@ -2,6 +2,9 @@
     :width: 750
     :alt: sup3r banner
 
+.. need these markers for docs index.rst
+.. start
+
 |Docs| |Tests| |Linter| |PyPi| |PythonV| |Codecov| |Zenodo|
 
 .. |Docs| image:: https://github.com/NatLabRockies/sup3r/workflows/Documentation/badge.svg
@@ -62,9 +65,11 @@ Sup3r uses a generative machine learning approach to produce synthetic
 high-resolution spatiotemporal energy resource data from coarse, low-resolution
 inputs. The process is described step-by-step below.
 
+.. top-graphic-start
 .. image:: https://raw.githubusercontent.com/NatLabRockies/sup3r/main/docs/source/_static/Sup3rCC_Top_Graphic_v2.jpg
     :width: 750
     :alt: Sup3r climate downscaling overview graphic
+.. top-graphic-end
 
 Step 1: Learns High-Resolution Physics From Historical Data (Training Phase)
 ----------------------------------------------------------------------------
@@ -93,9 +98,11 @@ important for downstream applications such as power system operational
 modeling, where fine-scale spatial structure and high-frequency temporal
 dynamics matter as much as statistical accuracy.
 
+.. training-flow-start
 .. image:: https://raw.githubusercontent.com/NatLabRockies/sup3r/main/docs/source/_static/Sup3r_training_flow_chart.jpg
     :width: 600
     :alt: Sup3r training flow chart
+.. training-flow-end
 
 Step 2: Collects Coarse Climate Data and Scenarios
 --------------------------------------------------
@@ -120,9 +127,11 @@ meteorological variables. Sup3r has been proven to generate output that
 reproduces the large-scale dynamics in the data from Step 2 while capturing
 realistic physics at the finest scales.
 
+.. inference-flow-start
 .. image:: https://raw.githubusercontent.com/NatLabRockies/sup3r/main/docs/source/_static/Sup3r_inference_flow_chart.jpg
     :width: 600
     :alt: Sup3r inference flow chart
+.. inference-flow-end
 
 Applications of Sup3r
 =====================
