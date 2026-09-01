@@ -20,7 +20,7 @@ from sup3r.preprocessing.utilities import (
 )
 from sup3r.utilities.utilities import RANDOM_GENERATOR, xr_open_mfdataset
 
-CC_LAT_LON = DataHandler(pytest.FP_RSDS, 'rsds').lat_lon
+CC_LAT_LON = DataHandler(pytest.FP_RSDS, features=['rsds']).lat_lon
 
 with xr_open_mfdataset(pytest.FP_RSDS) as fh:
     MIN_LAT = np.min(fh.lat.values.astype(np.float32))
