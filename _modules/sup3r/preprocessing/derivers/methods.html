@@ -1,0 +1,1462 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sup3r.preprocessing.derivers.methods &#8212; sup3r 0.2.9.dev58 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../../_static/documentation_options.js?v=1229960a"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/sup3r/preprocessing/derivers/methods';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">sup3r 0.2.9.dev58 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home page</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../misc/installation_usage.html">Installation and Usage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../misc/installation.html">Installation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/sup3rcc.html">Sup3rCC Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/sup3rwind.html">Sup3rWind Examples</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.batch.html">sup3r.batch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/sup3r.batch.batch_cli.html">sup3r.batch.batch_cli</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.html">sup3r.bias</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.abstract.html">sup3r.bias.abstract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.abstract.AbstractBiasCorrection.html">sup3r.bias.abstract.AbstractBiasCorrection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.base.html">sup3r.bias.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.base.DataRetrievalBase.html">sup3r.bias.base.DataRetrievalBase</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc.html">sup3r.bias.bias_calc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc.LinearCorrection.html">sup3r.bias.bias_calc.LinearCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc.MonthlyLinearCorrection.html">sup3r.bias.bias_calc.MonthlyLinearCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc.MonthlyScalarCorrection.html">sup3r.bias.bias_calc.MonthlyScalarCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc.ScalarCorrection.html">sup3r.bias.bias_calc.ScalarCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc.SkillAssessment.html">sup3r.bias.bias_calc.SkillAssessment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc_cli.html">sup3r.bias.bias_calc_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc_cli.kickoff_local_job.html">sup3r.bias.bias_calc_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc_cli.kickoff_slurm_job.html">sup3r.bias.bias_calc_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc_vortex.html">sup3r.bias.bias_calc_vortex</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc_vortex.BiasCorrectUpdate.html">sup3r.bias.bias_calc_vortex.BiasCorrectUpdate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc_vortex.VortexMeanPrepper.html">sup3r.bias.bias_calc_vortex.VortexMeanPrepper</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_transforms.html">sup3r.bias.bias_transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_transforms.global_linear_bc.html">sup3r.bias.bias_transforms.global_linear_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_transforms.local_linear_bc.html">sup3r.bias.bias_transforms.local_linear_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_transforms.local_presrat_bc.html">sup3r.bias.bias_transforms.local_presrat_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_transforms.local_qdm_bc.html">sup3r.bias.bias_transforms.local_qdm_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_transforms.monthly_local_linear_bc.html">sup3r.bias.bias_transforms.monthly_local_linear_bc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.mixins.html">sup3r.bias.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.mixins.FillAndSmoothMixin.html">sup3r.bias.mixins.FillAndSmoothMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.mixins.ZeroRateMixin.html">sup3r.bias.mixins.ZeroRateMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.presrat.html">sup3r.bias.presrat</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.presrat.PresRat.html">sup3r.bias.presrat.PresRat</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.qdm.html">sup3r.bias.qdm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.qdm.QuantileDeltaMappingCorrection.html">sup3r.bias.qdm.QuantileDeltaMappingCorrection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.utilities.html">sup3r.bias.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.utilities.bias_correct_feature.html">sup3r.bias.utilities.bias_correct_feature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.utilities.bias_correct_features.html">sup3r.bias.utilities.bias_correct_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.utilities.lin_bc.html">sup3r.bias.utilities.lin_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.utilities.qdm_bc.html">sup3r.bias.utilities.qdm_bc</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../_autosummary/sup3r.cli.html">sup3r.cli</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.html">sup3r.models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.abstract.html">sup3r.models.abstract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.abstract.AbstractSingleModel.html">sup3r.models.abstract.AbstractSingleModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.base.html">sup3r.models.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.base.Sup3rGan.html">sup3r.models.base.Sup3rGan</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.conditional.html">sup3r.models.conditional</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.conditional.Sup3rCondMom.html">sup3r.models.conditional.Sup3rCondMom</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.dc.html">sup3r.models.dc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.dc.Sup3rGanDC.html">sup3r.models.dc.Sup3rGanDC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.interface.html">sup3r.models.interface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.interface.AbstractInterface.html">sup3r.models.interface.AbstractInterface</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.linear.html">sup3r.models.linear</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.linear.LinearInterp.html">sup3r.models.linear.LinearInterp</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.multi_step.html">sup3r.models.multi_step</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.multi_step.MultiStepGan.html">sup3r.models.multi_step.MultiStepGan</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.multi_step.MultiStepSurfaceMetGan.html">sup3r.models.multi_step.MultiStepSurfaceMetGan</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.multi_step.SolarMultiStepGan.html">sup3r.models.multi_step.SolarMultiStepGan</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.solar_cc.html">sup3r.models.solar_cc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.solar_cc.SolarCC.html">sup3r.models.solar_cc.SolarCC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.surface.html">sup3r.models.surface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.surface.SurfaceSpatialMetModel.html">sup3r.models.surface.SurfaceSpatialMetModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.utilities.html">sup3r.models.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.utilities.get_sup3r_layers.html">sup3r.models.utilities.get_sup3r_layers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.utilities.st_interp.html">sup3r.models.utilities.st_interp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.utilities.TensorboardMixIn.html">sup3r.models.utilities.TensorboardMixIn</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.utilities.TrainingConfig.html">sup3r.models.utilities.TrainingConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.utilities.TrainingSession.html">sup3r.models.utilities.TrainingSession</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.html">sup3r.pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.forward_pass.html">sup3r.pipeline.forward_pass</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.forward_pass.ForwardPass.html">sup3r.pipeline.forward_pass.ForwardPass</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.forward_pass_cli.html">sup3r.pipeline.forward_pass_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.forward_pass_cli.kickoff_local_job.html">sup3r.pipeline.forward_pass_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.forward_pass_cli.kickoff_slurm_job.html">sup3r.pipeline.forward_pass_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.pipeline_cli.html">sup3r.pipeline.pipeline_cli</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.slicer.html">sup3r.pipeline.slicer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.slicer.ForwardPassSlicer.html">sup3r.pipeline.slicer.ForwardPassSlicer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.strategy.html">sup3r.pipeline.strategy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.strategy.ForwardPassChunk.html">sup3r.pipeline.strategy.ForwardPassChunk</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.strategy.ForwardPassStrategy.html">sup3r.pipeline.strategy.ForwardPassStrategy</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.utilities.html">sup3r.pipeline.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.utilities.get_chunk_slices.html">sup3r.pipeline.utilities.get_chunk_slices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.utilities.get_model.html">sup3r.pipeline.utilities.get_model</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.html">sup3r.postprocessing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.collectors.html">sup3r.postprocessing.collectors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.collectors.base.html">sup3r.postprocessing.collectors.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.collectors.h5.html">sup3r.postprocessing.collectors.h5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.collectors.nc.html">sup3r.postprocessing.collectors.nc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.data_collect_cli.html">sup3r.postprocessing.data_collect_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.data_collect_cli.kickoff_local_job.html">sup3r.postprocessing.data_collect_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.data_collect_cli.kickoff_slurm_job.html">sup3r.postprocessing.data_collect_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.html">sup3r.preprocessing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.accessor.html">sup3r.preprocessing.accessor</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.accessor.Sup3rX.html">sup3r.preprocessing.accessor.Sup3rX</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.base.html">sup3r.preprocessing.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.base.Container.html">sup3r.preprocessing.base.Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.base.DsetTuple.html">sup3r.preprocessing.base.DsetTuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.base.Sup3rDataset.html">sup3r.preprocessing.base.Sup3rDataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.base.Sup3rMeta.html">sup3r.preprocessing.base.Sup3rMeta</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_handlers.html">sup3r.preprocessing.batch_handlers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_handlers.dc.html">sup3r.preprocessing.batch_handlers.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_handlers.factory.html">sup3r.preprocessing.batch_handlers.factory</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.html">sup3r.preprocessing.batch_queues</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.html">sup3r.preprocessing.batch_queues.abstract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.base.html">sup3r.preprocessing.batch_queues.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.conditional.html">sup3r.preprocessing.batch_queues.conditional</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.dc.html">sup3r.preprocessing.batch_queues.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.dual.html">sup3r.preprocessing.batch_queues.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.utilities.html">sup3r.preprocessing.batch_queues.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.collections.html">sup3r.preprocessing.collections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.collections.base.html">sup3r.preprocessing.collections.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.collections.stats.html">sup3r.preprocessing.collections.stats</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.data_handlers.html">sup3r.preprocessing.data_handlers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.data_handlers.base.html">sup3r.preprocessing.data_handlers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.data_handlers.exo.html">sup3r.preprocessing.data_handlers.exo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.data_handlers.nc_cc.html">sup3r.preprocessing.data_handlers.nc_cc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.derivers.html">sup3r.preprocessing.derivers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.derivers.base.html">sup3r.preprocessing.derivers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.html">sup3r.preprocessing.derivers.methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.derivers.utilities.html">sup3r.preprocessing.derivers.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.loaders.html">sup3r.preprocessing.loaders</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.loaders.Loader.html">sup3r.preprocessing.loaders.Loader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.loaders.base.html">sup3r.preprocessing.loaders.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.loaders.h5.html">sup3r.preprocessing.loaders.h5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.loaders.utilities.html">sup3r.preprocessing.loaders.utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.loaders.xr.html">sup3r.preprocessing.loaders.xr</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.names.html">sup3r.preprocessing.names</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.names.Dimension.html">sup3r.preprocessing.names.Dimension</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.rasterizers.html">sup3r.preprocessing.rasterizers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.rasterizers.base.html">sup3r.preprocessing.rasterizers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.rasterizers.dual.html">sup3r.preprocessing.rasterizers.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.rasterizers.exo.html">sup3r.preprocessing.rasterizers.exo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.rasterizers.extended.html">sup3r.preprocessing.rasterizers.extended</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.samplers.html">sup3r.preprocessing.samplers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.samplers.base.html">sup3r.preprocessing.samplers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.samplers.cc.html">sup3r.preprocessing.samplers.cc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.samplers.dc.html">sup3r.preprocessing.samplers.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.samplers.dual.html">sup3r.preprocessing.samplers.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.samplers.utilities.html">sup3r.preprocessing.samplers.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.html">sup3r.preprocessing.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.check_signatures.html">sup3r.preprocessing.utilities.check_signatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.composite_info.html">sup3r.preprocessing.utilities.composite_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.composite_sig.html">sup3r.preprocessing.utilities.composite_sig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.compute_if_dask.html">sup3r.preprocessing.utilities.compute_if_dask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.contains_ellipsis.html">sup3r.preprocessing.utilities.contains_ellipsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.dims_array_tuple.html">sup3r.preprocessing.utilities.dims_array_tuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.expand_paths.html">sup3r.preprocessing.utilities.expand_paths</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.get_class_kwargs.html">sup3r.preprocessing.utilities.get_class_kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.get_date_range_kwargs.html">sup3r.preprocessing.utilities.get_date_range_kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.get_input_handler_class.html">sup3r.preprocessing.utilities.get_input_handler_class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.get_obj_params.html">sup3r.preprocessing.utilities.get_obj_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.get_source_type.html">sup3r.preprocessing.utilities.get_source_type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.get_time_index_freqs.html">sup3r.preprocessing.utilities.get_time_index_freqs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.is_type_of.html">sup3r.preprocessing.utilities.is_type_of</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.log_args.html">sup3r.preprocessing.utilities.log_args</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.lower_names.html">sup3r.preprocessing.utilities.lower_names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.lowered.html">sup3r.preprocessing.utilities.lowered</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.make_time_index_from_kws.html">sup3r.preprocessing.utilities.make_time_index_from_kws</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.numpy_if_tensor.html">sup3r.preprocessing.utilities.numpy_if_tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.ordered_array.html">sup3r.preprocessing.utilities.ordered_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.ordered_dims.html">sup3r.preprocessing.utilities.ordered_dims</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.parse_ellipsis.html">sup3r.preprocessing.utilities.parse_ellipsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.parse_features.html">sup3r.preprocessing.utilities.parse_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.parse_keys.html">sup3r.preprocessing.utilities.parse_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.parse_to_list.html">sup3r.preprocessing.utilities.parse_to_list</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.html">sup3r.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.qa.html">sup3r.qa.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.qa.Sup3rQa.html">sup3r.qa.qa.Sup3rQa</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.qa_cli.html">sup3r.qa.qa_cli</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.html">sup3r.qa.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.continuous_dist.html">sup3r.qa.utilities.continuous_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.direct_dist.html">sup3r.qa.utilities.direct_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.frequency_spectrum.html">sup3r.qa.utilities.frequency_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.gradient_dist.html">sup3r.qa.utilities.gradient_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.time_derivative_dist.html">sup3r.qa.utilities.time_derivative_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.tke_frequency_spectrum.html">sup3r.qa.utilities.tke_frequency_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.tke_wavenumber_spectrum.html">sup3r.qa.utilities.tke_wavenumber_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.wavenumber_spectrum.html">sup3r.qa.utilities.wavenumber_spectrum</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.solar.html">sup3r.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.solar.solar.html">sup3r.solar.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.solar.solar.Solar.html">sup3r.solar.solar.Solar</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.solar.solar_cli.html">sup3r.solar.solar_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.solar.solar_cli.kickoff_local_job.html">sup3r.solar.solar_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.solar.solar_cli.kickoff_slurm_job.html">sup3r.solar.solar_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.html">sup3r.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.ModuleName.html">sup3r.utilities.ModuleName</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.cli.html">sup3r.utilities.cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.cli.BaseCLI.html">sup3r.utilities.cli.BaseCLI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.cli.SlurmManager.html">sup3r.utilities.cli.SlurmManager</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.era_downloader.html">sup3r.utilities.era_downloader</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.era_downloader.EraDownloader.html">sup3r.utilities.era_downloader.EraDownloader</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.interpolation.html">sup3r.utilities.interpolation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.interpolation.Interpolator.html">sup3r.utilities.interpolation.Interpolator</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.html">sup3r.utilities.loss_metrics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.gaussian_kernel.html">sup3r.utilities.loss_metrics.gaussian_kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.tf_derivative.html">sup3r.utilities.loss_metrics.tf_derivative</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.CoarseMseLoss.html">sup3r.utilities.loss_metrics.CoarseMseLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.ExpLoss.html">sup3r.utilities.loss_metrics.ExpLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.GeothermalConductiveHeatTransferLoss.html">sup3r.utilities.loss_metrics.GeothermalConductiveHeatTransferLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.GeothermalMohoBCLoss.html">sup3r.utilities.loss_metrics.GeothermalMohoBCLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.GeothermalObsLoss.html">sup3r.utilities.loss_metrics.GeothermalObsLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.GeothermalPositiveTemperatureGradientLoss.html">sup3r.utilities.loss_metrics.GeothermalPositiveTemperatureGradientLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.LowResLoss.html">sup3r.utilities.loss_metrics.LowResLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.MaterialDerivativeLoss.html">sup3r.utilities.loss_metrics.MaterialDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.MmdLoss.html">sup3r.utilities.loss_metrics.MmdLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.ObsAssimilationLoss.html">sup3r.utilities.loss_metrics.ObsAssimilationLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.PerceptualLoss.html">sup3r.utilities.loss_metrics.PerceptualLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.SlicedWassersteinLoss.html">sup3r.utilities.loss_metrics.SlicedWassersteinLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.SpatialDerivativeLoss.html">sup3r.utilities.loss_metrics.SpatialDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.SpatialExtremesLoss.html">sup3r.utilities.loss_metrics.SpatialExtremesLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.SpatialFftLoss.html">sup3r.utilities.loss_metrics.SpatialFftLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.SpatiotemporalFftLoss.html">sup3r.utilities.loss_metrics.SpatiotemporalFftLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.Sup3rLoss.html">sup3r.utilities.loss_metrics.Sup3rLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.TemporalDerivativeLoss.html">sup3r.utilities.loss_metrics.TemporalDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.TemporalExtremesLoss.html">sup3r.utilities.loss_metrics.TemporalExtremesLoss</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.pytest.html">sup3r.utilities.pytest</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.pytest.helpers.html">sup3r.utilities.pytest.helpers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.html">sup3r.utilities.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.camel_to_underscore.html">sup3r.utilities.utilities.camel_to_underscore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.decode_str_times.html">sup3r.utilities.utilities.decode_str_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.encode_str_times.html">sup3r.utilities.utilities.encode_str_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.enforce_limits.html">sup3r.utilities.utilities.enforce_limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.generate_random_string.html">sup3r.utilities.utilities.generate_random_string</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.get_dset_attrs.html">sup3r.utilities.utilities.get_dset_attrs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.get_feature_basename.html">sup3r.utilities.utilities.get_feature_basename</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.get_tmp_file.html">sup3r.utilities.utilities.get_tmp_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.nn_fill_array.html">sup3r.utilities.utilities.nn_fill_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.pd_date_range.html">sup3r.utilities.utilities.pd_date_range</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.preprocess_datasets.html">sup3r.utilities.utilities.preprocess_datasets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.safe_cast.html">sup3r.utilities.utilities.safe_cast</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.safe_serialize.html">sup3r.utilities.utilities.safe_serialize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.spatial_coarsening.html">sup3r.utilities.utilities.spatial_coarsening</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.temporal_coarsening.html">sup3r.utilities.utilities.temporal_coarsening</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.xr_open_mfdataset.html">sup3r.utilities.utilities.xr_open_mfdataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.Timer.html">sup3r.utilities.utilities.Timer</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.html">sup3r.writers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.base.html">sup3r.writers.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.base.OutputHandler.html">sup3r.writers.base.OutputHandler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.base.OutputMixin.html">sup3r.writers.base.OutputMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.base.RexOutputs.html">sup3r.writers.base.RexOutputs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.cachers.html">sup3r.writers.cachers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.cachers.Cacher.html">sup3r.writers.cachers.Cacher</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.h5.html">sup3r.writers.h5</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.h5.OutputHandlerH5.html">sup3r.writers.h5.OutputHandlerH5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.nc.html">sup3r.writers.nc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.nc.OutputHandlerNC.html">sup3r.writers.nc.OutputHandlerNC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.utilities.html">sup3r.writers.utilities</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../_cli/cli.html">CLI reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../_cli/sup3r.html">sup3r</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for sup3r.preprocessing.derivers.methods</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Derivation methods for deriving features from raw data."""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sup3r.preprocessing.accessor</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sup3rX</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sup3r.preprocessing.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sup3rDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sup3r.preprocessing.names</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dimension</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">SolarZenith</span><span class="p">,</span> <span class="n">invert_uv</span><span class="p">,</span> <span class="n">transform_rotate_wind</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DerivedFeature">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.DerivedFeature.html#sup3r.preprocessing.derivers.methods.DerivedFeature">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DerivedFeature</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Abstract class for special features which need to be derived from raw</span>
+<span class="sd">    features</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    `inputs` list will be used to search already derived / loaded data so this</span>
+<span class="sd">    should include all features required for a successful `.compute` call.</span>
+<span class="sd">    """</span>
+
+    <span class="n">inputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+
+<div class="viewcode-block" id="DerivedFeature.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.DerivedFeature.html#sup3r.preprocessing.derivers.methods.DerivedFeature.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Sup3rX</span><span class="p">,</span> <span class="n">Sup3rDataset</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute method for derived feature. This can use any of the features</span>
+<span class="sd">        contained in the xr.Dataset data and the attributes (e.g.</span>
+<span class="sd">        `.lat_lon`, `.time_index` accessed through Sup3rX accessor).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : Union[Sup3rX, Sup3rDataset]</span>
+<span class="sd">            Initialized and standardized through a :class:`Loader` with a</span>
+<span class="sd">            specific spatiotemporal extent rasterized for the features</span>
+<span class="sd">            contained using a :class:`Rasterizer`.</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            Optional keyword arguments used in derivation. height is a typical</span>
+<span class="sd">            example. Could also be pressure.</span>
+<span class="sd">        """</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SurfaceRH">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.SurfaceRH.html#sup3r.preprocessing.derivers.methods.SurfaceRH">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SurfaceRH</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Surface Relative humidity feature for computing rh from dewpoint</span>
+<span class="sd">    temperature and ambient temperature. This is in a 0 - 100 scale to match</span>
+<span class="sd">    the ERA5 pressure level relative humidity scale.</span>
+
+<span class="sd">    https://earthscience.stackexchange.com/questions/24156/era5-single-level-calculate-relative-humidity</span>
+
+<span class="sd">    https://journals.ametsoc.org/view/journals/bams/86/2/bams-86-2-225.xml?tab_body=pdf</span>
+<span class="sd">    """</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'d2m'</span><span class="p">,</span> <span class="s1">'temperature_2m'</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SurfaceRH.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.SurfaceRH.html#sup3r.preprocessing.derivers.methods.SurfaceRH.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute surface relative humidity."""</span>
+        <span class="n">water_vapor_pressure</span> <span class="o">=</span> <span class="mf">6.1078</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+            <span class="mf">17.1</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">'d2m'</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">235</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s1">'d2m'</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="n">saturation_water_vapor_pressure</span> <span class="o">=</span> <span class="mf">6.1078</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+            <span class="mf">17.1</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s1">'temperature_2m'</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">235</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s1">'temperature_2m'</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">water_vapor_pressure</span> <span class="o">/</span> <span class="n">saturation_water_vapor_pressure</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ClearSkyRatio">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.ClearSkyRatio.html#sup3r.preprocessing.derivers.methods.ClearSkyRatio">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClearSkyRatio</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Clear Sky Ratio feature class. Inputs here are typically found in H5</span>
+<span class="sd">    data like the NSRDB"""</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'ghi'</span><span class="p">,</span> <span class="s1">'clearsky_ghi'</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClearSkyRatio.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.ClearSkyRatio.html#sup3r.preprocessing.derivers.methods.ClearSkyRatio.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute the clearsky ratio</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cs_ratio : xr.DataArray</span>
+<span class="sd">            Clearsky ratio, e.g. the all-sky ghi / the clearsky ghi. NaN where</span>
+<span class="sd">            nighttime.</span>
+<span class="sd">        """</span>
+        <span class="c1"># need to use a nightime threshold of 1 W/m2 because cs_ghi is stored</span>
+        <span class="c1"># in integer format and weird binning patterns happen in the clearsky</span>
+        <span class="c1"># ratio and cloud mask between 0 and 1 W/m2 and sunrise/sunset</span>
+        <span class="n">night_mask</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'clearsky_ghi'</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+
+        <span class="c1"># set any timestep with any nighttime equal to NaN to avoid weird</span>
+        <span class="c1"># sunrise/sunset artifacts.</span>
+        <span class="n">night_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">night_mask</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+
+        <span class="n">cs_ratio</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'ghi'</span><span class="p">]</span> <span class="o">/</span> <span class="n">data</span><span class="p">[</span><span class="s1">'clearsky_ghi'</span><span class="p">]</span>
+        <span class="n">cs_ratio</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">night_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">return</span> <span class="n">cs_ratio</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ClearSkyRatioCC">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.ClearSkyRatioCC.html#sup3r.preprocessing.derivers.methods.ClearSkyRatioCC">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClearSkyRatioCC</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Clear Sky Ratio feature class for computing from climate change netcdf</span>
+<span class="sd">    data</span>
+<span class="sd">    """</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'rsds'</span><span class="p">,</span> <span class="s1">'clearsky_ghi'</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClearSkyRatioCC.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.ClearSkyRatioCC.html#sup3r.preprocessing.derivers.methods.ClearSkyRatioCC.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute the daily average climate change clearsky ratio</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : Union[Sup3rX, Sup3rDataset]</span>
+<span class="sd">            xarray dataset used for this compuation, must include clearsky_ghi</span>
+<span class="sd">            and rsds (rsds==ghi for cc datasets)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cs_ratio : xr.DataArray</span>
+<span class="sd">            Clearsky ratio, e.g. the all-sky ghi / the clearsky ghi. This is</span>
+<span class="sd">            assumed to be daily average data for climate change source data.</span>
+<span class="sd">        """</span>
+        <span class="n">cs_ratio</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'rsds'</span><span class="p">]</span> <span class="o">/</span> <span class="n">data</span><span class="p">[</span><span class="s1">'clearsky_ghi'</span><span class="p">]</span>
+        <span class="n">cs_ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">cs_ratio</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">cs_ratio</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CloudMask">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.CloudMask.html#sup3r.preprocessing.derivers.methods.CloudMask">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CloudMask</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Cloud Mask feature class. Inputs here are typically found in H5 data</span>
+<span class="sd">    like the NSRDB."""</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'ghi'</span><span class="p">,</span> <span class="s1">'clearsky_ghi'</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CloudMask.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.CloudMask.html#sup3r.preprocessing.derivers.methods.CloudMask.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cloud_mask : xr.DataArray</span>
+<span class="sd">            Cloud mask, e.g. 1 where cloudy, 0 where clear. NaN where</span>
+<span class="sd">            nighttime. Data is float32 so it can be normalized without any</span>
+<span class="sd">            integer weirdness.</span>
+<span class="sd">        """</span>
+        <span class="c1"># need to use a nightime threshold of 1 W/m2 because cs_ghi is stored</span>
+        <span class="c1"># in integer format and weird binning patterns happen in the clearsky</span>
+        <span class="c1"># ratio and cloud mask between 0 and 1 W/m2 and sunrise/sunset</span>
+        <span class="n">night_mask</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'clearsky_ghi'</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+
+        <span class="c1"># set any timestep with any nighttime equal to NaN to avoid weird</span>
+        <span class="c1"># sunrise/sunset artifacts.</span>
+        <span class="n">night_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">night_mask</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+
+        <span class="n">cloud_mask</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'ghi'</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">data</span><span class="p">[</span><span class="s1">'clearsky_ghi'</span><span class="p">]</span>
+        <span class="n">cloud_mask</span> <span class="o">=</span> <span class="n">cloud_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">cloud_mask</span><span class="p">[</span><span class="n">night_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">cloud_mask</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">cloud_mask</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">Dimension</span><span class="o">.</span><span class="n">dims_3d</span><span class="p">()[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">cloud_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PressureWRF">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.PressureWRF.html#sup3r.preprocessing.derivers.methods.PressureWRF">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PressureWRF</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Pressure feature class for WRF data. Needed since P is perturbation</span>
+<span class="sd">    pressure.</span>
+<span class="sd">    """</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'p_(.*)'</span><span class="p">,</span> <span class="s1">'pb_(.*)'</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PressureWRF.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.PressureWRF.html#sup3r.preprocessing.derivers.methods.PressureWRF.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Method to compute pressure from NETCDF data"""</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'p_</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">m'</span><span class="p">]</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'pb_</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">m'</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Windspeed">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Windspeed.html#sup3r.preprocessing.derivers.methods.Windspeed">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Windspeed</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Windspeed feature from rasterized data"""</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'u_(.*)'</span><span class="p">,</span> <span class="s1">'v_(.*)'</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Windspeed.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Windspeed.html#sup3r.preprocessing.derivers.methods.Windspeed.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute windspeed"""</span>
+
+        <span class="n">ws</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">invert_uv</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'u_</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">m'</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'v_</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">m'</span><span class="p">],</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">lat_lon</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ws</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Winddirection">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Winddirection.html#sup3r.preprocessing.derivers.methods.Winddirection">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Winddirection</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Winddirection feature from rasterized data"""</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'u_(.*)'</span><span class="p">,</span> <span class="s1">'v_(.*)'</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Winddirection.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Winddirection.html#sup3r.preprocessing.derivers.methods.Winddirection.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute winddirection"""</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">wd</span> <span class="o">=</span> <span class="n">invert_uv</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'u_</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">m'</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'v_</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">m'</span><span class="p">],</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">lat_lon</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">wd</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UWindPowerLaw">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.UWindPowerLaw.html#sup3r.preprocessing.derivers.methods.UWindPowerLaw">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UWindPowerLaw</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""U wind component feature class with needed inputs method and compute</span>
+<span class="sd">    method. Uses power law extrapolation to get values above surface</span>
+
+<span class="sd">    https://csl.noaa.gov/projects/lamar/windshearformula.html</span>
+<span class="sd">    https://www.tandfonline.com/doi/epdf/10.1080/00022470.1977.10470503</span>
+<span class="sd">    """</span>
+
+    <span class="n">ALPHA</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="n">NEAR_SFC_HEIGHT</span> <span class="o">=</span> <span class="mi">10</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'uas'</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="UWindPowerLaw.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.UWindPowerLaw.html#sup3r.preprocessing.derivers.methods.UWindPowerLaw.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Method to compute U wind component from data</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : Union[Sup3rX, Sup3rDataset]</span>
+<span class="sd">            Initialized and standardized through a :class:`Loader` with a</span>
+<span class="sd">            specific spatiotemporal extent rasterized for the features</span>
+<span class="sd">            contained using a :class:`Rasterizer`.</span>
+<span class="sd">        height : str | int</span>
+<span class="sd">            Height at which to compute the derived feature</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xr.DataArray</span>
+<span class="sd">            Derived feature array</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">'uas'</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">height</span><span class="p">)</span> <span class="o">/</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NEAR_SFC_HEIGHT</span><span class="p">)</span> <span class="o">**</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ALPHA</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="VWindPowerLaw">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.VWindPowerLaw.html#sup3r.preprocessing.derivers.methods.VWindPowerLaw">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VWindPowerLaw</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""V wind component feature class with needed inputs method and compute</span>
+<span class="sd">    method. Uses power law extrapolation to get values above surface</span>
+
+<span class="sd">    https://csl.noaa.gov/projects/lamar/windshearformula.html</span>
+<span class="sd">    https://www.tandfonline.com/doi/epdf/10.1080/00022470.1977.10470503</span>
+<span class="sd">    """</span>
+
+    <span class="n">ALPHA</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="n">NEAR_SFC_HEIGHT</span> <span class="o">=</span> <span class="mi">10</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'vas'</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="VWindPowerLaw.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.VWindPowerLaw.html#sup3r.preprocessing.derivers.methods.VWindPowerLaw.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Method to compute V wind component from data"""</span>
+
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">'vas'</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">height</span><span class="p">)</span> <span class="o">/</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NEAR_SFC_HEIGHT</span><span class="p">)</span> <span class="o">**</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ALPHA</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UWind">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.UWind.html#sup3r.preprocessing.derivers.methods.UWind">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UWind</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""U wind component feature class with needed inputs method and compute</span>
+<span class="sd">    method</span>
+<span class="sd">    """</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'windspeed_(.*)'</span><span class="p">,</span> <span class="s1">'winddirection_(.*)'</span><span class="p">)</span>
+
+<div class="viewcode-block" id="UWind.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.UWind.html#sup3r.preprocessing.derivers.methods.UWind.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Method to compute U wind component from data"""</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">transform_rotate_wind</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'windspeed_</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">m'</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'winddirection_</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">m'</span><span class="p">],</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">lat_lon</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">u</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="VWind">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.VWind.html#sup3r.preprocessing.derivers.methods.VWind">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VWind</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""V wind component feature class with needed inputs method and compute</span>
+<span class="sd">    method</span>
+<span class="sd">    """</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'windspeed_(.*)'</span><span class="p">,</span> <span class="s1">'winddirection_(.*)'</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VWind.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.VWind.html#sup3r.preprocessing.derivers.methods.VWind.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Method to compute V wind component from data"""</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">transform_rotate_wind</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'windspeed_</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">m'</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'winddirection_</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">m'</span><span class="p">],</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">lat_lon</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="USolar">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.USolar.html#sup3r.preprocessing.derivers.methods.USolar">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">USolar</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""U wind component feature class with needed inputs method and compute</span>
+<span class="sd">    method for NSRDB data (which has just a single windspeed hub height)</span>
+<span class="sd">    """</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'wind_speed'</span><span class="p">,</span> <span class="s1">'wind_direction'</span><span class="p">)</span>
+
+<div class="viewcode-block" id="USolar.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.USolar.html#sup3r.preprocessing.derivers.methods.USolar.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Method to compute U wind component from data"""</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">transform_rotate_wind</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">'wind_speed'</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">'wind_direction'</span><span class="p">],</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">lat_lon</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">u</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="VSolar">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.VSolar.html#sup3r.preprocessing.derivers.methods.VSolar">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VSolar</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""V wind component feature class with needed inputs method and compute</span>
+<span class="sd">    method for NSRDB data (which has just a single windspeed hub height)</span>
+<span class="sd">    """</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'wind_speed'</span><span class="p">,</span> <span class="s1">'wind_direction'</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VSolar.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.VSolar.html#sup3r.preprocessing.derivers.methods.VSolar.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Method to compute U wind component from data"""</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">transform_rotate_wind</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">'wind_speed'</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">'wind_direction'</span><span class="p">],</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">lat_lon</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TempNCforCC">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.TempNCforCC.html#sup3r.preprocessing.derivers.methods.TempNCforCC">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TempNCforCC</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Air temperature variable from climate change nc files"""</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'ta_(.*)'</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="TempNCforCC.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.TempNCforCC.html#sup3r.preprocessing.derivers.methods.TempNCforCC.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Method to compute ta in Celsius from ta source in Kelvin"""</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'ta_</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s1">m'</span><span class="p">]</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'units'</span><span class="p">,</span> <span class="s1">'K'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">'K'</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">-=</span> <span class="mf">273.15</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'C'</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Tas">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Tas.html#sup3r.preprocessing.derivers.methods.Tas">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Tas</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Air temperature near surface variable from climate change nc files"""</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'tas'</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="Tas.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Tas.html#sup3r.preprocessing.derivers.methods.Tas.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Method to compute tas in Celsius from tas source in Kelvin"""</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'units'</span><span class="p">,</span> <span class="s1">'K'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">'K'</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">-=</span> <span class="mf">273.15</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'C'</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TasMin">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.TasMin.html#sup3r.preprocessing.derivers.methods.TasMin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TasMin</span><span class="p">(</span><span class="n">Tas</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Daily min air temperature near surface variable from climate change nc</span>
+<span class="sd">    files</span>
+<span class="sd">    """</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'tasmin'</span><span class="p">,)</span></div>
+
+
+
+<div class="viewcode-block" id="TasMax">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.TasMax.html#sup3r.preprocessing.derivers.methods.TasMax">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TasMax</span><span class="p">(</span><span class="n">Tas</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Daily max air temperature near surface variable from climate change nc</span>
+<span class="sd">    files</span>
+<span class="sd">    """</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'tasmax'</span><span class="p">,)</span></div>
+
+
+
+<div class="viewcode-block" id="Sza">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Sza.html#sup3r.preprocessing.derivers.methods.Sza">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Sza</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Solar zenith angle derived feature."""</span>
+
+<div class="viewcode-block" id="Sza.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Sza.html#sup3r.preprocessing.derivers.methods.Sza.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute method for sza."""</span>
+        <span class="n">sza</span> <span class="o">=</span> <span class="n">SolarZenith</span><span class="o">.</span><span class="n">get_zenith</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">time_index</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">lat_lon</span><span class="p">)</span>
+        <span class="n">sza</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">sza</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">Dimension</span><span class="o">.</span><span class="n">dims_3d</span><span class="p">()[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">sza</span><span class="o">.</span><span class="n">shape</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">sza</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Latitude">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Latitude.html#sup3r.preprocessing.derivers.methods.Latitude">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Latitude</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""latitude feature with time dimension included."""</span>
+
+<div class="viewcode-block" id="Latitude.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Latitude.html#sup3r.preprocessing.derivers.methods.Latitude.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute method for latitude."""</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">Dimension</span><span class="o">.</span><span class="n">LATITUDE</span><span class="p">]</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">lat</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">Dimension</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">n_time</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">time_index</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">time_index</span><span class="p">)</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">n_time</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lat</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Longitude">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Longitude.html#sup3r.preprocessing.derivers.methods.Longitude">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Longitude</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""longitude feature with time dimension included."""</span>
+
+<div class="viewcode-block" id="Longitude.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Longitude.html#sup3r.preprocessing.derivers.methods.Longitude.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute method for longitude."""</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">Dimension</span><span class="o">.</span><span class="n">LONGITUDE</span><span class="p">]</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">lon</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">Dimension</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">n_time</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">time_index</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">time_index</span><span class="p">)</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">n_time</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lon</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Time">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Time.html#sup3r.preprocessing.derivers.methods.Time">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Time</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Time feature with latitude and longitude dimensions included."""</span>
+
+<div class="viewcode-block" id="Time.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.Time.html#sup3r.preprocessing.derivers.methods.Time.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute method for time."""</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">Dimension</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'datetime64[s]'</span><span class="p">)</span>
+        <span class="c1"># Expand along the 2D spatial dimensions, then explicitly repeat along</span>
+        <span class="c1"># each dimension using its size to handle non-square grids correctly.</span>
+        <span class="n">spatial_dims</span> <span class="o">=</span> <span class="n">Dimension</span><span class="o">.</span><span class="n">dims_2d</span><span class="p">()</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">spatial_dims</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">spatial_dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">spatial_dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SpatioTemporalEncoding">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.SpatioTemporalEncoding.html#sup3r.preprocessing.derivers.methods.SpatioTemporalEncoding">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpatioTemporalEncoding</span><span class="p">(</span><span class="n">DerivedFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""General positional or temporal encoding.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [cong2022] Cong, Yezhen, et al. "Satmae: Pre-training transformers for</span>
+<span class="sd">    temporal and multi-spectral satellite imagery." Advances in Neural</span>
+<span class="sd">    Information Processing Systems 35 (2022): 197-211.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    We use the referenced paper for inspiration but modify the argument of the</span>
+<span class="sd">    trig functions to be 2πi * k / d so the periodicity matches the underlying</span>
+<span class="sd">    feature (e.g. hour of day repeats every 24 hours).</span>
+<span class="sd">    """</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">k_dims</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute method for encoding.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : Union[Sup3rX, Sup3rDataset]</span>
+<span class="sd">            Initialized and standardized through a :class:`DataHandler`</span>
+<span class="sd">        k : xr.DataArray</span>
+<span class="sd">            Array of values to encode. e.g. hour of the year, hour of the day,</span>
+<span class="sd">            latitude, longitude, etc.</span>
+<span class="sd">        k_dims : tuple</span>
+<span class="sd">            Dimension(s) along which k varies. k will be expanded and repeated</span>
+<span class="sd">            along other dimensions.</span>
+<span class="sd">        d : float</span>
+<span class="sd">            Period of the underlying feature. For example, 86400 for seconds</span>
+<span class="sd">            in a day.</span>
+<span class="sd">        i : int, optional</span>
+<span class="sd">            Index of encoding output. Defaults to 0. Increasing i increases the</span>
+<span class="sd">            frequency of oscillation of the sine/cosine encoding.</span>
+<span class="sd">        """</span>
+        <span class="n">dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">d_</span><span class="p">,</span> <span class="n">dim</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dims</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">d_</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">k_dims</span><span class="p">:</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">d_</span><span class="p">)</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">dim</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="n">d_</span><span class="p">)</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span> <span class="o">/</span> <span class="n">d</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">k</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SecondOfDayEncoding">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.SecondOfDayEncoding.html#sup3r.preprocessing.derivers.methods.SecondOfDayEncoding">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SecondOfDayEncoding</span><span class="p">(</span><span class="n">SpatioTemporalEncoding</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Second of day time encoding with latitude and longitude dimensions</span>
+<span class="sd">    included."""</span>
+
+<div class="viewcode-block" id="SecondOfDayEncoding.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.SecondOfDayEncoding.html#sup3r.preprocessing.derivers.methods.SecondOfDayEncoding.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute method for encoding."""</span>
+        <span class="n">sod</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">Dimension</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">hour</span> <span class="o">*</span> <span class="mi">3600</span>
+            <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="n">Dimension</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">minute</span> <span class="o">*</span> <span class="mi">60</span>
+            <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="n">Dimension</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">second</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_compute</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sod</span><span class="p">,</span> <span class="n">k_dims</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="n">d</span><span class="o">=</span><span class="mi">86400</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SecondOfYearEncoding">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.SecondOfYearEncoding.html#sup3r.preprocessing.derivers.methods.SecondOfYearEncoding">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SecondOfYearEncoding</span><span class="p">(</span><span class="n">SpatioTemporalEncoding</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Second of year time encoding with latitude and longitude dimensions</span>
+<span class="sd">    included."""</span>
+
+<div class="viewcode-block" id="SecondOfYearEncoding.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.SecondOfYearEncoding.html#sup3r.preprocessing.derivers.methods.SecondOfYearEncoding.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute method for encoding."""</span>
+        <span class="n">doy</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">Dimension</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">dayofyear</span>
+        <span class="n">soy</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">doy</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">86400</span>
+            <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="n">Dimension</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">hour</span> <span class="o">*</span> <span class="mi">3600</span>
+            <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="n">Dimension</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">minute</span> <span class="o">*</span> <span class="mi">60</span>
+            <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="n">Dimension</span><span class="o">.</span><span class="n">TIME</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">second</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_compute</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">soy</span><span class="p">,</span> <span class="n">k_dims</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="n">d</span><span class="o">=</span><span class="mi">31536000</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LatitudeEncoding">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.LatitudeEncoding.html#sup3r.preprocessing.derivers.methods.LatitudeEncoding">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LatitudeEncoding</span><span class="p">(</span><span class="n">SpatioTemporalEncoding</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Latitude encoding with time and longitude dimensions included."""</span>
+
+<div class="viewcode-block" id="LatitudeEncoding.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.LatitudeEncoding.html#sup3r.preprocessing.derivers.methods.LatitudeEncoding.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute method for encoding."""</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">Dimension</span><span class="o">.</span><span class="n">LATITUDE</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_compute</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">k_dims</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">d</span><span class="o">=</span><span class="mi">360</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LongitudeEncoding">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.LongitudeEncoding.html#sup3r.preprocessing.derivers.methods.LongitudeEncoding">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LongitudeEncoding</span><span class="p">(</span><span class="n">SpatioTemporalEncoding</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Longitude encoding with time and latitude dimensions included."""</span>
+
+<div class="viewcode-block" id="LongitudeEncoding.compute">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.LongitudeEncoding.html#sup3r.preprocessing.derivers.methods.LongitudeEncoding.compute">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Compute method for encoding."""</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">Dimension</span><span class="o">.</span><span class="n">LONGITUDE</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_compute</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">k_dims</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">d</span><span class="o">=</span><span class="mi">360</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="n">RegistryBase</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'u_(.*)'</span><span class="p">:</span> <span class="n">UWind</span><span class="p">,</span>
+    <span class="s1">'v_(.*)'</span><span class="p">:</span> <span class="n">VWind</span><span class="p">,</span>
+    <span class="s1">'relativehumidity_2m'</span><span class="p">:</span> <span class="n">SurfaceRH</span><span class="p">,</span>
+    <span class="s1">'windspeed_(.*)'</span><span class="p">:</span> <span class="n">Windspeed</span><span class="p">,</span>
+    <span class="s1">'winddirection_(.*)'</span><span class="p">:</span> <span class="n">Winddirection</span><span class="p">,</span>
+    <span class="s1">'cloud_mask'</span><span class="p">:</span> <span class="n">CloudMask</span><span class="p">,</span>
+    <span class="s1">'clearsky_ratio'</span><span class="p">:</span> <span class="n">ClearSkyRatio</span><span class="p">,</span>
+    <span class="s1">'sza'</span><span class="p">:</span> <span class="n">Sza</span><span class="p">,</span>
+    <span class="s1">'latitude_feature'</span><span class="p">:</span> <span class="n">Latitude</span><span class="p">,</span>
+    <span class="s1">'longitude_feature'</span><span class="p">:</span> <span class="n">Longitude</span><span class="p">,</span>
+    <span class="s1">'time_feature'</span><span class="p">:</span> <span class="n">Time</span><span class="p">,</span>
+    <span class="s1">'soy_encoding'</span><span class="p">:</span> <span class="n">SecondOfYearEncoding</span><span class="p">,</span>
+    <span class="s1">'sod_encoding'</span><span class="p">:</span> <span class="n">SecondOfDayEncoding</span><span class="p">,</span>
+    <span class="s1">'lat_encoding'</span><span class="p">:</span> <span class="n">LatitudeEncoding</span><span class="p">,</span>
+    <span class="s1">'lon_encoding'</span><span class="p">:</span> <span class="n">LongitudeEncoding</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">RegistryH5WindCC</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="o">**</span><span class="n">RegistryBase</span><span class="p">,</span>
+    <span class="s1">'temperature_max_(.*)m'</span><span class="p">:</span> <span class="s1">'temperature_(.*)m'</span><span class="p">,</span>
+    <span class="s1">'temperature_min_(.*)m'</span><span class="p">:</span> <span class="s1">'temperature_(.*)m'</span><span class="p">,</span>
+    <span class="s1">'relativehumidity_max_(.*)m'</span><span class="p">:</span> <span class="s1">'relativehumidity_(.*)m'</span><span class="p">,</span>
+    <span class="s1">'relativehumidity_min_(.*)m'</span><span class="p">:</span> <span class="s1">'relativehumidity_(.*)m'</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">RegistryH5SolarCC</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="o">**</span><span class="n">RegistryH5WindCC</span><span class="p">,</span>
+    <span class="s1">'windspeed'</span><span class="p">:</span> <span class="s1">'wind_speed'</span><span class="p">,</span>
+    <span class="s1">'winddirection'</span><span class="p">:</span> <span class="s1">'wind_direction'</span><span class="p">,</span>
+    <span class="s1">'U'</span><span class="p">:</span> <span class="n">USolar</span><span class="p">,</span>
+    <span class="s1">'V'</span><span class="p">:</span> <span class="n">VSolar</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">RegistryNCforCC</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">RegistryBase</span><span class="p">)</span>
+<span class="n">RegistryNCforCC</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+    <span class="s1">'u_(.*)'</span><span class="p">:</span> <span class="s1">'ua_(.*)'</span><span class="p">,</span>
+    <span class="s1">'v_(.*)'</span><span class="p">:</span> <span class="s1">'va_(.*)'</span><span class="p">,</span>
+    <span class="s1">'relativehumidity_2m'</span><span class="p">:</span> <span class="s1">'hurs'</span><span class="p">,</span>
+    <span class="s1">'relativehumidity_min_2m'</span><span class="p">:</span> <span class="s1">'hursmin'</span><span class="p">,</span>
+    <span class="s1">'relativehumidity_max_2m'</span><span class="p">:</span> <span class="s1">'hursmax'</span><span class="p">,</span>
+    <span class="s1">'clearsky_ratio'</span><span class="p">:</span> <span class="n">ClearSkyRatioCC</span><span class="p">,</span>
+    <span class="s1">'temperature_(.*)'</span><span class="p">:</span> <span class="n">TempNCforCC</span><span class="p">,</span>
+    <span class="s1">'temperature_2m'</span><span class="p">:</span> <span class="n">Tas</span><span class="p">,</span>
+    <span class="s1">'temperature_max_2m'</span><span class="p">:</span> <span class="n">TasMax</span><span class="p">,</span>
+    <span class="s1">'temperature_min_2m'</span><span class="p">:</span> <span class="n">TasMin</span><span class="p">,</span>
+    <span class="s1">'pressure_(.*)'</span><span class="p">:</span> <span class="s1">'level_(.*)'</span><span class="p">,</span>
+<span class="p">})</span>
+
+
+<span class="n">RegistryNCforCCwithPowerLaw</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="o">**</span><span class="n">RegistryNCforCC</span><span class="p">,</span>
+    <span class="s1">'u_(.*)'</span><span class="p">:</span> <span class="n">UWindPowerLaw</span><span class="p">,</span>
+    <span class="s1">'v_(.*)'</span><span class="p">:</span> <span class="n">VWindPowerLaw</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Brandon Benton, Grant Buster, Andrew Glaws, Ryan King
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022, Alliance for Energy Innovation, LLC.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

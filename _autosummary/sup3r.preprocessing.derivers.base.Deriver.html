@@ -1,0 +1,1057 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>sup3r.preprocessing.derivers.base.Deriver &#8212; sup3r 0.2.9.dev58 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=1229960a"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/sup3r.preprocessing.derivers.base.Deriver';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sup3r.preprocessing.derivers.methods" href="sup3r.preprocessing.derivers.methods.html" />
+    <link rel="prev" title="sup3r.preprocessing.derivers.base.BaseDeriver" href="sup3r.preprocessing.derivers.base.BaseDeriver.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">sup3r 0.2.9.dev58 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home page</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../misc/installation_usage.html">Installation and Usage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../misc/installation.html">Installation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/sup3rcc.html">Sup3rCC Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/sup3rwind.html">Sup3rWind Examples</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="sup3r.html">API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.batch.html">sup3r.batch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.batch.batch_cli.html">sup3r.batch.batch_cli</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.bias.html">sup3r.bias</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.abstract.html">sup3r.bias.abstract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.abstract.AbstractBiasCorrection.html">sup3r.bias.abstract.AbstractBiasCorrection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.base.html">sup3r.bias.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.base.DataRetrievalBase.html">sup3r.bias.base.DataRetrievalBase</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.bias_calc.html">sup3r.bias.bias_calc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.LinearCorrection.html">sup3r.bias.bias_calc.LinearCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.MonthlyLinearCorrection.html">sup3r.bias.bias_calc.MonthlyLinearCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.MonthlyScalarCorrection.html">sup3r.bias.bias_calc.MonthlyScalarCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.ScalarCorrection.html">sup3r.bias.bias_calc.ScalarCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.SkillAssessment.html">sup3r.bias.bias_calc.SkillAssessment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.bias_calc_cli.html">sup3r.bias.bias_calc_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc_cli.kickoff_local_job.html">sup3r.bias.bias_calc_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc_cli.kickoff_slurm_job.html">sup3r.bias.bias_calc_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.bias_calc_vortex.html">sup3r.bias.bias_calc_vortex</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc_vortex.BiasCorrectUpdate.html">sup3r.bias.bias_calc_vortex.BiasCorrectUpdate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc_vortex.VortexMeanPrepper.html">sup3r.bias.bias_calc_vortex.VortexMeanPrepper</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.bias_transforms.html">sup3r.bias.bias_transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.global_linear_bc.html">sup3r.bias.bias_transforms.global_linear_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.local_linear_bc.html">sup3r.bias.bias_transforms.local_linear_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.local_presrat_bc.html">sup3r.bias.bias_transforms.local_presrat_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.local_qdm_bc.html">sup3r.bias.bias_transforms.local_qdm_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.monthly_local_linear_bc.html">sup3r.bias.bias_transforms.monthly_local_linear_bc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.mixins.html">sup3r.bias.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.mixins.FillAndSmoothMixin.html">sup3r.bias.mixins.FillAndSmoothMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.mixins.ZeroRateMixin.html">sup3r.bias.mixins.ZeroRateMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.presrat.html">sup3r.bias.presrat</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.presrat.PresRat.html">sup3r.bias.presrat.PresRat</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.qdm.html">sup3r.bias.qdm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.qdm.QuantileDeltaMappingCorrection.html">sup3r.bias.qdm.QuantileDeltaMappingCorrection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.utilities.html">sup3r.bias.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.utilities.bias_correct_feature.html">sup3r.bias.utilities.bias_correct_feature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.utilities.bias_correct_features.html">sup3r.bias.utilities.bias_correct_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.utilities.lin_bc.html">sup3r.bias.utilities.lin_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.utilities.qdm_bc.html">sup3r.bias.utilities.qdm_bc</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="sup3r.cli.html">sup3r.cli</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.models.html">sup3r.models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.abstract.html">sup3r.models.abstract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.abstract.AbstractSingleModel.html">sup3r.models.abstract.AbstractSingleModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.base.html">sup3r.models.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.base.Sup3rGan.html">sup3r.models.base.Sup3rGan</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.conditional.html">sup3r.models.conditional</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.conditional.Sup3rCondMom.html">sup3r.models.conditional.Sup3rCondMom</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.dc.html">sup3r.models.dc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.dc.Sup3rGanDC.html">sup3r.models.dc.Sup3rGanDC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.interface.html">sup3r.models.interface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.interface.AbstractInterface.html">sup3r.models.interface.AbstractInterface</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.linear.html">sup3r.models.linear</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.linear.LinearInterp.html">sup3r.models.linear.LinearInterp</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.multi_step.html">sup3r.models.multi_step</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.multi_step.MultiStepGan.html">sup3r.models.multi_step.MultiStepGan</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.multi_step.MultiStepSurfaceMetGan.html">sup3r.models.multi_step.MultiStepSurfaceMetGan</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.multi_step.SolarMultiStepGan.html">sup3r.models.multi_step.SolarMultiStepGan</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.solar_cc.html">sup3r.models.solar_cc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.solar_cc.SolarCC.html">sup3r.models.solar_cc.SolarCC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.surface.html">sup3r.models.surface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.surface.SurfaceSpatialMetModel.html">sup3r.models.surface.SurfaceSpatialMetModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.utilities.html">sup3r.models.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.get_sup3r_layers.html">sup3r.models.utilities.get_sup3r_layers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.st_interp.html">sup3r.models.utilities.st_interp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.TensorboardMixIn.html">sup3r.models.utilities.TensorboardMixIn</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.TrainingConfig.html">sup3r.models.utilities.TrainingConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.TrainingSession.html">sup3r.models.utilities.TrainingSession</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.pipeline.html">sup3r.pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.forward_pass.html">sup3r.pipeline.forward_pass</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.forward_pass.ForwardPass.html">sup3r.pipeline.forward_pass.ForwardPass</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.forward_pass_cli.html">sup3r.pipeline.forward_pass_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.forward_pass_cli.kickoff_local_job.html">sup3r.pipeline.forward_pass_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.forward_pass_cli.kickoff_slurm_job.html">sup3r.pipeline.forward_pass_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.pipeline.pipeline_cli.html">sup3r.pipeline.pipeline_cli</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.slicer.html">sup3r.pipeline.slicer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.slicer.ForwardPassSlicer.html">sup3r.pipeline.slicer.ForwardPassSlicer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.strategy.html">sup3r.pipeline.strategy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.strategy.ForwardPassChunk.html">sup3r.pipeline.strategy.ForwardPassChunk</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.strategy.ForwardPassStrategy.html">sup3r.pipeline.strategy.ForwardPassStrategy</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.utilities.html">sup3r.pipeline.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.utilities.get_chunk_slices.html">sup3r.pipeline.utilities.get_chunk_slices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.utilities.get_model.html">sup3r.pipeline.utilities.get_model</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.postprocessing.html">sup3r.postprocessing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.postprocessing.collectors.html">sup3r.postprocessing.collectors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.collectors.base.html">sup3r.postprocessing.collectors.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.collectors.h5.html">sup3r.postprocessing.collectors.h5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.collectors.nc.html">sup3r.postprocessing.collectors.nc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.postprocessing.data_collect_cli.html">sup3r.postprocessing.data_collect_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.data_collect_cli.kickoff_local_job.html">sup3r.postprocessing.data_collect_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.data_collect_cli.kickoff_slurm_job.html">sup3r.postprocessing.data_collect_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="sup3r.preprocessing.html">sup3r.preprocessing</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.accessor.html">sup3r.preprocessing.accessor</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.accessor.Sup3rX.html">sup3r.preprocessing.accessor.Sup3rX</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.base.html">sup3r.preprocessing.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.base.Container.html">sup3r.preprocessing.base.Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.base.DsetTuple.html">sup3r.preprocessing.base.DsetTuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.base.Sup3rDataset.html">sup3r.preprocessing.base.Sup3rDataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.base.Sup3rMeta.html">sup3r.preprocessing.base.Sup3rMeta</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.batch_handlers.html">sup3r.preprocessing.batch_handlers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_handlers.dc.html">sup3r.preprocessing.batch_handlers.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_handlers.factory.html">sup3r.preprocessing.batch_handlers.factory</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.batch_queues.html">sup3r.preprocessing.batch_queues</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.abstract.html">sup3r.preprocessing.batch_queues.abstract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.base.html">sup3r.preprocessing.batch_queues.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.conditional.html">sup3r.preprocessing.batch_queues.conditional</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.dc.html">sup3r.preprocessing.batch_queues.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.dual.html">sup3r.preprocessing.batch_queues.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.utilities.html">sup3r.preprocessing.batch_queues.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.collections.html">sup3r.preprocessing.collections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.collections.base.html">sup3r.preprocessing.collections.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.collections.stats.html">sup3r.preprocessing.collections.stats</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.data_handlers.html">sup3r.preprocessing.data_handlers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.data_handlers.base.html">sup3r.preprocessing.data_handlers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.data_handlers.exo.html">sup3r.preprocessing.data_handlers.exo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.data_handlers.nc_cc.html">sup3r.preprocessing.data_handlers.nc_cc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="sup3r.preprocessing.derivers.html">sup3r.preprocessing.derivers</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4 current active"><a class="reference internal" href="sup3r.preprocessing.derivers.base.html">sup3r.preprocessing.derivers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.derivers.methods.html">sup3r.preprocessing.derivers.methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.derivers.utilities.html">sup3r.preprocessing.derivers.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.loaders.html">sup3r.preprocessing.loaders</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.Loader.html">sup3r.preprocessing.loaders.Loader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.base.html">sup3r.preprocessing.loaders.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.h5.html">sup3r.preprocessing.loaders.h5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.utilities.html">sup3r.preprocessing.loaders.utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.xr.html">sup3r.preprocessing.loaders.xr</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.names.html">sup3r.preprocessing.names</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.names.Dimension.html">sup3r.preprocessing.names.Dimension</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.rasterizers.html">sup3r.preprocessing.rasterizers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.rasterizers.base.html">sup3r.preprocessing.rasterizers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.rasterizers.dual.html">sup3r.preprocessing.rasterizers.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.rasterizers.exo.html">sup3r.preprocessing.rasterizers.exo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.rasterizers.extended.html">sup3r.preprocessing.rasterizers.extended</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.samplers.html">sup3r.preprocessing.samplers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.base.html">sup3r.preprocessing.samplers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.cc.html">sup3r.preprocessing.samplers.cc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.dc.html">sup3r.preprocessing.samplers.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.dual.html">sup3r.preprocessing.samplers.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.utilities.html">sup3r.preprocessing.samplers.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.utilities.html">sup3r.preprocessing.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.check_signatures.html">sup3r.preprocessing.utilities.check_signatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.composite_info.html">sup3r.preprocessing.utilities.composite_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.composite_sig.html">sup3r.preprocessing.utilities.composite_sig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.compute_if_dask.html">sup3r.preprocessing.utilities.compute_if_dask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.contains_ellipsis.html">sup3r.preprocessing.utilities.contains_ellipsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.dims_array_tuple.html">sup3r.preprocessing.utilities.dims_array_tuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.expand_paths.html">sup3r.preprocessing.utilities.expand_paths</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_class_kwargs.html">sup3r.preprocessing.utilities.get_class_kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_date_range_kwargs.html">sup3r.preprocessing.utilities.get_date_range_kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_input_handler_class.html">sup3r.preprocessing.utilities.get_input_handler_class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_obj_params.html">sup3r.preprocessing.utilities.get_obj_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_source_type.html">sup3r.preprocessing.utilities.get_source_type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_time_index_freqs.html">sup3r.preprocessing.utilities.get_time_index_freqs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.is_type_of.html">sup3r.preprocessing.utilities.is_type_of</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.log_args.html">sup3r.preprocessing.utilities.log_args</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.lower_names.html">sup3r.preprocessing.utilities.lower_names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.lowered.html">sup3r.preprocessing.utilities.lowered</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.make_time_index_from_kws.html">sup3r.preprocessing.utilities.make_time_index_from_kws</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.numpy_if_tensor.html">sup3r.preprocessing.utilities.numpy_if_tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.ordered_array.html">sup3r.preprocessing.utilities.ordered_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.ordered_dims.html">sup3r.preprocessing.utilities.ordered_dims</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.parse_ellipsis.html">sup3r.preprocessing.utilities.parse_ellipsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.parse_features.html">sup3r.preprocessing.utilities.parse_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.parse_keys.html">sup3r.preprocessing.utilities.parse_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.parse_to_list.html">sup3r.preprocessing.utilities.parse_to_list</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.qa.html">sup3r.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.qa.qa.html">sup3r.qa.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.qa.Sup3rQa.html">sup3r.qa.qa.Sup3rQa</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.qa.qa_cli.html">sup3r.qa.qa_cli</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.qa.utilities.html">sup3r.qa.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.continuous_dist.html">sup3r.qa.utilities.continuous_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.direct_dist.html">sup3r.qa.utilities.direct_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.frequency_spectrum.html">sup3r.qa.utilities.frequency_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.gradient_dist.html">sup3r.qa.utilities.gradient_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.time_derivative_dist.html">sup3r.qa.utilities.time_derivative_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.tke_frequency_spectrum.html">sup3r.qa.utilities.tke_frequency_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.tke_wavenumber_spectrum.html">sup3r.qa.utilities.tke_wavenumber_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.wavenumber_spectrum.html">sup3r.qa.utilities.wavenumber_spectrum</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.solar.html">sup3r.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.solar.solar.html">sup3r.solar.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.solar.solar.Solar.html">sup3r.solar.solar.Solar</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.solar.solar_cli.html">sup3r.solar.solar_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.solar.solar_cli.kickoff_local_job.html">sup3r.solar.solar_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.solar.solar_cli.kickoff_slurm_job.html">sup3r.solar.solar_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.utilities.html">sup3r.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.utilities.ModuleName.html">sup3r.utilities.ModuleName</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.cli.html">sup3r.utilities.cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.cli.BaseCLI.html">sup3r.utilities.cli.BaseCLI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.cli.SlurmManager.html">sup3r.utilities.cli.SlurmManager</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.era_downloader.html">sup3r.utilities.era_downloader</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.era_downloader.EraDownloader.html">sup3r.utilities.era_downloader.EraDownloader</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.interpolation.html">sup3r.utilities.interpolation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.interpolation.Interpolator.html">sup3r.utilities.interpolation.Interpolator</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.loss_metrics.html">sup3r.utilities.loss_metrics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.gaussian_kernel.html">sup3r.utilities.loss_metrics.gaussian_kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.tf_derivative.html">sup3r.utilities.loss_metrics.tf_derivative</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.CoarseMseLoss.html">sup3r.utilities.loss_metrics.CoarseMseLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.ExpLoss.html">sup3r.utilities.loss_metrics.ExpLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.GeothermalConductiveHeatTransferLoss.html">sup3r.utilities.loss_metrics.GeothermalConductiveHeatTransferLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.GeothermalMohoBCLoss.html">sup3r.utilities.loss_metrics.GeothermalMohoBCLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.GeothermalObsLoss.html">sup3r.utilities.loss_metrics.GeothermalObsLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.GeothermalPositiveTemperatureGradientLoss.html">sup3r.utilities.loss_metrics.GeothermalPositiveTemperatureGradientLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.LowResLoss.html">sup3r.utilities.loss_metrics.LowResLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.MaterialDerivativeLoss.html">sup3r.utilities.loss_metrics.MaterialDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.MmdLoss.html">sup3r.utilities.loss_metrics.MmdLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.ObsAssimilationLoss.html">sup3r.utilities.loss_metrics.ObsAssimilationLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.PerceptualLoss.html">sup3r.utilities.loss_metrics.PerceptualLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SlicedWassersteinLoss.html">sup3r.utilities.loss_metrics.SlicedWassersteinLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SpatialDerivativeLoss.html">sup3r.utilities.loss_metrics.SpatialDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SpatialExtremesLoss.html">sup3r.utilities.loss_metrics.SpatialExtremesLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SpatialFftLoss.html">sup3r.utilities.loss_metrics.SpatialFftLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SpatiotemporalFftLoss.html">sup3r.utilities.loss_metrics.SpatiotemporalFftLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.Sup3rLoss.html">sup3r.utilities.loss_metrics.Sup3rLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.TemporalDerivativeLoss.html">sup3r.utilities.loss_metrics.TemporalDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.TemporalExtremesLoss.html">sup3r.utilities.loss_metrics.TemporalExtremesLoss</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.pytest.html">sup3r.utilities.pytest</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.pytest.helpers.html">sup3r.utilities.pytest.helpers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.utilities.html">sup3r.utilities.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.camel_to_underscore.html">sup3r.utilities.utilities.camel_to_underscore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.decode_str_times.html">sup3r.utilities.utilities.decode_str_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.encode_str_times.html">sup3r.utilities.utilities.encode_str_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.enforce_limits.html">sup3r.utilities.utilities.enforce_limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.generate_random_string.html">sup3r.utilities.utilities.generate_random_string</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.get_dset_attrs.html">sup3r.utilities.utilities.get_dset_attrs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.get_feature_basename.html">sup3r.utilities.utilities.get_feature_basename</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.get_tmp_file.html">sup3r.utilities.utilities.get_tmp_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.nn_fill_array.html">sup3r.utilities.utilities.nn_fill_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.pd_date_range.html">sup3r.utilities.utilities.pd_date_range</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.preprocess_datasets.html">sup3r.utilities.utilities.preprocess_datasets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.safe_cast.html">sup3r.utilities.utilities.safe_cast</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.safe_serialize.html">sup3r.utilities.utilities.safe_serialize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.spatial_coarsening.html">sup3r.utilities.utilities.spatial_coarsening</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.temporal_coarsening.html">sup3r.utilities.utilities.temporal_coarsening</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.xr_open_mfdataset.html">sup3r.utilities.utilities.xr_open_mfdataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.Timer.html">sup3r.utilities.utilities.Timer</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.writers.html">sup3r.writers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.writers.base.html">sup3r.writers.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.base.OutputHandler.html">sup3r.writers.base.OutputHandler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.base.OutputMixin.html">sup3r.writers.base.OutputMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.base.RexOutputs.html">sup3r.writers.base.RexOutputs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.writers.cachers.html">sup3r.writers.cachers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.cachers.Cacher.html">sup3r.writers.cachers.Cacher</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.writers.h5.html">sup3r.writers.h5</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.h5.OutputHandlerH5.html">sup3r.writers.h5.OutputHandlerH5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.writers.nc.html">sup3r.writers.nc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.nc.OutputHandlerNC.html">sup3r.writers.nc.OutputHandlerNC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.writers.utilities.html">sup3r.writers.utilities</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../_cli/cli.html">CLI reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_cli/sup3r.html">sup3r</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/_autosummary/sup3r.preprocessing.derivers.base.Deriver.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>sup3r.preprocessing.derivers.base.Deriver</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver"><code class="docutils literal notranslate"><span class="pre">Deriver</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.check_registry"><code class="docutils literal notranslate"><span class="pre">Deriver.check_registry()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.collect_input_attrs"><code class="docutils literal notranslate"><span class="pre">Deriver.collect_input_attrs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.derive"><code class="docutils literal notranslate"><span class="pre">Deriver.derive()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.do_level_interpolation"><code class="docutils literal notranslate"><span class="pre">Deriver.do_level_interpolation()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.get_inputs"><code class="docutils literal notranslate"><span class="pre">Deriver.get_inputs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.get_multi_level_data"><code class="docutils literal notranslate"><span class="pre">Deriver.get_multi_level_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.get_single_level_data"><code class="docutils literal notranslate"><span class="pre">Deriver.get_single_level_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.has_interp_variables"><code class="docutils literal notranslate"><span class="pre">Deriver.has_interp_variables()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.map_new_name"><code class="docutils literal notranslate"><span class="pre">Deriver.map_new_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.no_overlap"><code class="docutils literal notranslate"><span class="pre">Deriver.no_overlap()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.post_init_log"><code class="docutils literal notranslate"><span class="pre">Deriver.post_init_log()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.shape"><code class="docutils literal notranslate"><span class="pre">Deriver.shape</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.wrap"><code class="docutils literal notranslate"><span class="pre">Deriver.wrap()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.data"><code class="docutils literal notranslate"><span class="pre">Deriver.data</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="sup3r-preprocessing-derivers-base-deriver">
+<h1>sup3r.preprocessing.derivers.base.Deriver<a class="headerlink" href="#sup3r-preprocessing-derivers-base-deriver" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Deriver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sup3r.preprocessing.accessor.Sup3rX.html#sup3r.preprocessing.accessor.Sup3rX" title="sup3r.preprocessing.accessor.Sup3rX"><span class="pre">Sup3rX</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="sup3r.preprocessing.base.Sup3rDataset.html#sup3r.preprocessing.base.Sup3rDataset" title="sup3r.preprocessing.base.Sup3rDataset"><span class="pre">Sup3rDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_roll</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hr_spatial_coarsen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_method_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FeatureRegistry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sup3r/preprocessing/derivers/base.html#Deriver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sup3r.preprocessing.derivers.base.BaseDeriver.html#sup3r.preprocessing.derivers.base.BaseDeriver" title="sup3r.preprocessing.derivers.base.BaseDeriver"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseDeriver</span></code></a></p>
+<p>Extends base <a class="reference internal" href="sup3r.preprocessing.derivers.base.BaseDeriver.html#sup3r.preprocessing.derivers.base.BaseDeriver" title="sup3r.preprocessing.derivers.base.BaseDeriver"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseDeriver</span></code></a> class with time_roll and
+hr_spatial_coarsen args.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>Union[Sup3rX, Sup3rDataset]</em>) – Data used for derivations</p></li>
+<li><p><strong>features</strong> (<em>list</em>) – List of features to derive</p></li>
+<li><p><strong>time_roll</strong> (<em>int</em>) – Number of steps to roll along the time axis. <cite>Passed to
+xr.Dataset.roll()</cite></p></li>
+<li><p><strong>time_shift</strong> (<em>int | None</em>) – Number of minutes to shift time axis. This can be used, for
+example, to shift the time index for daily data so that the time
+stamp for a given day starts at the zeroth minute instead of at
+noon, as is the case for most GCM data.</p></li>
+<li><p><strong>hr_spatial_coarsen</strong> (<em>int</em>) – Spatial coarsening factor. Passed to <cite>xr.Dataset.coarsen()</cite></p></li>
+<li><p><strong>nan_method_kwargs</strong> (<em>str | dict | None</em>) – Keyword arguments for nan handling. If ‘mask’, time steps with nans
+will be dropped. Otherwise this should be a dict of kwargs which
+will be passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Sup3rX.interpolate_na()</span></code>.</p></li>
+<li><p><strong>FeatureRegistry</strong> (<em>dict</em>) – Dictionary of <code class="xref py py-class docutils literal notranslate"><span class="pre">DerivedFeature</span></code> objects used for derivations</p></li>
+<li><p><strong>interp_kwargs</strong> (<em>dict | None</em>) – Dictionary of kwargs for level interpolation. Can include “method”
+and “run_level_check” keys. Method specifies how to perform height
+interpolation. e.g. Deriving u_20m from u_10m and u_100m. Options
+are “linear” and “log”. See
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">sup3r.preprocessing.derivers.Deriver.do_level_interpolation()</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.check_registry" title="sup3r.preprocessing.derivers.base.Deriver.check_registry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_registry</span></code></a>(feature)</p></td>
+<td><p>Get compute method from the registry if available.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.collect_input_attrs" title="sup3r.preprocessing.derivers.base.Deriver.collect_input_attrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect_input_attrs</span></code></a>(feature[, inputs])</p></td>
+<td><p>Collect attributes from the input features for the given feature.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.derive" title="sup3r.preprocessing.derivers.base.Deriver.derive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">derive</span></code></a>(feature[, strict])</p></td>
+<td><p>Resolve a feature from contained data or available derivations.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.do_level_interpolation" title="sup3r.preprocessing.derivers.base.Deriver.do_level_interpolation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">do_level_interpolation</span></code></a>(feature[, interp_kwargs])</p></td>
+<td><p>Interpolate over height or pressure to derive the given feature.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.get_inputs" title="sup3r.preprocessing.derivers.base.Deriver.get_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_inputs</span></code></a>(feature)</p></td>
+<td><p>Get inputs for the given feature and inputs for those inputs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.get_multi_level_data" title="sup3r.preprocessing.derivers.base.Deriver.get_multi_level_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_multi_level_data</span></code></a>(feature)</p></td>
+<td><p>Get data stored in multi-level arrays, like u stored on pressure levels.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.get_single_level_data" title="sup3r.preprocessing.derivers.base.Deriver.get_single_level_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_single_level_data</span></code></a>(feature)</p></td>
+<td><p>When doing level interpolation we should include the single level data available.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.has_interp_variables" title="sup3r.preprocessing.derivers.base.Deriver.has_interp_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_interp_variables</span></code></a>(feature)</p></td>
+<td><p>Check if the given feature can be interpolated from values at nearby heights or from pressure level data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.map_new_name" title="sup3r.preprocessing.derivers.base.Deriver.map_new_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_new_name</span></code></a>(feature, pattern)</p></td>
+<td><p>If the search for a derivation method first finds an alternative name for the feature we want to derive, by matching a wildcard pattern, we need to replace the wildcard with the specific height or pressure we want and continue the search for a derivation method with this new name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.no_overlap" title="sup3r.preprocessing.derivers.base.Deriver.no_overlap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">no_overlap</span></code></a>(feature)</p></td>
+<td><p>Check if any of the nested inputs for 'feature' contain 'feature'</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.post_init_log" title="sup3r.preprocessing.derivers.base.Deriver.post_init_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">post_init_log</span></code></a>([args_dict])</p></td>
+<td><p>Log additional arguments after initialization.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.wrap" title="sup3r.preprocessing.derivers.base.Deriver.wrap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wrap</span></code></a>(data)</p></td>
+<td><p>Return a <a class="reference internal" href="sup3r.preprocessing.base.Sup3rDataset.html#sup3r.preprocessing.base.Sup3rDataset" title="sup3r.preprocessing.base.Sup3rDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sup3rDataset</span></code></a> object or tuple of such.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">timer</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">FEATURE_REGISTRY</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.data" title="sup3r.preprocessing.derivers.base.Deriver.data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code></a></p></td>
+<td><p>Return underlying data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.shape" title="sup3r.preprocessing.derivers.base.Deriver.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a></p></td>
+<td><p>Get shape of underlying data.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.check_registry">
+<span class="sig-name descname"><span class="pre">check_registry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.check_registry" title="Link to this definition">#</a></dt>
+<dd><p>Get compute method from the registry if available. Will check for
+pattern feature match in feature registry. e.g. if u_100m matches a
+feature registry entry of u_(.*)m</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.collect_input_attrs">
+<span class="sig-name descname"><span class="pre">collect_input_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.collect_input_attrs" title="Link to this definition">#</a></dt>
+<dd><p>Collect attributes from the input features for the given feature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.derive">
+<span class="sig-name descname"><span class="pre">derive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.derive" title="Link to this definition">#</a></dt>
+<dd><p>Resolve a feature from contained data or available derivations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature</strong> (<em>str</em>) – Feature to resolve from the contained data or available compute
+methods.</p></li>
+<li><p><strong>strict</strong> (<em>bool</em>) – Whether to raise if the feature cannot be resolved. If <code class="docutils literal notranslate"><span class="pre">False</span></code>,
+return <code class="docutils literal notranslate"><span class="pre">None</span></code> instead.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.do_level_interpolation">
+<span class="sig-name descname"><span class="pre">do_level_interpolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataArray</span></span></span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.do_level_interpolation" title="Link to this definition">#</a></dt>
+<dd><p>Interpolate over height or pressure to derive the given feature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.get_inputs">
+<span class="sig-name descname"><span class="pre">get_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.get_inputs" title="Link to this definition">#</a></dt>
+<dd><p>Get inputs for the given feature and inputs for those inputs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.get_multi_level_data">
+<span class="sig-name descname"><span class="pre">get_multi_level_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.get_multi_level_data" title="Link to this definition">#</a></dt>
+<dd><p>Get data stored in multi-level arrays, like u stored on pressure
+levels.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.get_single_level_data">
+<span class="sig-name descname"><span class="pre">get_single_level_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.get_single_level_data" title="Link to this definition">#</a></dt>
+<dd><p>When doing level interpolation we should include the single level
+data available. e.g. If we have u_100m already and want to interpolate
+u_40m from multi-level data U we should add u_100m at height 100m
+before doing interpolation, since 100 could be a closer level to 40m
+than those available in U.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.has_interp_variables">
+<span class="sig-name descname"><span class="pre">has_interp_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.has_interp_variables" title="Link to this definition">#</a></dt>
+<dd><p>Check if the given feature can be interpolated from values at nearby
+heights or from pressure level data. e.g. If <code class="docutils literal notranslate"><span class="pre">u_10m</span></code> and <code class="docutils literal notranslate"><span class="pre">u_50m</span></code>
+exist then <code class="docutils literal notranslate"><span class="pre">u_30m</span></code> can be interpolated from these. If a pressure
+level array <code class="docutils literal notranslate"><span class="pre">u</span></code> is available this can also be used, in conjunction
+with height data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.map_new_name">
+<span class="sig-name descname"><span class="pre">map_new_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.map_new_name" title="Link to this definition">#</a></dt>
+<dd><p>If the search for a derivation method first finds an alternative
+name for the feature we want to derive, by matching a wildcard pattern,
+we need to replace the wildcard with the specific height or pressure we
+want and continue the search for a derivation method with this new
+name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.no_overlap">
+<span class="sig-name descname"><span class="pre">no_overlap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.no_overlap" title="Link to this definition">#</a></dt>
+<dd><p>Check if any of the nested inputs for ‘feature’ contain ‘feature’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.post_init_log">
+<span class="sig-name descname"><span class="pre">post_init_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.post_init_log" title="Link to this definition">#</a></dt>
+<dd><p>Log additional arguments after initialization.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.shape">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.shape" title="Link to this definition">#</a></dt>
+<dd><p>Get shape of underlying data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.wrap">
+<span class="sig-name descname"><span class="pre">wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.wrap" title="Link to this definition">#</a></dt>
+<dd><p>Return a <a class="reference internal" href="sup3r.preprocessing.base.Sup3rDataset.html#sup3r.preprocessing.base.Sup3rDataset" title="sup3r.preprocessing.base.Sup3rDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sup3rDataset</span></code></a> object or tuple of such. This is a
+tuple when the <code class="docutils literal notranslate"><span class="pre">.data</span></code> attribute belongs to a
+<a class="reference internal" href="sup3r.preprocessing.collections.base.Collection.html#sup3r.preprocessing.collections.base.Collection" title="sup3r.preprocessing.collections.base.Collection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Collection</span></code></a> object like
+<a class="reference internal" href="sup3r.preprocessing.batch_handlers.factory.BatchHandler.html#sup3r.preprocessing.batch_handlers.factory.BatchHandler" title="sup3r.preprocessing.batch_handlers.factory.BatchHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchHandler</span></code></a>. Otherwise this is
+<a class="reference internal" href="sup3r.preprocessing.base.Sup3rDataset.html#sup3r.preprocessing.base.Sup3rDataset" title="sup3r.preprocessing.base.Sup3rDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sup3rDataset</span></code></a> object, which is either a wrapped 3-tuple,
+2-tuple, or 1-tuple (e.g. <code class="docutils literal notranslate"><span class="pre">len(data)</span> <span class="pre">==</span> <span class="pre">3</span></code>, <code class="docutils literal notranslate"><span class="pre">len(data)</span> <span class="pre">==</span> <span class="pre">2</span></code> or
+<code class="docutils literal notranslate"><span class="pre">len(data)</span> <span class="pre">==</span> <span class="pre">1)</span></code>. This is a 3-tuple when <code class="docutils literal notranslate"><span class="pre">.data</span></code> belongs to a
+container object like <code class="xref py py-class docutils literal notranslate"><span class="pre">DualSamplerWithObs</span></code>, a 2-tuple
+when <code class="docutils literal notranslate"><span class="pre">.data</span></code> belongs to a dual container object like
+<code class="xref py py-class docutils literal notranslate"><span class="pre">DualSampler</span></code>, and a 1-tuple otherwise.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sup3r.preprocessing.derivers.base.Deriver.data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#sup3r.preprocessing.derivers.base.Deriver.data" title="Link to this definition">#</a></dt>
+<dd><p>Return underlying data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="sup3r.preprocessing.base.Sup3rDataset.html#sup3r.preprocessing.base.Sup3rDataset" title="sup3r.preprocessing.base.Sup3rDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sup3rDataset</span></code></a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#sup3r.preprocessing.derivers.base.Deriver.wrap" title="sup3r.preprocessing.derivers.base.Deriver.wrap"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wrap()</span></code></a></p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="sup3r.preprocessing.derivers.base.BaseDeriver.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">sup3r.preprocessing.derivers.base.BaseDeriver</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="sup3r.preprocessing.derivers.methods.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">sup3r.preprocessing.derivers.methods</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver"><code class="docutils literal notranslate"><span class="pre">Deriver</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.check_registry"><code class="docutils literal notranslate"><span class="pre">Deriver.check_registry()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.collect_input_attrs"><code class="docutils literal notranslate"><span class="pre">Deriver.collect_input_attrs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.derive"><code class="docutils literal notranslate"><span class="pre">Deriver.derive()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.do_level_interpolation"><code class="docutils literal notranslate"><span class="pre">Deriver.do_level_interpolation()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.get_inputs"><code class="docutils literal notranslate"><span class="pre">Deriver.get_inputs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.get_multi_level_data"><code class="docutils literal notranslate"><span class="pre">Deriver.get_multi_level_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.get_single_level_data"><code class="docutils literal notranslate"><span class="pre">Deriver.get_single_level_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.has_interp_variables"><code class="docutils literal notranslate"><span class="pre">Deriver.has_interp_variables()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.map_new_name"><code class="docutils literal notranslate"><span class="pre">Deriver.map_new_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.no_overlap"><code class="docutils literal notranslate"><span class="pre">Deriver.no_overlap()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.post_init_log"><code class="docutils literal notranslate"><span class="pre">Deriver.post_init_log()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.shape"><code class="docutils literal notranslate"><span class="pre">Deriver.shape</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.wrap"><code class="docutils literal notranslate"><span class="pre">Deriver.wrap()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.preprocessing.derivers.base.Deriver.data"><code class="docutils literal notranslate"><span class="pre">Deriver.data</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Brandon Benton, Grant Buster, Andrew Glaws, Ryan King
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022, Alliance for Energy Innovation, LLC.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

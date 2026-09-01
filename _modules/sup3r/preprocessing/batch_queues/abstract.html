@@ -1,0 +1,1120 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sup3r.preprocessing.batch_queues.abstract &#8212; sup3r 0.2.9.dev58 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../../_static/documentation_options.js?v=1229960a"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/sup3r/preprocessing/batch_queues/abstract';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">sup3r 0.2.9.dev58 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home page</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../misc/installation_usage.html">Installation and Usage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../misc/installation.html">Installation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/sup3rcc.html">Sup3rCC Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/sup3rwind.html">Sup3rWind Examples</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.batch.html">sup3r.batch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/sup3r.batch.batch_cli.html">sup3r.batch.batch_cli</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.html">sup3r.bias</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.abstract.html">sup3r.bias.abstract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.abstract.AbstractBiasCorrection.html">sup3r.bias.abstract.AbstractBiasCorrection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.base.html">sup3r.bias.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.base.DataRetrievalBase.html">sup3r.bias.base.DataRetrievalBase</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc.html">sup3r.bias.bias_calc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc.LinearCorrection.html">sup3r.bias.bias_calc.LinearCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc.MonthlyLinearCorrection.html">sup3r.bias.bias_calc.MonthlyLinearCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc.MonthlyScalarCorrection.html">sup3r.bias.bias_calc.MonthlyScalarCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc.ScalarCorrection.html">sup3r.bias.bias_calc.ScalarCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc.SkillAssessment.html">sup3r.bias.bias_calc.SkillAssessment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc_cli.html">sup3r.bias.bias_calc_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc_cli.kickoff_local_job.html">sup3r.bias.bias_calc_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc_cli.kickoff_slurm_job.html">sup3r.bias.bias_calc_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc_vortex.html">sup3r.bias.bias_calc_vortex</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc_vortex.BiasCorrectUpdate.html">sup3r.bias.bias_calc_vortex.BiasCorrectUpdate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_calc_vortex.VortexMeanPrepper.html">sup3r.bias.bias_calc_vortex.VortexMeanPrepper</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_transforms.html">sup3r.bias.bias_transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_transforms.global_linear_bc.html">sup3r.bias.bias_transforms.global_linear_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_transforms.local_linear_bc.html">sup3r.bias.bias_transforms.local_linear_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_transforms.local_presrat_bc.html">sup3r.bias.bias_transforms.local_presrat_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_transforms.local_qdm_bc.html">sup3r.bias.bias_transforms.local_qdm_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.bias_transforms.monthly_local_linear_bc.html">sup3r.bias.bias_transforms.monthly_local_linear_bc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.mixins.html">sup3r.bias.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.mixins.FillAndSmoothMixin.html">sup3r.bias.mixins.FillAndSmoothMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.mixins.ZeroRateMixin.html">sup3r.bias.mixins.ZeroRateMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.presrat.html">sup3r.bias.presrat</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.presrat.PresRat.html">sup3r.bias.presrat.PresRat</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.qdm.html">sup3r.bias.qdm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.qdm.QuantileDeltaMappingCorrection.html">sup3r.bias.qdm.QuantileDeltaMappingCorrection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.utilities.html">sup3r.bias.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.utilities.bias_correct_feature.html">sup3r.bias.utilities.bias_correct_feature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.utilities.bias_correct_features.html">sup3r.bias.utilities.bias_correct_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.utilities.lin_bc.html">sup3r.bias.utilities.lin_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.bias.utilities.qdm_bc.html">sup3r.bias.utilities.qdm_bc</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../_autosummary/sup3r.cli.html">sup3r.cli</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.html">sup3r.models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.abstract.html">sup3r.models.abstract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.abstract.AbstractSingleModel.html">sup3r.models.abstract.AbstractSingleModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.base.html">sup3r.models.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.base.Sup3rGan.html">sup3r.models.base.Sup3rGan</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.conditional.html">sup3r.models.conditional</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.conditional.Sup3rCondMom.html">sup3r.models.conditional.Sup3rCondMom</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.dc.html">sup3r.models.dc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.dc.Sup3rGanDC.html">sup3r.models.dc.Sup3rGanDC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.interface.html">sup3r.models.interface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.interface.AbstractInterface.html">sup3r.models.interface.AbstractInterface</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.linear.html">sup3r.models.linear</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.linear.LinearInterp.html">sup3r.models.linear.LinearInterp</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.multi_step.html">sup3r.models.multi_step</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.multi_step.MultiStepGan.html">sup3r.models.multi_step.MultiStepGan</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.multi_step.MultiStepSurfaceMetGan.html">sup3r.models.multi_step.MultiStepSurfaceMetGan</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.multi_step.SolarMultiStepGan.html">sup3r.models.multi_step.SolarMultiStepGan</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.solar_cc.html">sup3r.models.solar_cc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.solar_cc.SolarCC.html">sup3r.models.solar_cc.SolarCC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.surface.html">sup3r.models.surface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.surface.SurfaceSpatialMetModel.html">sup3r.models.surface.SurfaceSpatialMetModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.models.utilities.html">sup3r.models.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.utilities.get_sup3r_layers.html">sup3r.models.utilities.get_sup3r_layers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.utilities.st_interp.html">sup3r.models.utilities.st_interp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.utilities.TensorboardMixIn.html">sup3r.models.utilities.TensorboardMixIn</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.utilities.TrainingConfig.html">sup3r.models.utilities.TrainingConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.models.utilities.TrainingSession.html">sup3r.models.utilities.TrainingSession</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.html">sup3r.pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.forward_pass.html">sup3r.pipeline.forward_pass</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.forward_pass.ForwardPass.html">sup3r.pipeline.forward_pass.ForwardPass</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.forward_pass_cli.html">sup3r.pipeline.forward_pass_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.forward_pass_cli.kickoff_local_job.html">sup3r.pipeline.forward_pass_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.forward_pass_cli.kickoff_slurm_job.html">sup3r.pipeline.forward_pass_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.pipeline_cli.html">sup3r.pipeline.pipeline_cli</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.slicer.html">sup3r.pipeline.slicer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.slicer.ForwardPassSlicer.html">sup3r.pipeline.slicer.ForwardPassSlicer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.strategy.html">sup3r.pipeline.strategy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.strategy.ForwardPassChunk.html">sup3r.pipeline.strategy.ForwardPassChunk</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.strategy.ForwardPassStrategy.html">sup3r.pipeline.strategy.ForwardPassStrategy</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.utilities.html">sup3r.pipeline.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.utilities.get_chunk_slices.html">sup3r.pipeline.utilities.get_chunk_slices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.pipeline.utilities.get_model.html">sup3r.pipeline.utilities.get_model</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.html">sup3r.postprocessing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.collectors.html">sup3r.postprocessing.collectors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.collectors.base.html">sup3r.postprocessing.collectors.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.collectors.h5.html">sup3r.postprocessing.collectors.h5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.collectors.nc.html">sup3r.postprocessing.collectors.nc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.data_collect_cli.html">sup3r.postprocessing.data_collect_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.data_collect_cli.kickoff_local_job.html">sup3r.postprocessing.data_collect_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.postprocessing.data_collect_cli.kickoff_slurm_job.html">sup3r.postprocessing.data_collect_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.html">sup3r.preprocessing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.accessor.html">sup3r.preprocessing.accessor</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.accessor.Sup3rX.html">sup3r.preprocessing.accessor.Sup3rX</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.base.html">sup3r.preprocessing.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.base.Container.html">sup3r.preprocessing.base.Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.base.DsetTuple.html">sup3r.preprocessing.base.DsetTuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.base.Sup3rDataset.html">sup3r.preprocessing.base.Sup3rDataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.base.Sup3rMeta.html">sup3r.preprocessing.base.Sup3rMeta</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_handlers.html">sup3r.preprocessing.batch_handlers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_handlers.dc.html">sup3r.preprocessing.batch_handlers.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_handlers.factory.html">sup3r.preprocessing.batch_handlers.factory</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.html">sup3r.preprocessing.batch_queues</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.html">sup3r.preprocessing.batch_queues.abstract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.base.html">sup3r.preprocessing.batch_queues.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.conditional.html">sup3r.preprocessing.batch_queues.conditional</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.dc.html">sup3r.preprocessing.batch_queues.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.dual.html">sup3r.preprocessing.batch_queues.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.utilities.html">sup3r.preprocessing.batch_queues.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.collections.html">sup3r.preprocessing.collections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.collections.base.html">sup3r.preprocessing.collections.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.collections.stats.html">sup3r.preprocessing.collections.stats</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.data_handlers.html">sup3r.preprocessing.data_handlers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.data_handlers.base.html">sup3r.preprocessing.data_handlers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.data_handlers.exo.html">sup3r.preprocessing.data_handlers.exo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.data_handlers.nc_cc.html">sup3r.preprocessing.data_handlers.nc_cc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.derivers.html">sup3r.preprocessing.derivers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.derivers.base.html">sup3r.preprocessing.derivers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.derivers.methods.html">sup3r.preprocessing.derivers.methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.derivers.utilities.html">sup3r.preprocessing.derivers.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.loaders.html">sup3r.preprocessing.loaders</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.loaders.Loader.html">sup3r.preprocessing.loaders.Loader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.loaders.base.html">sup3r.preprocessing.loaders.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.loaders.h5.html">sup3r.preprocessing.loaders.h5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.loaders.utilities.html">sup3r.preprocessing.loaders.utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.loaders.xr.html">sup3r.preprocessing.loaders.xr</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.names.html">sup3r.preprocessing.names</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.names.Dimension.html">sup3r.preprocessing.names.Dimension</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.rasterizers.html">sup3r.preprocessing.rasterizers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.rasterizers.base.html">sup3r.preprocessing.rasterizers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.rasterizers.dual.html">sup3r.preprocessing.rasterizers.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.rasterizers.exo.html">sup3r.preprocessing.rasterizers.exo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.rasterizers.extended.html">sup3r.preprocessing.rasterizers.extended</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.samplers.html">sup3r.preprocessing.samplers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.samplers.base.html">sup3r.preprocessing.samplers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.samplers.cc.html">sup3r.preprocessing.samplers.cc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.samplers.dc.html">sup3r.preprocessing.samplers.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.samplers.dual.html">sup3r.preprocessing.samplers.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.samplers.utilities.html">sup3r.preprocessing.samplers.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.html">sup3r.preprocessing.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.check_signatures.html">sup3r.preprocessing.utilities.check_signatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.composite_info.html">sup3r.preprocessing.utilities.composite_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.composite_sig.html">sup3r.preprocessing.utilities.composite_sig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.compute_if_dask.html">sup3r.preprocessing.utilities.compute_if_dask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.contains_ellipsis.html">sup3r.preprocessing.utilities.contains_ellipsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.dims_array_tuple.html">sup3r.preprocessing.utilities.dims_array_tuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.expand_paths.html">sup3r.preprocessing.utilities.expand_paths</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.get_class_kwargs.html">sup3r.preprocessing.utilities.get_class_kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.get_date_range_kwargs.html">sup3r.preprocessing.utilities.get_date_range_kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.get_input_handler_class.html">sup3r.preprocessing.utilities.get_input_handler_class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.get_obj_params.html">sup3r.preprocessing.utilities.get_obj_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.get_source_type.html">sup3r.preprocessing.utilities.get_source_type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.get_time_index_freqs.html">sup3r.preprocessing.utilities.get_time_index_freqs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.is_type_of.html">sup3r.preprocessing.utilities.is_type_of</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.log_args.html">sup3r.preprocessing.utilities.log_args</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.lower_names.html">sup3r.preprocessing.utilities.lower_names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.lowered.html">sup3r.preprocessing.utilities.lowered</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.make_time_index_from_kws.html">sup3r.preprocessing.utilities.make_time_index_from_kws</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.numpy_if_tensor.html">sup3r.preprocessing.utilities.numpy_if_tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.ordered_array.html">sup3r.preprocessing.utilities.ordered_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.ordered_dims.html">sup3r.preprocessing.utilities.ordered_dims</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.parse_ellipsis.html">sup3r.preprocessing.utilities.parse_ellipsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.parse_features.html">sup3r.preprocessing.utilities.parse_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.parse_keys.html">sup3r.preprocessing.utilities.parse_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.preprocessing.utilities.parse_to_list.html">sup3r.preprocessing.utilities.parse_to_list</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.html">sup3r.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.qa.html">sup3r.qa.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.qa.Sup3rQa.html">sup3r.qa.qa.Sup3rQa</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.qa_cli.html">sup3r.qa.qa_cli</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.html">sup3r.qa.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.continuous_dist.html">sup3r.qa.utilities.continuous_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.direct_dist.html">sup3r.qa.utilities.direct_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.frequency_spectrum.html">sup3r.qa.utilities.frequency_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.gradient_dist.html">sup3r.qa.utilities.gradient_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.time_derivative_dist.html">sup3r.qa.utilities.time_derivative_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.tke_frequency_spectrum.html">sup3r.qa.utilities.tke_frequency_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.tke_wavenumber_spectrum.html">sup3r.qa.utilities.tke_wavenumber_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.qa.utilities.wavenumber_spectrum.html">sup3r.qa.utilities.wavenumber_spectrum</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.solar.html">sup3r.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.solar.solar.html">sup3r.solar.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.solar.solar.Solar.html">sup3r.solar.solar.Solar</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.solar.solar_cli.html">sup3r.solar.solar_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.solar.solar_cli.kickoff_local_job.html">sup3r.solar.solar_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.solar.solar_cli.kickoff_slurm_job.html">sup3r.solar.solar_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.html">sup3r.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.ModuleName.html">sup3r.utilities.ModuleName</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.cli.html">sup3r.utilities.cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.cli.BaseCLI.html">sup3r.utilities.cli.BaseCLI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.cli.SlurmManager.html">sup3r.utilities.cli.SlurmManager</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.era_downloader.html">sup3r.utilities.era_downloader</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.era_downloader.EraDownloader.html">sup3r.utilities.era_downloader.EraDownloader</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.interpolation.html">sup3r.utilities.interpolation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.interpolation.Interpolator.html">sup3r.utilities.interpolation.Interpolator</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.html">sup3r.utilities.loss_metrics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.gaussian_kernel.html">sup3r.utilities.loss_metrics.gaussian_kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.tf_derivative.html">sup3r.utilities.loss_metrics.tf_derivative</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.CoarseMseLoss.html">sup3r.utilities.loss_metrics.CoarseMseLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.ExpLoss.html">sup3r.utilities.loss_metrics.ExpLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.GeothermalConductiveHeatTransferLoss.html">sup3r.utilities.loss_metrics.GeothermalConductiveHeatTransferLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.GeothermalMohoBCLoss.html">sup3r.utilities.loss_metrics.GeothermalMohoBCLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.GeothermalObsLoss.html">sup3r.utilities.loss_metrics.GeothermalObsLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.GeothermalPositiveTemperatureGradientLoss.html">sup3r.utilities.loss_metrics.GeothermalPositiveTemperatureGradientLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.LowResLoss.html">sup3r.utilities.loss_metrics.LowResLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.MaterialDerivativeLoss.html">sup3r.utilities.loss_metrics.MaterialDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.MmdLoss.html">sup3r.utilities.loss_metrics.MmdLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.ObsAssimilationLoss.html">sup3r.utilities.loss_metrics.ObsAssimilationLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.PerceptualLoss.html">sup3r.utilities.loss_metrics.PerceptualLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.SlicedWassersteinLoss.html">sup3r.utilities.loss_metrics.SlicedWassersteinLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.SpatialDerivativeLoss.html">sup3r.utilities.loss_metrics.SpatialDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.SpatialExtremesLoss.html">sup3r.utilities.loss_metrics.SpatialExtremesLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.SpatialFftLoss.html">sup3r.utilities.loss_metrics.SpatialFftLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.SpatiotemporalFftLoss.html">sup3r.utilities.loss_metrics.SpatiotemporalFftLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.Sup3rLoss.html">sup3r.utilities.loss_metrics.Sup3rLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.TemporalDerivativeLoss.html">sup3r.utilities.loss_metrics.TemporalDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.loss_metrics.TemporalExtremesLoss.html">sup3r.utilities.loss_metrics.TemporalExtremesLoss</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.pytest.html">sup3r.utilities.pytest</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.pytest.helpers.html">sup3r.utilities.pytest.helpers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.html">sup3r.utilities.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.camel_to_underscore.html">sup3r.utilities.utilities.camel_to_underscore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.decode_str_times.html">sup3r.utilities.utilities.decode_str_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.encode_str_times.html">sup3r.utilities.utilities.encode_str_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.enforce_limits.html">sup3r.utilities.utilities.enforce_limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.generate_random_string.html">sup3r.utilities.utilities.generate_random_string</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.get_dset_attrs.html">sup3r.utilities.utilities.get_dset_attrs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.get_feature_basename.html">sup3r.utilities.utilities.get_feature_basename</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.get_tmp_file.html">sup3r.utilities.utilities.get_tmp_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.nn_fill_array.html">sup3r.utilities.utilities.nn_fill_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.pd_date_range.html">sup3r.utilities.utilities.pd_date_range</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.preprocess_datasets.html">sup3r.utilities.utilities.preprocess_datasets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.safe_cast.html">sup3r.utilities.utilities.safe_cast</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.safe_serialize.html">sup3r.utilities.utilities.safe_serialize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.spatial_coarsening.html">sup3r.utilities.utilities.spatial_coarsening</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.temporal_coarsening.html">sup3r.utilities.utilities.temporal_coarsening</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.xr_open_mfdataset.html">sup3r.utilities.utilities.xr_open_mfdataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.utilities.utilities.Timer.html">sup3r.utilities.utilities.Timer</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.html">sup3r.writers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.base.html">sup3r.writers.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.base.OutputHandler.html">sup3r.writers.base.OutputHandler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.base.OutputMixin.html">sup3r.writers.base.OutputMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.base.RexOutputs.html">sup3r.writers.base.RexOutputs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.cachers.html">sup3r.writers.cachers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.cachers.Cacher.html">sup3r.writers.cachers.Cacher</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.h5.html">sup3r.writers.h5</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.h5.OutputHandlerH5.html">sup3r.writers.h5.OutputHandlerH5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.nc.html">sup3r.writers.nc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.nc.OutputHandlerNC.html">sup3r.writers.nc.OutputHandlerNC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/sup3r.writers.utilities.html">sup3r.writers.utilities</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../_cli/cli.html">CLI reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../_cli/sup3r.html">sup3r</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for sup3r.preprocessing.batch_queues.abstract</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Abstract batch queue class used for multi-threaded batching / training.</span>
+
+<span class="sd">TODO:</span>
+<span class="sd">    (1) Figure out apparent "blocking" issue with threaded enqueue batches.</span>
+<span class="sd">        max_workers=1 is the fastest?</span>
+<span class="sd">    (2) Setup distributed data handling so this can work with data distributed</span>
+<span class="sd">        over multiple nodes.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sup3r.preprocessing.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DsetTuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sup3r.preprocessing.collections.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sup3r.utilities.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">RANDOM_GENERATOR</span><span class="p">,</span> <span class="n">Timer</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">sup3r.preprocessing.samplers</span><span class="w"> </span><span class="kn">import</span> <span class="n">DualSampler</span><span class="p">,</span> <span class="n">Sampler</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AbstractBatchQueue">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AbstractBatchQueue</span><span class="p">(</span><span class="n">Collection</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Abstract BatchQueue class. This class gets batches from a dataset</span>
+<span class="sd">    generator and maintains a queue of batches in a dedicated thread so the</span>
+<span class="sd">    training routine can proceed as soon as batches are available."""</span>
+
+    <span class="n">BATCH_MEMBERS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'low_res'</span><span class="p">,</span> <span class="s1">'high_res'</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">samplers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="s1">'Sampler'</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="s1">'DualSampler'</span><span class="p">]],</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="n">n_batches</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">64</span><span class="p">,</span>
+        <span class="n">s_enhance</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">t_enhance</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">queue_cap</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">transform_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">thread_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'training'</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'lazy'</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        samplers : list[Sampler]</span>
+<span class="sd">            List of Sampler instances</span>
+<span class="sd">        batch_size : int</span>
+<span class="sd">            Number of observations / samples in a batch</span>
+<span class="sd">        n_batches : int</span>
+<span class="sd">            Number of batches in an epoch, this sets the iteration limit for</span>
+<span class="sd">            this object.</span>
+<span class="sd">        s_enhance : int</span>
+<span class="sd">            Integer factor by which the spatial axes is to be enhanced.</span>
+<span class="sd">        t_enhance : int</span>
+<span class="sd">            Integer factor by which the temporal axes is to be enhanced.</span>
+<span class="sd">        queue_cap : int</span>
+<span class="sd">            Maximum number of batches the batch queue can store.</span>
+<span class="sd">        transform_kwargs : Union[dict, None]</span>
+<span class="sd">            Dictionary of kwargs to be passed to `self.transform`. This method</span>
+<span class="sd">            performs smoothing / coarsening.</span>
+<span class="sd">        max_workers : int</span>
+<span class="sd">            Number of workers / threads to use for getting batches to fill</span>
+<span class="sd">            queue</span>
+<span class="sd">        thread_name : str</span>
+<span class="sd">            Name of the queue thread. Default is 'training'. Used to set name</span>
+<span class="sd">            to 'validation' for :class:`BatchHandler`, which has a training and</span>
+<span class="sd">            validation queue.</span>
+<span class="sd">        mode : str</span>
+<span class="sd">            Loading mode. Default is 'lazy', which only loads data into memory</span>
+<span class="sd">            as batches are queued. 'eager' will load all data into memory right</span>
+<span class="sd">            away.</span>
+<span class="sd">        verbose : bool</span>
+<span class="sd">            Whether to log timing information for batch steps.</span>
+<span class="sd">        """</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> requires a list of samplers. '</span>
+            <span class="sa">f</span><span class="s1">'Received type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">samplers</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">samplers</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="n">msg</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">containers</span><span class="o">=</span><span class="n">samplers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_batch_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_queue_thread</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_training_flag</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thread_name</span> <span class="o">=</span> <span class="n">thread_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thread_pool</span> <span class="o">=</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">max_workers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s_enhance</span> <span class="o">=</span> <span class="n">s_enhance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_enhance</span> <span class="o">=</span> <span class="n">t_enhance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_batches</span> <span class="o">=</span> <span class="n">n_batches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue_cap</span> <span class="o">=</span> <span class="n">n_batches</span> <span class="k">if</span> <span class="n">queue_cap</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">queue_cap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_workers</span> <span class="o">=</span> <span class="n">max_workers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">container_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_container_index</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr_sample_shape</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hr_sample_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="n">s_enhance</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hr_sample_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="n">s_enhance</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hr_sample_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">//</span> <span class="n">t_enhance</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transform_kwargs</span> <span class="o">=</span> <span class="n">transform_kwargs</span> <span class="ow">or</span> <span class="p">{</span>
+            <span class="s1">'smoothing_ignore'</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">'smoothing'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preflight</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">queue_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Shape of objects stored in the queue. e.g. for single dataset queues</span>
+<span class="sd">        this is (batch_size, *sample_shape, len(features)). For dual dataset</span>
+<span class="sd">        queues this is [(batch_size, *lr_shape), (batch_size, *hr_shape)]"""</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">queue_len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get number of batches in the queue."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue_futures</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue_futures</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">queue_futures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get number of scheduled futures that will eventually add batches to</span>
+<span class="sd">        the queue."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thread_pool</span><span class="o">.</span><span class="n">_work_queue</span><span class="o">.</span><span class="n">qsize</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AbstractBatchQueue.get_queue">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.get_queue">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return FIFO queue for storing batches."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">'eager'</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue_cap</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">FIFOQueue</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue_cap</span><span class="p">,</span>
+            <span class="n">dtypes</span><span class="o">=</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue_shape</span><span class="p">),</span>
+            <span class="n">shapes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">queue_shape</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AbstractBatchQueue.preflight">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.preflight">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preflight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Run checks before kicking off the queue."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_features</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_enhancement_factors</span><span class="p">()</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_shared_attr</span><span class="p">(</span><span class="s1">'sample_shape'</span><span class="p">)</span>
+
+        <span class="n">sampler_bs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_shared_attr</span><span class="p">(</span><span class="s1">'batch_size'</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Samplers have a different batch_size: </span><span class="si">{</span><span class="n">sampler_bs</span><span class="si">}</span><span class="s1"> than the '</span>
+            <span class="sa">f</span><span class="s1">'BatchQueue: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">sampler_bs</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">msg</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">queue_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get new queue thread."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue_thread</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue_thread</span><span class="o">.</span><span class="n">_is_stopped</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_queue_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span>
+                <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enqueue_batches</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_thread_name</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue_thread</span>
+
+<div class="viewcode-block" id="AbstractBatchQueue.check_features">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.check_features">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Make sure all samplers have the same sets of features."""</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">features</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">containers</span><span class="p">]</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">'Received samplers with different sets of features.'</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">feats</span> <span class="o">==</span> <span class="n">features</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">feats</span> <span class="ow">in</span> <span class="n">features</span><span class="p">),</span> <span class="n">msg</span></div>
+
+
+<div class="viewcode-block" id="AbstractBatchQueue.check_enhancement_factors">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.check_enhancement_factors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_enhancement_factors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Make sure the enhancement factors evenly divide the sample_shape."""</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The sample_shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_shape</span><span class="si">}</span><span class="s1"> is not consistent with '</span>
+            <span class="sa">f</span><span class="s1">'the enhancement factors </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">s_enhance</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">t_enhance</span><span class="si">}</span><span class="s1">.'</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="n">samp</span> <span class="o">%</span> <span class="n">enhance</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">samp</span><span class="p">,</span> <span class="n">enhance</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sample_shape</span><span class="p">,</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s_enhance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_enhance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_enhance</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">),</span> <span class="n">msg</span></div>
+
+
+<div class="viewcode-block" id="AbstractBatchQueue.transform">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.transform">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Apply transform on batch samples. This can include smoothing /</span>
+<span class="sd">        coarsening depending on the type of queue. e.g. coarsening could be</span>
+<span class="sd">        included for a single dataset queue where low res samples are coarsened</span>
+<span class="sd">        high res samples. For a dual dataset queue this will just include</span>
+<span class="sd">        smoothing."""</span></div>
+
+
+<div class="viewcode-block" id="AbstractBatchQueue.post_proc">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.post_proc">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DsetTuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Performs some post proc on dequeued samples before sending out for</span>
+<span class="sd">        training. Post processing can include coarsening on high-res data (if</span>
+<span class="sd">        :class:`Collection` consists of :class:`Sampler` objects and not</span>
+<span class="sd">        :class:`DualSampler` objects), smoothing, etc</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Batch : DsetTuple</span>
+<span class="sd">             namedtuple-like object with `low_res` and `high_res` attributes.</span>
+<span class="sd">             Could also include `obs` member.</span>
+<span class="sd">        """</span>
+        <span class="n">tsamps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">transform_kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DsetTuple</span><span class="p">(</span><span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BATCH_MEMBERS</span><span class="p">,</span> <span class="n">tsamps</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="AbstractBatchQueue.start">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.start">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Start thread to keep sample queue full for batches."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_training_flag</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue_thread</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">'lazy'</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue_cap</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Starting </span><span class="si">%s</span><span class="s1"> queue.'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thread_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="AbstractBatchQueue.stop">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.stop">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Stop loading batches."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_training_flag</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue_thread</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Stopping </span><span class="si">%s</span><span class="s1"> queue.'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thread_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue_thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_batches</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_batch_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="AbstractBatchQueue.get_batch">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.get_batch">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DsetTuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Get batch from queue or directly from a ``Sampler`` through</span>
+<span class="sd">        ``sample_batch``."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue_len</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_batch</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">dequeue</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_proc</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">running</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Boolean to check whether to keep enqueueing batches."""</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_training_flag</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue_thread</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">is_closed</span><span class="p">()</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="AbstractBatchQueue.sample_batches">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.sample_batches">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample_batches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_batches</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Sample given number of batches either in serial or with thread</span>
+<span class="sd">        pool."""</span>
+        <span class="k">if</span> <span class="n">n_batches</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_workers</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_batch</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_batches</span><span class="p">)]</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_thread_pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_batch</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_batches</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s1">'Added </span><span class="si">%s</span><span class="s1"> sample_batch futures to </span><span class="si">%s</span><span class="s1"> queue.'</span><span class="p">,</span>
+            <span class="n">n_batches</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_thread_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">tasks</span></div>
+
+
+<div class="viewcode-block" id="AbstractBatchQueue.enqueue_batches">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.enqueue_batches">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">enqueue_batches</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Callback function for queue thread. While training, the queue is</span>
+<span class="sd">        checked for empty spots and filled. In the training thread, batches are</span>
+<span class="sd">        removed from the queue."""</span>
+        <span class="n">log_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
+            <span class="n">needed</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue_cap</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue_len</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">needed</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">batches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_batches</span><span class="p">(</span><span class="n">n_batches</span><span class="o">=</span><span class="n">needed</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">needed</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_workers</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">batches</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">batches</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">log_time</span> <span class="o">+</span> <span class="mi">60</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_queue_info</span><span class="p">())</span>
+                <span class="n">log_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DsetTuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Dequeue batch samples, squeeze if for a spatial only model, perform</span>
+<span class="sd">        some post-proc like smoothing, coarsening, etc, and then send out for</span>
+<span class="sd">        training as a namedtuple-like object of low_res / high_res arrays.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        batch : Batch</span>
+<span class="sd">            Batch object with batch.low_res and batch.high_res attributes</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batch_count</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_batches</span><span class="p">:</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_batch</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_batch_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span>
+        <span class="k">return</span> <span class="n">batch</span>
+
+<div class="viewcode-block" id="AbstractBatchQueue.get_container_index">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.get_container_index">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_container_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get random container index based on weights"""</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">containers</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">RANDOM_GENERATOR</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">container_weights</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AbstractBatchQueue.get_random_container">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.get_random_container">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_random_container</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get random container based on container weights"""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">container_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_container_index</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">containers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">container_index</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="AbstractBatchQueue.sample_batch">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.sample_batch">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get random sampler from collection and return a batch of samples</span>
+<span class="sd">        from that sampler."""</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_random_container</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="AbstractBatchQueue.log_queue_info">
+<a class="viewcode-back" href="../../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.html#sup3r.preprocessing.batch_queues.abstract.AbstractBatchQueue.log_queue_info">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_queue_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Log info about queue size."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">'</span><span class="si">{}</span><span class="s1"> queue disabled (mode=</span><span class="si">{}</span><span class="s1">, queue_cap=</span><span class="si">{}</span><span class="s1">)'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_thread_name</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue_cap</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="s1">'</span><span class="si">{}</span><span class="s1"> queue length: </span><span class="si">{}</span><span class="s1"> / </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_thread_name</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue_len</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue_cap</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lr_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Shape of low resolution sample in a low-res / high-res pair.  (e.g.</span>
+<span class="sd">        (spatial_1, spatial_2, temporal, features))"""</span>
+        <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_sample_shape</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_features</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hr_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Shape of high resolution sample in a low-res / high-res pair.  (e.g.</span>
+<span class="sd">        (spatial_1, spatial_2, temporal, features))"""</span>
+        <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">hr_sample_shape</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hr_features</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Shapes of batches returned by ``__next__``"""</span>
+        <span class="n">lr_shape</span><span class="p">,</span> <span class="n">hr_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr_shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hr_shape</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">lr_shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">lr_shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">lr_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">hr_shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">hr_shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">hr_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">*</span><span class="n">lr_shape</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">*</span><span class="n">hr_shape</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Brandon Benton, Grant Buster, Andrew Glaws, Ryan King
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022, Alliance for Energy Innovation, LLC.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1209 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>sup3r.postprocessing.collectors.h5.CollectorH5 &#8212; sup3r 0.2.9.dev58 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=1229960a"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/sup3r.postprocessing.collectors.h5.CollectorH5';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sup3r.postprocessing.collectors.nc" href="sup3r.postprocessing.collectors.nc.html" />
+    <link rel="prev" title="sup3r.postprocessing.collectors.h5" href="sup3r.postprocessing.collectors.h5.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">sup3r 0.2.9.dev58 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home page</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../misc/installation_usage.html">Installation and Usage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../misc/installation.html">Installation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/sup3rcc.html">Sup3rCC Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/sup3rwind.html">Sup3rWind Examples</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="sup3r.html">API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.batch.html">sup3r.batch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.batch.batch_cli.html">sup3r.batch.batch_cli</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.bias.html">sup3r.bias</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.abstract.html">sup3r.bias.abstract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.abstract.AbstractBiasCorrection.html">sup3r.bias.abstract.AbstractBiasCorrection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.base.html">sup3r.bias.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.base.DataRetrievalBase.html">sup3r.bias.base.DataRetrievalBase</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.bias_calc.html">sup3r.bias.bias_calc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.LinearCorrection.html">sup3r.bias.bias_calc.LinearCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.MonthlyLinearCorrection.html">sup3r.bias.bias_calc.MonthlyLinearCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.MonthlyScalarCorrection.html">sup3r.bias.bias_calc.MonthlyScalarCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.ScalarCorrection.html">sup3r.bias.bias_calc.ScalarCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.SkillAssessment.html">sup3r.bias.bias_calc.SkillAssessment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.bias_calc_cli.html">sup3r.bias.bias_calc_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc_cli.kickoff_local_job.html">sup3r.bias.bias_calc_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc_cli.kickoff_slurm_job.html">sup3r.bias.bias_calc_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.bias_calc_vortex.html">sup3r.bias.bias_calc_vortex</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc_vortex.BiasCorrectUpdate.html">sup3r.bias.bias_calc_vortex.BiasCorrectUpdate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc_vortex.VortexMeanPrepper.html">sup3r.bias.bias_calc_vortex.VortexMeanPrepper</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.bias_transforms.html">sup3r.bias.bias_transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.global_linear_bc.html">sup3r.bias.bias_transforms.global_linear_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.local_linear_bc.html">sup3r.bias.bias_transforms.local_linear_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.local_presrat_bc.html">sup3r.bias.bias_transforms.local_presrat_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.local_qdm_bc.html">sup3r.bias.bias_transforms.local_qdm_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.monthly_local_linear_bc.html">sup3r.bias.bias_transforms.monthly_local_linear_bc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.mixins.html">sup3r.bias.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.mixins.FillAndSmoothMixin.html">sup3r.bias.mixins.FillAndSmoothMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.mixins.ZeroRateMixin.html">sup3r.bias.mixins.ZeroRateMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.presrat.html">sup3r.bias.presrat</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.presrat.PresRat.html">sup3r.bias.presrat.PresRat</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.qdm.html">sup3r.bias.qdm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.qdm.QuantileDeltaMappingCorrection.html">sup3r.bias.qdm.QuantileDeltaMappingCorrection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.utilities.html">sup3r.bias.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.utilities.bias_correct_feature.html">sup3r.bias.utilities.bias_correct_feature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.utilities.bias_correct_features.html">sup3r.bias.utilities.bias_correct_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.utilities.lin_bc.html">sup3r.bias.utilities.lin_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.utilities.qdm_bc.html">sup3r.bias.utilities.qdm_bc</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="sup3r.cli.html">sup3r.cli</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.models.html">sup3r.models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.abstract.html">sup3r.models.abstract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.abstract.AbstractSingleModel.html">sup3r.models.abstract.AbstractSingleModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.base.html">sup3r.models.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.base.Sup3rGan.html">sup3r.models.base.Sup3rGan</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.conditional.html">sup3r.models.conditional</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.conditional.Sup3rCondMom.html">sup3r.models.conditional.Sup3rCondMom</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.dc.html">sup3r.models.dc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.dc.Sup3rGanDC.html">sup3r.models.dc.Sup3rGanDC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.interface.html">sup3r.models.interface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.interface.AbstractInterface.html">sup3r.models.interface.AbstractInterface</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.linear.html">sup3r.models.linear</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.linear.LinearInterp.html">sup3r.models.linear.LinearInterp</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.multi_step.html">sup3r.models.multi_step</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.multi_step.MultiStepGan.html">sup3r.models.multi_step.MultiStepGan</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.multi_step.MultiStepSurfaceMetGan.html">sup3r.models.multi_step.MultiStepSurfaceMetGan</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.multi_step.SolarMultiStepGan.html">sup3r.models.multi_step.SolarMultiStepGan</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.solar_cc.html">sup3r.models.solar_cc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.solar_cc.SolarCC.html">sup3r.models.solar_cc.SolarCC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.surface.html">sup3r.models.surface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.surface.SurfaceSpatialMetModel.html">sup3r.models.surface.SurfaceSpatialMetModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.utilities.html">sup3r.models.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.get_sup3r_layers.html">sup3r.models.utilities.get_sup3r_layers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.st_interp.html">sup3r.models.utilities.st_interp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.TensorboardMixIn.html">sup3r.models.utilities.TensorboardMixIn</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.TrainingConfig.html">sup3r.models.utilities.TrainingConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.TrainingSession.html">sup3r.models.utilities.TrainingSession</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.pipeline.html">sup3r.pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.forward_pass.html">sup3r.pipeline.forward_pass</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.forward_pass.ForwardPass.html">sup3r.pipeline.forward_pass.ForwardPass</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.forward_pass_cli.html">sup3r.pipeline.forward_pass_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.forward_pass_cli.kickoff_local_job.html">sup3r.pipeline.forward_pass_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.forward_pass_cli.kickoff_slurm_job.html">sup3r.pipeline.forward_pass_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.pipeline.pipeline_cli.html">sup3r.pipeline.pipeline_cli</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.slicer.html">sup3r.pipeline.slicer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.slicer.ForwardPassSlicer.html">sup3r.pipeline.slicer.ForwardPassSlicer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.strategy.html">sup3r.pipeline.strategy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.strategy.ForwardPassChunk.html">sup3r.pipeline.strategy.ForwardPassChunk</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.strategy.ForwardPassStrategy.html">sup3r.pipeline.strategy.ForwardPassStrategy</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.utilities.html">sup3r.pipeline.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.utilities.get_chunk_slices.html">sup3r.pipeline.utilities.get_chunk_slices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.utilities.get_model.html">sup3r.pipeline.utilities.get_model</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="sup3r.postprocessing.html">sup3r.postprocessing</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="sup3r.postprocessing.collectors.html">sup3r.postprocessing.collectors</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.collectors.base.html">sup3r.postprocessing.collectors.base</a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="sup3r.postprocessing.collectors.h5.html">sup3r.postprocessing.collectors.h5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.collectors.nc.html">sup3r.postprocessing.collectors.nc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.postprocessing.data_collect_cli.html">sup3r.postprocessing.data_collect_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.data_collect_cli.kickoff_local_job.html">sup3r.postprocessing.data_collect_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.data_collect_cli.kickoff_slurm_job.html">sup3r.postprocessing.data_collect_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.preprocessing.html">sup3r.preprocessing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.accessor.html">sup3r.preprocessing.accessor</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.accessor.Sup3rX.html">sup3r.preprocessing.accessor.Sup3rX</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.base.html">sup3r.preprocessing.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.base.Container.html">sup3r.preprocessing.base.Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.base.DsetTuple.html">sup3r.preprocessing.base.DsetTuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.base.Sup3rDataset.html">sup3r.preprocessing.base.Sup3rDataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.base.Sup3rMeta.html">sup3r.preprocessing.base.Sup3rMeta</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.batch_handlers.html">sup3r.preprocessing.batch_handlers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_handlers.dc.html">sup3r.preprocessing.batch_handlers.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_handlers.factory.html">sup3r.preprocessing.batch_handlers.factory</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.batch_queues.html">sup3r.preprocessing.batch_queues</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.abstract.html">sup3r.preprocessing.batch_queues.abstract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.base.html">sup3r.preprocessing.batch_queues.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.conditional.html">sup3r.preprocessing.batch_queues.conditional</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.dc.html">sup3r.preprocessing.batch_queues.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.dual.html">sup3r.preprocessing.batch_queues.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.utilities.html">sup3r.preprocessing.batch_queues.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.collections.html">sup3r.preprocessing.collections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.collections.base.html">sup3r.preprocessing.collections.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.collections.stats.html">sup3r.preprocessing.collections.stats</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.data_handlers.html">sup3r.preprocessing.data_handlers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.data_handlers.base.html">sup3r.preprocessing.data_handlers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.data_handlers.exo.html">sup3r.preprocessing.data_handlers.exo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.data_handlers.nc_cc.html">sup3r.preprocessing.data_handlers.nc_cc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.derivers.html">sup3r.preprocessing.derivers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.derivers.base.html">sup3r.preprocessing.derivers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.derivers.methods.html">sup3r.preprocessing.derivers.methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.derivers.utilities.html">sup3r.preprocessing.derivers.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.loaders.html">sup3r.preprocessing.loaders</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.Loader.html">sup3r.preprocessing.loaders.Loader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.base.html">sup3r.preprocessing.loaders.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.h5.html">sup3r.preprocessing.loaders.h5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.utilities.html">sup3r.preprocessing.loaders.utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.xr.html">sup3r.preprocessing.loaders.xr</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.names.html">sup3r.preprocessing.names</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.names.Dimension.html">sup3r.preprocessing.names.Dimension</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.rasterizers.html">sup3r.preprocessing.rasterizers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.rasterizers.base.html">sup3r.preprocessing.rasterizers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.rasterizers.dual.html">sup3r.preprocessing.rasterizers.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.rasterizers.exo.html">sup3r.preprocessing.rasterizers.exo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.rasterizers.extended.html">sup3r.preprocessing.rasterizers.extended</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.samplers.html">sup3r.preprocessing.samplers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.base.html">sup3r.preprocessing.samplers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.cc.html">sup3r.preprocessing.samplers.cc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.dc.html">sup3r.preprocessing.samplers.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.dual.html">sup3r.preprocessing.samplers.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.utilities.html">sup3r.preprocessing.samplers.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.utilities.html">sup3r.preprocessing.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.check_signatures.html">sup3r.preprocessing.utilities.check_signatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.composite_info.html">sup3r.preprocessing.utilities.composite_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.composite_sig.html">sup3r.preprocessing.utilities.composite_sig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.compute_if_dask.html">sup3r.preprocessing.utilities.compute_if_dask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.contains_ellipsis.html">sup3r.preprocessing.utilities.contains_ellipsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.dims_array_tuple.html">sup3r.preprocessing.utilities.dims_array_tuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.expand_paths.html">sup3r.preprocessing.utilities.expand_paths</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_class_kwargs.html">sup3r.preprocessing.utilities.get_class_kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_date_range_kwargs.html">sup3r.preprocessing.utilities.get_date_range_kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_input_handler_class.html">sup3r.preprocessing.utilities.get_input_handler_class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_obj_params.html">sup3r.preprocessing.utilities.get_obj_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_source_type.html">sup3r.preprocessing.utilities.get_source_type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_time_index_freqs.html">sup3r.preprocessing.utilities.get_time_index_freqs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.is_type_of.html">sup3r.preprocessing.utilities.is_type_of</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.log_args.html">sup3r.preprocessing.utilities.log_args</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.lower_names.html">sup3r.preprocessing.utilities.lower_names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.lowered.html">sup3r.preprocessing.utilities.lowered</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.make_time_index_from_kws.html">sup3r.preprocessing.utilities.make_time_index_from_kws</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.numpy_if_tensor.html">sup3r.preprocessing.utilities.numpy_if_tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.ordered_array.html">sup3r.preprocessing.utilities.ordered_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.ordered_dims.html">sup3r.preprocessing.utilities.ordered_dims</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.parse_ellipsis.html">sup3r.preprocessing.utilities.parse_ellipsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.parse_features.html">sup3r.preprocessing.utilities.parse_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.parse_keys.html">sup3r.preprocessing.utilities.parse_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.parse_to_list.html">sup3r.preprocessing.utilities.parse_to_list</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.qa.html">sup3r.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.qa.qa.html">sup3r.qa.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.qa.Sup3rQa.html">sup3r.qa.qa.Sup3rQa</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.qa.qa_cli.html">sup3r.qa.qa_cli</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.qa.utilities.html">sup3r.qa.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.continuous_dist.html">sup3r.qa.utilities.continuous_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.direct_dist.html">sup3r.qa.utilities.direct_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.frequency_spectrum.html">sup3r.qa.utilities.frequency_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.gradient_dist.html">sup3r.qa.utilities.gradient_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.time_derivative_dist.html">sup3r.qa.utilities.time_derivative_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.tke_frequency_spectrum.html">sup3r.qa.utilities.tke_frequency_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.tke_wavenumber_spectrum.html">sup3r.qa.utilities.tke_wavenumber_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.wavenumber_spectrum.html">sup3r.qa.utilities.wavenumber_spectrum</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.solar.html">sup3r.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.solar.solar.html">sup3r.solar.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.solar.solar.Solar.html">sup3r.solar.solar.Solar</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.solar.solar_cli.html">sup3r.solar.solar_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.solar.solar_cli.kickoff_local_job.html">sup3r.solar.solar_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.solar.solar_cli.kickoff_slurm_job.html">sup3r.solar.solar_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.utilities.html">sup3r.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.utilities.ModuleName.html">sup3r.utilities.ModuleName</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.cli.html">sup3r.utilities.cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.cli.BaseCLI.html">sup3r.utilities.cli.BaseCLI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.cli.SlurmManager.html">sup3r.utilities.cli.SlurmManager</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.era_downloader.html">sup3r.utilities.era_downloader</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.era_downloader.EraDownloader.html">sup3r.utilities.era_downloader.EraDownloader</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.interpolation.html">sup3r.utilities.interpolation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.interpolation.Interpolator.html">sup3r.utilities.interpolation.Interpolator</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.loss_metrics.html">sup3r.utilities.loss_metrics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.gaussian_kernel.html">sup3r.utilities.loss_metrics.gaussian_kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.tf_derivative.html">sup3r.utilities.loss_metrics.tf_derivative</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.CoarseMseLoss.html">sup3r.utilities.loss_metrics.CoarseMseLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.ExpLoss.html">sup3r.utilities.loss_metrics.ExpLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.GeothermalConductiveHeatTransferLoss.html">sup3r.utilities.loss_metrics.GeothermalConductiveHeatTransferLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.GeothermalMohoBCLoss.html">sup3r.utilities.loss_metrics.GeothermalMohoBCLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.GeothermalObsLoss.html">sup3r.utilities.loss_metrics.GeothermalObsLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.GeothermalPositiveTemperatureGradientLoss.html">sup3r.utilities.loss_metrics.GeothermalPositiveTemperatureGradientLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.LowResLoss.html">sup3r.utilities.loss_metrics.LowResLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.MaterialDerivativeLoss.html">sup3r.utilities.loss_metrics.MaterialDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.MmdLoss.html">sup3r.utilities.loss_metrics.MmdLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.ObsAssimilationLoss.html">sup3r.utilities.loss_metrics.ObsAssimilationLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.PerceptualLoss.html">sup3r.utilities.loss_metrics.PerceptualLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SlicedWassersteinLoss.html">sup3r.utilities.loss_metrics.SlicedWassersteinLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SpatialDerivativeLoss.html">sup3r.utilities.loss_metrics.SpatialDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SpatialExtremesLoss.html">sup3r.utilities.loss_metrics.SpatialExtremesLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SpatialFftLoss.html">sup3r.utilities.loss_metrics.SpatialFftLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SpatiotemporalFftLoss.html">sup3r.utilities.loss_metrics.SpatiotemporalFftLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.Sup3rLoss.html">sup3r.utilities.loss_metrics.Sup3rLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.TemporalDerivativeLoss.html">sup3r.utilities.loss_metrics.TemporalDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.TemporalExtremesLoss.html">sup3r.utilities.loss_metrics.TemporalExtremesLoss</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.pytest.html">sup3r.utilities.pytest</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.pytest.helpers.html">sup3r.utilities.pytest.helpers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.utilities.html">sup3r.utilities.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.camel_to_underscore.html">sup3r.utilities.utilities.camel_to_underscore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.decode_str_times.html">sup3r.utilities.utilities.decode_str_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.encode_str_times.html">sup3r.utilities.utilities.encode_str_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.enforce_limits.html">sup3r.utilities.utilities.enforce_limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.generate_random_string.html">sup3r.utilities.utilities.generate_random_string</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.get_dset_attrs.html">sup3r.utilities.utilities.get_dset_attrs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.get_feature_basename.html">sup3r.utilities.utilities.get_feature_basename</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.get_tmp_file.html">sup3r.utilities.utilities.get_tmp_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.nn_fill_array.html">sup3r.utilities.utilities.nn_fill_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.pd_date_range.html">sup3r.utilities.utilities.pd_date_range</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.preprocess_datasets.html">sup3r.utilities.utilities.preprocess_datasets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.safe_cast.html">sup3r.utilities.utilities.safe_cast</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.safe_serialize.html">sup3r.utilities.utilities.safe_serialize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.spatial_coarsening.html">sup3r.utilities.utilities.spatial_coarsening</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.temporal_coarsening.html">sup3r.utilities.utilities.temporal_coarsening</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.xr_open_mfdataset.html">sup3r.utilities.utilities.xr_open_mfdataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.Timer.html">sup3r.utilities.utilities.Timer</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.writers.html">sup3r.writers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.writers.base.html">sup3r.writers.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.base.OutputHandler.html">sup3r.writers.base.OutputHandler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.base.OutputMixin.html">sup3r.writers.base.OutputMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.base.RexOutputs.html">sup3r.writers.base.RexOutputs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.writers.cachers.html">sup3r.writers.cachers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.cachers.Cacher.html">sup3r.writers.cachers.Cacher</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.writers.h5.html">sup3r.writers.h5</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.h5.OutputHandlerH5.html">sup3r.writers.h5.OutputHandlerH5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.writers.nc.html">sup3r.writers.nc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.nc.OutputHandlerNC.html">sup3r.writers.nc.OutputHandlerNC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.writers.utilities.html">sup3r.writers.utilities</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../_cli/cli.html">CLI reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_cli/sup3r.html">sup3r</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/_autosummary/sup3r.postprocessing.collectors.h5.CollectorH5.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>sup3r.postprocessing.collectors.h5.CollectorH5</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5"><code class="docutils literal notranslate"><span class="pre">CollectorH5</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_slices"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_slices()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_coordinate_indices"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_coordinate_indices()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_data"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_unique_chunk_files"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_unique_chunk_files()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_target_and_masked_meta"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_target_and_masked_meta()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_collection_attrs"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_collection_attrs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_flist_chunks"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_flist_chunks()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.collect_feature"><code class="docutils literal notranslate"><span class="pre">CollectorH5.collect_feature()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.collect"><code class="docutils literal notranslate"><span class="pre">CollectorH5.collect()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_chunk_indices"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_chunk_indices()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_node_cmd"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_node_cmd()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_time_dim_name"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_time_dim_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.write_data"><code class="docutils literal notranslate"><span class="pre">CollectorH5.write_data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="sup3r-postprocessing-collectors-h5-collectorh5">
+<h1>sup3r.postprocessing.collectors.h5.CollectorH5<a class="headerlink" href="#sup3r-postprocessing-collectors-h5-collectorh5" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CollectorH5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sup3r/postprocessing/collectors/h5.html#CollectorH5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sup3r.postprocessing.collectors.base.BaseCollector.html#sup3r.postprocessing.collectors.base.BaseCollector" title="sup3r.postprocessing.collectors.base.BaseCollector"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCollector</span></code></a></p>
+<p>Sup3r H5 file collection framework</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_paths</strong> (<em>list | str</em>) – Explicit list of str file paths that will be sorted and collected
+or a single string with unix-style /search/patt*ern.&lt;ext&gt;. Files
+should have non-overlapping time_index and spatial domains.</p>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.collect" title="sup3r.postprocessing.collectors.h5.CollectorH5.collect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect</span></code></a>(file_paths, out_file[, features, ...])</p></td>
+<td><p>Collect data files from a dir to one output file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.collect_feature" title="sup3r.postprocessing.collectors.h5.CollectorH5.collect_feature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect_feature</span></code></a>(dset, target_masked_meta, ...)</p></td>
+<td><p>Collect chunks for single feature</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_chunk_indices" title="sup3r.postprocessing.collectors.h5.CollectorH5.get_chunk_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_chunk_indices</span></code></a>(file)</p></td>
+<td><p>Get spatial and temporal chunk indices from the given file name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_collection_attrs" title="sup3r.postprocessing.collectors.h5.CollectorH5.get_collection_attrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_collection_attrs</span></code></a>(file_paths[, ...])</p></td>
+<td><p>Get important dataset attributes from a file list to be collected.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_coordinate_indices" title="sup3r.postprocessing.collectors.h5.CollectorH5.get_coordinate_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_coordinate_indices</span></code></a>(target_meta, full_meta)</p></td>
+<td><p>Get coordindate indices in meta data for given targets</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_data" title="sup3r.postprocessing.collectors.h5.CollectorH5.get_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data</span></code></a>(file_path, feature, time_index, ...)</p></td>
+<td><p>Retreive a data array from a chunked file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_flist_chunks" title="sup3r.postprocessing.collectors.h5.CollectorH5.get_flist_chunks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_flist_chunks</span></code></a>(file_paths[, n_writes])</p></td>
+<td><p>Group files by temporal_chunk_index and then combines these groups if <code class="docutils literal notranslate"><span class="pre">n_writes</span></code> is less than the number of time_chunks.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_node_cmd" title="sup3r.postprocessing.collectors.h5.CollectorH5.get_node_cmd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_cmd</span></code></a>(config)</p></td>
+<td><p>Get a CLI call to collect data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_slices" title="sup3r.postprocessing.collectors.h5.CollectorH5.get_slices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_slices</span></code></a>(final_time_index, final_meta, ...)</p></td>
+<td><p>Get index slices where the new ti/meta belong in the final ti/meta.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_target_and_masked_meta" title="sup3r.postprocessing.collectors.h5.CollectorH5.get_target_and_masked_meta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_target_and_masked_meta</span></code></a>(meta[, ...])</p></td>
+<td><p>Use combined meta for all files and target_meta_file to get mapping from the full meta to the target meta and the mapping from the target meta to the full meta, both of which are masked to remove coordinates not present in the target_meta.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_time_dim_name" title="sup3r.postprocessing.collectors.h5.CollectorH5.get_time_dim_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_dim_name</span></code></a>(filepath)</p></td>
+<td><p>Get the name of the time dimension in the given file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_unique_chunk_files" title="sup3r.postprocessing.collectors.h5.CollectorH5.get_unique_chunk_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unique_chunk_files</span></code></a>(file_paths)</p></td>
+<td><p>We get files for the unique spatial and temporal extents covered by all collection files.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.postprocessing.collectors.h5.CollectorH5.write_data" title="sup3r.postprocessing.collectors.h5.CollectorH5.write_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_data</span></code></a>(out_file, dsets, time_index, ...)</p></td>
+<td><p>Write list of datasets to out_file.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.get_slices">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">final_time_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_time_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_meta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sup3r/postprocessing/collectors/h5.html#CollectorH5.get_slices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_slices" title="Link to this definition">#</a></dt>
+<dd><p>Get index slices where the new ti/meta belong in the final ti/meta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>final_time_index</strong> (<em>pd.Datetimeindex</em>) – Time index of the final file that new_time_index is being written
+to.</p></li>
+<li><p><strong>final_meta</strong> (<em>pd.DataFrame</em>) – Meta data of the final file that new_meta is being written to.</p></li>
+<li><p><strong>new_time_index</strong> (<em>pd.Datetimeindex</em>) – Chunk time index that is a subset of the final_time_index.</p></li>
+<li><p><strong>new_meta</strong> (<em>pd.DataFrame</em>) – Chunk meta data that is a subset of the final_meta.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>row_slice</strong> (<em>slice</em>) – final_time_index[row_slice] = new_time_index</p></li>
+<li><p><strong>col_slice</strong> (<em>slice</em>) – final_meta[col_slice] = new_meta</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.get_coordinate_indices">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_coordinate_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sup3r/postprocessing/collectors/h5.html#CollectorH5.get_coordinate_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_coordinate_indices" title="Link to this definition">#</a></dt>
+<dd><p>Get coordindate indices in meta data for given targets</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_meta</strong> (<em>pd.DataFrame</em>) – Dataframe of coordinates to find within the full meta</p></li>
+<li><p><strong>full_meta</strong> (<em>pd.DataFrame</em>) – Dataframe of full set of coordinates for unfiltered dataset</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Threshold distance for finding target coordinates within full meta</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sup3r/postprocessing/collectors/h5.html#CollectorH5.get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_data" title="Link to this definition">#</a></dt>
+<dd><p>Retreive a data array from a chunked file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>str</em>) – h5 file to get data from</p></li>
+<li><p><strong>feature</strong> (<em>str</em>) – dataset to retrieve data from fpath.</p></li>
+<li><p><strong>time_index</strong> (<em>pd.Datetimeindex</em>) – Time index of the final file.</p></li>
+<li><p><strong>meta</strong> (<em>pd.DataFrame</em>) – Meta data of the final file.</p></li>
+<li><p><strong>scale_factor</strong> (<em>int | float</em>) – Final destination scale factor after collection. If the data
+retrieval from the files to be collected has a different scale
+factor, the collected data will be rescaled and returned as
+float32.</p></li>
+<li><p><strong>dtype</strong> (<em>np.dtype</em>) – Final dtype to return data as</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Threshold distance for finding target coordinates within full meta</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>f_data</strong> (<em>Union[np.ndarray, da.core.Array]</em>) – Data array from the fpath cast as input dtype.</p></li>
+<li><p><strong>row_slice</strong> (<em>slice</em>) – final_time_index[row_slice] = new_time_index</p></li>
+<li><p><strong>col_slice</strong> (<em>slice</em>) – final_meta[col_slice] = new_meta</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.get_unique_chunk_files">
+<span class="sig-name descname"><span class="pre">get_unique_chunk_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sup3r/postprocessing/collectors/h5.html#CollectorH5.get_unique_chunk_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_unique_chunk_files" title="Link to this definition">#</a></dt>
+<dd><p>We get files for the unique spatial and temporal extents covered by
+all collection files. Since the files have a suffix
+<code class="docutils literal notranslate"><span class="pre">_{temporal_chunk_index}_{spatial_chunk_index}.h5</span></code> we just use all
+files with a single <code class="docutils literal notranslate"><span class="pre">spatial_chunk_index</span></code> for the full time index and
+all files with a single <code class="docutils literal notranslate"><span class="pre">temporal_chunk_index</span></code> for the full meta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t_files</strong> (<em>list</em>) – Explicit list of str file paths which, when combined, provide the
+entire spatial domain.</p></li>
+<li><p><strong>s_files</strong> (<em>list</em>) – Explicit list of str file paths which, when combined, provide the
+entire temporal extent.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.get_target_and_masked_meta">
+<span class="sig-name descname"><span class="pre">get_target_and_masked_meta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meta_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sup3r/postprocessing/collectors/h5.html#CollectorH5.get_target_and_masked_meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_target_and_masked_meta" title="Link to this definition">#</a></dt>
+<dd><p>Use combined meta for all files and target_meta_file to get
+mapping from the full meta to the target meta and the mapping from the
+target meta to the full meta, both of which are masked to remove
+coordinates not present in the target_meta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>meta</strong> (<em>pd.DataFrame</em>) – Concatenated full size meta data from the flist that is being
+collected or provided target meta</p></li>
+<li><p><strong>target_meta_file</strong> (<em>str</em>) – Path to target final meta containing coordinates to keep from the
+full list of coordinates present in the collected meta for the full
+file list.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Threshold distance for finding target coordinates within full meta</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>target_meta</strong> (<em>pd.DataFrame</em>) – Concatenated full size meta data from the flist that is being
+collected or provided target meta</p></li>
+<li><p><strong>masked_meta</strong> (<em>pd.DataFrame</em>) – Concatenated full size meta data from the flist that is being
+collected masked against target_meta</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.get_collection_attrs">
+<span class="sig-name descname"><span class="pre">get_collection_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meta_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sup3r/postprocessing/collectors/h5.html#CollectorH5.get_collection_attrs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_collection_attrs" title="Link to this definition">#</a></dt>
+<dd><p>Get important dataset attributes from a file list to be collected.</p>
+<p>Assumes the file list is chunked in time (row chunked).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_paths</strong> (<em>list | str</em>) – Explicit list of str file paths that will be sorted and collected
+or a single string with unix-style /search/patt*ern.h5.</p></li>
+<li><p><strong>max_workers</strong> (<em>int | None</em>) – Number of workers to use in parallel. 1 runs serial,
+None will use all available workers.</p></li>
+<li><p><strong>target_meta_file</strong> (<em>str</em>) – Path to target final meta containing coordinates to keep from the
+full list of coordinates present in the collected meta for the full
+file list.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Threshold distance for finding target coordinates within full meta</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>time_index</strong> (<em>pd.datetimeindex</em>) – Concatenated full size datetime index from the flist that is
+being collected</p></li>
+<li><p><strong>target_meta</strong> (<em>pd.DataFrame</em>) – Concatenated full size meta data from the flist that is being
+collected or provided target meta</p></li>
+<li><p><strong>masked_meta</strong> (<em>pd.DataFrame</em>) – Concatenated full size meta data from the flist that is being
+collected masked against target_meta</p></li>
+<li><p><strong>shape</strong> (<em>tuple</em>) – Output (collected) dataset shape</p></li>
+<li><p><strong>global_attrs</strong> (<em>dict</em>) – Global attributes from the first file in file_paths (it’s assumed
+that all the files in file_paths have the same global file
+attributes).</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.get_flist_chunks">
+<span class="sig-name descname"><span class="pre">get_flist_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_writes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sup3r/postprocessing/collectors/h5.html#CollectorH5.get_flist_chunks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_flist_chunks" title="Link to this definition">#</a></dt>
+<dd><p>Group files by temporal_chunk_index and then combines these groups
+if <code class="docutils literal notranslate"><span class="pre">n_writes</span></code> is less than the number of time_chunks. Assumes
+file_paths have a suffix format like
+<code class="docutils literal notranslate"><span class="pre">_{temporal_chunk_index}_{spatial_chunk_index}.h5</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_paths</strong> (<em>list</em>) – List of file paths each with a suffix
+<code class="docutils literal notranslate"><span class="pre">_{temporal_chunk_index}_{spatial_chunk_index}.h5</span></code></p></li>
+<li><p><strong>n_writes</strong> (<em>int | None</em>) – Number of writes to use for collection</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>flist_chunks</strong> (<em>list</em>) – List of file list chunks. Used to split collection and writing into
+multiple steps.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.collect_feature">
+<span class="sig-name descname"><span class="pre">collect_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_masked_meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meta_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flist_chunks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sup3r/postprocessing/collectors/h5.html#CollectorH5.collect_feature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.collect_feature" title="Link to this definition">#</a></dt>
+<dd><p>Collect chunks for single feature</p>
+<dl class="simple">
+<dt>dset<span class="classifier">str</span></dt><dd><p>Dataset name to collect.</p>
+</dd>
+<dt>target_masked_meta<span class="classifier">pd.DataFrame</span></dt><dd><p>Same as subset_masked_meta but instead for the entire list of files
+to be collected.</p>
+</dd>
+<dt>target_meta_file<span class="classifier">str</span></dt><dd><p>Path to target final meta containing coordinates to keep from the
+full file list collected meta. This can be but is not necessarily a
+subset of the full list of coordinates for all files in the file
+list. This is used to remove coordinates from the full file list
+which are not present in the target_meta. Either this full
+meta or a subset, depending on which coordinates are present in
+the data to be collected, will be the final meta for the collected
+output files.</p>
+</dd>
+<dt>time_index<span class="classifier">pd.datetimeindex</span></dt><dd><p>Concatenated datetime index for the given file paths.</p>
+</dd>
+<dt>shape<span class="classifier">tuple</span></dt><dd><p>Output (collected) dataset shape</p>
+</dd>
+<dt>flist_chunks<span class="classifier">list</span></dt><dd><p>List of file list chunks. Used to split collection and writing into
+multiple steps.</p>
+</dd>
+<dt>out_file<span class="classifier">str</span></dt><dd><p>File path of final output file.</p>
+</dd>
+<dt>threshold<span class="classifier">float</span></dt><dd><p>Threshold distance for finding target coordinates within full meta</p>
+</dd>
+<dt>max_workers<span class="classifier">int | None</span></dt><dd><p>Number of workers to use in parallel. 1 runs serial,
+None will use all available workers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.collect">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">collect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_meta_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_writes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sup3r/postprocessing/collectors/h5.html#CollectorH5.collect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.collect" title="Link to this definition">#</a></dt>
+<dd><p>Collect data files from a dir to one output file.</p>
+<dl class="simple">
+<dt>Filename requirements:</dt><dd><ul class="simple">
+<li><p>Should end with “.h5”</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_paths</strong> (<em>list | str</em>) – Explicit list of str file paths that will be sorted and collected
+or a single string with unix-style /search/patt*ern.h5. Files
+resolved by this argument must be of the form
+<code class="docutils literal notranslate"><span class="pre">*_{temporal_chunk_index}_{spatial_chunk_index}.h5</span></code>.</p></li>
+<li><p><strong>out_file</strong> (<em>str</em>) – File path of final output file.</p></li>
+<li><p><strong>features</strong> (<em>list | str</em>) – List of dsets to collect. If ‘all’ then all datasets will be
+collected</p></li>
+<li><p><strong>max_workers</strong> (<em>int | None</em>) – Number of workers to use in parallel. 1 runs serial,
+None will use all available workers.</p></li>
+<li><p><strong>log_level</strong> (<em>str | None</em>) – Desired log level, None will not initialize logging.</p></li>
+<li><p><strong>log_file</strong> (<em>str | None</em>) – Target log file. None logs to stdout.</p></li>
+<li><p><strong>target_meta_file</strong> (<em>str</em>) – Path to target final meta containing coordinates to keep from the
+full file list collected meta. This can be but is not necessarily a
+subset of the full list of coordinates for all files in the file
+list. This is used to remove coordinates from the full file list
+which are not present in the target_meta. Either this full
+meta or a subset, depending on which coordinates are present in
+the data to be collected, will be the final meta for the collected
+output files.</p></li>
+<li><p><strong>n_writes</strong> (<em>int | None</em>) – Number of writes to split full file list into. Must be less than
+or equal to the number of temporal chunks if chunks have different
+time indices.</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em>) – Whether to overwrite existing output file</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Threshold distance for finding target coordinates within full meta</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.get_chunk_indices">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_chunk_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_chunk_indices" title="Link to this definition">#</a></dt>
+<dd><p>Get spatial and temporal chunk indices from the given file name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>temporal_chunk_index</strong> (<em>str</em>) – Zero padded integer for the temporal chunk index</p></li>
+<li><p><strong>spatial_chunk_index</strong> (<em>str</em>) – Zero padded integer for the spatial chunk index</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.get_node_cmd">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_node_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_node_cmd" title="Link to this definition">#</a></dt>
+<dd><p>Get a CLI call to collect data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – sup3r collection config with all necessary args and kwargs to
+run data collection.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.get_time_dim_name">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_time_dim_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_time_dim_name" title="Link to this definition">#</a></dt>
+<dd><p>Get the name of the time dimension in the given file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em>) – Path to the file</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>time_key</strong> (<em>str</em>) – Name of the time dimension in the given file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.postprocessing.collectors.h5.CollectorH5.write_data">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dsets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_attrs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.postprocessing.collectors.h5.CollectorH5.write_data" title="Link to this definition">#</a></dt>
+<dd><p>Write list of datasets to out_file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>out_file</strong> (<em>str</em>) – Pre-existing H5 file output path</p></li>
+<li><p><strong>dsets</strong> (<em>list</em>) – list of datasets to write to out_file</p></li>
+<li><p><strong>time_index</strong> (<em>pd.DatetimeIndex()</em>) – Pandas datetime index to use for file time_index.</p></li>
+<li><p><strong>data_list</strong> (<em>list</em>) – List of np.ndarray objects to write to out_file</p></li>
+<li><p><strong>meta</strong> (<em>pd.DataFrame</em>) – Full meta dataframe for the final output data.</p></li>
+<li><p><strong>global_attrs</strong> (<em>dict</em>) – Namespace of file-global attributes for the final output data.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="sup3r.postprocessing.collectors.h5.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">sup3r.postprocessing.collectors.h5</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="sup3r.postprocessing.collectors.nc.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">sup3r.postprocessing.collectors.nc</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5"><code class="docutils literal notranslate"><span class="pre">CollectorH5</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_slices"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_slices()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_coordinate_indices"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_coordinate_indices()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_data"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_unique_chunk_files"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_unique_chunk_files()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_target_and_masked_meta"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_target_and_masked_meta()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_collection_attrs"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_collection_attrs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_flist_chunks"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_flist_chunks()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.collect_feature"><code class="docutils literal notranslate"><span class="pre">CollectorH5.collect_feature()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.collect"><code class="docutils literal notranslate"><span class="pre">CollectorH5.collect()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_chunk_indices"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_chunk_indices()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_node_cmd"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_node_cmd()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.get_time_dim_name"><code class="docutils literal notranslate"><span class="pre">CollectorH5.get_time_dim_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.postprocessing.collectors.h5.CollectorH5.write_data"><code class="docutils literal notranslate"><span class="pre">CollectorH5.write_data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Brandon Benton, Grant Buster, Andrew Glaws, Ryan King
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022, Alliance for Energy Innovation, LLC.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1281 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>sup3r.bias.bias_calc.MonthlyScalarCorrection &#8212; sup3r 0.2.9.dev58 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=1229960a"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/sup3r.bias.bias_calc.MonthlyScalarCorrection';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sup3r.bias.bias_calc.ScalarCorrection" href="sup3r.bias.bias_calc.ScalarCorrection.html" />
+    <link rel="prev" title="sup3r.bias.bias_calc.MonthlyLinearCorrection" href="sup3r.bias.bias_calc.MonthlyLinearCorrection.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">sup3r 0.2.9.dev58 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home page</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../misc/installation_usage.html">Installation and Usage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../misc/installation.html">Installation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/sup3rcc.html">Sup3rCC Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/sup3rwind.html">Sup3rWind Examples</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="sup3r.html">API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.batch.html">sup3r.batch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.batch.batch_cli.html">sup3r.batch.batch_cli</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="sup3r.bias.html">sup3r.bias</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.abstract.html">sup3r.bias.abstract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.abstract.AbstractBiasCorrection.html">sup3r.bias.abstract.AbstractBiasCorrection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.base.html">sup3r.bias.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.base.DataRetrievalBase.html">sup3r.bias.base.DataRetrievalBase</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="sup3r.bias.bias_calc.html">sup3r.bias.bias_calc</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.LinearCorrection.html">sup3r.bias.bias_calc.LinearCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.MonthlyLinearCorrection.html">sup3r.bias.bias_calc.MonthlyLinearCorrection</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">sup3r.bias.bias_calc.MonthlyScalarCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.ScalarCorrection.html">sup3r.bias.bias_calc.ScalarCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc.SkillAssessment.html">sup3r.bias.bias_calc.SkillAssessment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.bias_calc_cli.html">sup3r.bias.bias_calc_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc_cli.kickoff_local_job.html">sup3r.bias.bias_calc_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc_cli.kickoff_slurm_job.html">sup3r.bias.bias_calc_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.bias_calc_vortex.html">sup3r.bias.bias_calc_vortex</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc_vortex.BiasCorrectUpdate.html">sup3r.bias.bias_calc_vortex.BiasCorrectUpdate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_calc_vortex.VortexMeanPrepper.html">sup3r.bias.bias_calc_vortex.VortexMeanPrepper</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.bias_transforms.html">sup3r.bias.bias_transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.global_linear_bc.html">sup3r.bias.bias_transforms.global_linear_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.local_linear_bc.html">sup3r.bias.bias_transforms.local_linear_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.local_presrat_bc.html">sup3r.bias.bias_transforms.local_presrat_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.local_qdm_bc.html">sup3r.bias.bias_transforms.local_qdm_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.bias_transforms.monthly_local_linear_bc.html">sup3r.bias.bias_transforms.monthly_local_linear_bc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.mixins.html">sup3r.bias.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.mixins.FillAndSmoothMixin.html">sup3r.bias.mixins.FillAndSmoothMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.mixins.ZeroRateMixin.html">sup3r.bias.mixins.ZeroRateMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.presrat.html">sup3r.bias.presrat</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.presrat.PresRat.html">sup3r.bias.presrat.PresRat</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.qdm.html">sup3r.bias.qdm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.qdm.QuantileDeltaMappingCorrection.html">sup3r.bias.qdm.QuantileDeltaMappingCorrection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.bias.utilities.html">sup3r.bias.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.utilities.bias_correct_feature.html">sup3r.bias.utilities.bias_correct_feature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.utilities.bias_correct_features.html">sup3r.bias.utilities.bias_correct_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.utilities.lin_bc.html">sup3r.bias.utilities.lin_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.bias.utilities.qdm_bc.html">sup3r.bias.utilities.qdm_bc</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="sup3r.cli.html">sup3r.cli</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.models.html">sup3r.models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.abstract.html">sup3r.models.abstract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.abstract.AbstractSingleModel.html">sup3r.models.abstract.AbstractSingleModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.base.html">sup3r.models.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.base.Sup3rGan.html">sup3r.models.base.Sup3rGan</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.conditional.html">sup3r.models.conditional</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.conditional.Sup3rCondMom.html">sup3r.models.conditional.Sup3rCondMom</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.dc.html">sup3r.models.dc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.dc.Sup3rGanDC.html">sup3r.models.dc.Sup3rGanDC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.interface.html">sup3r.models.interface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.interface.AbstractInterface.html">sup3r.models.interface.AbstractInterface</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.linear.html">sup3r.models.linear</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.linear.LinearInterp.html">sup3r.models.linear.LinearInterp</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.multi_step.html">sup3r.models.multi_step</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.multi_step.MultiStepGan.html">sup3r.models.multi_step.MultiStepGan</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.multi_step.MultiStepSurfaceMetGan.html">sup3r.models.multi_step.MultiStepSurfaceMetGan</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.multi_step.SolarMultiStepGan.html">sup3r.models.multi_step.SolarMultiStepGan</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.solar_cc.html">sup3r.models.solar_cc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.solar_cc.SolarCC.html">sup3r.models.solar_cc.SolarCC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.surface.html">sup3r.models.surface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.surface.SurfaceSpatialMetModel.html">sup3r.models.surface.SurfaceSpatialMetModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.models.utilities.html">sup3r.models.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.get_sup3r_layers.html">sup3r.models.utilities.get_sup3r_layers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.st_interp.html">sup3r.models.utilities.st_interp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.TensorboardMixIn.html">sup3r.models.utilities.TensorboardMixIn</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.TrainingConfig.html">sup3r.models.utilities.TrainingConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.models.utilities.TrainingSession.html">sup3r.models.utilities.TrainingSession</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.pipeline.html">sup3r.pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.forward_pass.html">sup3r.pipeline.forward_pass</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.forward_pass.ForwardPass.html">sup3r.pipeline.forward_pass.ForwardPass</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.forward_pass_cli.html">sup3r.pipeline.forward_pass_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.forward_pass_cli.kickoff_local_job.html">sup3r.pipeline.forward_pass_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.forward_pass_cli.kickoff_slurm_job.html">sup3r.pipeline.forward_pass_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.pipeline.pipeline_cli.html">sup3r.pipeline.pipeline_cli</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.slicer.html">sup3r.pipeline.slicer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.slicer.ForwardPassSlicer.html">sup3r.pipeline.slicer.ForwardPassSlicer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.strategy.html">sup3r.pipeline.strategy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.strategy.ForwardPassChunk.html">sup3r.pipeline.strategy.ForwardPassChunk</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.strategy.ForwardPassStrategy.html">sup3r.pipeline.strategy.ForwardPassStrategy</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.pipeline.utilities.html">sup3r.pipeline.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.utilities.get_chunk_slices.html">sup3r.pipeline.utilities.get_chunk_slices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.pipeline.utilities.get_model.html">sup3r.pipeline.utilities.get_model</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.postprocessing.html">sup3r.postprocessing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.postprocessing.collectors.html">sup3r.postprocessing.collectors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.collectors.base.html">sup3r.postprocessing.collectors.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.collectors.h5.html">sup3r.postprocessing.collectors.h5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.collectors.nc.html">sup3r.postprocessing.collectors.nc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.postprocessing.data_collect_cli.html">sup3r.postprocessing.data_collect_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.data_collect_cli.kickoff_local_job.html">sup3r.postprocessing.data_collect_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.postprocessing.data_collect_cli.kickoff_slurm_job.html">sup3r.postprocessing.data_collect_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.preprocessing.html">sup3r.preprocessing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.accessor.html">sup3r.preprocessing.accessor</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.accessor.Sup3rX.html">sup3r.preprocessing.accessor.Sup3rX</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.base.html">sup3r.preprocessing.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.base.Container.html">sup3r.preprocessing.base.Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.base.DsetTuple.html">sup3r.preprocessing.base.DsetTuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.base.Sup3rDataset.html">sup3r.preprocessing.base.Sup3rDataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.base.Sup3rMeta.html">sup3r.preprocessing.base.Sup3rMeta</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.batch_handlers.html">sup3r.preprocessing.batch_handlers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_handlers.dc.html">sup3r.preprocessing.batch_handlers.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_handlers.factory.html">sup3r.preprocessing.batch_handlers.factory</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.batch_queues.html">sup3r.preprocessing.batch_queues</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.abstract.html">sup3r.preprocessing.batch_queues.abstract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.base.html">sup3r.preprocessing.batch_queues.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.conditional.html">sup3r.preprocessing.batch_queues.conditional</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.dc.html">sup3r.preprocessing.batch_queues.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.dual.html">sup3r.preprocessing.batch_queues.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.batch_queues.utilities.html">sup3r.preprocessing.batch_queues.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.collections.html">sup3r.preprocessing.collections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.collections.base.html">sup3r.preprocessing.collections.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.collections.stats.html">sup3r.preprocessing.collections.stats</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.data_handlers.html">sup3r.preprocessing.data_handlers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.data_handlers.base.html">sup3r.preprocessing.data_handlers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.data_handlers.exo.html">sup3r.preprocessing.data_handlers.exo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.data_handlers.nc_cc.html">sup3r.preprocessing.data_handlers.nc_cc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.derivers.html">sup3r.preprocessing.derivers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.derivers.base.html">sup3r.preprocessing.derivers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.derivers.methods.html">sup3r.preprocessing.derivers.methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.derivers.utilities.html">sup3r.preprocessing.derivers.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.loaders.html">sup3r.preprocessing.loaders</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.Loader.html">sup3r.preprocessing.loaders.Loader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.base.html">sup3r.preprocessing.loaders.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.h5.html">sup3r.preprocessing.loaders.h5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.utilities.html">sup3r.preprocessing.loaders.utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.loaders.xr.html">sup3r.preprocessing.loaders.xr</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.names.html">sup3r.preprocessing.names</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.names.Dimension.html">sup3r.preprocessing.names.Dimension</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.rasterizers.html">sup3r.preprocessing.rasterizers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.rasterizers.base.html">sup3r.preprocessing.rasterizers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.rasterizers.dual.html">sup3r.preprocessing.rasterizers.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.rasterizers.exo.html">sup3r.preprocessing.rasterizers.exo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.rasterizers.extended.html">sup3r.preprocessing.rasterizers.extended</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.samplers.html">sup3r.preprocessing.samplers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.base.html">sup3r.preprocessing.samplers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.cc.html">sup3r.preprocessing.samplers.cc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.dc.html">sup3r.preprocessing.samplers.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.dual.html">sup3r.preprocessing.samplers.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.samplers.utilities.html">sup3r.preprocessing.samplers.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.preprocessing.utilities.html">sup3r.preprocessing.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.check_signatures.html">sup3r.preprocessing.utilities.check_signatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.composite_info.html">sup3r.preprocessing.utilities.composite_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.composite_sig.html">sup3r.preprocessing.utilities.composite_sig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.compute_if_dask.html">sup3r.preprocessing.utilities.compute_if_dask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.contains_ellipsis.html">sup3r.preprocessing.utilities.contains_ellipsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.dims_array_tuple.html">sup3r.preprocessing.utilities.dims_array_tuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.expand_paths.html">sup3r.preprocessing.utilities.expand_paths</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_class_kwargs.html">sup3r.preprocessing.utilities.get_class_kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_date_range_kwargs.html">sup3r.preprocessing.utilities.get_date_range_kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_input_handler_class.html">sup3r.preprocessing.utilities.get_input_handler_class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_obj_params.html">sup3r.preprocessing.utilities.get_obj_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_source_type.html">sup3r.preprocessing.utilities.get_source_type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.get_time_index_freqs.html">sup3r.preprocessing.utilities.get_time_index_freqs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.is_type_of.html">sup3r.preprocessing.utilities.is_type_of</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.log_args.html">sup3r.preprocessing.utilities.log_args</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.lower_names.html">sup3r.preprocessing.utilities.lower_names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.lowered.html">sup3r.preprocessing.utilities.lowered</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.make_time_index_from_kws.html">sup3r.preprocessing.utilities.make_time_index_from_kws</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.numpy_if_tensor.html">sup3r.preprocessing.utilities.numpy_if_tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.ordered_array.html">sup3r.preprocessing.utilities.ordered_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.ordered_dims.html">sup3r.preprocessing.utilities.ordered_dims</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.parse_ellipsis.html">sup3r.preprocessing.utilities.parse_ellipsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.parse_features.html">sup3r.preprocessing.utilities.parse_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.parse_keys.html">sup3r.preprocessing.utilities.parse_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.preprocessing.utilities.parse_to_list.html">sup3r.preprocessing.utilities.parse_to_list</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.qa.html">sup3r.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.qa.qa.html">sup3r.qa.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.qa.Sup3rQa.html">sup3r.qa.qa.Sup3rQa</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.qa.qa_cli.html">sup3r.qa.qa_cli</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.qa.utilities.html">sup3r.qa.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.continuous_dist.html">sup3r.qa.utilities.continuous_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.direct_dist.html">sup3r.qa.utilities.direct_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.frequency_spectrum.html">sup3r.qa.utilities.frequency_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.gradient_dist.html">sup3r.qa.utilities.gradient_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.time_derivative_dist.html">sup3r.qa.utilities.time_derivative_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.tke_frequency_spectrum.html">sup3r.qa.utilities.tke_frequency_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.tke_wavenumber_spectrum.html">sup3r.qa.utilities.tke_wavenumber_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.qa.utilities.wavenumber_spectrum.html">sup3r.qa.utilities.wavenumber_spectrum</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.solar.html">sup3r.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.solar.solar.html">sup3r.solar.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.solar.solar.Solar.html">sup3r.solar.solar.Solar</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.solar.solar_cli.html">sup3r.solar.solar_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.solar.solar_cli.kickoff_local_job.html">sup3r.solar.solar_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.solar.solar_cli.kickoff_slurm_job.html">sup3r.solar.solar_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.utilities.html">sup3r.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.utilities.ModuleName.html">sup3r.utilities.ModuleName</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.cli.html">sup3r.utilities.cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.cli.BaseCLI.html">sup3r.utilities.cli.BaseCLI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.cli.SlurmManager.html">sup3r.utilities.cli.SlurmManager</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.era_downloader.html">sup3r.utilities.era_downloader</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.era_downloader.EraDownloader.html">sup3r.utilities.era_downloader.EraDownloader</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.interpolation.html">sup3r.utilities.interpolation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.interpolation.Interpolator.html">sup3r.utilities.interpolation.Interpolator</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.loss_metrics.html">sup3r.utilities.loss_metrics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.gaussian_kernel.html">sup3r.utilities.loss_metrics.gaussian_kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.tf_derivative.html">sup3r.utilities.loss_metrics.tf_derivative</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.CoarseMseLoss.html">sup3r.utilities.loss_metrics.CoarseMseLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.ExpLoss.html">sup3r.utilities.loss_metrics.ExpLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.GeothermalConductiveHeatTransferLoss.html">sup3r.utilities.loss_metrics.GeothermalConductiveHeatTransferLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.GeothermalMohoBCLoss.html">sup3r.utilities.loss_metrics.GeothermalMohoBCLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.GeothermalObsLoss.html">sup3r.utilities.loss_metrics.GeothermalObsLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.GeothermalPositiveTemperatureGradientLoss.html">sup3r.utilities.loss_metrics.GeothermalPositiveTemperatureGradientLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.LowResLoss.html">sup3r.utilities.loss_metrics.LowResLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.MaterialDerivativeLoss.html">sup3r.utilities.loss_metrics.MaterialDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.MmdLoss.html">sup3r.utilities.loss_metrics.MmdLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.ObsAssimilationLoss.html">sup3r.utilities.loss_metrics.ObsAssimilationLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.PerceptualLoss.html">sup3r.utilities.loss_metrics.PerceptualLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SlicedWassersteinLoss.html">sup3r.utilities.loss_metrics.SlicedWassersteinLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SpatialDerivativeLoss.html">sup3r.utilities.loss_metrics.SpatialDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SpatialExtremesLoss.html">sup3r.utilities.loss_metrics.SpatialExtremesLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SpatialFftLoss.html">sup3r.utilities.loss_metrics.SpatialFftLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.SpatiotemporalFftLoss.html">sup3r.utilities.loss_metrics.SpatiotemporalFftLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.Sup3rLoss.html">sup3r.utilities.loss_metrics.Sup3rLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.TemporalDerivativeLoss.html">sup3r.utilities.loss_metrics.TemporalDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.loss_metrics.TemporalExtremesLoss.html">sup3r.utilities.loss_metrics.TemporalExtremesLoss</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.pytest.html">sup3r.utilities.pytest</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.pytest.helpers.html">sup3r.utilities.pytest.helpers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.utilities.utilities.html">sup3r.utilities.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.camel_to_underscore.html">sup3r.utilities.utilities.camel_to_underscore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.decode_str_times.html">sup3r.utilities.utilities.decode_str_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.encode_str_times.html">sup3r.utilities.utilities.encode_str_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.enforce_limits.html">sup3r.utilities.utilities.enforce_limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.generate_random_string.html">sup3r.utilities.utilities.generate_random_string</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.get_dset_attrs.html">sup3r.utilities.utilities.get_dset_attrs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.get_feature_basename.html">sup3r.utilities.utilities.get_feature_basename</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.get_tmp_file.html">sup3r.utilities.utilities.get_tmp_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.nn_fill_array.html">sup3r.utilities.utilities.nn_fill_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.pd_date_range.html">sup3r.utilities.utilities.pd_date_range</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.preprocess_datasets.html">sup3r.utilities.utilities.preprocess_datasets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.safe_cast.html">sup3r.utilities.utilities.safe_cast</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.safe_serialize.html">sup3r.utilities.utilities.safe_serialize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.spatial_coarsening.html">sup3r.utilities.utilities.spatial_coarsening</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.temporal_coarsening.html">sup3r.utilities.utilities.temporal_coarsening</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.xr_open_mfdataset.html">sup3r.utilities.utilities.xr_open_mfdataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.utilities.utilities.Timer.html">sup3r.utilities.utilities.Timer</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sup3r.writers.html">sup3r.writers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.writers.base.html">sup3r.writers.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.base.OutputHandler.html">sup3r.writers.base.OutputHandler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.base.OutputMixin.html">sup3r.writers.base.OutputMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.base.RexOutputs.html">sup3r.writers.base.RexOutputs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.writers.cachers.html">sup3r.writers.cachers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.cachers.Cacher.html">sup3r.writers.cachers.Cacher</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.writers.h5.html">sup3r.writers.h5</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.h5.OutputHandlerH5.html">sup3r.writers.h5.OutputHandlerH5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sup3r.writers.nc.html">sup3r.writers.nc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="sup3r.writers.nc.OutputHandlerNC.html">sup3r.writers.nc.OutputHandlerNC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="sup3r.writers.utilities.html">sup3r.writers.utilities</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../_cli/cli.html">CLI reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_cli/sup3r.html">sup3r</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/_autosummary/sup3r.bias.bias_calc.MonthlyScalarCorrection.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>sup3r.bias.bias_calc.MonthlyScalarCorrection</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.NT"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.NT</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.compare_dists"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.compare_dists()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.distance_upper_bound"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.distance_upper_bound</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.fill_and_smooth"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.fill_and_smooth()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_base_data"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_base_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_base_gid"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_base_gid()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_bias_data"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_bias_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_bias_gid"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_bias_gid()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_data_pair"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_data_pair()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_linear_correction"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_linear_correction()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_node_cmd"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_node_cmd()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.meta"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.meta</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.pre_load"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.pre_load()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.run"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.run()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.write_outputs"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.write_outputs()</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="sup3r-bias-bias-calc-monthlyscalarcorrection">
+<h1>sup3r.bias.bias_calc.MonthlyScalarCorrection<a class="headerlink" href="#sup3r-bias-bias-calc-monthlyscalarcorrection" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MonthlyScalarCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_fps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias_fps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_dset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias_feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_upper_bound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Resource'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DataHandlerNCforCC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_handler_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias_handler_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decimals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_zero_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_load</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sup3r/bias/bias_calc.html#MonthlyScalarCorrection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sup3r.bias.bias_calc.MonthlyLinearCorrection.html#sup3r.bias.bias_calc.MonthlyLinearCorrection" title="sup3r.bias.bias_calc.MonthlyLinearCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">MonthlyLinearCorrection</span></code></a>, <a class="reference internal" href="sup3r.bias.bias_calc.ScalarCorrection.html#sup3r.bias.bias_calc.ScalarCorrection" title="sup3r.bias.bias_calc.ScalarCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScalarCorrection</span></code></a></p>
+<p>Calculate linear correction <a href="#id1"><span class="problematic" id="id2">*</span></a>scalar factors for each month</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_fps</strong> (<em>list | str</em>) – One or more baseline .h5 filepaths representing non-biased data to
+use to correct the biased dataset. This is typically several years
+of WTK or NSRDB files.</p></li>
+<li><p><strong>bias_fps</strong> (<em>list | str</em>) – One or more biased .nc or .h5 filepaths representing the biased
+data to be corrected based on the baseline data. This is typically
+several years of GCM .nc files.</p></li>
+<li><p><strong>base_dset</strong> (<em>str</em>) – A single dataset from the base_fps to retrieve. In the case of wind
+components, this can be u_100m or v_100m which will retrieve
+windspeed and winddirection and derive the U/V component.</p></li>
+<li><p><strong>bias_feature</strong> (<em>str</em>) – This is the biased feature from bias_fps to retrieve. This should
+be a single feature name corresponding to base_dset</p></li>
+<li><p><strong>distance_upper_bound</strong> (<em>float</em>) – Upper bound on the nearest neighbor distance in decimal degrees.
+This should be the approximate resolution of the low-resolution
+bias data. None (default) will calculate this based on the median
+distance between points in bias_fps</p></li>
+<li><p><strong>target</strong> (<em>tuple</em>) – (lat, lon) lower left corner of raster to retrieve from bias_fps.
+If None then the lower left corner of the full domain will be used.</p></li>
+<li><p><strong>shape</strong> (<em>tuple</em>) – (rows, cols) grid size to retrieve from bias_fps. If None then the
+full domain shape will be used.</p></li>
+<li><p><strong>base_handler</strong> (<em>str</em>) – Name of rex resource handler or sup3r.preprocessing class to be
+retrieved from the rex/sup3r library. If a sup3r.preprocessing
+class is used, all data will be loaded in this class’
+initialization and the subsequent bias calculation will be done in
+serial</p></li>
+<li><p><strong>bias_handler</strong> (<em>str</em>) – Name of the bias data handler class to be retrieved from the
+sup3r.preprocessing library.</p></li>
+<li><p><strong>base_handler_kwargs</strong> (<em>dict | None</em>) – Optional kwargs to send to the initialization of the base_handler
+class</p></li>
+<li><p><strong>bias_handler_kwargs</strong> (<em>dict | None</em>) – Optional kwargs to send to the initialization of the bias_handler
+class</p></li>
+<li><p><strong>decimals</strong> (<em>int | None</em>) – Option to round bias and base data to this number of decimals, this
+gets passed to np.around(). If decimals is negative, it specifies
+the number of positions to the left of the decimal point.</p></li>
+<li><p><strong>match_zero_rate</strong> (<em>bool</em>) – Option to fix the frequency of zero values in the biased data. The
+lowest percentile of values in the biased data will be set to zero
+to match the percentile of zeros in the base data. If
+SkillAssessment is being run and this is True, the distributions
+will not be mean-centered. This helps resolve the issue where
+global climate models produce too many days with small
+precipitation totals e.g., the “drizzle problem” <a class="reference internal" href="sup3r.bias.bias_calc.SkillAssessment.html#polade2014" id="id3"><span>[Polade2014]</span></a>.</p></li>
+<li><p><strong>pre_load</strong> (<em>bool</em>) – Flag to preload all data needed for bias correction. This is
+currently recommended to improve performance with the new sup3r
+data handler access patterns</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="polade2014" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">Polade2014</a><span class="fn-bracket">]</span></span>
+<p>Polade, S. D., Pierce, D. W., Cayan, D. R., Gershunov,
+A., &amp; Dettineer, M. D. (2014). The key role of dry days in changing
+regional climate and precipitation regimes. Scientific reports,
+4(1), 4364. <a class="reference external" href="https://doi.org/10.1038/srep04364">https://doi.org/10.1038/srep04364</a></p>
+</div>
+</div>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.compare_dists" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.compare_dists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_dists</span></code></a>(base_data, bias_data[, adder, ...])</p></td>
+<td><p>Compare two distributions using the two-sample Kolmogorov-Smirnov.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.fill_and_smooth" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.fill_and_smooth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_and_smooth</span></code></a>(out[, fill_extend, ...])</p></td>
+<td><p>For a given set of parameters, fill and extend missing positions</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_base_data" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_base_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_base_data</span></code></a>(base_fps, base_dset, base_gid, ...)</p></td>
+<td><p>Get data from the baseline data source, possibly for many high-res base gids corresponding to a single coarse low-res bias gid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_base_gid" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_base_gid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_base_gid</span></code></a>(bias_gid)</p></td>
+<td><p>Get one or more base gid(s) corresponding to a bias gid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_bias_data" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_bias_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_bias_data</span></code></a>(bias_gid[, bias_dh])</p></td>
+<td><p>Get data from the biased data source for a single gid</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_bias_gid" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_bias_gid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_bias_gid</span></code></a>(coord)</p></td>
+<td><p>Get the bias gid from a coordinate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_data_pair" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_data_pair"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_pair</span></code></a>(coord[, daily_reduction])</p></td>
+<td><p>Get base and bias data observations based on a single bias gid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_linear_correction" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_linear_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_linear_correction</span></code></a>(bias_data, base_data, ...)</p></td>
+<td><p>Get the linear correction factors based on 1D bias and base datasets</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_node_cmd" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_node_cmd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_cmd</span></code></a>(config)</p></td>
+<td><p>Get a CLI call to call cls.run() on a single node based on an input config.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.pre_load" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.pre_load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pre_load</span></code></a>()</p></td>
+<td><p>Preload all data needed for bias correction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.run" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>([fp_out, max_workers, daily_reduction, ...])</p></td>
+<td><p>Run linear correction factor calculations for every site in the bias dataset</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.write_outputs" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.write_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_outputs</span></code></a>(fp_out, out)</p></td>
+<td><p>Write outputs to an .h5 file.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.NT" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.NT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NT</span></code></a></p></td>
+<td><p>size of the time dimension, 12 is monthly bias correction</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.distance_upper_bound" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.distance_upper_bound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance_upper_bound</span></code></a></p></td>
+<td><p>Maximum distance (float) to map high-resolution data from exo_source to the low-resolution file_paths input.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.meta" title="sup3r.bias.bias_calc.MonthlyScalarCorrection.meta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">meta</span></code></a></p></td>
+<td><p>Get a meta data dictionary on how these bias factors were calculated</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.NT">
+<span class="sig-name descname"><span class="pre">NT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.NT" title="Link to this definition">#</a></dt>
+<dd><p>size of the time dimension, 12 is monthly bias correction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.compare_dists">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compare_dists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scalar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.compare_dists" title="Link to this definition">#</a></dt>
+<dd><p>Compare two distributions using the two-sample Kolmogorov-Smirnov.
+When the output is minimized, the two distributions are similar.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_data</strong> (<em>np.ndarray</em>) – 1D array of base data observations.</p></li>
+<li><p><strong>bias_data</strong> (<em>np.ndarray</em>) – 1D array of biased data observations.</p></li>
+<li><p><strong>adder</strong> (<em>float</em>) – Factor to adjust the biased data before comparing distributions:
+bias_data * scalar + adder</p></li>
+<li><p><strong>scalar</strong> (<em>float</em>) – Factor to adjust the biased data before comparing distributions:
+bias_data * scalar + adder</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>out</strong> (<em>float</em>) – KS test statistic</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.distance_upper_bound">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">distance_upper_bound</span></span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.distance_upper_bound" title="Link to this definition">#</a></dt>
+<dd><p>Maximum distance (float) to map high-resolution data from exo_source
+to the low-resolution file_paths input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.fill_and_smooth">
+<span class="sig-name descname"><span class="pre">fill_and_smooth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_extend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_extend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_interior</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.fill_and_smooth" title="Link to this definition">#</a></dt>
+<dd><p>For a given set of parameters, fill and extend missing positions</p>
+<p>Fill data extending beyond the base meta data extent by doing a
+nearest neighbor gap fill. Smooth interior and extended region with
+given smoothing values.
+Interior smoothing can reduce the affect of extreme values
+within aggregations over large number of pixels.
+The interior is assumed to be defined by the region without nan values.
+The extended region is assumed to be the region with nan values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>out</strong> (<em>dict</em>) – Dictionary of values defining the mean/std of the bias + base
+data and the scalar + adder factors to correct the biased data
+like: bias_data * scalar + adder. Each value is of shape
+(lat, lon, time).</p></li>
+<li><p><strong>fill_extend</strong> (<em>bool</em>) – Whether to fill data extending beyond the base meta data with
+nearest neighbor values.</p></li>
+<li><p><strong>smooth_extend</strong> (<em>float</em>) – Option to smooth the scalar/adder data outside of the spatial
+domain set by the threshold input. This alleviates the weird seams
+far from the domain of interest. This value is the standard
+deviation for the gaussian_filter kernel</p></li>
+<li><p><strong>smooth_interior</strong> (<em>float</em>) – Value to use to smooth the scalar/adder data inside of the spatial
+domain set by the threshold input. This can reduce the effect of
+extreme values within aggregations over large number of pixels.
+This value is the standard deviation for the gaussian_filter
+kernel.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>out</strong> (<em>dict</em>) – Dictionary of values defining the mean/std of the bias + base
+data and the scalar + adder factors to correct the biased data
+like: bias_data * scalar + adder. Each value is of shape
+(lat, lon, time).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_base_data">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_base_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_fps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_dset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_gid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_handler_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">daily_reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'avg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decimals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_dh_inst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_base_data" title="Link to this definition">#</a></dt>
+<dd><p>Get data from the baseline data source, possibly for many high-res
+base gids corresponding to a single coarse low-res bias gid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_fps</strong> (<em>list | str</em>) – One or more baseline .h5 filepaths representing non-biased data to
+use to correct the biased dataset. This is typically several years
+of WTK or NSRDB files.</p></li>
+<li><p><strong>base_dset</strong> (<em>str</em>) – A single dataset from the base_fps to retrieve.</p></li>
+<li><p><strong>base_gid</strong> (<em>int | np.ndarray</em>) – One or more spatial gids to retrieve from base_fps. The data will
+be spatially averaged across all of these sites.</p></li>
+<li><p><strong>base_handler</strong> (<em>rex.Resource</em>) – A rex data handler similar to rex.Resource or sup3r.DataHandler
+classes (if using the latter, must also input base_dh_inst)</p></li>
+<li><p><strong>base_handler_kwargs</strong> (<em>dict | None</em>) – Optional kwargs to send to the initialization of the base_handler
+class</p></li>
+<li><p><strong>daily_reduction</strong> (<em>None | str</em>) – Option to do a reduction of the hourly+ source base data to daily
+data. Can be None (no reduction, keep source time frequency), “avg”
+(daily average), “max” (daily max), “min” (daily min),
+“sum” (daily sum/total)</p></li>
+<li><p><strong>decimals</strong> (<em>int | None</em>) – Option to round bias and base data to this number of
+decimals, this gets passed to np.around(). If decimals
+is negative, it specifies the number of positions to
+the left of the decimal point.</p></li>
+<li><p><strong>base_dh_inst</strong> (<em>sup3r.DataHandler</em>) – Instantiated  DataHandler class that has already loaded the base
+data (required if base files are .nc and are not being opened by a
+rex Resource handler).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>out_data</strong> (<em>np.ndarray</em>) – 1D array of base data spatially averaged across the base_gid input
+and possibly daily-averaged or min/max’d as well.</p></li>
+<li><p><strong>out_ti</strong> (<em>pd.DatetimeIndex</em>) – DatetimeIndex object of datetimes corresponding to the
+output data.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_base_gid">
+<span class="sig-name descname"><span class="pre">get_base_gid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bias_gid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_base_gid" title="Link to this definition">#</a></dt>
+<dd><p>Get one or more base gid(s) corresponding to a bias gid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bias_gid</strong> (<em>int</em>) – gid of the data to retrieve in the bias data source raster data.
+The gids for this data source are the enumerated indices of the
+flattened coordinate array.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>dist</strong> (<em>np.ndarray</em>) – Array of nearest neighbor distances with length equal to the number
+of high-resolution baseline gids that map to the low resolution
+bias gid pixel.</p></li>
+<li><p><strong>base_gid</strong> (<em>np.ndarray</em>) – Array of base gids that are the nearest neighbors of bias_gid with
+length equal to the number of high-resolution baseline gids that
+map to the low resolution bias gid pixel.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_bias_data">
+<span class="sig-name descname"><span class="pre">get_bias_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bias_gid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias_dh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_bias_data" title="Link to this definition">#</a></dt>
+<dd><p>Get data from the biased data source for a single gid</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bias_gid</strong> (<em>int</em>) – gid of the data to retrieve in the bias data source raster data.
+The gids for this data source are the enumerated indices of the
+flattened coordinate array.</p></li>
+<li><p><strong>bias_dh</strong> (<em>DataHandler, default=self.bias_dh</em>) – Any <code class="docutils literal notranslate"><span class="pre">DataHandler</span></code> from <a class="reference internal" href="sup3r.preprocessing.html#module-sup3r.preprocessing" title="sup3r.preprocessing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sup3r.preprocessing</span></code></a>. This optional
+argument allows an alternative handler other than the usual
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">bias_dh</span></code>. For instance, the derived
+<code class="xref py py-class docutils literal notranslate"><span class="pre">QuantileDeltaMappingCorrection</span></code> uses it to access the
+reference biased dataset as well as the target biased dataset.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>bias_data</strong> (<em>np.ndarray</em>) – 1D array of temporal data at the requested gid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_bias_gid">
+<span class="sig-name descname"><span class="pre">get_bias_gid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_bias_gid" title="Link to this definition">#</a></dt>
+<dd><p>Get the bias gid from a coordinate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>coord</strong> (<em>tuple</em>) – (lat, lon) to get data for.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>bias_gid</strong> (<em>int</em>) – gid of the data to retrieve in the bias data source raster data.
+The gids for this data source are the enumerated indices of the
+flattened coordinate array.</p></li>
+<li><p><strong>d</strong> (<em>float</em>) – Distance in decimal degrees from coord to bias gid</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_data_pair">
+<span class="sig-name descname"><span class="pre">get_data_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">daily_reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'avg'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_data_pair" title="Link to this definition">#</a></dt>
+<dd><p>Get base and bias data observations based on a single bias gid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coord</strong> (<em>tuple</em>) – (lat, lon) to get data for.</p></li>
+<li><p><strong>daily_reduction</strong> (<em>None | str</em>) – Option to do a reduction of the hourly+ source base data to daily
+data. Can be None (no reduction, keep source time frequency), “avg”
+(daily average), “max” (daily max), “min” (daily min),
+“sum” (daily sum/total)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>base_data</strong> (<em>np.ndarray</em>) – 1D array of base data spatially averaged across the base_gid input
+and possibly daily-averaged or min/max’d as well.</p></li>
+<li><p><strong>bias_data</strong> (<em>np.ndarray</em>) – 1D array of temporal data at the requested gid.</p></li>
+<li><p><strong>base_dist</strong> (<em>np.ndarray</em>) – Array of nearest neighbor distances from coord to the base data
+sites with length equal to the number of high-resolution baseline
+gids that map to the low resolution bias gid pixel.</p></li>
+<li><p><strong>bias_dist</strong> (<em>Float</em>) – Nearest neighbor distance from coord to the bias data site</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_linear_correction">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_linear_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bias_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias_feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_dset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_linear_correction" title="Link to this definition">#</a></dt>
+<dd><p>Get the linear correction factors based on 1D bias and base datasets</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bias_data</strong> (<em>np.ndarray</em>) – 1D array of biased data observations.</p></li>
+<li><p><strong>base_data</strong> (<em>np.ndarray</em>) – 1D array of base data observations.</p></li>
+<li><p><strong>bias_feature</strong> (<em>str</em>) – This is the biased feature from bias_fps to retrieve. This should
+be a single feature name corresponding to base_dset</p></li>
+<li><p><strong>base_dset</strong> (<em>str</em>) – A single dataset from the base_fps to retrieve. In the case of wind
+components, this can be u_100m or v_100m which will retrieve
+windspeed and winddirection and derive the U/V component.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>out</strong> (<em>dict</em>) – Dictionary of values defining the mean/std of the bias + base
+data and the scalar + adder factors to correct the biased data
+like: bias_data * scalar + adder</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.get_node_cmd">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_node_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_node_cmd" title="Link to this definition">#</a></dt>
+<dd><p>Get a CLI call to call cls.run() on a single node based on an input
+config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – sup3r bias calc config with all necessary args and kwargs to
+initialize the class and call run() on a single node.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.meta">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">meta</span></span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.meta" title="Link to this definition">#</a></dt>
+<dd><p>Get a meta data dictionary on how these bias factors were
+calculated</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.pre_load">
+<span class="sig-name descname"><span class="pre">pre_load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.pre_load" title="Link to this definition">#</a></dt>
+<dd><p>Preload all data needed for bias correction. This is currently
+recommended to improve performance with the new sup3r data handler
+access patterns</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">daily_reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'avg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_extend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_extend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_interior</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.run" title="Link to this definition">#</a></dt>
+<dd><p>Run linear correction factor calculations for every site in the bias
+dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fp_out</strong> (<em>str | None</em>) – Optional .h5 output file to write scalar and adder arrays.</p></li>
+<li><p><strong>max_workers</strong> (<em>int</em>) – Number of workers to run in parallel. 1 is serial and None is all
+available.</p></li>
+<li><p><strong>daily_reduction</strong> (<em>None | str</em>) – Option to do a reduction of the hourly+ source base data to daily
+data. Can be None (no reduction, keep source time frequency), “avg”
+(daily average), “max” (daily max), “min” (daily min),
+“sum” (daily sum/total)</p></li>
+<li><p><strong>fill_extend</strong> (<em>bool</em>) – Flag to fill data past distance_upper_bound using spatial nearest
+neighbor. If False, the extended domain will be left as NaN.</p></li>
+<li><p><strong>smooth_extend</strong> (<em>float</em>) – Option to smooth the scalar/adder data outside of the spatial
+domain set by the distance_upper_bound input. This alleviates the
+weird seams far from the domain of interest. This value is the
+standard deviation for the gaussian_filter kernel</p></li>
+<li><p><strong>smooth_interior</strong> (<em>float</em>) – Option to smooth the scalar/adder data within the valid spatial
+domain.  This can reduce the affect of extreme values within
+aggregations over large number of pixels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>out</strong> (<em>dict</em>) – Dictionary of values defining the mean/std of the bias + base
+data and the scalar + adder factors to correct the biased data
+like: bias_data * scalar + adder. Each value is of shape
+(lat, lon, time).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sup3r.bias.bias_calc.MonthlyScalarCorrection.write_outputs">
+<span class="sig-name descname"><span class="pre">write_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.write_outputs" title="Link to this definition">#</a></dt>
+<dd><p>Write outputs to an .h5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fp_out</strong> (<em>str | None</em>) – Optional .h5 output file to write scalar and adder arrays.</p></li>
+<li><p><strong>out</strong> (<em>dict</em>) – Dictionary of values defining the mean/std of the bias + base
+data and the scalar + adder factors to correct the biased data
+like: bias_data * scalar + adder. Each value is of shape
+(lat, lon, time).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="sup3r.bias.bias_calc.MonthlyLinearCorrection.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">sup3r.bias.bias_calc.MonthlyLinearCorrection</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="sup3r.bias.bias_calc.ScalarCorrection.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">sup3r.bias.bias_calc.ScalarCorrection</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.NT"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.NT</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.compare_dists"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.compare_dists()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.distance_upper_bound"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.distance_upper_bound</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.fill_and_smooth"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.fill_and_smooth()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_base_data"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_base_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_base_gid"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_base_gid()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_bias_data"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_bias_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_bias_gid"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_bias_gid()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_data_pair"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_data_pair()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_linear_correction"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_linear_correction()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.get_node_cmd"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.get_node_cmd()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.meta"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.meta</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.pre_load"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.pre_load()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.run"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.run()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sup3r.bias.bias_calc.MonthlyScalarCorrection.write_outputs"><code class="docutils literal notranslate"><span class="pre">MonthlyScalarCorrection.write_outputs()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Brandon Benton, Grant Buster, Andrew Glaws, Ryan King
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022, Alliance for Energy Innovation, LLC.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

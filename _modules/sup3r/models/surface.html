@@ -1,0 +1,1570 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sup3r.models.surface &#8212; sup3r 0.2.9.dev58 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=1229960a"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/sup3r/models/surface';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">sup3r 0.2.9.dev58 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Home page</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../misc/installation_usage.html">Installation and Usage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../misc/installation.html">Installation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/sup3rcc.html">Sup3rCC Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/sup3rwind.html">Sup3rWind Examples</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.html">API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.batch.html">sup3r.batch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/sup3r.batch.batch_cli.html">sup3r.batch.batch_cli</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.bias.html">sup3r.bias</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.bias.abstract.html">sup3r.bias.abstract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.abstract.AbstractBiasCorrection.html">sup3r.bias.abstract.AbstractBiasCorrection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.bias.base.html">sup3r.bias.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.base.DataRetrievalBase.html">sup3r.bias.base.DataRetrievalBase</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_calc.html">sup3r.bias.bias_calc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_calc.LinearCorrection.html">sup3r.bias.bias_calc.LinearCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_calc.MonthlyLinearCorrection.html">sup3r.bias.bias_calc.MonthlyLinearCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_calc.MonthlyScalarCorrection.html">sup3r.bias.bias_calc.MonthlyScalarCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_calc.ScalarCorrection.html">sup3r.bias.bias_calc.ScalarCorrection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_calc.SkillAssessment.html">sup3r.bias.bias_calc.SkillAssessment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_calc_cli.html">sup3r.bias.bias_calc_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_calc_cli.kickoff_local_job.html">sup3r.bias.bias_calc_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_calc_cli.kickoff_slurm_job.html">sup3r.bias.bias_calc_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_calc_vortex.html">sup3r.bias.bias_calc_vortex</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_calc_vortex.BiasCorrectUpdate.html">sup3r.bias.bias_calc_vortex.BiasCorrectUpdate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_calc_vortex.VortexMeanPrepper.html">sup3r.bias.bias_calc_vortex.VortexMeanPrepper</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_transforms.html">sup3r.bias.bias_transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_transforms.global_linear_bc.html">sup3r.bias.bias_transforms.global_linear_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_transforms.local_linear_bc.html">sup3r.bias.bias_transforms.local_linear_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_transforms.local_presrat_bc.html">sup3r.bias.bias_transforms.local_presrat_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_transforms.local_qdm_bc.html">sup3r.bias.bias_transforms.local_qdm_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.bias_transforms.monthly_local_linear_bc.html">sup3r.bias.bias_transforms.monthly_local_linear_bc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.bias.mixins.html">sup3r.bias.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.mixins.FillAndSmoothMixin.html">sup3r.bias.mixins.FillAndSmoothMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.mixins.ZeroRateMixin.html">sup3r.bias.mixins.ZeroRateMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.bias.presrat.html">sup3r.bias.presrat</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.presrat.PresRat.html">sup3r.bias.presrat.PresRat</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.bias.qdm.html">sup3r.bias.qdm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.qdm.QuantileDeltaMappingCorrection.html">sup3r.bias.qdm.QuantileDeltaMappingCorrection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.bias.utilities.html">sup3r.bias.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.utilities.bias_correct_feature.html">sup3r.bias.utilities.bias_correct_feature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.utilities.bias_correct_features.html">sup3r.bias.utilities.bias_correct_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.utilities.lin_bc.html">sup3r.bias.utilities.lin_bc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.bias.utilities.qdm_bc.html">sup3r.bias.utilities.qdm_bc</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../_autosummary/sup3r.cli.html">sup3r.cli</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.models.html">sup3r.models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.models.abstract.html">sup3r.models.abstract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.abstract.AbstractSingleModel.html">sup3r.models.abstract.AbstractSingleModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.models.base.html">sup3r.models.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.base.Sup3rGan.html">sup3r.models.base.Sup3rGan</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.models.conditional.html">sup3r.models.conditional</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.conditional.Sup3rCondMom.html">sup3r.models.conditional.Sup3rCondMom</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.models.dc.html">sup3r.models.dc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.dc.Sup3rGanDC.html">sup3r.models.dc.Sup3rGanDC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.models.interface.html">sup3r.models.interface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.interface.AbstractInterface.html">sup3r.models.interface.AbstractInterface</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.models.linear.html">sup3r.models.linear</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.linear.LinearInterp.html">sup3r.models.linear.LinearInterp</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.models.multi_step.html">sup3r.models.multi_step</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.multi_step.MultiStepGan.html">sup3r.models.multi_step.MultiStepGan</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.multi_step.MultiStepSurfaceMetGan.html">sup3r.models.multi_step.MultiStepSurfaceMetGan</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.multi_step.SolarMultiStepGan.html">sup3r.models.multi_step.SolarMultiStepGan</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.models.solar_cc.html">sup3r.models.solar_cc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.solar_cc.SolarCC.html">sup3r.models.solar_cc.SolarCC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.models.surface.html">sup3r.models.surface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.surface.SurfaceSpatialMetModel.html">sup3r.models.surface.SurfaceSpatialMetModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.models.utilities.html">sup3r.models.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.utilities.get_sup3r_layers.html">sup3r.models.utilities.get_sup3r_layers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.utilities.st_interp.html">sup3r.models.utilities.st_interp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.utilities.TensorboardMixIn.html">sup3r.models.utilities.TensorboardMixIn</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.utilities.TrainingConfig.html">sup3r.models.utilities.TrainingConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.models.utilities.TrainingSession.html">sup3r.models.utilities.TrainingSession</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.html">sup3r.pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.forward_pass.html">sup3r.pipeline.forward_pass</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.forward_pass.ForwardPass.html">sup3r.pipeline.forward_pass.ForwardPass</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.forward_pass_cli.html">sup3r.pipeline.forward_pass_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.forward_pass_cli.kickoff_local_job.html">sup3r.pipeline.forward_pass_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.forward_pass_cli.kickoff_slurm_job.html">sup3r.pipeline.forward_pass_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.pipeline_cli.html">sup3r.pipeline.pipeline_cli</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.slicer.html">sup3r.pipeline.slicer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.slicer.ForwardPassSlicer.html">sup3r.pipeline.slicer.ForwardPassSlicer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.strategy.html">sup3r.pipeline.strategy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.strategy.ForwardPassChunk.html">sup3r.pipeline.strategy.ForwardPassChunk</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.strategy.ForwardPassStrategy.html">sup3r.pipeline.strategy.ForwardPassStrategy</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.utilities.html">sup3r.pipeline.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.utilities.get_chunk_slices.html">sup3r.pipeline.utilities.get_chunk_slices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.pipeline.utilities.get_model.html">sup3r.pipeline.utilities.get_model</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.postprocessing.html">sup3r.postprocessing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.postprocessing.collectors.html">sup3r.postprocessing.collectors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.postprocessing.collectors.base.html">sup3r.postprocessing.collectors.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.postprocessing.collectors.h5.html">sup3r.postprocessing.collectors.h5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.postprocessing.collectors.nc.html">sup3r.postprocessing.collectors.nc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.postprocessing.data_collect_cli.html">sup3r.postprocessing.data_collect_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.postprocessing.data_collect_cli.kickoff_local_job.html">sup3r.postprocessing.data_collect_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.postprocessing.data_collect_cli.kickoff_slurm_job.html">sup3r.postprocessing.data_collect_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.html">sup3r.preprocessing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.accessor.html">sup3r.preprocessing.accessor</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.accessor.Sup3rX.html">sup3r.preprocessing.accessor.Sup3rX</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.base.html">sup3r.preprocessing.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.base.Container.html">sup3r.preprocessing.base.Container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.base.DsetTuple.html">sup3r.preprocessing.base.DsetTuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.base.Sup3rDataset.html">sup3r.preprocessing.base.Sup3rDataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.base.Sup3rMeta.html">sup3r.preprocessing.base.Sup3rMeta</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.batch_handlers.html">sup3r.preprocessing.batch_handlers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.batch_handlers.dc.html">sup3r.preprocessing.batch_handlers.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.batch_handlers.factory.html">sup3r.preprocessing.batch_handlers.factory</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.batch_queues.html">sup3r.preprocessing.batch_queues</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.batch_queues.abstract.html">sup3r.preprocessing.batch_queues.abstract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.batch_queues.base.html">sup3r.preprocessing.batch_queues.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.batch_queues.conditional.html">sup3r.preprocessing.batch_queues.conditional</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.batch_queues.dc.html">sup3r.preprocessing.batch_queues.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.batch_queues.dual.html">sup3r.preprocessing.batch_queues.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.batch_queues.utilities.html">sup3r.preprocessing.batch_queues.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.collections.html">sup3r.preprocessing.collections</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.collections.base.html">sup3r.preprocessing.collections.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.collections.stats.html">sup3r.preprocessing.collections.stats</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.data_handlers.html">sup3r.preprocessing.data_handlers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.data_handlers.base.html">sup3r.preprocessing.data_handlers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.data_handlers.exo.html">sup3r.preprocessing.data_handlers.exo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.data_handlers.nc_cc.html">sup3r.preprocessing.data_handlers.nc_cc</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.derivers.html">sup3r.preprocessing.derivers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.derivers.base.html">sup3r.preprocessing.derivers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.derivers.methods.html">sup3r.preprocessing.derivers.methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.derivers.utilities.html">sup3r.preprocessing.derivers.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.loaders.html">sup3r.preprocessing.loaders</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.loaders.Loader.html">sup3r.preprocessing.loaders.Loader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.loaders.base.html">sup3r.preprocessing.loaders.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.loaders.h5.html">sup3r.preprocessing.loaders.h5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.loaders.utilities.html">sup3r.preprocessing.loaders.utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.loaders.xr.html">sup3r.preprocessing.loaders.xr</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.names.html">sup3r.preprocessing.names</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.names.Dimension.html">sup3r.preprocessing.names.Dimension</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.rasterizers.html">sup3r.preprocessing.rasterizers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.rasterizers.base.html">sup3r.preprocessing.rasterizers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.rasterizers.dual.html">sup3r.preprocessing.rasterizers.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.rasterizers.exo.html">sup3r.preprocessing.rasterizers.exo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.rasterizers.extended.html">sup3r.preprocessing.rasterizers.extended</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.samplers.html">sup3r.preprocessing.samplers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.samplers.base.html">sup3r.preprocessing.samplers.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.samplers.cc.html">sup3r.preprocessing.samplers.cc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.samplers.dc.html">sup3r.preprocessing.samplers.dc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.samplers.dual.html">sup3r.preprocessing.samplers.dual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.samplers.utilities.html">sup3r.preprocessing.samplers.utilities</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.html">sup3r.preprocessing.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.check_signatures.html">sup3r.preprocessing.utilities.check_signatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.composite_info.html">sup3r.preprocessing.utilities.composite_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.composite_sig.html">sup3r.preprocessing.utilities.composite_sig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.compute_if_dask.html">sup3r.preprocessing.utilities.compute_if_dask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.contains_ellipsis.html">sup3r.preprocessing.utilities.contains_ellipsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.dims_array_tuple.html">sup3r.preprocessing.utilities.dims_array_tuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.expand_paths.html">sup3r.preprocessing.utilities.expand_paths</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.get_class_kwargs.html">sup3r.preprocessing.utilities.get_class_kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.get_date_range_kwargs.html">sup3r.preprocessing.utilities.get_date_range_kwargs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.get_input_handler_class.html">sup3r.preprocessing.utilities.get_input_handler_class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.get_obj_params.html">sup3r.preprocessing.utilities.get_obj_params</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.get_source_type.html">sup3r.preprocessing.utilities.get_source_type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.get_time_index_freqs.html">sup3r.preprocessing.utilities.get_time_index_freqs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.is_type_of.html">sup3r.preprocessing.utilities.is_type_of</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.log_args.html">sup3r.preprocessing.utilities.log_args</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.lower_names.html">sup3r.preprocessing.utilities.lower_names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.lowered.html">sup3r.preprocessing.utilities.lowered</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.make_time_index_from_kws.html">sup3r.preprocessing.utilities.make_time_index_from_kws</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.numpy_if_tensor.html">sup3r.preprocessing.utilities.numpy_if_tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.ordered_array.html">sup3r.preprocessing.utilities.ordered_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.ordered_dims.html">sup3r.preprocessing.utilities.ordered_dims</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.parse_ellipsis.html">sup3r.preprocessing.utilities.parse_ellipsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.parse_features.html">sup3r.preprocessing.utilities.parse_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.parse_keys.html">sup3r.preprocessing.utilities.parse_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.preprocessing.utilities.parse_to_list.html">sup3r.preprocessing.utilities.parse_to_list</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.qa.html">sup3r.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.qa.qa.html">sup3r.qa.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.qa.qa.Sup3rQa.html">sup3r.qa.qa.Sup3rQa</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/sup3r.qa.qa_cli.html">sup3r.qa.qa_cli</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.qa.utilities.html">sup3r.qa.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.qa.utilities.continuous_dist.html">sup3r.qa.utilities.continuous_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.qa.utilities.direct_dist.html">sup3r.qa.utilities.direct_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.qa.utilities.frequency_spectrum.html">sup3r.qa.utilities.frequency_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.qa.utilities.gradient_dist.html">sup3r.qa.utilities.gradient_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.qa.utilities.time_derivative_dist.html">sup3r.qa.utilities.time_derivative_dist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.qa.utilities.tke_frequency_spectrum.html">sup3r.qa.utilities.tke_frequency_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.qa.utilities.tke_wavenumber_spectrum.html">sup3r.qa.utilities.tke_wavenumber_spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.qa.utilities.wavenumber_spectrum.html">sup3r.qa.utilities.wavenumber_spectrum</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.solar.html">sup3r.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.solar.solar.html">sup3r.solar.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.solar.solar.Solar.html">sup3r.solar.solar.Solar</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.solar.solar_cli.html">sup3r.solar.solar_cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.solar.solar_cli.kickoff_local_job.html">sup3r.solar.solar_cli.kickoff_local_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.solar.solar_cli.kickoff_slurm_job.html">sup3r.solar.solar_cli.kickoff_slurm_job</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.html">sup3r.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.ModuleName.html">sup3r.utilities.ModuleName</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.cli.html">sup3r.utilities.cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.cli.BaseCLI.html">sup3r.utilities.cli.BaseCLI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.cli.SlurmManager.html">sup3r.utilities.cli.SlurmManager</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.era_downloader.html">sup3r.utilities.era_downloader</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.era_downloader.EraDownloader.html">sup3r.utilities.era_downloader.EraDownloader</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.interpolation.html">sup3r.utilities.interpolation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.interpolation.Interpolator.html">sup3r.utilities.interpolation.Interpolator</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.html">sup3r.utilities.loss_metrics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.gaussian_kernel.html">sup3r.utilities.loss_metrics.gaussian_kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.tf_derivative.html">sup3r.utilities.loss_metrics.tf_derivative</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.CoarseMseLoss.html">sup3r.utilities.loss_metrics.CoarseMseLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.ExpLoss.html">sup3r.utilities.loss_metrics.ExpLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.GeothermalConductiveHeatTransferLoss.html">sup3r.utilities.loss_metrics.GeothermalConductiveHeatTransferLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.GeothermalMohoBCLoss.html">sup3r.utilities.loss_metrics.GeothermalMohoBCLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.GeothermalObsLoss.html">sup3r.utilities.loss_metrics.GeothermalObsLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.GeothermalPositiveTemperatureGradientLoss.html">sup3r.utilities.loss_metrics.GeothermalPositiveTemperatureGradientLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.LowResLoss.html">sup3r.utilities.loss_metrics.LowResLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.MaterialDerivativeLoss.html">sup3r.utilities.loss_metrics.MaterialDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.MmdLoss.html">sup3r.utilities.loss_metrics.MmdLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.ObsAssimilationLoss.html">sup3r.utilities.loss_metrics.ObsAssimilationLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.PerceptualLoss.html">sup3r.utilities.loss_metrics.PerceptualLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.SlicedWassersteinLoss.html">sup3r.utilities.loss_metrics.SlicedWassersteinLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.SpatialDerivativeLoss.html">sup3r.utilities.loss_metrics.SpatialDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.SpatialExtremesLoss.html">sup3r.utilities.loss_metrics.SpatialExtremesLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.SpatialFftLoss.html">sup3r.utilities.loss_metrics.SpatialFftLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.SpatiotemporalFftLoss.html">sup3r.utilities.loss_metrics.SpatiotemporalFftLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.Sup3rLoss.html">sup3r.utilities.loss_metrics.Sup3rLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.TemporalDerivativeLoss.html">sup3r.utilities.loss_metrics.TemporalDerivativeLoss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.loss_metrics.TemporalExtremesLoss.html">sup3r.utilities.loss_metrics.TemporalExtremesLoss</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.pytest.html">sup3r.utilities.pytest</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.pytest.helpers.html">sup3r.utilities.pytest.helpers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.html">sup3r.utilities.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.camel_to_underscore.html">sup3r.utilities.utilities.camel_to_underscore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.decode_str_times.html">sup3r.utilities.utilities.decode_str_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.encode_str_times.html">sup3r.utilities.utilities.encode_str_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.enforce_limits.html">sup3r.utilities.utilities.enforce_limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.generate_random_string.html">sup3r.utilities.utilities.generate_random_string</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.get_dset_attrs.html">sup3r.utilities.utilities.get_dset_attrs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.get_feature_basename.html">sup3r.utilities.utilities.get_feature_basename</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.get_tmp_file.html">sup3r.utilities.utilities.get_tmp_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.nn_fill_array.html">sup3r.utilities.utilities.nn_fill_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.pd_date_range.html">sup3r.utilities.utilities.pd_date_range</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.preprocess_datasets.html">sup3r.utilities.utilities.preprocess_datasets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.safe_cast.html">sup3r.utilities.utilities.safe_cast</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.safe_serialize.html">sup3r.utilities.utilities.safe_serialize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.spatial_coarsening.html">sup3r.utilities.utilities.spatial_coarsening</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.temporal_coarsening.html">sup3r.utilities.utilities.temporal_coarsening</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.xr_open_mfdataset.html">sup3r.utilities.utilities.xr_open_mfdataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.utilities.utilities.Timer.html">sup3r.utilities.utilities.Timer</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.writers.html">sup3r.writers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.writers.base.html">sup3r.writers.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.writers.base.OutputHandler.html">sup3r.writers.base.OutputHandler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.writers.base.OutputMixin.html">sup3r.writers.base.OutputMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.writers.base.RexOutputs.html">sup3r.writers.base.RexOutputs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.writers.cachers.html">sup3r.writers.cachers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.writers.cachers.Cacher.html">sup3r.writers.cachers.Cacher</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.writers.h5.html">sup3r.writers.h5</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.writers.h5.OutputHandlerH5.html">sup3r.writers.h5.OutputHandlerH5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/sup3r.writers.nc.html">sup3r.writers.nc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/sup3r.writers.nc.OutputHandlerNC.html">sup3r.writers.nc.OutputHandlerNC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/sup3r.writers.utilities.html">sup3r.writers.utilities</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../_cli/cli.html">CLI reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../_cli/sup3r.html">sup3r</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for sup3r.models.surface</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Special models for surface meteorological data."""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fnmatch</span><span class="w"> </span><span class="kn">import</span> <span class="n">fnmatch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">linear_model</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sup3r.utilities.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">RANDOM_GENERATOR</span><span class="p">,</span> <span class="n">spatial_coarsening</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.linear</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearInterp</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SurfaceSpatialMetModel">
+<a class="viewcode-back" href="../../../_autosummary/sup3r.models.surface.SurfaceSpatialMetModel.html#sup3r.models.surface.SurfaceSpatialMetModel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SurfaceSpatialMetModel</span><span class="p">(</span><span class="n">LinearInterp</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Model to spatially downscale daily-average near-surface temperature,</span>
+<span class="sd">    relative humidity, and pressure</span>
+
+<span class="sd">    Note that this model can also operate on temperature_*m,</span>
+<span class="sd">    relativehumidity_*m, and pressure_*m datasets that are not</span>
+<span class="sd">    strictly at the surface but could be near hub height.</span>
+<span class="sd">    """</span>
+
+    <span class="n">TEMP_LAPSE</span> <span class="o">=</span> <span class="mf">6.5</span> <span class="o">/</span> <span class="mi">1000</span>
+<span class="w">    </span><span class="sd">"""Temperature lapse rate: change in degrees C/K per meter"""</span>
+
+    <span class="n">PRES_DIV</span> <span class="o">=</span> <span class="mf">44307.69231</span>
+<span class="w">    </span><span class="sd">"""Air pressure scaling equation divisor variable:</span>
+<span class="sd">    101325 * (1 - (1 - topo / PRES_DIV)**PRES_EXP)"""</span>
+
+    <span class="n">PRES_EXP</span> <span class="o">=</span> <span class="mf">5.25328</span>
+<span class="w">    </span><span class="sd">"""Air pressure scaling equation exponent variable:</span>
+<span class="sd">    101325 * (1 - (1 - topo / PRES_DIV)**PRES_EXP)"""</span>
+
+    <span class="n">W_DELTA_TEMP</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.99242830</span>
+<span class="w">    </span><span class="sd">"""Weight for the delta-temperature feature for the relative humidity</span>
+<span class="sd">    linear regression model."""</span>
+
+    <span class="n">W_DELTA_TOPO</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.01736911</span>
+<span class="w">    </span><span class="sd">"""Weight for the delta-topography feature for the relative humidity linear</span>
+<span class="sd">    regression model."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lr_features</span><span class="p">,</span>
+        <span class="n">s_enhance</span><span class="p">,</span>
+        <span class="n">noise_adders</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">temp_lapse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">w_delta_temp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">w_delta_topo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pres_div</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pres_exp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interp_method</span><span class="o">=</span><span class="s1">'LANCZOS'</span><span class="p">,</span>
+        <span class="n">input_resolution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">fix_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lr_features : list</span>
+<span class="sd">            List of feature names that this model will operate on for both</span>
+<span class="sd">            input and output. This must match the feature axis ordering in the</span>
+<span class="sd">            array input to generate(). Typically this is a list containing:</span>
+<span class="sd">            temperature_*m, relativehumidity_*m, and pressure_*m. The list can</span>
+<span class="sd">            contain multiple instances of each variable at different heights.</span>
+<span class="sd">            relativehumidity_*m entries must have corresponding temperature_*m</span>
+<span class="sd">            entires at the same hub height.</span>
+<span class="sd">        s_enhance : int</span>
+<span class="sd">            Integer factor by which the spatial axes are to be enhanced.</span>
+<span class="sd">        noise_adders : float | list | None</span>
+<span class="sd">            Option to add gaussian noise to spatial model output. Noise will be</span>
+<span class="sd">            normally distributed with mean of 0 and standard deviation =</span>
+<span class="sd">            noise_adders. noise_adders can be a single value or a list</span>
+<span class="sd">            corresponding to the lr_features list. None is no noise. The</span>
+<span class="sd">            addition of noise has been shown to help downstream temporal-only</span>
+<span class="sd">            models produce diurnal cycles in regions where there is minimal</span>
+<span class="sd">            change in topography. A noise_adders around 0.07C (temperature) and</span>
+<span class="sd">            0.1% (relative humidity) have been shown to be effective. This is</span>
+<span class="sd">            unnecessary if daily min/max temperatures are provided as low res</span>
+<span class="sd">            training features.</span>
+<span class="sd">        temp_lapse : None | float</span>
+<span class="sd">            Temperature lapse rate: change in degrees C/K per meter. Defaults</span>
+<span class="sd">            to the cls.TEMP_LAPSE attribute.</span>
+<span class="sd">        w_delta_temp : None | float</span>
+<span class="sd">            Weight for the delta-temperature feature for the relative humidity</span>
+<span class="sd">            linear regression model. Defaults to the cls.W_DELTA_TEMP</span>
+<span class="sd">            attribute.</span>
+<span class="sd">        w_delta_topo : None | float</span>
+<span class="sd">            Weight for the delta-topography feature for the relative humidity</span>
+<span class="sd">            linear regression model. Defaults to the cls.W_DELTA_TOPO</span>
+<span class="sd">            attribute.</span>
+<span class="sd">        pres_div : None | float</span>
+<span class="sd">            Divisor factor in the pressure scale height equation. Defaults to</span>
+<span class="sd">            the cls.PRES_DIV attribute.</span>
+<span class="sd">        pres_exp : None | float</span>
+<span class="sd">            Exponential factor in the pressure scale height equation. Defaults</span>
+<span class="sd">            to the cls.PRES_EXP attribute.</span>
+<span class="sd">        interp_method : str</span>
+<span class="sd">            Name of the interpolation method to use from PIL.Image.Resampling</span>
+<span class="sd">            (NEAREST, BILINEAR, BICUBIC, LANCZOS)</span>
+<span class="sd">            LANCZOS is default and has been tested to work best for</span>
+<span class="sd">            SurfaceSpatialMetModel.</span>
+<span class="sd">        fix_bias : bool</span>
+<span class="sd">            Some local bias can be introduced by the bilinear interp + lapse</span>
+<span class="sd">            rate, this flag will attempt to correct that bias by using the</span>
+<span class="sd">            low-resolution deviation from the input data</span>
+<span class="sd">        input_resolution : dict | None</span>
+<span class="sd">            Resolution of the input data. e.g. {'spatial': '30km', 'temporal':</span>
+<span class="sd">            '60min'}. This is used to determine how to aggregate</span>
+<span class="sd">            high-resolution topography data.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lr_features</span> <span class="o">=</span> <span class="n">lr_features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span> <span class="o">=</span> <span class="n">s_enhance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_noise_adders</span> <span class="o">=</span> <span class="n">noise_adders</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_temp_lapse</span> <span class="o">=</span> <span class="n">temp_lapse</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">TEMP_LAPSE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_w_delta_temp</span> <span class="o">=</span> <span class="n">w_delta_temp</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">W_DELTA_TEMP</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_w_delta_topo</span> <span class="o">=</span> <span class="n">w_delta_topo</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">W_DELTA_TOPO</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pres_div</span> <span class="o">=</span> <span class="n">pres_div</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">PRES_DIV</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pres_exp</span> <span class="o">=</span> <span class="n">pres_exp</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">PRES_EXP</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix_bias</span> <span class="o">=</span> <span class="n">fix_bias</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input_resolution</span> <span class="o">=</span> <span class="n">input_resolution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_interp_name</span> <span class="o">=</span> <span class="n">interp_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_interp_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">Resampling</span><span class="p">,</span> <span class="n">interp_method</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_noise_adders</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_noise_adders</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_noise_adders</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lr_features</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get number of model steps (match interface of MultiStepGan)"""</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_s_enhance</span><span class="p">(</span><span class="n">topo_lr</span><span class="p">,</span> <span class="n">topo_hr</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the spatial enhancement factor given low-res and high-res</span>
+<span class="sd">        spatial rasters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        topo_lr : np.ndarray</span>
+<span class="sd">            low-resolution surface elevation data in meters with shape</span>
+<span class="sd">            (lat, lon)</span>
+<span class="sd">        topo_hr : np.ndarray</span>
+<span class="sd">            High-resolution surface elevation data in meters with shape</span>
+<span class="sd">            (lat, lon)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        s_enhance : int</span>
+<span class="sd">            Integer factor by which the spatial axes are to be enhanced.</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">topo_lr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'topo_lr must be 2D'</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">topo_hr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'topo_hr must be 2D'</span>
+
+        <span class="n">se0</span> <span class="o">=</span> <span class="n">topo_hr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">topo_lr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">se1</span> <span class="o">=</span> <span class="n">topo_hr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">topo_lr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="n">se0</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'Bad calculated s_enhance on axis 0: </span><span class="si">{</span><span class="n">se0</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">assert</span> <span class="n">se1</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'Bad calculated s_enhance on axis 1: </span><span class="si">{</span><span class="n">se1</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">assert</span> <span class="n">se0</span> <span class="o">==</span> <span class="n">se1</span><span class="p">,</span> <span class="s1">'Calculated s_enhance does not match along axis'</span>
+
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">se0</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">feature_inds_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the feature index values for the temperature features."""</span>
+        <span class="n">inds</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">i</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lr_features</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">'temperature_*'</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">inds</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">feature_inds_pres</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the feature index values for the pressure features."""</span>
+        <span class="n">inds</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">i</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lr_features</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">'pressure_*'</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">inds</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">feature_inds_rh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the feature index values for the relative humidity features."""</span>
+        <span class="n">inds</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">i</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lr_features</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">'relativehumidity_*'</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">inds</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">feature_inds_other</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the feature index values for the features that are not</span>
+<span class="sd">        temperature, pressure, or relativehumidity."""</span>
+        <span class="n">finds_tprh</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">feature_inds_temp</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_inds_pres</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_inds_rh</span>
+        <span class="p">)</span>
+        <span class="n">inds</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lr_features</span><span class="p">))</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">finds_tprh</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">inds</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hr_exo_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Returns topography for surface model so the inference machinery</span>
+<span class="sd">        knows to pass in the exogenous data"""</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'topography'</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_temp_rh_ind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idf_rh</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the feature index value for the temperature feature</span>
+<span class="sd">        corresponding to a relative humidity feature at the same hub height.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        idf_rh : int</span>
+<span class="sd">            Index in the feature list for a relativehumidity_*m feature</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        idf_temp : int</span>
+<span class="sd">            Index in the feature list for a temperature_*m feature with the</span>
+<span class="sd">            same hub height as the idf_rh input.</span>
+<span class="sd">        """</span>
+        <span class="n">name_rh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lr_features</span><span class="p">[</span><span class="n">idf_rh</span><span class="p">]</span>
+        <span class="n">hh_suffix</span> <span class="o">=</span> <span class="n">name_rh</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'_'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">idf_temp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_inds_temp</span><span class="p">:</span>
+            <span class="n">same_hh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lr_features</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">hh_suffix</span><span class="p">)</span>
+            <span class="n">not_minmax</span> <span class="o">=</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">mm</span> <span class="ow">in</span> <span class="n">name_rh</span> <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'_min_'</span><span class="p">,</span> <span class="s1">'_max_'</span><span class="p">))</span>
+            <span class="n">both_mins</span> <span class="o">=</span> <span class="s1">'_min_'</span> <span class="ow">in</span> <span class="n">name_rh</span> <span class="ow">and</span> <span class="s1">'_min_'</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lr_features</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">both_maxs</span> <span class="o">=</span> <span class="s1">'_max_'</span> <span class="ow">in</span> <span class="n">name_rh</span> <span class="ow">and</span> <span class="s1">'_max_'</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lr_features</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">same_hh</span> <span class="ow">and</span> <span class="p">(</span><span class="n">not_minmax</span> <span class="ow">or</span> <span class="n">both_mins</span> <span class="ow">or</span> <span class="n">both_maxs</span><span class="p">):</span>
+                <span class="n">idf_temp</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">idf_temp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'Could not find temperature feature corresponding to '</span>
+                <span class="s1">'"</span><span class="si">{}</span><span class="s1">" in feature list: </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name_rh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lr_features</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">idf_temp</span>
+
+<div class="viewcode-block" id="SurfaceSpatialMetModel.fix_downscaled_bias">
+<a class="viewcode-back" href="../../../_autosummary/sup3r.models.surface.SurfaceSpatialMetModel.html#sup3r.models.surface.SurfaceSpatialMetModel.fix_downscaled_bias">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fix_downscaled_bias</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">single_lr</span><span class="p">,</span> <span class="n">single_hr</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">Resampling</span><span class="o">.</span><span class="n">LANCZOS</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Fix any bias introduced by the spatial downscaling with lapse rate.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        single_lr : np.ndarray</span>
+<span class="sd">            Single timestep raster data with shape</span>
+<span class="sd">            (lat, lon) matching the low-resolution input data.</span>
+<span class="sd">        single_hr : np.ndarray</span>
+<span class="sd">            Single timestep downscaled raster data with shape</span>
+<span class="sd">            (lat, lon) matching the high-resolution input data.</span>
+<span class="sd">        method : Image.Resampling.LANCZOS</span>
+<span class="sd">            An Image.Resampling method (NEAREST, BILINEAR, BICUBIC, LANCZOS).</span>
+<span class="sd">            NEAREST enforces zero bias but makes slightly more spatial seams.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        single_hr : np.ndarray</span>
+<span class="sd">            Single timestep downscaled raster data with shape</span>
+<span class="sd">            (lat, lon) matching the high-resolution input data.</span>
+<span class="sd">        """</span>
+
+        <span class="n">s_enhance</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">single_hr</span><span class="p">)</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">single_lr</span><span class="p">)</span>
+        <span class="n">re_coarse</span> <span class="o">=</span> <span class="n">spatial_coarsening</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">single_hr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">s_enhance</span><span class="o">=</span><span class="n">s_enhance</span><span class="p">,</span>
+            <span class="n">obs_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">bias</span> <span class="o">=</span> <span class="n">re_coarse</span> <span class="o">-</span> <span class="n">single_lr</span>
+        <span class="n">bc</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">downscale_arr</span><span class="p">(</span><span class="n">bias</span><span class="p">,</span> <span class="n">s_enhance</span><span class="o">=</span><span class="n">s_enhance</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+        <span class="n">single_hr</span> <span class="o">-=</span> <span class="n">bc</span>
+        <span class="k">return</span> <span class="n">single_hr</span></div>
+
+
+<div class="viewcode-block" id="SurfaceSpatialMetModel.downscale_arr">
+<a class="viewcode-back" href="../../../_autosummary/sup3r.models.surface.SurfaceSpatialMetModel.html#sup3r.models.surface.SurfaceSpatialMetModel.downscale_arr">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">downscale_arr</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">arr</span><span class="p">,</span> <span class="n">s_enhance</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">Resampling</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">,</span> <span class="n">fix_bias</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Downscale a 2D array of data Image.resize() method</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        arr : np.ndarray</span>
+<span class="sd">            2D raster data, typically spatial daily average data with shape</span>
+<span class="sd">            (lat, lon)</span>
+<span class="sd">        s_enhance : int</span>
+<span class="sd">            Integer factor by which the spatial axes are to be enhanced.</span>
+<span class="sd">        method : Image.Resampling.LANCZOS</span>
+<span class="sd">            An Image.Resampling method (NEAREST, BILINEAR, BICUBIC, LANCZOS).</span>
+<span class="sd">            LANCZOS is default and has been tested to work best for</span>
+<span class="sd">            SurfaceSpatialMetModel.</span>
+<span class="sd">        fix_bias : bool</span>
+<span class="sd">            Some local bias can be introduced by the bilinear interp + lapse</span>
+<span class="sd">            rate, this flag will attempt to correct that bias by using the</span>
+<span class="sd">            low-resolution deviation from the input data</span>
+<span class="sd">        """</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">s_enhance</span><span class="p">,</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">s_enhance</span><span class="p">),</span>
+            <span class="n">resample</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fix_bias</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fix_downscaled_bias</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="SurfaceSpatialMetModel.downscale_temp">
+<a class="viewcode-back" href="../../../_autosummary/sup3r.models.surface.SurfaceSpatialMetModel.html#sup3r.models.surface.SurfaceSpatialMetModel.downscale_temp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">downscale_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">single_lr_temp</span><span class="p">,</span> <span class="n">topo_lr</span><span class="p">,</span> <span class="n">topo_hr</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Downscale temperature raster data at a single observation.</span>
+
+<span class="sd">        This model uses a simple lapse rate that adjusts temperature as a</span>
+<span class="sd">        function of elevation. The process is as follows:</span>
+<span class="sd">            - add a scale factor to the low-res temperature field:</span>
+<span class="sd">              topo_lr * TEMP_LAPSE</span>
+<span class="sd">            - perform bilinear interpolation of the scaled temperature field.</span>
+<span class="sd">            - subtract the scale factor from the high-res temperature field:</span>
+<span class="sd">              topo_hr * TEMP_LAPSE</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        single_lr_temp : np.ndarray</span>
+<span class="sd">            Single timestep temperature (deg C) raster data with shape</span>
+<span class="sd">            (lat, lon) matching the low-resolution input data.</span>
+<span class="sd">        topo_lr : np.ndarray</span>
+<span class="sd">            low-resolution surface elevation data in meters with shape</span>
+<span class="sd">            (lat, lon)</span>
+<span class="sd">        topo_hr : np.ndarray</span>
+<span class="sd">            High-resolution surface elevation data in meters with shape</span>
+<span class="sd">            (lat, lon)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hi_res_temp : np.ndarray</span>
+<span class="sd">            Single timestep temperature (deg C) raster data with shape</span>
+<span class="sd">            (lat, lon) matching the high-resolution output data.</span>
+<span class="sd">        """</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">single_lr_temp</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'Bad shape for single_lr_temp'</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">topo_lr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'Bad shape for topo_lr'</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">topo_hr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'Bad shape for topo_hr'</span>
+
+        <span class="n">lower_data</span> <span class="o">=</span> <span class="n">single_lr_temp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">+</span> <span class="n">topo_lr</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_lapse</span>
+        <span class="n">hi_res_temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_arr</span><span class="p">(</span>
+            <span class="n">lower_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interp_method</span>
+        <span class="p">)</span>
+        <span class="n">hi_res_temp</span> <span class="o">-=</span> <span class="n">topo_hr</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_lapse</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_bias</span><span class="p">:</span>
+            <span class="n">hi_res_temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_downscaled_bias</span><span class="p">(</span>
+                <span class="n">single_lr_temp</span><span class="p">,</span> <span class="n">hi_res_temp</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interp_method</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">hi_res_temp</span></div>
+
+
+<div class="viewcode-block" id="SurfaceSpatialMetModel.downscale_rh">
+<a class="viewcode-back" href="../../../_autosummary/sup3r.models.surface.SurfaceSpatialMetModel.html#sup3r.models.surface.SurfaceSpatialMetModel.downscale_rh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">downscale_rh</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">single_lr_rh</span><span class="p">,</span> <span class="n">single_lr_temp</span><span class="p">,</span> <span class="n">single_hr_temp</span><span class="p">,</span> <span class="n">topo_lr</span><span class="p">,</span> <span class="n">topo_hr</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Downscale relative humidity raster data at a single observation.</span>
+
+<span class="sd">        Here's a description of the humidity scaling model:</span>
+<span class="sd">            - Take low-resolution and high-resolution daily average</span>
+<span class="sd">              temperature, relative humidity, and topography data.</span>
+<span class="sd">            - Downscale all low-resolution variables using a bilinear image</span>
+<span class="sd">              enhancement</span>
+<span class="sd">            - The target model output is the difference between the</span>
+<span class="sd">              interpolated low-res relative humidity and the true high-res</span>
+<span class="sd">              relative humidity. Calculate this difference as a linear function</span>
+<span class="sd">              of the same difference in the temperature and topography fields.</span>
+<span class="sd">            - Use this linear regression model to calculate high-res relative</span>
+<span class="sd">              humidity fields when provided low-res input of relative humidity</span>
+<span class="sd">              along with low-res/high-res pairs of temperature and topography.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        single_lr_rh : np.ndarray</span>
+<span class="sd">            Single timestep relative humidity (%) raster data with shape</span>
+<span class="sd">            (lat, lon) matching the low-resolution input data.</span>
+<span class="sd">        single_lr_temp : np.ndarray</span>
+<span class="sd">            Single timestep temperature (deg C) raster data with shape</span>
+<span class="sd">            (lat, lon) matching the low-resolution input data.</span>
+<span class="sd">        single_hr_temp : np.ndarray</span>
+<span class="sd">            Single timestep temperature (deg C) raster data with shape</span>
+<span class="sd">            (lat, lon) matching the high-resolution output data.</span>
+<span class="sd">        topo_lr : np.ndarray</span>
+<span class="sd">            low-resolution surface elevation data in meters with shape</span>
+<span class="sd">            (lat, lon)</span>
+<span class="sd">        topo_hr : np.ndarray</span>
+<span class="sd">            High-resolution surface elevation data in meters with shape</span>
+<span class="sd">            (lat, lon)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hi_res_rh : np.ndarray</span>
+<span class="sd">            Single timestep relative humidity (%) raster data with shape</span>
+<span class="sd">            (lat, lon) matching the high-resolution output data.</span>
+<span class="sd">        """</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">single_lr_rh</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'Bad shape for single_lr_rh'</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">single_hr_temp</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'Bad shape for single_hr_temp'</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">topo_lr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'Bad shape for topo_lr'</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">topo_hr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'Bad shape for topo_hr'</span>
+
+        <span class="n">interp_rh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_arr</span><span class="p">(</span>
+            <span class="n">single_lr_rh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interp_method</span>
+        <span class="p">)</span>
+        <span class="n">interp_temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_arr</span><span class="p">(</span>
+            <span class="n">single_lr_temp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interp_method</span>
+        <span class="p">)</span>
+        <span class="n">interp_topo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_arr</span><span class="p">(</span>
+            <span class="n">topo_lr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interp_method</span>
+        <span class="p">)</span>
+
+        <span class="n">delta_temp</span> <span class="o">=</span> <span class="n">single_hr_temp</span> <span class="o">-</span> <span class="n">interp_temp</span>
+        <span class="n">delta_topo</span> <span class="o">=</span> <span class="n">topo_hr</span> <span class="o">-</span> <span class="n">interp_topo</span>
+
+        <span class="n">hi_res_rh</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">interp_rh</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_w_delta_temp</span> <span class="o">*</span> <span class="n">delta_temp</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_w_delta_topo</span> <span class="o">*</span> <span class="n">delta_topo</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_bias</span><span class="p">:</span>
+            <span class="n">hi_res_rh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_downscaled_bias</span><span class="p">(</span>
+                <span class="n">single_lr_rh</span><span class="p">,</span> <span class="n">hi_res_rh</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interp_method</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">hi_res_rh</span></div>
+
+
+<div class="viewcode-block" id="SurfaceSpatialMetModel.downscale_pres">
+<a class="viewcode-back" href="../../../_autosummary/sup3r.models.surface.SurfaceSpatialMetModel.html#sup3r.models.surface.SurfaceSpatialMetModel.downscale_pres">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">downscale_pres</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">single_lr_pres</span><span class="p">,</span> <span class="n">topo_lr</span><span class="p">,</span> <span class="n">topo_hr</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Downscale pressure raster data at a single observation.</span>
+
+<span class="sd">        This model uses a simple exponential scale height that adjusts</span>
+<span class="sd">        temperature as a function of elevation. The process is as follows:</span>
+<span class="sd">            - add a scale factor to the low-res pressure field:</span>
+<span class="sd">              101325 * (1 - (1 - topo_lr / PRES_DIV)**PRES_EXP)</span>
+<span class="sd">            - perform bilinear interpolation of the scaled pressure field.</span>
+<span class="sd">            - subtract the scale factor from the high-res pressure field:</span>
+<span class="sd">              101325 * (1 - (1 - topo_hr / PRES_DIV)**PRES_EXP)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        single_lr_pres : np.ndarray</span>
+<span class="sd">            Single timestep pressure (Pa) raster data with shape</span>
+<span class="sd">            (lat, lon) matching the low-resolution input data.</span>
+<span class="sd">        topo_lr : np.ndarray</span>
+<span class="sd">            low-resolution surface elevation data in meters with shape</span>
+<span class="sd">            (lat, lon)</span>
+<span class="sd">        topo_hr : np.ndarray</span>
+<span class="sd">            High-resolution surface elevation data in meters with shape</span>
+<span class="sd">            (lat, lon)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hi_res_pres : np.ndarray</span>
+<span class="sd">            Single timestep pressure (Pa) raster data with shape</span>
+<span class="sd">            (lat, lon) matching the high-resolution output data.</span>
+<span class="sd">        """</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">single_lr_pres</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'Pressure data appears to not be in Pa with min/mean/max: '</span>
+                <span class="s1">'</span><span class="si">{:.1f}</span><span class="s1">/</span><span class="si">{:.1f}</span><span class="s1">/</span><span class="si">{:.1f}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">single_lr_pres</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                    <span class="n">single_lr_pres</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+                    <span class="n">single_lr_pres</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">const</span> <span class="o">=</span> <span class="mi">101325</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">topo_lr</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pres_div</span><span class="p">)</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pres_exp</span><span class="p">)</span>
+        <span class="n">lr_pres_adj</span> <span class="o">=</span> <span class="n">single_lr_pres</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">+</span> <span class="n">const</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">lr_pres_adj</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'Spatial interpolation of surface pressure '</span>
+                <span class="s1">'resulted in negative values. Incorrectly '</span>
+                <span class="s1">'scaled/unscaled values or incorrect units are '</span>
+                <span class="s1">'the most likely causes. All pressure data should be '</span>
+                <span class="s1">'in Pascals.'</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">hi_res_pres</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_arr</span><span class="p">(</span>
+            <span class="n">lr_pres_adj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interp_method</span>
+        <span class="p">)</span>
+
+        <span class="n">const</span> <span class="o">=</span> <span class="mi">101325</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">topo_hr</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pres_div</span><span class="p">)</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pres_exp</span><span class="p">)</span>
+        <span class="n">hi_res_pres</span> <span class="o">-=</span> <span class="n">const</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_bias</span><span class="p">:</span>
+            <span class="n">hi_res_pres</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_downscaled_bias</span><span class="p">(</span>
+                <span class="n">single_lr_pres</span><span class="p">,</span> <span class="n">hi_res_pres</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interp_method</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">hi_res_pres</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'Spatial interpolation of surface pressure '</span>
+                <span class="s1">'resulted in negative values. Incorrectly '</span>
+                <span class="s1">'scaled/unscaled values or incorrect units are '</span>
+                <span class="s1">'the most likely causes.'</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">hi_res_pres</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">input_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get dimension of model input. This is 4 for linear and surface</span>
+<span class="sd">        models (n_obs, spatial_1, spatial_2, temporal)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="mi">4</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_topo_from_exo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exogenous_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get lr_topo and hr_topo from exo_data dictionary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        exogenous_data : dict</span>
+<span class="sd">            For the SurfaceSpatialMetModel, this must be a nested dictionary</span>
+<span class="sd">            with a main 'topography' key and two entries for</span>
+<span class="sd">            exogenous_data['topography']['steps']. The first entry includes a</span>
+<span class="sd">            2D (lat, lon) or 4D (n_obs, lat, lon, temporal) array of</span>
+<span class="sd">            low-resolution surface elevation data in meters (lat, lon must</span>
+<span class="sd">            match spatial_1, spatial_2 from low_res), and the second entry</span>
+<span class="sd">            includes a 2D (lat, lon) or 4D (n_obs, lat, lon, temporal) array of</span>
+<span class="sd">            high-resolution surface elevation data in meters. e.g.</span>
+<span class="sd">            .. code-block:: JSON</span>
+<span class="sd">                {'topography': {</span>
+<span class="sd">                    'steps': [{'data': lr_topo}, {'data': hr_topo'}]</span>
+<span class="sd">                    }</span>
+<span class="sd">                }</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        lr_topo : ndarray</span>
+<span class="sd">            (lat, lon)</span>
+<span class="sd">        hr_topo : ndarray</span>
+<span class="sd">            (lat, lon)</span>
+<span class="sd">        """</span>
+        <span class="n">exo_data</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">step</span><span class="p">[</span><span class="s1">'data'</span><span class="p">]</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">exogenous_data</span><span class="p">[</span><span class="s1">'topography'</span><span class="p">][</span><span class="s1">'steps'</span><span class="p">]</span>
+        <span class="p">]</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">'exogenous_data is of a bad type </span><span class="si">{}</span><span class="s1">!'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">exo_data</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exo_data</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)),</span> <span class="n">msg</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">'exogenous_data is of a bad length </span><span class="si">{}</span><span class="s1">!'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">exo_data</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">exo_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="n">msg</span>
+
+        <span class="n">lr_topo</span> <span class="o">=</span> <span class="n">exo_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">hr_topo</span> <span class="o">=</span> <span class="n">exo_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lr_topo</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">lr_topo</span> <span class="o">=</span> <span class="n">lr_topo</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hr_topo</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">hr_topo</span> <span class="o">=</span> <span class="n">hr_topo</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">lr_topo</span><span class="p">,</span> <span class="n">hr_topo</span>
+
+    <span class="c1"># pylint: disable=unused-argument</span>
+<div class="viewcode-block" id="SurfaceSpatialMetModel.generate">
+<a class="viewcode-back" href="../../../_autosummary/sup3r.models.surface.SurfaceSpatialMetModel.html#sup3r.models.surface.SurfaceSpatialMetModel.generate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">low_res</span><span class="p">,</span> <span class="n">norm_in</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">un_norm_out</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">exogenous_data</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Use the generator model to generate high res data from low res</span>
+<span class="sd">        input. This is the public generate function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        low_res : np.ndarray</span>
+<span class="sd">            Low-resolution spatial input data, a 4D array of shape:</span>
+<span class="sd">            (n_obs, spatial_1, spatial_2, n_features), Where the feature</span>
+<span class="sd">            channel can include temperature_*m, relativehumidity_*m, and/or</span>
+<span class="sd">            pressure_*m</span>
+<span class="sd">        norm_in : bool</span>
+<span class="sd">            This doesnt do anything for this SurfaceSpatialMetModel, but is</span>
+<span class="sd">            kept to keep the same interface as Sup3rGan</span>
+<span class="sd">        un_norm_out : bool</span>
+<span class="sd">            This doesnt do anything for this SurfaceSpatialMetModel, but is</span>
+<span class="sd">            kept to keep the same interface as Sup3rGan</span>
+<span class="sd">        exogenous_data : dict</span>
+<span class="sd">            For the SurfaceSpatialMetModel, this must be a nested dictionary</span>
+<span class="sd">            with a main 'topography' key and two entries for</span>
+<span class="sd">            exogenous_data['topography']['steps']. The first entry includes a</span>
+<span class="sd">            2D (lat, lon) array of low-resolution surface elevation data in</span>
+<span class="sd">            meters (must match spatial_1, spatial_2 from low_res), and the</span>
+<span class="sd">            second entry includes a 2D (lat, lon) array of high-resolution</span>
+<span class="sd">            surface elevation data in meters. e.g.</span>
+<span class="sd">            .. code-block:: JSON</span>
+<span class="sd">                {'topography': {</span>
+<span class="sd">                    'steps': [{'data': lr_topo}, {'data': hr_topo'}]</span>
+<span class="sd">                    }</span>
+<span class="sd">                }</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hi_res : ndarray</span>
+<span class="sd">            high-resolution spatial output data, a 4D array of shape:</span>
+<span class="sd">            (n_obs, spatial_1, spatial_2, n_features), Where the feature</span>
+<span class="sd">            channel can include temperature_*m, relativehumidity_*m, and/or</span>
+<span class="sd">            pressure_*m</span>
+<span class="sd">        """</span>
+        <span class="n">low_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">low_res</span><span class="p">)</span>
+        <span class="n">lr_topo</span><span class="p">,</span> <span class="n">hr_topo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_topo_from_exo</span><span class="p">(</span><span class="n">exogenous_data</span><span class="p">)</span>
+        <span class="n">lr_topo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lr_topo</span><span class="p">)</span>
+        <span class="n">hr_topo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">hr_topo</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s1">'SurfaceSpatialMetModel received low/high res topo shapes of </span><span class="si">%s</span><span class="s1"> '</span>
+            <span class="s1">'and </span><span class="si">%s</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">lr_topo</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+            <span class="n">hr_topo</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'topo_lr needs to be 2d but has shape </span><span class="si">{</span><span class="n">lr_topo</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lr_topo</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="n">msg</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'topo_hr needs to be 2d but has shape </span><span class="si">{</span><span class="n">hr_topo</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">hr_topo</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="n">msg</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'lr_topo.shape needs to match lr_res.shape[:2] but received '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">lr_topo</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">low_res</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">lr_topo</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">low_res</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">msg</span>
+        <span class="k">assert</span> <span class="n">lr_topo</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">low_res</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">msg</span>
+        <span class="n">s_enhance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_s_enhance</span><span class="p">(</span><span class="n">lr_topo</span><span class="p">,</span> <span class="n">hr_topo</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'Topo shapes of </span><span class="si">{}</span><span class="s1"> and </span><span class="si">{}</span><span class="s1"> did not match desired spatial '</span>
+            <span class="s1">'enhancement of </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">lr_topo</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">hr_topo</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span> <span class="o">==</span> <span class="n">s_enhance</span><span class="p">,</span> <span class="n">msg</span>
+
+        <span class="n">hr_shape</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">low_res</span><span class="p">),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">low_res</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">low_res</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hr_out_features</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s1">'SurfaceSpatialMetModel with s_enhance of </span><span class="si">%s</span><span class="s1"> downscaling '</span>
+            <span class="s1">'low-res shape </span><span class="si">%s</span><span class="s1"> to high-res shape </span><span class="si">%s</span><span class="s1">'</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">,</span>
+            <span class="n">low_res</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+            <span class="n">hr_shape</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">hi_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">hr_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">iobs</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">low_res</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">idf_temp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_inds_temp</span><span class="p">:</span>
+                <span class="n">_tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_temp</span><span class="p">(</span>
+                    <span class="n">low_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_temp</span><span class="p">],</span> <span class="n">lr_topo</span><span class="p">,</span> <span class="n">hr_topo</span>
+                <span class="p">)</span>
+                <span class="n">hi_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_temp</span><span class="p">]</span> <span class="o">=</span> <span class="n">_tmp</span>
+
+            <span class="k">for</span> <span class="n">idf_pres</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_inds_pres</span><span class="p">:</span>
+                <span class="n">_tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_pres</span><span class="p">(</span>
+                    <span class="n">low_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_pres</span><span class="p">],</span> <span class="n">lr_topo</span><span class="p">,</span> <span class="n">hr_topo</span>
+                <span class="p">)</span>
+                <span class="n">hi_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_pres</span><span class="p">]</span> <span class="o">=</span> <span class="n">_tmp</span>
+
+            <span class="k">for</span> <span class="n">idf_rh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_inds_rh</span><span class="p">:</span>
+                <span class="n">idf_temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_temp_rh_ind</span><span class="p">(</span><span class="n">idf_rh</span><span class="p">)</span>
+                <span class="n">_tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_rh</span><span class="p">(</span>
+                    <span class="n">low_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_rh</span><span class="p">],</span>
+                    <span class="n">low_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_temp</span><span class="p">],</span>
+                    <span class="n">hi_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_temp</span><span class="p">],</span>
+                    <span class="n">lr_topo</span><span class="p">,</span>
+                    <span class="n">hr_topo</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">hi_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_rh</span><span class="p">]</span> <span class="o">=</span> <span class="n">_tmp</span>
+
+            <span class="k">for</span> <span class="n">idf_rh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_inds_rh</span><span class="p">:</span>
+                <span class="n">idf_temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_temp_rh_ind</span><span class="p">(</span><span class="n">idf_rh</span><span class="p">)</span>
+                <span class="n">_tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_rh</span><span class="p">(</span>
+                    <span class="n">low_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_rh</span><span class="p">],</span>
+                    <span class="n">low_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_temp</span><span class="p">],</span>
+                    <span class="n">hi_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_temp</span><span class="p">],</span>
+                    <span class="n">lr_topo</span><span class="p">,</span>
+                    <span class="n">hr_topo</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">hi_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_rh</span><span class="p">]</span> <span class="o">=</span> <span class="n">_tmp</span>
+
+            <span class="k">for</span> <span class="n">idf_other</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_inds_other</span><span class="p">:</span>
+                <span class="n">_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_arr</span><span class="p">(</span>
+                    <span class="n">low_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_other</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">,</span>
+                    <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interp_method</span><span class="p">,</span>
+                    <span class="n">fix_bias</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_fix_bias</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">hi_res</span><span class="p">[</span><span class="n">iobs</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">idf_other</span><span class="p">]</span> <span class="o">=</span> <span class="n">_arr</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_noise_adders</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idf</span><span class="p">,</span> <span class="n">stdev</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_noise_adders</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">stdev</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">noise</span> <span class="o">=</span> <span class="n">RANDOM_GENERATOR</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                        <span class="mi">0</span><span class="p">,</span> <span class="n">stdev</span><span class="p">,</span> <span class="n">hi_res</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="n">hi_res</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">idf</span><span class="p">]</span> <span class="o">+=</span> <span class="n">noise</span>
+
+        <span class="k">return</span> <span class="n">hi_res</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">meta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get meta data dictionary that defines the model params"""</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">'temp_lapse_rate'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_lapse</span><span class="p">,</span>
+            <span class="s1">'s_enhance'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">,</span>
+            <span class="s1">'t_enhance'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s1">'noise_adders'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_noise_adders</span><span class="p">,</span>
+            <span class="s1">'input_resolution'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_resolution</span><span class="p">,</span>
+            <span class="s1">'weight_for_delta_temp'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_w_delta_temp</span><span class="p">,</span>
+            <span class="s1">'weight_for_delta_topo'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_w_delta_topo</span><span class="p">,</span>
+            <span class="s1">'pressure_divisor'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pres_div</span><span class="p">,</span>
+            <span class="s1">'pressure_exponent'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pres_exp</span><span class="p">,</span>
+            <span class="s1">'lr_features'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr_features</span><span class="p">,</span>
+            <span class="s1">'hr_out_features'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hr_out_features</span><span class="p">,</span>
+            <span class="s1">'interp_method'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interp_name</span><span class="p">,</span>
+            <span class="s1">'fix_bias'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_bias</span><span class="p">,</span>
+            <span class="s1">'class'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="SurfaceSpatialMetModel.train">
+<a class="viewcode-back" href="../../../_autosummary/sup3r.models.surface.SurfaceSpatialMetModel.html#sup3r.models.surface.SurfaceSpatialMetModel.train">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_hr_temp</span><span class="p">,</span> <span class="n">true_hr_rh</span><span class="p">,</span> <span class="n">true_hr_topo</span><span class="p">,</span> <span class="n">input_resolution</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Trains the relative humidity linear model. The temperature and</span>
+<span class="sd">        surface lapse rate models are parameterizations taken from the NSRDB</span>
+<span class="sd">        and are not trained.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        true_hr_temp : np.ndarray</span>
+<span class="sd">            True high-resolution daily average temperature data in a 3D array</span>
+<span class="sd">            of shape (lat, lon, n_days)</span>
+<span class="sd">        true_hr_rh : np.ndarray</span>
+<span class="sd">            True high-resolution daily average relative humidity data in a 3D</span>
+<span class="sd">            array of shape (lat, lon, n_days)</span>
+<span class="sd">        true_hr_topo : np.ndarray</span>
+<span class="sd">            High-resolution surface elevation data in meters with shape</span>
+<span class="sd">            (lat, lon)</span>
+<span class="sd">        input_resolution : dict</span>
+<span class="sd">            Dictionary of spatial and temporal input resolution. e.g.</span>
+<span class="sd">            {'spatial': '20km': 'temporal': '60min'}</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        w_delta_temp : float</span>
+<span class="sd">            Weight for the delta-temperature feature for the relative humidity</span>
+<span class="sd">            linear regression model.</span>
+<span class="sd">        w_delta_topo : float</span>
+<span class="sd">            Weight for the delta-topography feature for the relative humidity</span>
+<span class="sd">            linear regression model.</span>
+<span class="sd">        regr : sklearn.LinearRegression</span>
+<span class="sd">            Trained regression object that predicts regr(x) = y</span>
+<span class="sd">        x : np.ndarray</span>
+<span class="sd">            2D array of shape (n, 2) where n is the number of observations</span>
+<span class="sd">            being trained on and axis=1 is 1) the True high-res temperature</span>
+<span class="sd">            minus the interpolated temperature and 2) the True high-res topo</span>
+<span class="sd">            minus the interpolate topo.</span>
+<span class="sd">        y : np.ndarray</span>
+<span class="sd">            2D array of shape (n,) that represents the true high-res humidity</span>
+<span class="sd">            minus the interpolated humidity</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input_resolution</span> <span class="o">=</span> <span class="n">input_resolution</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">true_hr_temp</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">'Bad true_hr_temp shape'</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">true_hr_rh</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">'Bad true_hr_rh shape'</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">true_hr_topo</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'Bad true_hr_topo shape'</span>
+
+        <span class="n">true_hr_topo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">true_hr_topo</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">true_hr_topo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">true_hr_topo</span><span class="p">,</span> <span class="n">true_hr_temp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">true_lr_temp</span> <span class="o">=</span> <span class="n">spatial_coarsening</span><span class="p">(</span>
+            <span class="n">true_hr_temp</span><span class="p">,</span> <span class="n">s_enhance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">,</span> <span class="n">obs_axis</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="n">true_lr_rh</span> <span class="o">=</span> <span class="n">spatial_coarsening</span><span class="p">(</span>
+            <span class="n">true_hr_rh</span><span class="p">,</span> <span class="n">s_enhance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">,</span> <span class="n">obs_axis</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="n">true_lr_topo</span> <span class="o">=</span> <span class="n">spatial_coarsening</span><span class="p">(</span>
+            <span class="n">true_hr_topo</span><span class="p">,</span> <span class="n">s_enhance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span><span class="p">,</span> <span class="n">obs_axis</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="n">interp_hr_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">true_hr_temp</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">interp_hr_rh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">true_hr_rh</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">interp_hr_topo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">true_hr_topo</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">interp_hr_temp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">interp_hr_temp</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_arr</span><span class="p">(</span>
+                <span class="n">true_lr_temp</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span>
+            <span class="p">)</span>
+            <span class="n">interp_hr_rh</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_arr</span><span class="p">(</span>
+                <span class="n">true_lr_rh</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span>
+            <span class="p">)</span>
+            <span class="n">interp_hr_topo</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">downscale_arr</span><span class="p">(</span>
+                <span class="n">true_lr_topo</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_enhance</span>
+            <span class="p">)</span>
+
+        <span class="n">x1</span> <span class="o">=</span> <span class="n">true_hr_temp</span> <span class="o">-</span> <span class="n">interp_hr_temp</span>
+        <span class="n">x2</span> <span class="o">=</span> <span class="n">true_hr_topo</span> <span class="o">-</span> <span class="n">interp_hr_topo</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">x1</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">x2</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">true_hr_rh</span> <span class="o">-</span> <span class="n">interp_hr_rh</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="n">regr</span> <span class="o">=</span> <span class="n">linear_model</span><span class="o">.</span><span class="n">LinearRegression</span><span class="p">(</span><span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">regr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">regr</span><span class="o">.</span><span class="n">intercept_</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-6</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'Relative humidity linear model should have an intercept '</span>
+                <span class="s1">'of zero but the model fit an intercept of </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">regr</span><span class="o">.</span><span class="n">intercept_</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">w_delta_temp</span><span class="p">,</span> <span class="n">w_delta_topo</span> <span class="o">=</span> <span class="n">regr</span><span class="o">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">regr</span><span class="o">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">w_delta_temp</span><span class="p">,</span> <span class="n">w_delta_topo</span><span class="p">,</span> <span class="n">regr</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Brandon Benton, Grant Buster, Andrew Glaws, Ryan King
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022, Alliance for Energy Innovation, LLC.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
