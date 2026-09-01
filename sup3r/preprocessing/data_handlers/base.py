@@ -99,6 +99,7 @@ class DataHandler(Deriver):
     def __init__(
         self,
         file_paths,
+        *,
         features='all',
         load_features='all',
         res_kwargs: Optional[dict] = None,
