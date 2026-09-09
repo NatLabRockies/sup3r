@@ -959,6 +959,7 @@ def local_presrat_bc(
     feature_name: str,
     bias_fp,
     date_range_kwargs: dict,
+    *,
     lr_padded_slice=None,
     threshold=0.1,
     relative=True,

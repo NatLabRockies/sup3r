@@ -562,7 +562,10 @@ class DerivedFeatureRasterizer(BaseExoRasterizer):
 
     def get_data(self):
         """Pass through for `source_data` to override base class method."""
-        return self.source_data
+        data = self.source_data
+        if self.feature in self.STATIC_FEATURES:
+            data = data.squeeze(Dimension.TIME, drop=True)
+        return data
 
 
 class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):

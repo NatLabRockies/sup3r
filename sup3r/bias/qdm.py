@@ -54,6 +54,7 @@ class QuantileDeltaMappingCorrection(
         bias_fut_fps,
         base_dset,
         bias_feature,
+        *,
         distance_upper_bound=None,
         target=None,
         shape=None,

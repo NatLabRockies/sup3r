@@ -67,6 +67,8 @@ def test_exo_cache(feature):
         for i, arr in enumerate(base.data[feature]['steps']):
             assert arr.shape[0] == SHAPE[0] * S_ENHANCE[i]
             assert arr.shape[1] == SHAPE[1] * S_ENHANCE[i]
+            if feature in BaseExoRasterizer.STATIC_FEATURES:
+                assert len(arr.shape) == 3
 
         assert len(os.listdir(f'{td}/exo_cache')) == 2
 

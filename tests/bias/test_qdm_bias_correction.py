@@ -20,7 +20,7 @@ from sup3r.preprocessing.utilities import (
 )
 from sup3r.utilities.utilities import RANDOM_GENERATOR, xr_open_mfdataset
 
-CC_LAT_LON = DataHandler(pytest.FP_RSDS, 'rsds').lat_lon
+CC_LAT_LON = DataHandler(pytest.FP_RSDS, features=['rsds']).lat_lon
 
 with xr_open_mfdataset(pytest.FP_RSDS) as fh:
     MIN_LAT = np.min(fh.lat.values.astype(np.float32))
@@ -314,7 +314,7 @@ def test_qdm_transform_notrend(tmp_path, dist_params):
 
 def test_qdm_bc_method(fp_fut_cc, dist_params):
     """Tesat qdm_bc standalone method"""
-    Handler = DataHandler(fp_fut_cc, 'rsds')
+    Handler = DataHandler(fp_fut_cc, features=['rsds'])
     original = Handler.data.as_array().copy()
     qdm_bc(Handler, dist_params, 'ghi')
     corrected = Handler.data.as_array()
@@ -341,7 +341,7 @@ def test_bc_identity(tmp_path, fp_fut_cc, dist_params):
         f['base_ghi_params'][:] = f['bias_fut_rsds_params'][:]
         f['bias_rsds_params'][:] = f['bias_fut_rsds_params'][:]
         f.flush()
-    Handler = DataHandler(fp_fut_cc, 'rsds')
+    Handler = DataHandler(fp_fut_cc, features=['rsds'])
     original = Handler.data.as_array().copy()
     qdm_bc(Handler, ident_params, 'ghi', relative=True)
     corrected = Handler.data.as_array()
@@ -367,7 +367,7 @@ def test_bc_identity_absolute(tmp_path, fp_fut_cc, dist_params):
         f['base_ghi_params'][:] = f['bias_fut_rsds_params'][:]
         f['bias_rsds_params'][:] = f['bias_fut_rsds_params'][:]
         f.flush()
-    Handler = DataHandler(fp_fut_cc, 'rsds')
+    Handler = DataHandler(fp_fut_cc, features=['rsds'])
     original = Handler.data.as_array().copy()
     qdm_bc(Handler, ident_params, 'ghi', relative=False)
     corrected = Handler.data.as_array()
@@ -393,7 +393,7 @@ def test_bc_model_constant(tmp_path, fp_fut_cc, dist_params):
         f['base_ghi_params'][:] = f['bias_fut_rsds_params'][:] - 10
         f['bias_rsds_params'][:] = f['bias_fut_rsds_params'][:]
         f.flush()
-    Handler = DataHandler(fp_fut_cc, 'rsds')
+    Handler = DataHandler(fp_fut_cc, features=['rsds'])
     original = Handler.data.as_array().copy()
     qdm_bc(Handler, offset_params, 'ghi', relative=False)
     corrected = Handler.data.as_array()
@@ -419,7 +419,7 @@ def test_bc_trend(tmp_path, fp_fut_cc, dist_params):
         f['base_ghi_params'][:] = f['bias_fut_rsds_params'][:]
         f['bias_rsds_params'][:] = f['bias_fut_rsds_params'][:] - 10
         f.flush()
-    Handler = DataHandler(fp_fut_cc, 'rsds')
+    Handler = DataHandler(fp_fut_cc, features=['rsds'])
     original = Handler.data.as_array().copy()
     qdm_bc(Handler, offset_params, 'ghi', relative=False)
     corrected = Handler.data.as_array()
@@ -444,7 +444,7 @@ def test_bc_trend_same_hist(tmp_path, fp_fut_cc, dist_params):
         f['base_ghi_params'][:] = f['bias_fut_rsds_params'][:] - 10
         f['bias_rsds_params'][:] = f['bias_fut_rsds_params'][:] - 10
         f.flush()
-    Handler = DataHandler(fp_fut_cc, 'rsds')
+    Handler = DataHandler(fp_fut_cc, features=['rsds'])
     original = Handler.data.as_array().copy()
     qdm_bc(Handler, offset_params, 'ghi', relative=False)
     corrected = Handler.data.as_array()

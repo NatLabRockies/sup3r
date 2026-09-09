@@ -45,7 +45,7 @@ def test_out_conditional(
     first conditional moment."""
     handler = DataHandler(
         pytest.FP_WTK,
-        FEATURES,
+        features=FEATURES,
         target=TARGET_COORD,
         shape=full_shape,
         time_slice=slice(None, None, 1),
