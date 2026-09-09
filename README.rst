@@ -222,6 +222,10 @@ v0.2.7), 2025. https://doi.org/10.5281/zenodo.15586596
 Publications
 ============
 
+High-resolution South American wind resource data downscaled with generative machine 
+learning conditioned on near-surface observations, *Data in Brief* (2026) 
+https://doi.org/10.1016/j.dib.2026.113167
+
 Estimating the impacts of increasing temperatures and the efficacy of climate
 adaptation strategies in urban microclimates with deep learning, *Urban Climate*
 (2025) https://doi.org/10.1016/j.uclim.2025.102603
