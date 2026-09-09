@@ -87,8 +87,9 @@ The Sup3rWind data has versions that coincide with the sup3r software versions. 
       - Initial release of Sup3rWind for South America. Includes 2-km 5-minute wind speed and wind direction data and 2-km hourly wind speed, wind direction, pressure, temperature, and relative humidity data for 2005-2024.
 
 
-Recommended Citation
+Recommended Citations
 ---------------------
+Benton, B. N., Igwe, V., Buster, G., Rough, D., Maclaurin, G., High-resolution South American wind resource data downscaled with generative machine learning conditioned on near-surface observations, Data in Brief (2026) https://doi.org/10.1016/j.dib.2026.113167.
 
 Benton, B. N., Buster, G., Pinchuk, P., Glaws, A., King, R. N., Maclaurin, G., & Chernyakhovskiy, I. Super-Resolution for Renewable Energy Resource Data with Wind from Reanalysis Data and Application to Ukraine, Energies (2025) https://doi.org/10.3390/en18143769.
 
