@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 from rex import Outputs
 
-from sup3r.models import Sup3rGanWithObs
+from sup3r.models import Sup3rGanFixedObs
 from sup3r.pipeline.forward_pass import ForwardPass, ForwardPassStrategy
 from sup3r.utilities.pytest.helpers import make_fake_dset
 from sup3r.utilities.utilities import RANDOM_GENERATOR
@@ -115,9 +115,9 @@ def test_fwp_with_obs(
     observations."""
 
     obs_file = request.getfixturevalue(obs_file)
-    Sup3rGanWithObs.seed()
+    Sup3rGanFixedObs.seed()
 
-    model = Sup3rGanWithObs(
+    model = Sup3rGanFixedObs(
         gen_config_with_concat_masked(),
         pytest.S_FP_DISC,
         onshore_obs_frac={'spatial': 0.1},
@@ -182,7 +182,7 @@ def test_fwp_with_obs(
         handler = ForwardPassStrategy(
             input_file,
             model_kwargs=model_kwargs,
-            model_class='Sup3rGanWithObs',
+            model_class='Sup3rGanFixedObs',
             fwp_chunk_shape=fwp_chunk_shape,
             input_handler_kwargs=input_handler_kwargs,
             spatial_pad=0,

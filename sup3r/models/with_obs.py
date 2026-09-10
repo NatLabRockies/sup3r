@@ -12,7 +12,7 @@ from .base import Sup3rGan
 logger = logging.getLogger(__name__)
 
 
-class Sup3rGanWithObs(Sup3rGan):
+class Sup3rGanFixedObs(Sup3rGan):
     """Sup3r GAN model which includes mid network observation fusion. This
     model is useful for when production runs will be over a domain for which
     observation data is available.
@@ -39,7 +39,7 @@ class Sup3rGanWithObs(Sup3rGan):
         **kwargs,
     ):
         """
-        Initialize the Sup3rGanWithObs model.
+        Initialize the Sup3rGanFixedObs model.
 
         Parameters
         ----------
