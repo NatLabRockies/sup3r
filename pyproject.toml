@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "NREL-sup3r"
-version = "0.2.4"
+version = "0.2.4.1"
 description = "Super Resolving Renewable Resource Data (sup3r)"
 keywords = ["sup3r", "NREL"]
 readme = "README.rst"
