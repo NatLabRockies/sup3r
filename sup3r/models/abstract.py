@@ -420,9 +420,14 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
 
         if self.hr_exo_features:
             exo_shape = (*hr_shape[:-1], 1)
-            exo_tensor = tf.cast(np.ones(exo_shape), dtype=tf.float32)
-            hi_res_exo = dict.fromkeys(self.hr_exo_features, exo_tensor)
-
+            dense_exo = tf.cast(np.ones(exo_shape), dtype=tf.float32)
+            sparse_exo = np.full(exo_shape, np.nan, dtype=np.float32)
+            sparse_exo.reshape(-1)[::10] = 1
+            sparse_exo = tf.convert_to_tensor(sparse_exo)
+            hi_res_exo = {
+                feature: sparse_exo if feature.endswith('obs') else dense_exo
+                for feature in self.hr_exo_features
+            }
         with self._training_scope(device):
             out = self._tf_generate(low_res, hi_res_exo)
 

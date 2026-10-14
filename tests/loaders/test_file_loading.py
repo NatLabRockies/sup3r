@@ -67,6 +67,20 @@ def test_time_independent_loading():
         )
 
 
+def test_positional_chunks_with_mixed_dimensions():
+    """Use one positional chunk specification for 2D and 3D variables."""
+    with TemporaryDirectory() as td:
+        out_file = os.path.join(td, 'mixed_dims.nc')
+        nc = make_fake_dset((10, 12, 14), features=['u_100m'])
+        nc.to_netcdf(out_file, format='NETCDF4', engine='h5netcdf')
+
+        loader = LoaderX(out_file, chunks=[5, 6, 7])
+
+        assert loader['u_100m'].data.chunksize == (5, 6, 7)
+        assert loader[Dimension.LATITUDE].data.chunksize == (5, 6)
+        assert loader[Dimension.LONGITUDE].data.chunksize == (5, 6)
+
+
 def test_time_independent_loading_h5():
     """Make sure loaders work with time independent features."""
     loader = LoaderH5(pytest.FP_WTK, features=['topography'])

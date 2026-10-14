@@ -371,8 +371,8 @@ class AbstractInterface(ABC):
 
     @property
     def hr_exo_features(self):
-        """Get list of gapless exogenous high-resolution feature names the
-        model uses, like topography."""
+        """Get list of all exogenous high-resolution feature names the
+        model uses, like topography or observation data."""
         return self.meta.get('hr_exo_features', [])
 
     @property

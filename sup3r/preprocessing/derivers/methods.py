@@ -409,7 +409,7 @@ class Latitude(DerivedFeature):
         lat = lat.expand_dims(Dimension.TIME, axis=-1)
         n_time = 1 if data.time_index is None else len(data.time_index)
         lat = np.repeat(lat, n_time, axis=-1)
-        return lat.astype(np.float32)
+        return lat.astype(np.float64)
 
 
 class Longitude(DerivedFeature):
@@ -422,7 +422,7 @@ class Longitude(DerivedFeature):
         lon = lon.expand_dims(Dimension.TIME, axis=-1)
         n_time = 1 if data.time_index is None else len(data.time_index)
         lon = np.repeat(lon, n_time, axis=-1)
-        return lon.astype(np.float32)
+        return lon.astype(np.float64)
 
 
 class Time(DerivedFeature):
@@ -438,7 +438,7 @@ class Time(DerivedFeature):
         time = time.expand_dims(spatial_dims, axis=(0, 1))
         time = np.repeat(time, data.sizes[spatial_dims[0]], axis=0)
         time = np.repeat(time, data.sizes[spatial_dims[1]], axis=1)
-        return time.astype(np.float32)
+        return time.astype(np.float64)
 
 
 class SpatioTemporalEncoding(DerivedFeature):

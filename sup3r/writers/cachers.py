@@ -55,8 +55,9 @@ class Cacher(Container):
             based on desired output type.
 
             Can also include a ``max_workers``, ``chunks``, and ``attrs`` keys.
-            ``max_workers`` is an inteeger specifying number of threads to use
-            for writing chunks to output files, ``chunks`` is a dictionary
+            ``max_workers`` is an integer specifying number of threads to use
+            for writing chunks to output files and defaults to one, ``chunks``
+            is a dictionary
             of dictionaries for each feature (or a single dictionary to use
             for all features), and ``attrs`` is a dictionary of attributes to
             add to the output files which can include ``scale_factor`` values.
@@ -152,7 +153,7 @@ class Cacher(Container):
         self,
         cache_pattern,
         chunks=None,
-        max_workers=None,
+        max_workers=1,
         mode='w',
         attrs=None,
         time_last=None,
@@ -170,7 +171,7 @@ class Cacher(Container):
             Chunk sizes for coordinate dimensions. e.g.
             ``{'u_10m': {'time': 10, 'south_north': 100, 'west_east': 100}}``
         max_workers : int | None
-            Number of workers to use for parallel writing of chunks
+            Number of workers to use for writing chunks. Defaults to one.
         mode : str
             Write mode for ``out_file``. Defaults to write.
         attrs : dict | None
