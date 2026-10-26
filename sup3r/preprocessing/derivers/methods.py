@@ -448,8 +448,8 @@ class RelativeTime(DerivedFeature):
     @classmethod
     def compute(cls, data):
         """Compute dataset-relative time in seconds."""
-        time = data[Dimension.TIME].astype('datetime64[s]').astype(np.int64)
-        relative_time = time - time.min()
+        time = data[Dimension.TIME]
+        relative_time = (time - time.min()) / np.timedelta64(1, 's')
         spatial_dims = Dimension.dims_2d()
         relative_time = relative_time.expand_dims(spatial_dims, axis=(0, 1))
         relative_time = np.repeat(
