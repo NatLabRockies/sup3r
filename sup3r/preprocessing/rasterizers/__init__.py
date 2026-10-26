@@ -10,7 +10,6 @@ from .base import BaseRasterizer
 from .dual import DualRasterizer
 from .exo import (
     BaseExoRasterizer,
-    DerivedFeatureRasterizer,
     ExoRasterizer,
     ObsRasterizer,
 )

@@ -16,6 +16,7 @@ from sup3r.preprocessing import (
     ExoDataHandler,
     ExoRasterizer,
 )
+from sup3r.preprocessing.rasterizers.exo import ObsRasterizer
 from sup3r.utilities.pytest.helpers import make_fake_dset
 from sup3r.utilities.utilities import RANDOM_GENERATOR, xr_open_mfdataset
 from sup3r.writers import RexOutputs
@@ -40,6 +41,7 @@ def test_exo_data_init():
         'latitude_feature',
         'longitude_feature',
         'time_feature',
+        'relative_time_feature'
     ],
 )
 def test_exo_cache(feature):
@@ -337,6 +339,27 @@ def test_topo_extraction_nc():
         )
         assert np.array_equal(te.data.as_array(), te_gen.data.as_array())
     assert np.allclose(te.source_data.flatten(), hr_elev.flatten())
+
+
+@pytest.mark.parametrize(
+    ('feature', 'expected_class', 'is_derived'),
+    [
+        ('relative_time_feature', BaseExoRasterizer, True),
+        ('soy_encoding', BaseExoRasterizer, True),
+        ('windspeed_100m', BaseExoRasterizer, False),
+        ('u_10m_obs', ObsRasterizer, False),
+        ('topography', BaseExoRasterizer, False),
+    ],
+)
+def test_exo_rasterizer_selection(feature, expected_class, is_derived):
+    """Select rasterizers from feature dependencies and observation names."""
+    rasterizer = ExoRasterizer(
+        file_paths=pytest.FP_WRF,
+        source_files=pytest.FP_WRF,
+        feature=feature,
+    )
+    assert isinstance(rasterizer, expected_class)
+    assert (rasterizer._derivation_method is not None) is is_derived
 
 
 @pytest.mark.parametrize(
