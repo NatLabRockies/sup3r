@@ -90,7 +90,14 @@ class BaseLoader(Container, ABC):
         feature_aliases = feature_aliases or {}
         feature_names = FEATURE_NAMES.copy()
         feature_names.update(feature_aliases)
-        data = standardize_names(data, feature_names).astype(np.float32)
+        data = standardize_names(data, feature_names)
+        data = data.astype(
+            {
+                name: np.float32
+                for name in data.data_vars
+                if name != 'time_feature'
+            }
+        )
         data = data.transpose(*ordered_dims(data.dims), ...)
         features = list(data.dims) if features == [] else features
         self.data = data[features] if features != 'all' else data

@@ -119,6 +119,33 @@ def test_derived_data_caching(
         assert np.array_equal(loaded, derived)
 
 
+@pytest.mark.parametrize('ext', ['h5', 'nc'])
+def test_time_feature_cache_round_trip(ext):
+    """Cached time features preserve their full precision."""
+    with tempfile.TemporaryDirectory() as td:
+        cache_pattern = os.path.join(td, 'cached_{feature}.' + ext)
+        deriver = DataHandler(
+            pytest.FP_WTK,
+            features=['time_feature'],
+            time_slice=slice(0, 5),
+            shape=shape,
+            target=target,
+        )
+        cacher = Cacher(
+            deriver.data,
+            cache_kwargs={
+                'cache_pattern': cache_pattern,
+                'max_workers': 1,
+            },
+        )
+        loader = DataHandler(cacher.out_files, features=['time_feature'])
+
+        derived = deriver['time_feature'].values
+        loaded = loader['time_feature'].values
+        assert loaded.dtype == np.float64
+        np.testing.assert_array_equal(loaded, derived)
+
+
 @pytest.mark.parametrize(
     ['input_files', 'derive_features', 'ext', 'shape', 'target'],
     [

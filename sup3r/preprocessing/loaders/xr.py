@@ -184,4 +184,4 @@ class LoaderX(BaseLoader):
         res = res.assign_coords(self._get_coords(res))
         res = self._enforce_descending_lats(res)
         res = self._rechunk_dsets(res)
-        return self._enforce_descending_levels(res).astype(np.float32)
+        return self._enforce_descending_levels(res)
