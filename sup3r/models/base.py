@@ -39,7 +39,8 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         default_device=None,
         name=None,
         sparse_disc=False,
-        obs_mask_fraction=0.0,
+        spatial_mask_fraction=0.0,
+        temporal_mask_range=None,
     ):
         """
         Parameters
@@ -106,15 +107,20 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             observations for training. Note that if True, the discriminator
             model architecture should be designed to handle sparse data (e.g.
             by using masking layers or other techniques).
-        obs_mask_fraction : float
-            Fraction of non-NaN observation values to randomly mask (set to
-            NaN) in the exogenous obs input to the generator during training.
-            This is applied *after* ``get_hr_exo_input`` so the loss (which
-            uses the unmasked ``hi_res_true``) still sees the full observation
-            density, while the generator must learn to infer spatial structure
-            from the sparser input. Only features whose key ends with
-            ``'_obs'`` are masked; e.g. topography is not affected. Default
-            is 0.0 (no additional masking).
+        spatial_mask_fraction : float
+            Fraction of spatial locations to randomly mask (set to NaN) in
+            exogenous obs inputs to the generator during training and
+            validation. Each mask decision is broadcast across the full time
+            dimension. This is applied *after* ``get_hr_exo_input`` so the
+            loss (which uses the unmasked ``hi_res_true``) still sees the full
+            observation density. Only observation features are masked; e.g.
+            topography is not affected. Default is 0.0 (no additional
+            masking).
+        temporal_mask_range : tuple[int, int] | list[int] | None
+            Start and stop indices of the temporal slice to mask in exogenous
+            observation inputs to the generator during training and
+            validation. The full observation tensor remains available to the
+            loss. None disables temporal masking.
         name : str | None
             Optional name for the GAN.
         """
@@ -156,7 +162,8 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         self._means = means
         self._stdevs = stdevs
         self._sparse_disc = sparse_disc
-        self._obs_mask_fraction = obs_mask_fraction
+        self._spatial_mask_fraction = spatial_mask_fraction
+        self._temporal_mask_range = temporal_mask_range
 
     def save(self, out_dir):
         """Save the GAN with its sub-networks to a directory.
@@ -374,6 +381,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         """Run discriminator-only gradient calculation for one mini-batch."""
         with self._training_scope(device_name), tf.GradientTape() as tape:
             hi_res_exo = self.get_hr_exo_input(hi_res_true)
+            hi_res_exo = self._mask_obs_in_exo(hi_res_exo)
             hi_res_gen = self._tf_generate(low_res, hi_res_exo)
             loss, loss_details = self.calc_loss(
                 hi_res_true,
@@ -467,7 +475,8 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
             'meta': self.meta,
             'default_device': self.default_device,
             'sparse_disc': self._sparse_disc,
-            'obs_mask_fraction': self._obs_mask_fraction,
+            'spatial_mask_fraction': self._spatial_mask_fraction,
+            'temporal_mask_range': self._temporal_mask_range,
         }
 
     @property
@@ -922,6 +931,7 @@ class Sup3rGan(AbstractSingleModel, AbstractInterface):
         logger.debug('Starting end-of-epoch validation loss calculation...')
         for batch in batch_handler.val_data:
             hi_res_exo = self.get_hr_exo_input(batch.high_res)
+            hi_res_exo = self._mask_obs_in_exo(hi_res_exo)
             hi_res_gen = self._tf_generate(batch.low_res, hi_res_exo)
             _, v_loss_details = self.calc_loss(
                 batch.high_res,

@@ -1471,20 +1471,24 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         logger.error(msg)
         raise ValueError(msg)
 
-    def _mask_obs_in_exo(self, hi_res_exo):
-        """Randomly mask a fraction of non-NaN obs values in the exo dict.
+    def _mask_obs_in_exo(self, hi_res_exo, spatial_mask=True):
+        """Mask temporal slices and random obs values in the exo dict.
 
-        For each key in ``self.obs_features``, ``self._obs_mask_fraction`` of
-        the existing non-NaN locations are replaced with NaN.  All other
-        keys are returned unchanged.  This is called inside
-        ``get_single_grad_gen`` so that the generator receives sparser
-        observations than those used by the loss.
+        For each key in ``self.obs_features``, values in
+        ``self._temporal_mask_range`` and ``self._spatial_mask_fraction`` of
+        the spatial locations are replaced with NaN. Spatial mask decisions
+        are broadcast across all non-spatial dimensions. All other keys are
+        returned unchanged. This is called inside ``get_single_grad_gen`` so
+        that the generator receives sparser observations than the loss.
 
         Parameters
         ----------
         hi_res_exo : dict
             Exogenous high-resolution input dict returned by
             ``get_hr_exo_input``.
+        spatial_mask : bool
+            Whether to apply random masking using ``spatial_mask_fraction``.
+            Temporal range masking is always applied.
 
         Returns
         -------
@@ -1494,11 +1498,30 @@ class AbstractSingleModel(ABC, TensorboardMixIn):
         out = dict(hi_res_exo)
         for k in self.obs_features:
             v = out[k]
-            not_nan = tf.math.logical_not(tf.math.is_nan(v))
-            rand = tf.random.uniform(tf.shape(v), dtype=v.dtype)
-            drop = tf.math.logical_and(not_nan, rand < self._obs_mask_fraction)
-            nan_fill = tf.fill(tf.shape(v), tf.cast(float('nan'), v.dtype))
-            out[k] = tf.where(drop, nan_fill, v)
+            if self._temporal_mask_range is not None:
+                start, stop = self._temporal_mask_range
+                time = tf.range(tf.shape(v)[-2])
+                time_mask = tf.math.logical_and(time >= start, time < stop)
+                time_mask = tf.reshape(time_mask, (1, 1, 1, -1, 1))
+                nan_fill = tf.fill(
+                    tf.shape(v), tf.cast(float('nan'), v.dtype)
+                )
+                v = tf.where(time_mask, nan_fill, v)
+            if spatial_mask:
+                mask_shape = tf.concat(
+                    (
+                        tf.shape(v)[:3],
+                        tf.ones(tf.rank(v) - 3, dtype=tf.int32),
+                    ),
+                    axis=0,
+                )
+                drop = tf.random.uniform(mask_shape, dtype=v.dtype)
+                drop = drop < self._spatial_mask_fraction
+                nan_fill = tf.fill(
+                    tf.shape(v), tf.cast(float('nan'), v.dtype)
+                )
+                v = tf.where(drop, nan_fill, v)
+            out[k] = v
         return out
 
     @tf.function(reduce_retracing=True)

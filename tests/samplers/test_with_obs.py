@@ -119,8 +119,8 @@ def test_proxy_obs_fraction_bounds_with_ranges(sampler_cls):
 
 
 @pytest.mark.parametrize('sampler_cls', [Sampler, DualSampler])
-def test_proxy_obs_sample_range(sampler_cls):
-    """Proxy observations should be restricted to the configured interval."""
+def test_proxy_obs_full_temporal_range(sampler_cls):
+    """Proxy observation targets should span the complete temporal sample."""
     sampler = _make_sampler(
         sampler_cls=sampler_cls,
         hr_shape=(20, 20, 240),
@@ -128,14 +128,12 @@ def test_proxy_obs_sample_range(sampler_cls):
         batch_size=4,
         proxy_obs_kwargs={
             'onshore_obs_frac': {'spatial': 1.0, 'temporal': 1.0},
-            'sample_range': (0, 12),
         },
     )
 
     obs = _get_hr_batch(sampler)[..., -2:]
 
-    assert np.isfinite(obs[..., :12, :]).all()
-    assert np.isnan(obs[..., 12:, :]).all()
+    assert np.isfinite(obs).all()
 
 
 @pytest.mark.parametrize('sampler_cls', [Sampler, DualSampler])
@@ -268,8 +266,8 @@ def test_merge_real_and_proxy_obs(sampler_cls):
 
 
 @pytest.mark.parametrize('sampler_cls', [Sampler, DualSampler])
-def test_real_obs_sample_range_replaces_source_channels(sampler_cls):
-    """Masked merged obs replace real source channels without duplication."""
+def test_real_obs_replaces_source_channels(sampler_cls):
+    """Full-period merged obs replace source channels without duplication."""
     hr_shape = (20, 20, 240)
     hr_features = [*LR_FEATURES, *OBS_FEATURES]
     feature_sets = {
@@ -282,7 +280,6 @@ def test_real_obs_sample_range_replaces_source_channels(sampler_cls):
         'batch_size': 4,
         'proxy_obs_kwargs': {
             'onshore_obs_frac': {'spatial': 1.0, 'temporal': 1.0},
-            'sample_range': (0, 12),
         },
         'feature_sets': feature_sets,
     }
@@ -309,5 +306,4 @@ def test_real_obs_sample_range_replaces_source_channels(sampler_cls):
     obs = high_res[..., sampler.hr_features_ind[-2:]]
 
     assert high_res.shape[-1] == len(sampler.hr_source_features)
-    assert np.isfinite(obs[..., :12, :]).all()
-    assert np.isnan(obs[..., 12:, :]).all()
+    assert np.isfinite(obs).all()
