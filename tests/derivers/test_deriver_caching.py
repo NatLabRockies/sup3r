@@ -111,9 +111,12 @@ def test_derived_data_caching(
             deriver[f].shape == (*shape, deriver.shape[2])
             for f in derive_features
         )
-        assert deriver.data.dtype == np.dtype(np.float32)
 
         loader = DataHandler(cacher.out_files, features=derive_features)
+        assert all(
+            loader[feature].dtype == deriver[feature].dtype
+            for feature in derive_features
+        )
         loaded = loader.as_array().compute()
         derived = deriver.as_array().compute()
         assert np.array_equal(loaded, derived)
@@ -189,9 +192,12 @@ def test_caching_with_dh_loading(
             deriver[f].shape == (*shape, deriver.shape[2])
             for f in derive_features
         )
-        assert deriver.data.dtype == np.dtype(np.float32)
 
         loader = DataHandler(cacher.out_files, features=derive_features)
+        assert all(
+            loader[feature].dtype == deriver[feature].dtype
+            for feature in derive_features
+        )
         assert np.array_equal(
             loader.as_array().compute(), deriver.as_array().compute()
         )

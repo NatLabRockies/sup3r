@@ -142,8 +142,13 @@ class LoaderX(BaseLoader):
     def _rechunk_dsets(self, res):
         """Apply given chunk values for each field in res.coords and
         res.data_vars."""
+        global_dims = ordered_dims(res.dims)
         for dset in [*list(res.coords), *list(res.data_vars)]:
-            chunks = self._parse_chunks(dims=res[dset].dims, feature=dset)
+            chunks = self._parse_chunks(
+                dims=res[dset].dims,
+                feature=dset,
+                global_dims=global_dims,
+            )
 
             # specifying chunks to xarray.open_mfdataset doesn't automatically
             # apply to coordinates so we do that here

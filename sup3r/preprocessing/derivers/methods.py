@@ -28,6 +28,7 @@ class DerivedFeature(ABC):
     """
 
     inputs: tuple[str, ...] = ()
+    requires_multiple_times = False
 
     @classmethod
     @abstractmethod
@@ -444,6 +445,8 @@ class Time(DerivedFeature):
 
 class RelativeTime(DerivedFeature):
     """Elapsed seconds from the beginning of the dataset."""
+
+    requires_multiple_times = True
 
     @classmethod
     def compute(cls, data):

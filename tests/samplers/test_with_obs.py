@@ -265,3 +265,49 @@ def test_merge_real_and_proxy_obs(sampler_cls):
     # With 50% proxy coverage + real obs in ~half the domain,
     # total coverage should exceed 50%
     assert observed_frac > 0.5
+
+
+@pytest.mark.parametrize('sampler_cls', [Sampler, DualSampler])
+def test_real_obs_sample_range_replaces_source_channels(sampler_cls):
+    """Masked merged obs replace real source channels without duplication."""
+    hr_shape = (20, 20, 240)
+    hr_features = [*LR_FEATURES, *OBS_FEATURES]
+    feature_sets = {
+        'lr_features': LR_FEATURES,
+        'hr_out_features': HR_OUT_FEATURES,
+        'hr_exo_features': OBS_FEATURES,
+    }
+    kwargs = {
+        'sample_shape': (10, 10, 24),
+        'batch_size': 4,
+        'proxy_obs_kwargs': {
+            'onshore_obs_frac': {'spatial': 1.0, 'temporal': 1.0},
+            'sample_range': (0, 12),
+        },
+        'feature_sets': feature_sets,
+    }
+
+    if sampler_cls is Sampler:
+        data = DummyData(data_shape=hr_shape, features=hr_features)
+        sampler = Sampler(data, **kwargs)
+    else:
+        lr_shape = (hr_shape[0] // 2, hr_shape[1] // 2, hr_shape[2])
+        lr = DummyData(
+            data_shape=lr_shape, features=LR_FEATURES
+        ).data.high_res
+        hr = DummyData(
+            data_shape=hr_shape, features=hr_features
+        ).data.high_res
+        sampler = DualSampler(
+            Sup3rDataset(low_res=lr, high_res=hr),
+            s_enhance=2,
+            t_enhance=1,
+            **kwargs,
+        )
+
+    high_res = _get_hr_batch(sampler)
+    obs = high_res[..., sampler.hr_features_ind[-2:]]
+
+    assert high_res.shape[-1] == len(sampler.hr_source_features)
+    assert np.isfinite(obs[..., :12, :]).all()
+    assert np.isnan(obs[..., 12:, :]).all()

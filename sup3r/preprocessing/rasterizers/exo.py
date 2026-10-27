@@ -153,7 +153,11 @@ class BaseExoRasterizer(ABC):
     def __post_init__(self):
         self._source_data = None
         self._source_handler = None
-        method = _get_derivation_method(self.feature)
+        method = (
+            None
+            if self.feature.lower().endswith('_obs')
+            else _get_derivation_method(self.feature)
+        )
         self._derivation_method = (
             method if hasattr(method, 'inputs') and not method.inputs else None
         )
@@ -169,6 +173,16 @@ class BaseExoRasterizer(ABC):
         self.input_handler = InputHandler(
             self.file_paths, **self.input_handler_kwargs
         )
+        if (
+            self._derivation_method is not None
+            and self._derivation_method.requires_multiple_times
+            and self.hr_shape[-1] == 1
+        ):
+            msg = (
+                f'Cannot derive {self.feature} from a target grid with only '
+                'one timestep.'
+            )
+            raise ValueError(msg)
 
     @property
     def source_handler(self):
@@ -239,7 +253,10 @@ class BaseExoRasterizer(ABC):
             coord: (Dimension.dims_2d(), self.hr_lat_lon[..., i])
             for i, coord in enumerate(Dimension.coords_2d())
         }
-        if self.hr_shape[-1] > 1 and self.feature not in self.STATIC_FEATURES:
+        if (
+            self.feature not in self.STATIC_FEATURES
+            and (self.hr_shape[-1] > 1 or self._derivation_method is not None)
+        ):
             coords[Dimension.TIME] = self.hr_time_index
         return coords
 

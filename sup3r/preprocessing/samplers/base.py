@@ -441,11 +441,13 @@ class Sampler(Container):
         return obs
 
     def _append_obs_features(self, samples):
-        """Append or merge observation features into the batch samples.
+        """Merge observation features into the batch samples.
 
         When real obs are present in the data they are combined with proxy
         obs: real obs values are kept where they are not NaN, and proxy obs
-        fill the remaining locations.
+        fill the remaining locations. The merged values replace sampled real
+        obs channels so the returned feature layout matches
+        ``hr_source_features`` without duplicates.
 
         Parameters
         ----------
@@ -466,11 +468,20 @@ class Sampler(Container):
         if isinstance(samples, tuple):
             hr = samples[-1]
             obs = self._merge_obs(hr)
-            hr = np.concatenate([hr, obs], axis=-1)
+            hr = self._merge_obs_channels(hr, obs)
             return (*samples[:-1], hr)
 
         obs = self._merge_obs(samples)
-        return np.concatenate([samples, obs], axis=-1)
+        return self._merge_obs_channels(samples, obs)
+
+    def _merge_obs_channels(self, samples, obs):
+        """Build the configured feature layout with merged obs channels."""
+        non_obs = [
+            self.hr_sample_features.index(feature)
+            for feature in self.hr_source_features
+            if feature not in self.obs_features
+        ]
+        return np.concatenate([samples[..., non_obs], obs], axis=-1)
 
     def _merge_obs(self, hi_res):
         """Generate merged observation array from proxy and (optionally)

@@ -9,8 +9,6 @@ from datetime import datetime as dt
 from functools import cached_property
 from typing import Callable
 
-import numpy as np
-
 from sup3r.preprocessing.base import Container
 from sup3r.preprocessing.names import FEATURE_NAMES, Dimension
 from sup3r.preprocessing.utilities import (
@@ -91,13 +89,6 @@ class BaseLoader(Container, ABC):
         feature_names = FEATURE_NAMES.copy()
         feature_names.update(feature_aliases)
         data = standardize_names(data, feature_names)
-        data = data.astype(
-            {
-                name: np.float32
-                for name in data.data_vars
-                if name != 'time_feature'
-            }
-        )
         data = data.transpose(*ordered_dims(data.dims), ...)
         features = list(data.dims) if features == [] else features
         self.data = data[features] if features != 'all' else data
@@ -109,19 +100,34 @@ class BaseLoader(Container, ABC):
             logger.debug('Pre-loading data into memory for: %s', features)
             self.data.compute()
 
-    def _parse_chunks(self, dims, feature=None):
-        """Get chunks for given dimensions from ``self.chunks``."""
+    def _parse_chunks(self, dims, feature=None, global_dims=None):
+        """Get chunks for given dimensions from ``self.chunks``.
+
+        Parameters
+        ----------
+        dims : tuple
+            Dimensions of the current variable.
+        feature : str | None
+            Name of the current variable, used to select feature-specific
+            chunk specifications.
+        global_dims : tuple | None
+            Full standardized dataset dimensions used to interpret global
+            positional chunk specifications. Feature-specific positional
+            specifications are interpreted against ``dims``.
+        """
         chunks = copy.deepcopy(self.chunks)
-        if (
+        feature_specific = (
             isinstance(chunks, dict)
             and feature is not None
             and feature in chunks
-        ):
+        )
+        if feature_specific:
             chunks = chunks[feature]
         if isinstance(chunks, dict):
             chunks = {k: v for k, v in chunks.items() if k in dims}
         elif isinstance(chunks, (list, tuple)):
-            chunk_map = dict(zip(ordered_dims(dims), chunks))
+            positional_dims = dims if feature_specific else global_dims or dims
+            chunk_map = dict(zip(ordered_dims(positional_dims), chunks))
             chunks = {dim: chunk_map[dim] for dim in dims if dim in chunk_map}
         return chunks
 
