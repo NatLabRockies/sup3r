@@ -51,7 +51,6 @@ from .loaders import Loader, LoaderH5, LoaderX
 from .names import COORD_NAMES, DIM_NAMES, FEATURE_NAMES, Dimension
 from .rasterizers import (
     BaseExoRasterizer,
-    DerivedFeatureRasterizer,
     DualRasterizer,
     ExoRasterizer,
     ObsRasterizer,

@@ -434,11 +434,13 @@ class Sampler(Container):
         return obs
 
     def _append_obs_features(self, samples):
-        """Append or merge observation features into the batch samples.
+        """Merge observation features into the batch samples.
 
         When real obs are present in the data they are combined with proxy
         obs: real obs values are kept where they are not NaN, and proxy obs
-        fill the remaining locations.
+        fill the remaining locations. The merged values replace sampled real
+        obs channels so the returned feature layout matches
+        ``hr_source_features`` without duplicates.
 
         Parameters
         ----------
@@ -459,11 +461,20 @@ class Sampler(Container):
         if isinstance(samples, tuple):
             hr = samples[-1]
             obs = self._merge_obs(hr)
-            hr = np.concatenate([hr, obs], axis=-1)
+            hr = self._merge_obs_channels(hr, obs)
             return (*samples[:-1], hr)
 
         obs = self._merge_obs(samples)
-        return np.concatenate([samples, obs], axis=-1)
+        return self._merge_obs_channels(samples, obs)
+
+    def _merge_obs_channels(self, samples, obs):
+        """Build the configured feature layout with merged obs channels."""
+        non_obs = [
+            self.hr_sample_features.index(feature)
+            for feature in self.hr_source_features
+            if feature not in self.obs_features
+        ]
+        return np.concatenate([samples[..., non_obs], obs], axis=-1)
 
     def _merge_obs(self, hi_res):
         """Generate merged observation array from proxy and (optionally)
@@ -484,12 +495,9 @@ class Sampler(Container):
             (batch_size, s1, s2, t, n_obs_features).
         """
         proxy = self._get_proxy_obs(hi_res)
-        if not self.real_obs_features:
-            return proxy
-
         merged = proxy.copy()
         for i, feat in enumerate(self.obs_features):
-            if feat in self.real_obs_features:
+            if self.real_obs_features and feat in self.real_obs_features:
                 real_ind = self.hr_sample_features.index(feat)
                 real_vals = hi_res[..., real_ind]
                 valid = ~np.isnan(real_vals)

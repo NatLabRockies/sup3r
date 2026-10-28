@@ -6,6 +6,7 @@ here."""
 
 import logging
 import os
+import re
 from abc import ABC
 from dataclasses import dataclass
 from typing import ClassVar, Optional, Union
@@ -29,6 +30,21 @@ from sup3r.writers import Cacher, OutputHandler
 from ..utilities import get_input_handler_class, log_args
 
 logger = logging.getLogger(__name__)
+
+
+def _get_derivation_method(feature):
+    """Get the exact or pattern-matched derivation method for a feature."""
+    method = RegistryBase.get(feature.lower())
+    if method is not None:
+        return method
+    return next(
+        (
+            method
+            for pattern, method in RegistryBase.items()
+            if re.match(pattern.lower(), feature.lower())
+        ),
+        None,
+    )
 
 
 @dataclass
@@ -137,6 +153,14 @@ class BaseExoRasterizer(ABC):
     def __post_init__(self):
         self._source_data = None
         self._source_handler = None
+        method = (
+            None
+            if self.feature.lower().endswith('_obs')
+            else _get_derivation_method(self.feature)
+        )
+        self._derivation_method = (
+            method if hasattr(method, 'inputs') and not method.inputs else None
+        )
         self._tree = None
         self._hr_lat_lon = None
         self._source_lat_lon = None
@@ -149,6 +173,16 @@ class BaseExoRasterizer(ABC):
         self.input_handler = InputHandler(
             self.file_paths, **self.input_handler_kwargs
         )
+        if (
+            self._derivation_method is not None
+            and self._derivation_method.requires_multiple_times
+            and self.hr_shape[-1] == 1
+        ):
+            msg = (
+                f'Cannot derive {self.feature} from a target grid with only '
+                'one timestep.'
+            )
+            raise ValueError(msg)
 
     @property
     def source_handler(self):
@@ -166,15 +200,20 @@ class BaseExoRasterizer(ABC):
 
     @property
     def source_data(self):
-        """Get the array of exogenous data from the source_files"""
+        """Source-file data or data derived from grid coordinates."""
         if self._source_data is None:
-            self._source_data = self.source_handler[self.feature].data
-            if 'time' not in self.source_handler[self.feature].dims:
-                self._source_data = self._source_data[..., None]
-            elif self.feature in self.STATIC_FEATURES:
-                self._source_data = self._source_data[..., :1]
-            shape = (-1, self._source_data.shape[-1])
-            self._source_data = self._source_data.reshape(shape)
+            if self._derivation_method is not None:
+                ds = Sup3rX(xr.Dataset(coords=self.coords))
+                ds[self.feature] = self._derivation_method.compute(ds)
+                self._source_data = ds
+            else:
+                self._source_data = self.source_handler[self.feature].data
+                if 'time' not in self.source_handler[self.feature].dims:
+                    self._source_data = self._source_data[..., None]
+                elif self.feature in self.STATIC_FEATURES:
+                    self._source_data = self._source_data[..., :1]
+                shape = (-1, self._source_data.shape[-1])
+                self._source_data = self._source_data.reshape(shape)
         return self._source_data
 
     @property
@@ -214,7 +253,10 @@ class BaseExoRasterizer(ABC):
             coord: (Dimension.dims_2d(), self.hr_lat_lon[..., i])
             for i, coord in enumerate(Dimension.coords_2d())
         }
-        if self.hr_shape[-1] > 1 and self.feature not in self.STATIC_FEATURES:
+        if (
+            self.feature not in self.STATIC_FEATURES
+            and (self.hr_shape[-1] > 1 or self._derivation_method is not None)
+        ):
             coords[Dimension.TIME] = self.hr_time_index
         return coords
 
@@ -376,6 +418,12 @@ class BaseExoRasterizer(ABC):
         high-resolution grid (the file_paths input grid * s_enhance *
         t_enhance). The shape is (lats, lons, temporal)
         """
+        if self._derivation_method is not None:
+            data = self.source_data
+            if self.feature in self.STATIC_FEATURES:
+                data = data.squeeze(Dimension.TIME, drop=True)
+            return data
+
         assert len(self.source_data.shape) == 2
 
         if self.source_data.shape[1] == 1:
@@ -545,29 +593,6 @@ class ObsRasterizer(BaseExoRasterizer):
         return hr_data
 
 
-class DerivedFeatureRasterizer(BaseExoRasterizer):
-    """Rasterizer for features that can be derived from lat/lon and time with
-    a method in `RegistryBase`. For example, features like sza that are
-    computed from the lat/lon and time of the high-resolution grid."""
-
-    @property
-    def source_data(self):
-        """Derive the source data from the lat/lon and time of the
-        high-resolution grid."""
-        if self._source_data is None:
-            ds = Sup3rX(xr.Dataset(coords=self.coords))
-            ds[self.feature] = RegistryBase[self.feature.lower()].compute(ds)
-            self._source_data = ds
-        return self._source_data
-
-    def get_data(self):
-        """Pass through for `source_data` to override base class method."""
-        data = self.source_data
-        if self.feature in self.STATIC_FEATURES:
-            data = data.squeeze(Dimension.TIME, drop=True)
-        return data
-
-
 class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):
     """Type agnostic `ExoRasterizer` class."""
 
@@ -580,11 +605,9 @@ class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):
         feature : str
             Name of exogenous feature to rasterize. If the feature name ends
             with '_obs' then the `ObsRasterizer` will be used which is designed
-            for sparse spatiotemporal observation data. If the feature can be
-            derived from just grid variables then the
-            `DerivedFeatureRasterizer` will be used. Otherwise, the
-            `BaseExoRasterizer` will be used which is designed for more dense
-            spatiotemporal data like topography or srl.
+            for sparse spatiotemporal observation data. Otherwise, the
+            `BaseExoRasterizer` will either derive registered features with no
+            inputs or rasterize dense data like topography or srl.
         file_paths : str | list
             Filepaths(s) used to define the grid that the high-resolution
             exogenous data will be mapped onto. This can be either a single h5
@@ -594,14 +617,7 @@ class ExoRasterizer(BaseExoRasterizer, metaclass=Sup3rMeta):
             Filepath(s) to hi-res exogenous data, which will be mapped to the
             enhanced grid of the file_paths input.
         """
-        if feature.lower() in {
-            'sza',
-            'latitude_feature',
-            'longitude_feature',
-            'time_feature',
-        }:
-            ExoClass = DerivedFeatureRasterizer
-        elif feature.lower().endswith('_obs'):
+        if feature.lower().endswith('_obs'):
             ExoClass = ObsRasterizer
         else:
             ExoClass = BaseExoRasterizer

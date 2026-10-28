@@ -33,11 +33,11 @@ def test_get_full_domain_nc():
     with pytest.warns(match='Received some upper case features'):
         assert np.array_equal(
             rasterizer['U_100m'],
-            nc_res['u_100m'].transpose(*dim_order).data.astype(np.float32),
+            nc_res['u_100m'].transpose(*dim_order).data,
         )
         assert np.array_equal(
             rasterizer['V_100m'],
-            nc_res['v_100m'].transpose(*dim_order).data.astype(np.float32),
+            nc_res['v_100m'].transpose(*dim_order).data,
         )
     assert rasterizer.grid_shape == shape
     assert np.array_equal(rasterizer.target, target)
@@ -66,7 +66,6 @@ def test_data_extraction(input_files, shape, target):
     """Test extraction of raw features"""
     rasterizer = Rasterizer(file_paths=input_files, target=target, shape=shape)
     assert rasterizer.shape[:3] == (shape[0], shape[1], rasterizer.shape[2])
-    assert rasterizer.data.dtype == np.dtype(np.float32)
 
 
 def test_topography_h5():

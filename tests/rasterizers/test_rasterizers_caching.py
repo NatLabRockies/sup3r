@@ -63,7 +63,6 @@ def test_data_caching(input_files, ext, shape, target, features, attrs):
 
         good_shape = (shape[0], shape[1], rasterizer.shape[2])
         assert rasterizer.shape[:3] == good_shape
-        assert rasterizer.data.dtype == np.dtype(np.float32)
         loader = Loader(cacher.out_files)
         ldata = loader.data[features][...].compute()
         rdata = rasterizer.data[features][...].compute()

@@ -50,6 +50,21 @@ def test_load_zarr():
         assert np.array_equal(loader.as_array(), gen_loader.as_array())
 
 
+def test_load_preserves_variable_dtypes():
+    """Loader should preserve each variable's cached dtype."""
+    with TemporaryDirectory() as td:
+        out_file = os.path.join(td, 'mixed_dtypes.nc')
+        data = make_fake_dset((10, 10, 5), features=['u_100m', 'v_100m'])
+        data['u_100m'] = data['u_100m'].astype(np.float32)
+        data['v_100m'] = data['v_100m'].astype(np.float64)
+        data.to_netcdf(out_file, format='NETCDF4', engine='h5netcdf')
+
+        loader = LoaderX(out_file)
+
+        assert loader['u_100m'].dtype == np.float32
+        assert loader['v_100m'].dtype == np.float64
+
+
 def test_time_independent_loading():
     """Make sure loaders work with time independent files."""
     with TemporaryDirectory() as td:
@@ -65,6 +80,34 @@ def test_time_independent_loading():
             Dimension.SOUTH_NORTH,
             Dimension.WEST_EAST,
         )
+
+
+def test_positional_chunks_with_mixed_dimensions():
+    """Use one positional chunk specification for 2D and 3D variables."""
+    with TemporaryDirectory() as td:
+        out_file = os.path.join(td, 'mixed_dims.nc')
+        nc = make_fake_dset((10, 12, 14), features=['u_100m'])
+        nc['time_only'] = (Dimension.TIME, np.arange(14))
+        nc['time_bounds'] = (
+            (Dimension.TIME, 'nbnd'),
+            np.arange(28).reshape(14, 2),
+        )
+        nc.to_netcdf(out_file, format='NETCDF4', engine='h5netcdf')
+
+        loader = LoaderX(out_file, chunks=[5, 6, 7])
+
+        assert loader['u_100m'].data.chunksize == (5, 6, 7)
+        assert loader[Dimension.LATITUDE].data.chunksize == (5, 6)
+        assert loader[Dimension.LONGITUDE].data.chunksize == (5, 6)
+        assert loader['time_only'].data.chunksize == (7,)
+        assert loader['time_bounds'].data.chunksize == (7, 2)
+
+        loader = LoaderX(
+            out_file,
+            chunks={'time_only': [4], 'time_bounds': [3, 1]},
+        )
+        assert loader['time_only'].data.chunksize == (4,)
+        assert loader['time_bounds'].data.chunksize == (3, 1)
 
 
 def test_time_independent_loading_h5():

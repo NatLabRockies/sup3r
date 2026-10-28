@@ -485,6 +485,53 @@ def test_input_res_check():
         )
 
 
+def test_temporal_obs_mask_range():
+    """Temporal masking should only modify generator observation inputs."""
+    model = Sup3rGan(
+        pytest.ST_FP_GEN,
+        pytest.ST_FP_DISC,
+        spatial_mask_fraction=1.0,
+        temporal_mask_range=(1, 3),
+    )
+    model.meta['obs_features'] = ['u_100m_obs']
+    obs = tf.ones((1, 2, 2, 4, 1))
+    topo = tf.ones_like(obs)
+
+    masked = model._mask_obs_in_exo(
+        {'u_100m_obs': obs, 'topography': topo}, spatial_mask=False
+    )
+
+    assert tf.reduce_all(tf.math.is_finite(masked['u_100m_obs'][..., 0, :]))
+    assert tf.reduce_all(tf.math.is_nan(masked['u_100m_obs'][..., 1:3, :]))
+    assert tf.reduce_all(tf.math.is_finite(masked['u_100m_obs'][..., 3, :]))
+    tf.debugging.assert_equal(masked['topography'], topo)
+    tf.debugging.assert_equal(obs, tf.ones_like(obs))
+    assert model.model_params['temporal_mask_range'] == (1, 3)
+
+
+def test_spatial_mask_fraction():
+    """Spatial observation masking should be constant across time."""
+    tf.random.set_seed(0)
+    model = Sup3rGan(
+        pytest.ST_FP_GEN,
+        pytest.ST_FP_DISC,
+        spatial_mask_fraction=0.5,
+    )
+    model.meta['obs_features'] = ['u_100m_obs']
+    obs = tf.ones((2, 8, 8, 4, 1))
+
+    masked = model._mask_obs_in_exo({'u_100m_obs': obs})['u_100m_obs']
+    masked_by_time = tf.math.is_nan(masked)[..., 0]
+
+    tf.debugging.assert_equal(
+        masked_by_time,
+        tf.repeat(masked_by_time[..., :1], 4, axis=-1),
+    )
+    assert tf.reduce_any(masked_by_time)
+    assert tf.reduce_any(tf.math.logical_not(masked_by_time))
+    assert model.model_params['spatial_mask_fraction'] == 0.5
+
+
 def test_enhancement_check():
     """Make sure error is raised for invalid enhancement factor inputs"""
 
