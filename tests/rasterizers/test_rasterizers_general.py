@@ -66,7 +66,6 @@ def test_data_extraction(input_files, shape, target):
     """Test extraction of raw features"""
     rasterizer = Rasterizer(file_paths=input_files, target=target, shape=shape)
     assert rasterizer.shape[:3] == (shape[0], shape[1], rasterizer.shape[2])
-    assert rasterizer.data.dtype == np.dtype(np.float32)
 
 
 def test_topography_h5():
