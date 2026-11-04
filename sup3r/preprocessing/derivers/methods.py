@@ -28,6 +28,7 @@ class DerivedFeature(ABC):
     """
 
     inputs: tuple[str, ...] = ()
+    requires_multiple_times = False
 
     @classmethod
     @abstractmethod
@@ -426,7 +427,8 @@ class Longitude(DerivedFeature):
 
 
 class Time(DerivedFeature):
-    """Time feature with latitude and longitude dimensions included."""
+    """Time feature with latitude and longitude dimensions included. float64
+    used for needed precision."""
 
     @classmethod
     def compute(cls, data):
@@ -438,7 +440,28 @@ class Time(DerivedFeature):
         time = time.expand_dims(spatial_dims, axis=(0, 1))
         time = np.repeat(time, data.sizes[spatial_dims[0]], axis=0)
         time = np.repeat(time, data.sizes[spatial_dims[1]], axis=1)
-        return time.astype(np.float32)
+        return time.astype(np.float64)
+
+
+class RelativeTime(DerivedFeature):
+    """Elapsed seconds from the beginning of the dataset."""
+
+    requires_multiple_times = True
+
+    @classmethod
+    def compute(cls, data):
+        """Compute dataset-relative time in seconds."""
+        time = data[Dimension.TIME]
+        relative_time = (time - time.min()) / np.timedelta64(1, 's')
+        spatial_dims = Dimension.dims_2d()
+        relative_time = relative_time.expand_dims(spatial_dims, axis=(0, 1))
+        relative_time = np.repeat(
+            relative_time, data.sizes[spatial_dims[0]], axis=0
+        )
+        relative_time = np.repeat(
+            relative_time, data.sizes[spatial_dims[1]], axis=1
+        )
+        return relative_time.astype(np.float32)
 
 
 class SpatioTemporalEncoding(DerivedFeature):
@@ -552,6 +575,7 @@ RegistryBase = {
     'latitude_feature': Latitude,
     'longitude_feature': Longitude,
     'time_feature': Time,
+    'relative_time_feature': RelativeTime,
     'soy_encoding': SecondOfYearEncoding,
     'sod_encoding': SecondOfDayEncoding,
     'lat_encoding': LatitudeEncoding,

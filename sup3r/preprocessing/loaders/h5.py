@@ -101,9 +101,8 @@ class LoaderH5(BaseLoader):
         dset_chunks = chunks
         if len(chunks) == 3 and len(self._res.h5[dset].shape) == 2:
             dset_chunks = chunks[-len(self._res.h5[dset].shape)]
-        arr = da.asarray(
-            self._res.h5[dset], dtype=np.float32, chunks=dset_chunks
-        )
+        dtype = None if dset.lower() == 'time_feature' else np.float32
+        arr = da.asarray(self._res.h5[dset], dtype=dtype, chunks=dset_chunks)
         arr /= self.scale_factor(dset)
         if len(arr.shape) == 4:
             msg = (
@@ -210,9 +209,7 @@ class LoaderH5(BaseLoader):
             for k, v in self._get_data_vars(dims).items()
             if k not in coords
         }
-        return xr.Dataset(coords=coords, data_vars=data_vars).astype(
-            np.float32
-        )
+        return xr.Dataset(coords=coords, data_vars=data_vars)
 
     def scale_factor(self, feature):
         """Get scale factor for given feature. Data is stored in scaled form to

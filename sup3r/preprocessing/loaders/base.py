@@ -9,8 +9,6 @@ from datetime import datetime as dt
 from functools import cached_property
 from typing import Callable
 
-import numpy as np
-
 from sup3r.preprocessing.base import Container
 from sup3r.preprocessing.names import FEATURE_NAMES, Dimension
 from sup3r.preprocessing.utilities import (
@@ -58,13 +56,15 @@ class BaseLoader(Container, ABC):
             Additional keyword arguments passed through to the ``BaseLoader``.
             BaseLoader is usually xr.open_mfdataset for NETCDF files and
             MultiFileResourceX for H5 files.
-        chunks : dict | str | None
-            Dictionary of chunk sizes to pass through to
+        chunks : dict | list | tuple | str | None
+            Chunk sizes to pass through to
             ``dask.array.from_array()`` or ``xr.Dataset().chunk()``. Will be
-            converted to a tuple when used in ``from_array()``. These are the
-            methods for H5 and NETCDF data, respectively. This argument can
-            be "auto" in additional to a dictionary. If this is None then the
-            data will not be chunked and instead loaded directly into memory.
+            converted to a tuple when used in ``from_array()``. Lists and
+            tuples follow the standard sup3r dimension order and are trimmed
+            for lower-dimensional variables. These are the methods for H5 and
+            NETCDF data, respectively. This argument can also be "auto". If
+            this is None then the data will not be chunked and instead loaded
+            directly into memory.
         feature_aliases : dict
             Optional dictionary of feature aliases to use when loading data.
             This is useful for renaming features to expected sup3r names.
@@ -88,7 +88,7 @@ class BaseLoader(Container, ABC):
         feature_aliases = feature_aliases or {}
         feature_names = FEATURE_NAMES.copy()
         feature_names.update(feature_aliases)
-        data = standardize_names(data, feature_names).astype(np.float32)
+        data = standardize_names(data, feature_names)
         data = data.transpose(*ordered_dims(data.dims), ...)
         features = list(data.dims) if features == [] else features
         self.data = data[features] if features != 'all' else data
@@ -100,17 +100,35 @@ class BaseLoader(Container, ABC):
             logger.debug('Pre-loading data into memory for: %s', features)
             self.data.compute()
 
-    def _parse_chunks(self, dims, feature=None):
-        """Get chunks for given dimensions from ``self.chunks``."""
+    def _parse_chunks(self, dims, feature=None, global_dims=None):
+        """Get chunks for given dimensions from ``self.chunks``.
+
+        Parameters
+        ----------
+        dims : tuple
+            Dimensions of the current variable.
+        feature : str | None
+            Name of the current variable, used to select feature-specific
+            chunk specifications.
+        global_dims : tuple | None
+            Full standardized dataset dimensions used to interpret global
+            positional chunk specifications. Feature-specific positional
+            specifications are interpreted against ``dims``.
+        """
         chunks = copy.deepcopy(self.chunks)
-        if (
+        feature_specific = (
             isinstance(chunks, dict)
             and feature is not None
             and feature in chunks
-        ):
+        )
+        if feature_specific:
             chunks = chunks[feature]
         if isinstance(chunks, dict):
             chunks = {k: v for k, v in chunks.items() if k in dims}
+        elif isinstance(chunks, (list, tuple)):
+            positional_dims = dims if feature_specific else global_dims or dims
+            chunk_map = dict(zip(ordered_dims(positional_dims), chunks))
+            chunks = {dim: chunk_map[dim] for dim in dims if dim in chunk_map}
         return chunks
 
     def _add_attrs(self, data):

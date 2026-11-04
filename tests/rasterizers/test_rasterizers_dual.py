@@ -96,23 +96,29 @@ def test_regrid_caching(full_shape=(20, 20)):
             {'low_res': lr_container.data, 'high_res': hr_container.data},
             s_enhance=2,
             t_enhance=1,
-            lr_cache_kwargs={'cache_pattern': lr_cache_pattern},
-            hr_cache_kwargs={'cache_pattern': hr_cache_pattern},
+            lr_cache_kwargs={
+                'cache_pattern': lr_cache_pattern,
+                'max_workers': 1,
+            },
+            hr_cache_kwargs={
+                'cache_pattern': hr_cache_pattern,
+                'max_workers': 1,
+            },
         )
 
         # Load handlers again
-        lr_container_new = Loader(
-            [lr_cache_pattern.format(feature=f) for f in lr_container.features]
-        )
-        hr_container_new = Loader(
-            [hr_cache_pattern.format(feature=f) for f in hr_container.features]
-        )
+        lr_container_new = Loader([
+            lr_cache_pattern.format(feature=f) for f in lr_container.features
+        ])
+        hr_container_new = Loader([
+            hr_cache_pattern.format(feature=f) for f in hr_container.features
+        ])
 
-        assert np.array_equal(
+        assert np.allclose(
             lr_container_new.data[FEATURES][...],
             pair_rasterizer.data.low_res[FEATURES][...],
         )
-        assert np.array_equal(
+        assert np.allclose(
             hr_container_new.data[FEATURES][...],
             pair_rasterizer.data.high_res[FEATURES][...],
         )

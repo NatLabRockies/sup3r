@@ -111,12 +111,42 @@ def test_derived_data_caching(
             deriver[f].shape == (*shape, deriver.shape[2])
             for f in derive_features
         )
-        assert deriver.data.dtype == np.dtype(np.float32)
 
         loader = DataHandler(cacher.out_files, features=derive_features)
+        assert all(
+            loader[feature].dtype == deriver[feature].dtype
+            for feature in derive_features
+        )
         loaded = loader.as_array().compute()
         derived = deriver.as_array().compute()
         assert np.array_equal(loaded, derived)
+
+
+@pytest.mark.parametrize('ext', ['h5', 'nc'])
+def test_time_feature_cache_round_trip(ext):
+    """Cached time features preserve their full precision."""
+    with tempfile.TemporaryDirectory() as td:
+        cache_pattern = os.path.join(td, 'cached_{feature}.' + ext)
+        deriver = DataHandler(
+            pytest.FP_WTK,
+            features=['time_feature'],
+            time_slice=slice(0, 5),
+            shape=shape,
+            target=target,
+        )
+        cacher = Cacher(
+            deriver.data,
+            cache_kwargs={
+                'cache_pattern': cache_pattern,
+                'max_workers': 1,
+            },
+        )
+        loader = DataHandler(cacher.out_files, features=['time_feature'])
+
+        derived = deriver['time_feature'].values
+        loaded = loader['time_feature'].values
+        assert loaded.dtype == np.float64
+        np.testing.assert_array_equal(loaded, derived)
 
 
 @pytest.mark.parametrize(
@@ -162,9 +192,12 @@ def test_caching_with_dh_loading(
             deriver[f].shape == (*shape, deriver.shape[2])
             for f in derive_features
         )
-        assert deriver.data.dtype == np.dtype(np.float32)
 
         loader = DataHandler(cacher.out_files, features=derive_features)
+        assert all(
+            loader[feature].dtype == deriver[feature].dtype
+            for feature in derive_features
+        )
         assert np.array_equal(
             loader.as_array().compute(), deriver.as_array().compute()
         )

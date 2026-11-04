@@ -119,6 +119,24 @@ def test_proxy_obs_fraction_bounds_with_ranges(sampler_cls):
 
 
 @pytest.mark.parametrize('sampler_cls', [Sampler, DualSampler])
+def test_proxy_obs_full_temporal_range(sampler_cls):
+    """Proxy observation targets should span the complete temporal sample."""
+    sampler = _make_sampler(
+        sampler_cls=sampler_cls,
+        hr_shape=(20, 20, 240),
+        sample_shape=(10, 10, 24),
+        batch_size=4,
+        proxy_obs_kwargs={
+            'onshore_obs_frac': {'spatial': 1.0, 'temporal': 1.0},
+        },
+    )
+
+    obs = _get_hr_batch(sampler)[..., -2:]
+
+    assert np.isfinite(obs).all()
+
+
+@pytest.mark.parametrize('sampler_cls', [Sampler, DualSampler])
 def test_proxy_obs_onshore_offshore_topography_fractions(sampler_cls):
     """Onshore and offshore obs fractions are applied by topography mask."""
     sampler = _make_sampler(
@@ -245,3 +263,47 @@ def test_merge_real_and_proxy_obs(sampler_cls):
     # With 50% proxy coverage + real obs in ~half the domain,
     # total coverage should exceed 50%
     assert observed_frac > 0.5
+
+
+@pytest.mark.parametrize('sampler_cls', [Sampler, DualSampler])
+def test_real_obs_replaces_source_channels(sampler_cls):
+    """Full-period merged obs replace source channels without duplication."""
+    hr_shape = (20, 20, 240)
+    hr_features = [*LR_FEATURES, *OBS_FEATURES]
+    feature_sets = {
+        'lr_features': LR_FEATURES,
+        'hr_out_features': HR_OUT_FEATURES,
+        'hr_exo_features': OBS_FEATURES,
+    }
+    kwargs = {
+        'sample_shape': (10, 10, 24),
+        'batch_size': 4,
+        'proxy_obs_kwargs': {
+            'onshore_obs_frac': {'spatial': 1.0, 'temporal': 1.0},
+        },
+        'feature_sets': feature_sets,
+    }
+
+    if sampler_cls is Sampler:
+        data = DummyData(data_shape=hr_shape, features=hr_features)
+        sampler = Sampler(data, **kwargs)
+    else:
+        lr_shape = (hr_shape[0] // 2, hr_shape[1] // 2, hr_shape[2])
+        lr = DummyData(
+            data_shape=lr_shape, features=LR_FEATURES
+        ).data.high_res
+        hr = DummyData(
+            data_shape=hr_shape, features=hr_features
+        ).data.high_res
+        sampler = DualSampler(
+            Sup3rDataset(low_res=lr, high_res=hr),
+            s_enhance=2,
+            t_enhance=1,
+            **kwargs,
+        )
+
+    high_res = _get_hr_batch(sampler)
+    obs = high_res[..., sampler.hr_features_ind[-2:]]
+
+    assert high_res.shape[-1] == len(sampler.hr_source_features)
+    assert np.isfinite(obs).all()

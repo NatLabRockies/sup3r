@@ -55,6 +55,7 @@ class Sup3rGanDC(Sup3rGan):
                 len(batch_handler.val_data),
             )
             hi_res_exo = self.get_hr_exo_input(batch.high_res)
+            hi_res_exo = self._mask_obs_in_exo(hi_res_exo)
             hi_res_gen = self._tf_generate(batch.low_res, hi_res_exo)
             loss, loss_details = self.calc_loss(
                 batch.high_res,

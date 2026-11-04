@@ -16,6 +16,7 @@ from sup3r.preprocessing import (
     ExoDataHandler,
     ExoRasterizer,
 )
+from sup3r.preprocessing.rasterizers.exo import ObsRasterizer
 from sup3r.utilities.pytest.helpers import make_fake_dset
 from sup3r.utilities.utilities import RANDOM_GENERATOR, xr_open_mfdataset
 from sup3r.writers import RexOutputs
@@ -40,6 +41,7 @@ def test_exo_data_init():
         'latitude_feature',
         'longitude_feature',
         'time_feature',
+        'relative_time_feature'
     ],
 )
 def test_exo_cache(feature):
@@ -340,6 +342,60 @@ def test_topo_extraction_nc():
 
 
 @pytest.mark.parametrize(
+    ('feature', 'expected_class', 'is_derived'),
+    [
+        ('relative_time_feature', BaseExoRasterizer, True),
+        ('soy_encoding', BaseExoRasterizer, True),
+        ('windspeed_100m', BaseExoRasterizer, False),
+        ('u_10m_obs', ObsRasterizer, False),
+        ('sza_obs', ObsRasterizer, False),
+        ('topography', BaseExoRasterizer, False),
+    ],
+)
+def test_exo_rasterizer_selection(feature, expected_class, is_derived):
+    """Select rasterizers from feature dependencies and observation names."""
+    rasterizer = ExoRasterizer(
+        file_paths=pytest.FP_WRF,
+        source_files=pytest.FP_WRF,
+        feature=feature,
+        t_enhance=2,
+    )
+    assert isinstance(rasterizer, expected_class)
+    assert (rasterizer._derivation_method is not None) is is_derived
+
+
+def test_relative_time_requires_multiple_timesteps():
+    """Relative time rejects a single-timestep target grid."""
+    with TemporaryDirectory() as td:
+        target = make_fake_dset((8, 8, 1), ['temperature_2m'])
+        target.to_netcdf(f'{td}/target.nc')
+
+        with pytest.raises(ValueError, match='only one timestep'):
+            ExoRasterizer(
+                file_paths=f'{td}/target.nc',
+                feature='relative_time_feature',
+            )
+
+
+@pytest.mark.parametrize(
+    'feature', ['time_feature', 'sod_encoding', 'soy_encoding']
+)
+def test_temporal_derivation_single_timestep(feature):
+    """Temporal features other than relative time support one timestep."""
+    with TemporaryDirectory() as td:
+        target = make_fake_dset((8, 8, 1), ['temperature_2m'])
+        target.to_netcdf(f'{td}/target.nc')
+
+        data = ExoRasterizer(
+            file_paths=f'{td}/target.nc',
+            feature=feature,
+        ).data
+
+        assert data[feature].shape == (8, 8, 1)
+        assert len(data[Dimension.TIME]) == 1
+
+
+@pytest.mark.parametrize(
     ['s_enhance', 'with_nans'],
     [
         (1, False),
@@ -392,3 +448,29 @@ def test_obs_agg(s_enhance, with_nans):
         )
         mask = np.isnan(agg_obs) | np.isnan(true_obs)
         assert np.allclose(agg_obs[~mask], true_obs[~mask], rtol=0.01)
+
+
+def test_sza_obs_uses_observation_rasterization():
+    """SZA observations should be rasterized instead of derived."""
+    with TemporaryDirectory() as td:
+        source = make_fake_dset(
+            (8, 8, 1),
+            ['sza'],
+            lat_range=(20, 24),
+            lon_range=(-120, -116),
+        )
+        target = source.sx.coarsen(
+            {'south_north': 4, 'west_east': 4}
+        ).mean()
+        source.to_netcdf(f'{td}/hr.nc')
+        target.to_netcdf(f'{td}/lr.nc')
+
+        rasterizer = ExoRasterizer(
+            file_paths=f'{td}/lr.nc',
+            source_files=f'{td}/hr.nc',
+            feature='sza_obs',
+            s_enhance=4,
+        )
+
+        assert rasterizer._derivation_method is None
+        assert rasterizer.data['sza_obs'].shape == (8, 8)
