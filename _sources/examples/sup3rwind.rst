@@ -1,0 +1,1 @@
+.. include:: ../../../examples/sup3rwind/README.rst
