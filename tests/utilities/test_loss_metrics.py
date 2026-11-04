@@ -11,9 +11,10 @@ from sup3r import CONFIG_DIR
 from sup3r.models import Sup3rGan
 from sup3r.utilities.loss_metrics import (
     CoarseMseLoss,
-    GeothermalConductiveHeatTransferLoss,
     GeothermalMohoBCLoss,
+    GeothermalNonnegativeHeatProductionLoss,
     GeothermalPositiveTemperatureGradientLoss,
+    GeothermalSurfaceHeatFluxLoss,
     LowResLoss,
     MaterialDerivativeLoss,
     MmdLoss,
@@ -21,6 +22,7 @@ from sup3r.utilities.loss_metrics import (
     SpatialExtremesLoss,
     SpatiotemporalFftLoss,
     TemporalExtremesLoss,
+    _reshape_depth_feature_for_vertical_derivative,
     tf_derivative,
 )
 from sup3r.utilities.utilities import (
@@ -367,97 +369,243 @@ def test_multiterm_loss():
     assert np.allclose(0.2 * md_loss(x, y) + 0.8 * mae_loss(x, y), loss)
 
 
-def test_geothermal_heat_transfer_loss_depth_intersection_and_errors():
-    """Test geothermal heat transfer depth validation and input errors."""
+@pytest.mark.parametrize('shape', [(2, 4, 5), (2, 4, 5, 1), (2, 4, 5, 3)])
+def test_geothermal_surface_heat_flux_loss(shape):
+    """Check surface flux units, signs, and independence of lateral slopes."""
+    loss_obj = GeothermalSurfaceHeatFluxLoss()
+    coordinates = np.arange(np.prod(shape), dtype=np.float32).reshape(shape)
+    surface_temperature = 10 + coordinates / 2
+    deep_temperature = surface_temperature + 20
+    conductivity = 2 + coordinates / 100
+    heat_flux = conductivity * 20
+    predictions = np.stack(
+        [surface_temperature, deep_temperature, conductivity, heat_flux],
+        axis=-1,
+    )
+    assert np.isclose(
+        loss_obj(np.zeros_like(predictions), predictions), 0, atol=1e-8
+    )
 
-    with pytest.raises(AssertionError):
-        GeothermalConductiveHeatTransferLoss(dx=1, dy=1, depths=[0])
-
-    with pytest.raises(AssertionError):
-        GeothermalConductiveHeatTransferLoss(dx=1, dy=1, depths=[1000, 2000])
-
-    with pytest.raises(AssertionError):
-        GeothermalConductiveHeatTransferLoss(
-            dx=1, dy=1, depths=[0, 1000, 3000]
+    for offset in (-25.0, 25.0):
+        perturbed = predictions.copy()
+        perturbed[..., -1] += offset
+        assert np.isclose(
+            loss_obj(np.zeros_like(perturbed), perturbed), offset**2
         )
 
-    loss_obj = GeothermalConductiveHeatTransferLoss(
-        dx=1, dy=1, depths=[0, 1000, 2000]
+
+def test_geothermal_surface_heat_flux_features_and_gradients():
+    """Check feature selection, depth spacing, and trainable residuals."""
+    loss_obj = GeothermalSurfaceHeatFluxLoss(
+        depths=[3000, 0, 500],
+        temperature_prefix='temperature',
+        heat_flux_prefix='flux',
+        thermal_conductivity_prefix='conductivity',
     )
-    with pytest.raises(ValueError):
-        loss_obj(np.zeros((2, 4, 6)), np.zeros((2, 4, 6)))
+    assert loss_obj.gen_features == [
+        'temperature_0m',
+        'temperature_500m',
+        'conductivity_0m',
+        'flux_0m',
+    ]
+    assert loss_obj.true_features == loss_obj.gen_features
+    predictions = tf.Variable([[[[10.0, 20.0, 2.0, 50.0]]]])
+    with tf.GradientTape() as tape:
+        loss = loss_obj(tf.zeros_like(predictions), predictions)
+    gradients = tape.gradient(loss, predictions)
+    assert np.isclose(loss, 100)
+    assert gradients is not None
+    assert np.all(np.isfinite(gradients))
+    assert np.all(gradients.numpy() != 0)
 
 
-def test_geothermal_heat_transfer_loss():
-    """Test heat transfer loss on synthetic data."""
+@pytest.mark.parametrize(
+    'depths',
+    [[], [0], [1000, 2000], [-1000, 0], [0, 0], [0, np.nan], [0, np.inf]],
+)
+def test_geothermal_surface_heat_flux_invalid_depths(depths):
+    """Reject depths that cannot define a finite surface derivative."""
+    with pytest.raises(AssertionError):
+        GeothermalSurfaceHeatFluxLoss(depths=depths)
 
-    depths = [0, 1, 2]
-    dx = dy = 1.0
-    loss_obj = GeothermalConductiveHeatTransferLoss(
-        dx=dx, dy=dy, depths=depths
-    )
 
-    batch = 2
-    s1 = 8
-    s2 = 8
-    x = np.arange(s1, dtype=np.float32)[np.newaxis, :, np.newaxis]
-    y = np.arange(s2, dtype=np.float32)[np.newaxis, np.newaxis, :]
+@pytest.mark.parametrize('shape', [(2, 4, 4), (2, 4, 5, 1, 1, 4)])
+def test_geothermal_surface_heat_flux_invalid_rank(shape):
+    """Require spatial or spatiotemporal feature tensors."""
+    predictions = np.zeros(shape, dtype=np.float32)
+    with pytest.raises(ValueError, match='4D or 5D'):
+        GeothermalSurfaceHeatFluxLoss()(predictions, predictions)
 
-    k_const = 2.0
-    t_slope_z = 0.01
-    t_slope_x = 0.1
-    t_slope_y = 0.2
-    conductive_flux = k_const * (t_slope_x + t_slope_y + t_slope_z)
-    q_const = conductive_flux * 1000
 
-    tensors = []
-    for depth in depths:
-        temp = (
-            t_slope_x * x
-            + t_slope_y * y
-            + t_slope_z * depth
-            + np.zeros((batch, s1, s2), dtype=np.float32)
+@pytest.mark.parametrize('n_times', [None, 1, 3])
+def test_reshape_depth_feature_for_vertical_derivative(n_times):
+    """Preserve each observation's spatial grid and ordered time slices."""
+    shape = (2, 3, 4, 5) if n_times is None else (2, 3, 4, n_times, 5)
+    values = np.arange(np.prod(shape), dtype=np.float32).reshape(shape)
+    expected = values
+    if n_times is not None:
+        expected = np.stack(
+            [
+                values[observation, :, :, time, :]
+                for observation in range(shape[0])
+                for time in range(n_times)
+            ]
         )
-        tensors.append(temp)
-
-        k = k_const + np.zeros((batch, s1, s2), dtype=np.float32)
-        tensors.append(k)
-
-    q = q_const + np.zeros((batch, s1, s2), dtype=np.float32)
-    tensors.append(q)
-
-    x_gen = np.stack(tensors, axis=-1)
-    x_true = np.zeros_like(x_gen)
-
-    loss_ref = loss_obj(x_true, x_gen).numpy()
-    assert np.isclose(loss_ref, 0.0, atol=1e-7)
-
-    x_gen_perturbed = x_gen.copy()
-    q_offset_idx = 2 * len(depths)
-    x_gen_perturbed[..., q_offset_idx] += 1000.0
-    loss_perturbed = loss_obj(x_true, x_gen_perturbed).numpy()
-
-    assert loss_perturbed > loss_ref
+    reshape = tf.function(_reshape_depth_feature_for_vertical_derivative)
+    actual = reshape(tf.constant(values))
+    np.testing.assert_array_equal(actual, expected)
 
 
-def test_geothermal_heat_transfer_loss_errors():
-    """Test depth behavior and expected validation errors"""
-
-    dx = dy = 1.0
-    with pytest.raises(AssertionError):
-        GeothermalConductiveHeatTransferLoss(dx=dx, dy=dy, depths=[0])
-
-    with pytest.raises(AssertionError):
-        GeothermalConductiveHeatTransferLoss(dx=dx, dy=dy, depths=[1, 2])
-
-    with pytest.raises(AssertionError):
-        GeothermalConductiveHeatTransferLoss(dx=dx, dy=dy, depths=[1, 2, 5])
-
-    loss_obj = GeothermalConductiveHeatTransferLoss(
-        dx=dx, dy=dy, depths=[0, 1, 2, 3]
+@pytest.mark.parametrize('axis', [0, 1, 2])
+@pytest.mark.parametrize('conductivity_slope', [-0.001, 0.0, 0.001])
+def test_geothermal_nonnegative_production_loss(axis, conductivity_slope):
+    """Check source sign, units, and variable conductivity on each axis."""
+    spacings = (1000, 2000, 500)
+    depths = [0, 500, 1000, 1500, 2000]
+    loss_obj = GeothermalNonnegativeHeatProductionLoss(
+        dx=spacings[1], dy=spacings[0], depths=depths
     )
-    with pytest.raises(ValueError):
-        loss_obj(np.zeros((2, 4, 6)), np.zeros((2, 4, 6)))
+    coordinates = np.indices((5, 5, 5), dtype=np.float32)[axis]
+    coordinates *= spacings[axis]
+    temperature = 10 + 0.02 * coordinates
+    conductivity = 20 + conductivity_slope * coordinates
+    predictions = np.stack([temperature, conductivity], axis=-1)
+    predictions = predictions.reshape(1, 5, 5, -1)
+    expected_production = -1000 * 0.02 * conductivity_slope
+    production = loss_obj._compute_heat_production(tf.constant(predictions))
+    np.testing.assert_allclose(production, expected_production, atol=1e-7)
+    assert np.isclose(
+        loss_obj(np.zeros_like(predictions), predictions),
+        max(-expected_production, 0) ** 2,
+        atol=1e-10,
+    )
+
+
+@pytest.mark.parametrize('n_times', [None, 1, 3])
+def test_geothermal_nonnegative_production_divergence(n_times):
+    """Sum signed 3D terms before penalizing, independently at each time."""
+    depths = [0, 500, 1000, 1500, 2000]
+    loss_obj = GeothermalNonnegativeHeatProductionLoss(
+        dx=2000, dy=1000, depths=depths
+    )
+    north, east, depth = np.indices((5, 5, 5), dtype=np.float32)
+    north *= 1000
+    east *= 2000
+    depth *= 500
+    temperature = 10 + 0.01 * (north + east + depth)
+    conductivity = 20 - 0.001 * north + 0.002 * east - 0.002 * depth
+    predictions = np.stack([temperature, conductivity], axis=-1)
+    predictions = predictions.reshape(1, 5, 5, -1)
+    predictions = np.repeat(predictions, 2, axis=0)
+    predictions[1, ..., ::2] *= 2
+    if n_times is not None:
+        predictions = np.repeat(predictions[..., None, :], n_times, axis=3)
+        predictions[..., ::2] *= np.arange(1, n_times + 1)[
+            None, None, None, :, None
+        ]
+
+    production = loss_obj._compute_heat_production(tf.constant(predictions))
+    expected = np.full((2, 5, 5, 5), 0.01, dtype=np.float32)
+    expected[1] *= 2
+    if n_times is not None:
+        expected = np.repeat(expected[..., None, :], n_times, axis=3)
+        expected *= np.arange(1, n_times + 1)[None, None, None, :, None]
+    np.testing.assert_allclose(production, expected, atol=1e-7)
+    assert np.isclose(loss_obj(np.zeros_like(predictions), predictions), 0)
+
+    predictions[..., ::2] *= -1
+    assert np.isclose(
+        loss_obj(np.zeros_like(predictions), predictions),
+        np.mean(expected**2),
+    )
+
+
+def test_geothermal_nonnegative_production_curvature_and_gradients():
+    """Check temperature curvature, feature ordering, and backpropagation."""
+    loss_obj = GeothermalNonnegativeHeatProductionLoss(
+        dx=2000,
+        dy=1000,
+        depths=[3000, 1000, 2000, 1500, 2500],
+        temperature_prefix='temperature',
+        thermal_conductivity_prefix='conductivity',
+    )
+    depths = np.arange(1000, 3500, 500)
+    assert loss_obj.gen_features == [
+        feature
+        for depth in depths
+        for feature in (f'temperature_{depth}m', f'conductivity_{depth}m')
+    ]
+    assert loss_obj.true_features == loss_obj.gen_features
+    temperature = np.broadcast_to(10 + 1e-5 * depths**2, (2, 5, 5, 5))
+    conductivity = np.full_like(temperature, 2)
+    predictions = np.stack([temperature, conductivity], axis=-1)
+    predictions = tf.Variable(
+        predictions.reshape(2, 5, 5, -1), dtype=tf.float32
+    )
+    expected = -0.04 * np.array([0.5, 0.75, 1.0, 0.75, 0.5])
+    production = loss_obj._compute_heat_production(predictions)
+    np.testing.assert_allclose(
+        production, np.broadcast_to(expected, (2, 5, 5, 5)), atol=1e-7
+    )
+    with tf.GradientTape() as tape:
+        loss = loss_obj(tf.zeros_like(predictions), predictions)
+    gradients = tape.gradient(loss, predictions)
+    assert np.isclose(loss, np.mean(expected**2))
+    assert gradients is not None
+    assert np.all(np.isfinite(gradients))
+    assert np.any(gradients.numpy()[..., ::2] != 0)
+    assert np.any(gradients.numpy()[..., 1::2] != 0)
+    negative_curvature = predictions.numpy()
+    negative_curvature[..., ::2] *= -1
+    assert np.isclose(loss_obj(negative_curvature, negative_curvature), 0)
+
+
+@pytest.mark.parametrize(
+    'depths',
+    [
+        [],
+        [0],
+        [0, 1000],
+        [-1000, 0, 1000],
+        [0, 0, 0],
+        [0, 1000, 3000],
+        [0, 1000, np.nan],
+        [0, 1000, np.inf],
+    ],
+)
+def test_geothermal_nonnegative_production_invalid_depths(depths):
+    """Reject depth grids that cannot resolve the source divergence."""
+    with pytest.raises(AssertionError):
+        GeothermalNonnegativeHeatProductionLoss(dx=1, dy=1, depths=depths)
+
+
+@pytest.mark.parametrize('spacing', [0, -1, np.nan, np.inf])
+@pytest.mark.parametrize('axis', ['dx', 'dy'])
+def test_geothermal_nonnegative_production_invalid_spacing(axis, spacing):
+    """Require finite, positive horizontal grid spacing."""
+    kwargs = {'dx': 1, 'dy': 1, axis: spacing}
+    with pytest.raises(AssertionError, match='finite and positive'):
+        GeothermalNonnegativeHeatProductionLoss(**kwargs)
+
+
+@pytest.mark.parametrize('shape', [(2, 4, 6), (2, 4, 5, 1, 1, 6)])
+def test_geothermal_nonnegative_production_invalid_rank(shape):
+    """Require 4D or 5D predictions."""
+    predictions = np.zeros(shape, dtype=np.float32)
+    loss_obj = GeothermalNonnegativeHeatProductionLoss(dx=1, dy=1)
+    with pytest.raises(ValueError, match='4D or 5D'):
+        loss_obj(predictions, predictions)
+
+
+@pytest.mark.parametrize('shape', [(1, 2, 4, 6), (1, 4, 2, 1, 6)])
+def test_geothermal_nonnegative_production_invalid_spatial_shape(shape):
+    """Reject spatial grids too small for temperature curvature."""
+    predictions = np.zeros(shape, dtype=np.float32)
+    loss_obj = GeothermalNonnegativeHeatProductionLoss(
+        dx=1, dy=1, depths=[0, 1, 2]
+    )
+    with pytest.raises(tf.errors.InvalidArgumentError, match='three spatial'):
+        loss_obj(predictions, predictions)
 
 
 def test_geothermal_temp_grad_loss_depth_intersection_and_errors():

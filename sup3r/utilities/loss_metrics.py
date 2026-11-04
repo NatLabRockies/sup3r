@@ -1,6 +1,7 @@
 """Content loss metrics for Sup3r"""
 
 from typing import ClassVar
+from warnings import warn
 
 import numpy as np
 import tensorflow as tf
@@ -892,18 +893,27 @@ class MaterialDerivativeLoss(Sup3rLoss):
         x_true = _assert_rank_in(x_true, (5,), msg)
         x_gen = _assert_rank_in(x_gen, (5,), msg)
 
-        x_true_div = tf.stack([
-            self._compute_md(x_true, feature) for feature in self.gen_features
-        ])
-        x_gen_div = tf.stack([
-            self._compute_md(x_gen, feature) for feature in self.gen_features
-        ])
+        x_true_div = tf.stack(
+            [
+                self._compute_md(x_true, feature)
+                for feature in self.gen_features
+            ]
+        )
+        x_gen_div = tf.stack(
+            [self._compute_md(x_gen, feature) for feature in self.gen_features]
+        )
 
         return self.LOSS_METRIC(x_true_div, x_gen_div)
 
 
-class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
-    """Deviation from three-dimensional conductive heat transfer.
+class _GeothermalConductiveHeatTransferLoss(Sup3rLoss):
+    """DO NOT USE
+
+    This class implements equation 10 from Aljubran et al. 2024, but
+    that equation has known flaws. Therefore, this implementation,
+    though it follows the paper, should not be used.
+
+    Deviation from three-dimensional conductive heat transfer.
 
     This loss evaluates the conductive heat-transfer PDE residual described in
     [1] using predicted temperature, thermal conductivity, and surface heat
@@ -957,6 +967,18 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
             Prefix used for thermal-conductivity channels in W/m-K. Expected
             feature names are ``<thermal_conductivity_prefix>_<depth>m``.
         """
+        warn(
+            '_GeothermalConductiveHeatTransferLoss is deprecated and should '
+            'not be used: its equation 10 formulation has known physical '
+            'flaws. Use GeothermalSurfaceHeatFluxLoss for surface Fourier-law '
+            'consistency and, where appropriate, '
+            'GeothermalNonnegativeHeatProductionLoss for compatibility with '
+            'nonnegative production. These are not equivalent replacements '
+            'for the original residual.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         self.t_inds, self.q_inds, self.k_inds = [], [], []
         self.dx, self.dy = dx, dy
 
@@ -1012,9 +1034,9 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
 
     def _get_feature_tensors(self, x):
         """Extract temperature, surface heat-flow, and conductivity tensors"""
-        t = tf.stack([x[..., i] for i in self.t_inds], axis=-1)
-        q = tf.stack([x[..., i] for i in self.q_inds], axis=-1)
-        k = tf.stack([x[..., i] for i in self.k_inds], axis=-1)
+        t = tf.gather(x, self.t_inds, axis=-1)
+        q = tf.gather(x, self.q_inds, axis=-1)
+        k = tf.gather(x, self.k_inds, axis=-1)
         return t, q, k
 
     def _compute_heat_transfer_residual(self, x):
@@ -1087,6 +1109,258 @@ class GeothermalConductiveHeatTransferLoss(Sup3rLoss):
         return self.LOSS_METRIC(tf.zeros_like(expr), expr)
 
 
+class GeothermalSurfaceHeatFluxLoss(Sup3rLoss):
+    """Surface Fourier-law consistency for geothermal predictions.
+
+    Penalize ``1000 * k_0 * (t_1 - t_0) / dz - q_0`` with mean squared
+    error. Depth is positive downward and surface heat flux is positive
+    upward. Temperature is in C, conductivity in W/m-K, and heat flux in
+    mW/m^2. The factor of 1000 converts conductivity to mW/m-K.
+
+    Only the two shallowest temperature channels, surface conductivity,
+    and surface heat flux are required. This loss does not constrain
+    interior heat production or horizontal conductive flux.
+    """
+
+    LOSS_METRIC = MeanSquaredError()
+
+    def __init__(
+        self,
+        depths=(0, 1000),
+        temperature_prefix='t',
+        heat_flux_prefix='q',
+        thermal_conductivity_prefix='k',
+    ):
+        """Initialize the surface heat-flux loss.
+
+        Parameters
+        ----------
+        depths : iterable of int, optional
+            Distinct, finite, nonnegative depth levels in m, including 0 m
+            and at least one deeper level. The two shallowest levels are
+            used for a first-order forward difference at the surface.
+            Additional levels do not require additional feature channels.
+        temperature_prefix : str, optional
+            Prefix for temperature features named ``<prefix>_<depth>m``.
+        heat_flux_prefix : str, optional
+            Prefix for the surface heat-flux feature ``<prefix>_0m``.
+        thermal_conductivity_prefix : str, optional
+            Prefix for the surface conductivity feature ``<prefix>_0m``.
+        """
+        depths = self._validate_depths(depths)
+        self.dz = float(depths[1] - depths[0])
+        self.t_inds, self.k_inds, self.q_inds = [0, 1], [2], [3]
+        gen_features = [
+            f'{temperature_prefix}_{depth}m' for depth in depths[:2]
+        ]
+        gen_features.extend(
+            [
+                f'{thermal_conductivity_prefix}_0m',
+                f'{heat_flux_prefix}_0m',
+            ]
+        )
+        super().__init__(gen_features=gen_features, true_features=None)
+
+    @staticmethod
+    def _validate_depths(depths):
+        """Validate depth input"""
+        depths = sorted(depths)
+        assert len(depths) >= 2, (
+            'GeothermalSurfaceHeatFluxLoss requires at least two depths.'
+        )
+        assert np.all(np.isfinite(depths)) and depths[0] == 0, (
+            'GeothermalSurfaceHeatFluxLoss requires finite, nonnegative '
+            'depths starting at 0 m.'
+        )
+        assert np.all(np.diff(depths) > 0), (
+            'GeothermalSurfaceHeatFluxLoss requires distinct depth levels.'
+        )
+
+        return depths
+
+    def _compute_surface_heat_flux_residual(self, x_gen):
+        """Compute the surface residual in mW/m^2 without time reshaping."""
+        temperature = tf.gather(x_gen, self.t_inds, axis=-1)
+        conductivity = tf.gather(x_gen, self.k_inds, axis=-1) * 1000
+        heat_flux = tf.gather(x_gen, self.q_inds, axis=-1)
+        gradient = (temperature[..., 1:] - temperature[..., :1]) / tf.cast(
+            self.dz, x_gen.dtype
+        )
+        return conductivity * gradient - heat_flux
+
+    @tf.function
+    def call(self, __, x_gen):
+        """Evaluate mean squared surface heat-flux residual.
+
+        Parameters
+        ----------
+        x_true : tf.tensor
+            Ground truth data (unused).
+        x_gen : tf.tensor
+            Predictions ordered according to ``gen_features``, shaped
+            (n_observations, spatial_1, spatial_2, features) or
+            (n_observations, spatial_1, spatial_2, temporal, features).
+
+        Returns
+        -------
+        tf.tensor
+            Scalar loss in squared mW/m^2 units.
+        """
+        msg = (
+            f'The {self.__class__.__name__} is meant to be used on spatial '
+            'or spatiotemporal data only. Received tensor(s) that are not '
+            '4D or 5D'
+        )
+        x_gen = _assert_rank_in(x_gen, (4, 5), msg)
+        residual = self._compute_surface_heat_flux_residual(x_gen)
+        return self.LOSS_METRIC(tf.zeros_like(residual), residual)
+
+
+class GeothermalNonnegativeHeatProductionLoss(Sup3rLoss):
+    """Compatibility with nonnegative heat production under steady conduction.
+
+    Infer heat production as ``H = -div(k * grad(T))`` and penalize
+    ``max(-H, 0)`` with mean squared error. This permits any nonnegative
+    source; it does not assume zero production or constrain its magnitude.
+    The full three-dimensional divergence includes variable conductivity.
+
+    Temperature is in C, conductivity in W/m-K, and grid spacing in m.
+    Conductivity is converted to mW/m-K, giving inferred production in
+    mW/m^3. This is a steady, isotropic, conduction-only prior; advection
+    and transient heat storage are not represented. Conductivity must be
+    constrained to physical values separately. No heat-flux channel or
+    observed heat-production data is required.
+    """
+
+    LOSS_METRIC = MeanSquaredError()
+
+    def __init__(
+        self,
+        dx,
+        dy,
+        depths=range(0, 8000, 1000),
+        temperature_prefix='t',
+        thermal_conductivity_prefix='k',
+    ):
+        """Initialize the nonnegative heat-production loss.
+
+        Parameters
+        ----------
+        dx : float
+            Finite, positive spacing along spatial axis 2 in m.
+        dy : float
+            Finite, positive spacing along spatial axis 1 in m.
+        depths : iterable of int, optional
+            At least three distinct, finite, nonnegative depth levels in m.
+            Levels are sorted and must be uniformly spaced, but need not
+            start at the surface. Each requires temperature and conductivity.
+        temperature_prefix : str, optional
+            Prefix for temperature features named ``<prefix>_<depth>m``.
+        thermal_conductivity_prefix : str, optional
+            Prefix for conductivity features named ``<prefix>_<depth>m``.
+        """
+        assert np.isfinite(dx) and dx > 0, 'dx must be finite and positive.'
+        assert np.isfinite(dy) and dy > 0, 'dy must be finite and positive.'
+        depths = self._validate_depths(depths)
+        self.dx, self.dy = float(dx), float(dy)
+        self.dz = float(depths[1] - depths[0])
+        self.t_inds, self.k_inds = [], []
+        gen_features = []
+        for depth in depths:
+            self.t_inds.append(len(gen_features))
+            gen_features.append(f'{temperature_prefix}_{depth}m')
+            self.k_inds.append(len(gen_features))
+            gen_features.append(f'{thermal_conductivity_prefix}_{depth}m')
+        super().__init__(gen_features=gen_features, true_features=None)
+
+    @staticmethod
+    def _validate_depths(depths):
+        """Validate depth levels for the vertical second derivative."""
+        depths = sorted(depths)
+        assert len(depths) >= 3, (
+            'GeothermalNonnegativeHeatProductionLoss requires at least '
+            'three depths.'
+        )
+        assert np.all(np.isfinite(depths)) and depths[0] >= 0, (
+            'GeothermalNonnegativeHeatProductionLoss requires finite, '
+            'nonnegative depths.'
+        )
+        steps = np.diff(depths)
+        assert np.all(steps > 0) and np.allclose(steps, steps[0]), (
+            'GeothermalNonnegativeHeatProductionLoss requires distinct, '
+            'uniformly spaced depths.'
+        )
+        return depths
+
+    def _compute_heat_production(self, x_gen):
+        """Infer production in mW/m^3, keeping depth as the last output axis.
+
+        Apply tf_derivative to temperature and then to each conductivity-
+        weighted gradient. Each pass uses centered interior differences
+        and first-order one-sided boundary differences.
+        """
+        temperature = tf.gather(x_gen, self.t_inds, axis=-1)
+        conductivity = tf.gather(x_gen, self.k_inds, axis=-1) * 1000
+        shape = tf.shape(temperature)
+        temperature = _reshape_depth_feature_for_vertical_derivative(
+            temperature
+        )
+        conductivity = _reshape_depth_feature_for_vertical_derivative(
+            conductivity
+        )
+
+        divergence = tf.zeros_like(temperature)
+        for axis, spacing in ((1, self.dy), (2, self.dx), (3, self.dz)):
+            spacing = tf.cast(spacing, temperature.dtype)
+            gradient = tf_derivative(temperature, axis=axis) / spacing
+            divergence += (
+                tf_derivative(conductivity * gradient, axis=axis) / spacing
+            )
+
+        if x_gen.shape.rank == 5:
+            divergence = tf.reshape(
+                divergence,
+                (shape[0], shape[3], shape[1], shape[2], shape[4]),
+            )
+            divergence = tf.transpose(divergence, [0, 2, 3, 1, 4])
+        return -divergence
+
+    @tf.function
+    def call(self, __, x_gen):
+        """Evaluate mean squared negative-production violations.
+
+        Parameters
+        ----------
+        x_true : tf.tensor
+            Ground truth data (unused).
+        x_gen : tf.tensor
+            Predictions ordered according to ``gen_features``, shaped
+            (n_observations, spatial_1, spatial_2, features) or
+            (n_observations, spatial_1, spatial_2, temporal, features).
+            Both spatial axes must have at least three grid points.
+            Time slices are evaluated independently.
+
+        Returns
+        -------
+        tf.tensor
+            Scalar loss in squared mW/m^3 units.
+        """
+        msg = (
+            f'The {self.__class__.__name__} is meant to be used on spatial '
+            'or spatiotemporal data only. Received tensor(s) that are not '
+            '4D or 5D'
+        )
+        x_gen = _assert_rank_in(x_gen, (4, 5), msg)
+        tf.debugging.assert_greater_equal(
+            tf.shape(x_gen)[1:3],
+            3,
+            message='Heat production requires at least three spatial points.',
+        )
+        production = self._compute_heat_production(x_gen)
+        residual = tf.nn.relu(-production)
+        return self.LOSS_METRIC(tf.zeros_like(residual), residual)
+
+
 class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
     """Positive geothermal gradient loss
 
@@ -1129,6 +1403,7 @@ class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
 
     @staticmethod
     def _validate_depths(depths):
+        """Validate depth input"""
         depths = list(depths)
 
         msg = (
@@ -1147,7 +1422,7 @@ class GeothermalPositiveTemperatureGradientLoss(Sup3rLoss):
         the vertical temperature difference, so the finite difference is not
         normalized by depth spacing.
         """
-        t = tf.stack([x[..., i] for i in self.t_inds], axis=-1)
+        t = tf.gather(x, self.t_inds, axis=-1)
         t = _reshape_depth_feature_for_vertical_derivative(t)
 
         # Not a true derivative (missing divide by dz), but we only care
@@ -1514,7 +1789,7 @@ class ObsAssimilationLoss(Sup3rLoss):
 
 
 def _reshape_depth_feature_for_vertical_derivative(x):
-    """Reshape a stacked depth tensor for use with tf_derivative.
+    """Reshape a depth tensor for tf_derivative, preserving spatial neighbors.
 
     Parameters
     ----------
@@ -1527,13 +1802,14 @@ def _reshape_depth_feature_for_vertical_derivative(x):
     tf.Tensor
         4D Tensor where the last three dimensions are
         (s1, s2, depth). First dimension is either ``n_obs`` or
-        ``n_obs * time``.
+        ``n_obs * time``, with time slices grouped within each observation.
     """
     if len(x.shape) == 4:
         return x
 
     if len(x.shape) == 5:
         shape = tf.shape(x)
+        x = tf.transpose(x, [0, 3, 1, 2, 4])
         return tf.reshape(
             x, (shape[0] * shape[3], shape[1], shape[2], shape[4])
         )
